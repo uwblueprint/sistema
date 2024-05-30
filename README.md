@@ -1,125 +1,39 @@
-# Sistema
+# Example app with [chakra-ui](https://github.com/chakra-ui/chakra-ui) and TypeScript
 
-🐘 Postgres + 🐍 Flask + React supervised access program admin platform.
+This example features how to use [chakra-ui](https://github.com/chakra-ui/chakra-ui) as the component library within a Next.js app with TypeScript.
 
-Made with [starter-code-v2](https://github.com/uwblueprint/starter-code-v2), brought to you by the @uwblueprint/internal-tools team!
+Next.js and chakra-ui have built-in TypeScript declarations, so we'll get autocompletion for their modules straight away.
 
-## Getting Started
+We are connecting the Next.js `_app.js` with `chakra-ui`'s Provider and theme so the pages can have app-wide dark/light mode. We are also creating some components which shows the usage of `chakra-ui`'s style props.
 
-### Environment Variables
+## Deploy your own
 
-Confirm that you have the following files added to your repository, with the correct environment variables set:
+Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) or preview live with [StackBlitz](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-chakra-ui)
 
-``` bash
-.env
-frontend/.env
-e2e-tests/.env
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-chakra-ui&project-name=with-chakra-ui&repository-name=with-chakra-ui)
+
+## How to use
+
+### Using `create-next-app`
+
+Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+
+```bash
+npx create-next-app --example with-chakra-ui with-chakra-ui-app
 ```
 
-### Prereqs
-
-Verify that you have docker and npx installed:
-
-``` bash
-docker info
-docker-compose --version
-npx -v
+```bash
+yarn create next-app --example with-chakra-ui with-chakra-ui-app
 ```
 
-## Build and Run
-
-Note: if you have already built the project before, run this to remove your database and any stored data as well:
-
-``` bash
-docker-compose down --volumes
+```bash
+pnpm create next-app --example with-chakra-ui with-chakra-ui-app
 ```
 
-To run the project:
+Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
 
-``` bash
-docker-compose up
-```
+## Notes
 
-To rebuild the containers with any newly added packages, run:
+Chakra has supported Gradients and RTL in `v1.1`. To utilize RTL, [add RTL direction and swap](https://chakra-ui.com/docs/features/rtl-support).
 
-``` bash
-docker-compose up --build
-```
-
-To run the existing migrations against your database, run:
-
-``` bash
-docker exec -it svc2_py_backend /bin/bash -c "flask db upgrade"
-```
-
-## Lint
-
-Be sure to lint your code prior to opening pull requests! To lint the backend, run:
-
-```
-docker exec -it svc2_py_backend /bin/bash -c "black . && isort --profile black ."
-```
-
-## Running Tests
-
-To test your backend, run:
-
-``` bash
-docker exec -it svc2_py_backend /bin/bash -c "pip install -e . && pytest"
-```
-
-To run E2E tests, first create a `.env` file in your `e2e-tests` directory, and populate it with the necessary variables. Then run:
-
-``` bash
-pip3 install pytest python-dotenv inflection --user
-cd e2e-tests
-python3 -m pytest --lang python --auth --fs
-```
-
-## Database + Migrations
-
-### Access the Database
-
-To access the database:
-
-``` bash
-docker exec -it svc2_db /bin/bash -c " psql -U postgres -d svc2"
-```
-
-### Migrations
-
-We are currently maintaining our database with Flask-Migrate. To apply existing migrations, run:
-
-``` bash
-docker exec -it svc2_py_backend /bin/bash -c "flask db upgrade"
-```
-
-To roll back the previous migration, run:
-
-``` bash
-docker exec -it svc2_py_backend /bin/bash -c "flask db downgrade"
-```
-
-To undo all migrations, run:
-
-``` bash
-docker exec -it svc2_py_backend /bin/bash -c "flask db downgrade base"
-```
-
-When making database changes, a new migration must be generated. Import any new model files into [backend/typescript/app/models/\_\_init\_\_.py](backend/typescript/app/models/__init__.py) and run:
-
-``` bash
-docker exec -it svc2_py_backend /bin/bash -c "flask db migrate -m '<short description of the migration>'"
-```
-
-To check the migration currently applied to your database, run:
-
-``` bash
-docker exec -it svc2_py_backend /bin/bash -c "flask db current -v"
-```
-
-Ensure that a new revision file is created in the directory [backend/typescript/migrations/versions](backend/typescript/migrations/versions). **Do not** change the alembic revision/identifiers. Generally these auto-generated revision files will encompass all schema changes, and thus do not need to be modified!
-
-## Other
-
-For more information, take a look at the Starter Code [getting started](https://uwblueprint.github.io/starter-code-v2/docs/getting-started) docs.
+If you don't have multi-direction app, you should make `<Html lang="ar" dir="rtl">` inside `_document.ts`.
