@@ -2,24 +2,72 @@
 
 ## Setup
 
-- [ ]  Make sure you have been added to the [UW Blueprint Github Workspace](https://github.com/uwblueprint/).
-- [ ]  Install Docker Desktop ([MacOS](https://docs.docker.com/docker-for-mac/install/) | [Windows](https://docs.docker.com/desktop/install/windows-install/) | [Linux](https://docs.docker.com/engine/install/#server)) and ensure that it is running.
-- [ ]  Install [node](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
-- [ ]  Install [yarn](https://classic.yarnpkg.com/lang/en/docs/install/).
-- [ ]  Install nvm ([MacOS](https://medium.com/@priscillashamin/how-to-install-and-configure-nvm-on-mac-os-43e3366c75a6) | [Windows](https://github.com/coreybutler/nvm-windows#readme)) and run the commands below in your terminal.
+- Make sure you have been added to the [UW Blueprint Github Workspace](https://github.com/uwblueprint/).
+- Install Docker Desktop ([MacOS](https://docs.docker.com/docker-for-mac/install/) | [Windows](https://docs.docker.com/desktop/install/windows-install/) | [Linux](https://docs.docker.com/engine/install/#server)) and ensure that it is running.
 
-    ```bash
-    nvm install 20.14.0
-    nvm use 20.14.0
-    ```
-
-- [ ]  Clone the [Sistema Github Repository](https://github.com/uwblueprint/sistema) to your local machine and `cd` into the project folder:
+- Clone the [Sistema Github Repository](https://github.com/uwblueprint/sistema) to your local machine and `cd` into the project folder:
 
     ```bash
     git clone https://github.com/uwblueprint/sistema.git
     cd sistema
     ```
 
-- [ ]  Install [Vault](https://www.notion.so/Secret-Management-2d5b59ef0987415e93ec951ce05bf03e?pvs=21) in order to pull secrets
-  - [ ]  You **do not** need to do “configure dev tools for your project repo”
-  - [ ]  Run `vault kv get -format=json kv/sistema | python update_secret_files.py` to pull Secrets and you should see one `.env` file in the root directory, and one in the frontend directory
+- Install the necessary dependencies
+
+    ``` bash
+    pnpm install
+    ```
+
+- Start the app
+
+    ``` bash
+    docker-compose up --build
+    ```
+
+- Install [Vault](https://www.notion.so/Secret-Management-2d5b59ef0987415e93ec951ce05bf03e?pvs=21) in order to pull secrets
+- You **do not** need to do “configure dev tools for your project repo”
+- Run `vault kv get -format=json kv/sistema | python update_secret_files.py` to
+  pull Secrets and you should see a `.env` file in the root directory
+
+## Version Control Guide
+
+### Branching
+
+- Branch off of `main` for all feature work and bug fixes, creating a "feature branch". Prefix the feature branch name with your name. The branch name should be in kebab case and it should be short and descriptive. E.g. `chinemerem/readme-update`
+
+- To integrate changes on `main` into your feature branch, **use rebase instead of merge**
+
+```bash
+# currently working on feature branch, there are new commits on main
+git pull origin main --rebase
+
+# if there are conflicts, resolve them and then:
+git add .
+git rebase --continue
+
+# force push to remote feature branch
+git push -f
+```
+
+### Commits
+
+- Commits should be atomic (guideline: the commit is self-contained; a reviewer could make sense of it even if they viewed the commit diff in isolation)
+
+- Trivial commits (e.g. fixing a typo in the previous commit, formatting changes) should be squashed or fixup'd into the last non-trivial commit
+
+```bash
+# last commit contained a typo, fixed now
+git add .
+git commit -m "Fix typo"
+
+# fixup into previous commit through interactive rebase
+# x in HEAD~x refers to the last x commits you want to view
+git rebase -i HEAD~2
+# text editor opens, follow instructions in there to fixup
+
+# force push to remote feature branch
+git push -f
+```
+
+- Commit messages and PR names are descriptive and written in **imperative tense**. The first word should be capitalized. E.g. "Create user REST endpoints", not "Created user REST endpoints"
+- PRs can contain multiple commits, they do not need to be squashed together before merging as long as each commit is atomic. Our repo is configured to only allow squash commits to `main` so the entire PR will appear as 1 commit on `main`, but the individual commits are preserved when viewing the PR.
