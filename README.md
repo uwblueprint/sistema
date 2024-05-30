@@ -12,12 +12,6 @@
     cd sistema
     ```
 
-- Install the necessary dependencies
-
-    ``` bash
-    pnpm install
-    ```
-
 - Start the app
 
     ``` bash
