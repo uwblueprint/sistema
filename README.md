@@ -1,39 +1,25 @@
-# Example app with [chakra-ui](https://github.com/chakra-ui/chakra-ui) and TypeScript
+# Sistema
 
-This example features how to use [chakra-ui](https://github.com/chakra-ui/chakra-ui) as the component library within a Next.js app with TypeScript.
+## Setup
 
-Next.js and chakra-ui have built-in TypeScript declarations, so we'll get autocompletion for their modules straight away.
+- [ ]  Make sure you have been added to the [UW Blueprint Github Workspace](https://github.com/uwblueprint/).
+- [ ]  Install Docker Desktop ([MacOS](https://docs.docker.com/docker-for-mac/install/) | [Windows](https://docs.docker.com/desktop/install/windows-install/) | [Linux](https://docs.docker.com/engine/install/#server)) and ensure that it is running.
+- [ ]  Install [node](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
+- [ ]  Install [yarn](https://classic.yarnpkg.com/lang/en/docs/install/).
+- [ ]  Install nvm ([MacOS](https://medium.com/@priscillashamin/how-to-install-and-configure-nvm-on-mac-os-43e3366c75a6) | [Windows](https://github.com/coreybutler/nvm-windows#readme)) and run the commands below in your terminal.
 
-We are connecting the Next.js `_app.js` with `chakra-ui`'s Provider and theme so the pages can have app-wide dark/light mode. We are also creating some components which shows the usage of `chakra-ui`'s style props.
+    ```bash
+    nvm install 20.14.0
+    nvm use 20.14.0
+    ```
 
-## Deploy your own
+- [ ]  Clone the [Sistema Github Repository](https://github.com/uwblueprint/sistema) to your local machine and `cd` into the project folder:
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) or preview live with [StackBlitz](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-chakra-ui)
+    ```bash
+    git clone https://github.com/uwblueprint/sistema.git
+    cd sistema
+    ```
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-chakra-ui&project-name=with-chakra-ui&repository-name=with-chakra-ui)
-
-## How to use
-
-### Using `create-next-app`
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
-
-```bash
-npx create-next-app --example with-chakra-ui with-chakra-ui-app
-```
-
-```bash
-yarn create next-app --example with-chakra-ui with-chakra-ui-app
-```
-
-```bash
-pnpm create next-app --example with-chakra-ui with-chakra-ui-app
-```
-
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
-
-## Notes
-
-Chakra has supported Gradients and RTL in `v1.1`. To utilize RTL, [add RTL direction and swap](https://chakra-ui.com/docs/features/rtl-support).
-
-If you don't have multi-direction app, you should make `<Html lang="ar" dir="rtl">` inside `_document.ts`.
+- [ ]  Install [Vault](https://www.notion.so/Secret-Management-2d5b59ef0987415e93ec951ce05bf03e?pvs=21) in order to pull secrets
+  - [ ]  You **do not** need to do “configure dev tools for your project repo”
+  - [ ]  Run `vault kv get -format=json kv/sistemaw | python update_secret_files.py` to pull Secrets and you should see one `.env` file in the root directory, and one in the frontend directory
