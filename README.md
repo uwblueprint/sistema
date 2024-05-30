@@ -22,4 +22,4 @@
 
 - [ ]  Install [Vault](https://www.notion.so/Secret-Management-2d5b59ef0987415e93ec951ce05bf03e?pvs=21) in order to pull secrets
   - [ ]  You **do not** need to do “configure dev tools for your project repo”
-  - [ ]  Run `vault kv get -format=json kv/sistemaw | python update_secret_files.py` to pull Secrets and you should see one `.env` file in the root directory, and one in the frontend directory
+  - [ ]  Run `vault kv get -format=json kv/sistema | python update_secret_files.py` to pull Secrets and you should see one `.env` file in the root directory, and one in the frontend directory
