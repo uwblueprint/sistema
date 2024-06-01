@@ -26,7 +26,7 @@
 
 ### Branching
 
-- Branch off of `main` for all feature work and bug fixes, creating a "feature branch". Prefix the feature branch name with your name. The branch name should be in kebab case and it should be short and descriptive. E.g. `chinemerem/readme-update`
+- Branch off of `main` for all feature work and bug fixes, creating a "feature branch". Prefix the feature branch name with your name. The branch name should be in kebab-case and it should be short and descriptive. E.g. `chinemerem/readme-update`
 
 - To integrate changes on `main` into your feature branch, **use rebase instead of merge**
 
