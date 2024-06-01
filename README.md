@@ -18,7 +18,7 @@
     docker-compose up --build
     ```
 
-- Install [Vault](https://developer.hashicorp.com/hcp/tutorials/get-started-hcp-vault-secrets/hcp-vault-secrets-install-cli) in order to pull secrets
+- Install [Vault](https://developer.hashicorp.com/hcp/tutorials/get-started-hcp-vault-secrets/hcp-vault-secrets-install-cli#install-hcp-vault-secrets-cli) in order to pull secrets
 - Run `vault kv get -format=json kv/sistema | python update_secret_files.py` to
   pull Secrets and you should see a `.env` file in the root directory
 
