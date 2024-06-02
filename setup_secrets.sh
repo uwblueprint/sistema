@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Variables
+# Define the output file
 ENV_FILE=".env"
 
 # Login to Vault
