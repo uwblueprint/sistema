@@ -7,20 +7,48 @@
 
 - Clone the [Sistema Github Repository](https://github.com/uwblueprint/sistema) to your local machine and `cd` into the project folder:
 
-    ```bash
-    git clone https://github.com/uwblueprint/sistema.git
-    cd sistema
-    ```
+```bash
+git clone https://github.com/uwblueprint/sistema.git
+cd sistema
+```
 
 - Start the app
 
-    ``` bash
-    docker-compose up --build
-    ```
+``` bash
+docker-compose up --build
+```
 
-- Install [Vault](https://developer.hashicorp.com/hcp/tutorials/get-started-hcp-vault-secrets/hcp-vault-secrets-install-cli#install-hcp-vault-secrets-cli) in order to pull secrets
-- Run `vault kv get -format=json kv/sistema | python update_secret_files.py` to
-  pull Secrets and you should see a `.env` file in the root directory
+## Secrets
+
+- Create A [HashiCorp Clous Cloud Platform Account](https://portal.cloud.hashicorp.com/sign-in?ajs_aid=9085f07d-f411-42b4-855b-72795f4fdbcc&product_intent=vault)
+- Install [HashiCorp Vault](https://developer.hashicorp.com/hcp/tutorials/get-started-hcp-vault-secrets/hcp-vault-secrets-install-cli#install-hcp-vault-secrets-cli) in order to pull secrets
+- Log in to Vault
+
+``` bash
+vlt login
+```
+
+- Configure the Vault Command Line Interface
+
+``` bash
+vlt config init
+```
+
+- Select the `sistema` Organization and Project
+
+``` bash
+✔ Organization with name sistema ID 12cd56-88d2-69fb-8cc1-s3sAm3st selected
+✔ Project with name sistema ID 12cd56-704c-46af-8ba5-mAtr3x selected
+Use the arrow keys to navigate: ↓ ↑ → ← 
+? Select an application name: 
+  ▸ sistema
+```
+
+- Copy secrets to a `.env` file
+
+``` bash
+./setup_secrets.sh
+```
 
 ## Version Control Guide
 
