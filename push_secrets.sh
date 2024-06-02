@@ -1,31 +1,34 @@
 #!/bin/bash
 
-if [ "$#" -lt 1 ]; then
-  echo "Usage: $0 <path_to_env_file> [organization name or ID] [project name or ID]"
-  exit 1
+# Define the input file
+ENV_FILE=".env"
+
+# Ensure the Vault CLI is authenticated
+login_message=$(vlt login)
+if [[ "$login_message" != "Successfully logged in" ]]; then
+    echo "Currently not logged in. Please login to Vault first to set up the secrets."
+    exit 1
 fi
 
-ENV_FILE_PATH="$1"
-ORGANIZATION="${2:-}"
-PROJECT="${3:-}"
-
-VLT_ARGS=""
-[ -n "$ORGANIZATION" ] && VLT_ARGS="--organization=$ORGANIZATION"
-[ -n "$PROJECT" ] && VLT_ARGS="$VLT_ARGS --project=$PROJECT"
-
-# check if env file path exists
-if [ ! -f "$ENV_FILE_PATH" ]; then
-  echo "Error: $ENV_FILE_PATH not found"
-  exit 1
+# Check if .env file exists
+if [ ! -f "$ENV_FILE" ]; then
+    echo "Error: $ENV_FILE not found."
+    exit 1
 fi
 
-# read .env file and write to vault secrets
-while IFS="=" read -r key value; do
-  # skip comments or empty lines
-  [[ $key == \#* ]] && continue
-  [[ -z $key ]] && continue
+# Read the secrets from the .env file
+while IFS='=' read -r key value; do
+    if [ -n "$key" ] && [ -n "$value" ]; then
+        # Check if the secret already exists
+        secret_exists=$(vlt secrets get "$key" 2>&1)
+        if [[ "$secret_exists" == *"not found"* ]]; then
+            # Secret does not exist, create it
+            vlt secrets create "$key"="$value" || echo "Failed to create secret for $key."
+        else
+            # Secret exists, update it
+            vlt secrets update "$key"="$value" || echo "Failed to update secret for $key."
+        fi
+    fi
+done < "$ENV_FILE"
 
-  vlt secrets create $VLT_ARGS $key="$value"
-done < "$ENV_FILE_PATH"
-
-echo "Migration to Vault complete."
+echo "Secrets from $ENV_FILE have been sent to Vault."
