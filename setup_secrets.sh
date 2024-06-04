@@ -11,7 +11,7 @@ echo "Failed to login to Vault. Please check your credentials."
 exit 1
 fi
 
-vlt config inti
+vlt config init
 
 # Check if .env file exists and delete it if it does
 if [ -f "$ENV_FILE" ]; then
