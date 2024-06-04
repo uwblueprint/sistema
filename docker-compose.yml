@@ -13,7 +13,8 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT}
     depends_on:
       - db
-
+    volumes:
+      - .:/app
   db:
     image: postgres:latest
     ports:

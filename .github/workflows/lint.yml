@@ -18,11 +18,8 @@ jobs:
         with:
           node-version: "20.14.0"
 
-      - name: Install pnpm
-        run: npm install -g pnpm
-
       - name: Install dependencies
-        run: pnpm install
+        run: npm install
 
       - name: Run Next Lint
-        run: pnpm run lint
+        run: npm run lint
