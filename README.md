@@ -70,6 +70,51 @@ git rebase --continue
 git push -f
 ```
 
+### Docker Commands
+
+If you’re new to Docker, you can learn more about `docker-compose` commands at
+this [docker compose overview](https://docs.docker.com/compose/reference/).
+
+```bash
+# build Builds images
+docker-compose
+```
+
+``` bash
+# builds images (if they don’t exist) & starts containers
+docker-compose up 
+```
+
+``` bash
+# builds images & starts containers
+docker-compose up --build
+```
+
+docker-compose down Stops the containers
+
+```bash
+# get Names & Statuses of Running Containers
+docker ps
+```
+
+### Accessing PostgreSQL Database
+
+```bash
+# run a bash shell in the container
+docker exec -it scv2_db /bin/bash
+
+# in container now
+psql -U postgres -d scv2
+
+# in postgres shell, some common commands:
+# display all table names
+\dt
+# quit
+\q
+# you can run any SQL query, don't forget the semicolon!
+SELECT * FROM <table-name>;
+```
+
 ### Commits
 
 - Commits should be atomic (guideline: the commit is self-contained; a reviewer could make sense of it even if they viewed the commit diff in isolation)
