@@ -90,7 +90,10 @@ docker-compose up
 docker-compose up --build
 ```
 
-docker-compose down Stops the containers
+``` bash
+# stops the containers
+docker-compose down 
+```
 
 ```bash
 # get Names & Statuses of Running Containers
@@ -101,10 +104,10 @@ docker ps
 
 ```bash
 # run a bash shell in the container
-docker exec -it scv2_db /bin/bash
+docker exec -it sistema-db-1 /bin/bash
 
 # in container now
-psql -U postgres -d scv2
+psql -U sistema -d sistema
 
 # in postgres shell, some common commands:
 # display all table names
