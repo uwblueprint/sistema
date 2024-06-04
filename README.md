@@ -12,7 +12,15 @@ git clone https://github.com/uwblueprint/sistema.git
 cd sistema
 ```
 
-- Start the app
+- Create a .env file in the root directory based on the .env.sample file. Update
+  the environment variables as needed. Consult the [Secrets](#secrets) section
+  for detailed instructions.
+
+```bash
+cp .env.sample .env
+```
+
+- Build and start the Docker containers
 
 ``` bash
 docker-compose up --build
