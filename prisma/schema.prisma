@@ -41,6 +41,12 @@ model Location {
   absences     Absence[]
 }
 
+model MailingList {
+  id           Int    @id @default(autoincrement())
+  name         String
+  emails       String[]
+}
+
 enum Role {
   TEACHER
   ADMIN
