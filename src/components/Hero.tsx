@@ -1,4 +1,4 @@
-import { Flex, Heading } from "@chakra-ui/react";
+import { Flex, Heading } from '@chakra-ui/react';
 
 export const Hero = ({ title }: { title: string }) => (
   <Flex
@@ -13,5 +13,5 @@ export const Hero = ({ title }: { title: string }) => (
 );
 
 Hero.defaultProps = {
-  title: "Sistema",
+  title: 'Sistema',
 };
