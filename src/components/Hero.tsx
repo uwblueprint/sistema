@@ -1,6 +1,10 @@
 import { Flex, Heading } from '@chakra-ui/react';
 
-export const Hero = ({ title }: { title: string }) => (
+interface HeroProps {
+  title?: string;
+}
+
+export const Hero = ({ title = 'Sistema' }: HeroProps) => (
   <Flex
     justifyContent="center"
     alignItems="center"
@@ -11,7 +15,3 @@ export const Hero = ({ title }: { title: string }) => (
     <Heading fontSize="6vw">{title}</Heading>
   </Flex>
 );
-
-Hero.defaultProps = {
-  title: 'Sistema',
-};
