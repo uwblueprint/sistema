@@ -126,6 +126,44 @@ psql -U sistema -d sistema
 SELECT * FROM <table-name>;
 ```
 
+## Formatting and Linting
+
+### Prettier
+
+We use Prettier for code formatting. To check for formatting issues:
+
+```bash
+npm run prettier:check
+```
+
+To automatically fix formatting issues:
+
+```bash
+npm run prettier:fix
+```
+
+### ESLint
+
+We use ESLint for code linting. To check for linting issues:
+
+```bash
+npm run lint
+```
+
+To automatically fix linting issues:
+
+```bash
+npm run lint:fix
+```
+
+### Combined Formatting and Linting
+
+To run both Prettier and ESLint to format and fix linting issues in one command:
+
+```bash
+npm run format
+```
+
 ### Commits
 
 - Commits should be atomic (guideline: the commit is self-contained; a reviewer could make sense of it even if they viewed the commit diff in isolation)
