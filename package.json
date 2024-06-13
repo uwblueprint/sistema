@@ -45,6 +45,10 @@
     "*.{js,jsx,ts,tsx}": [
       "npm run format",
       "git add"
+    ],
+    "schema.prisma": [
+      "npx prisma format",
+      "git add schema.prisma"
     ]
   }
 }
