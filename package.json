@@ -13,6 +13,8 @@
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.9.0",
     "framer-motion": "^6.3.0",
+    "googleapis": "^140.0.0",
+    "net": "^1.0.2",
     "next": "^14.2.3",
     "react": "^18.2.0",
     "react-calendar": "^5.0.0",

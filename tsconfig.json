@@ -23,7 +23,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "src/pages/fileuploader.tsx"  ],
   "exclude": [
     "node_modules"
   ]
