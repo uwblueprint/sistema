@@ -14,8 +14,11 @@ import {
   import { DarkModeSwitch } from "../components/DarkModeSwitch";
   import { CTA } from "../components/CTA";
   import { Footer } from "../components/Footer";
-  
-  const Index = () => (
+  import { useSession } from "next-auth/react";
+
+  const Index = () => {
+    const session = useSession();
+    return(
     <Container height="100vh">
       <Hero />
       <Main>
@@ -53,6 +56,9 @@ import {
             </ChakraLink>
           </ListItem>
         </List>
+        <pre className="py-6 px-4 whitespace-pre-wrap break-all">
+          {JSON.stringify(session, null, 2)}
+        </pre>
       </Main>
   
       <DarkModeSwitch />
@@ -61,7 +67,7 @@ import {
       </Footer>
       <CTA />
     </Container>
-  );
+  )};
   
   export default Index;
   
