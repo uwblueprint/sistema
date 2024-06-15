@@ -1,8 +1,10 @@
 import { SignInButton } from "../components/SignInButton";
 import { SignOutButton } from "../components/SignOutButton";
-import { auth } from "auth";
+import { useSession
 
-export default function Index({ session }) {
+ } from "next-auth/react";
+export default function Index() {
+  const session = useSession();
   return (
   <>
   <SignInButton />
@@ -15,10 +17,3 @@ export default function Index({ session }) {
   </>)
   
 };
-
-export async function getServerSideProps(ctx) {
-  const session = await auth(ctx)
-  return {
-    props: { session }
-  }
-}

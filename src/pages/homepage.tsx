@@ -60,7 +60,6 @@ import {
           {JSON.stringify(session, null, 2)}
         </pre>
       </Main>
-  
       <DarkModeSwitch />
       <Footer>
         <Text>© UW Blueprint 2024</Text>
