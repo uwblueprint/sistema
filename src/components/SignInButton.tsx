@@ -3,5 +3,5 @@
 import { signIn } from "next-auth/react"
  
 export function SignInButton() {
-  return <button onClick={() => signIn("google" , {callbackUrl: `${window.location.origin}/homepage`})}>Sign In Google</button>
+  return <button onClick={() => signIn("google" , {callbackUrl: `/homepage`})}>Sign In Google</button>
 }
