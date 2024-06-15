@@ -3,8 +3,6 @@ import { SignOutButton } from "../components/SignOutButton";
 import { auth } from "auth";
 
 export default function Index({ session }) {
-  // const session = await auth(ctx)
-  
   return (
   <>
   <SignInButton />
@@ -17,11 +15,10 @@ export default function Index({ session }) {
   </>)
   
 };
+
 export async function getServerSideProps(ctx) {
   const session = await auth(ctx)
   return {
     props: { session }
   }
 }
-
-
