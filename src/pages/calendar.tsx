@@ -3,7 +3,7 @@ import 'react-calendar/dist/Calendar.css';
 
 import { Container, Text } from '@chakra-ui/react';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 type ValuePiece = Date | null;
 
