@@ -108,6 +108,11 @@ docker-compose down
 docker ps
 ```
 
+```bash
+# Remove all stopped containers, unused networks, dangling images, and build cache
+docker system prune -a --volumes
+```
+
 ### Accessing PostgreSQL Database
 
 ```bash
