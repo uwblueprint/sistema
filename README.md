@@ -26,6 +26,12 @@ cp .env.sample .env
 docker-compose up --build
 ```
 
+- Install dependencies locally
+
+```bash
+npm install
+```
+
 ## Secrets
 
 - Create A [HashiCorp Clous Cloud Platform Account](https://portal.cloud.hashicorp.com/sign-in?ajs_aid=9085f07d-f411-42b4-855b-72795f4fdbcc&product_intent=vault)
