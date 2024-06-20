@@ -11,13 +11,13 @@
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "esModuleInterop": true,
+    "incremental": true,
     "module": "esnext",
+    "esModuleInterop": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true,
     "plugins": [
       {
         "name": "next"
@@ -25,12 +25,13 @@
     ],
     "strictNullChecks": true,
     "paths": {
-      "auth": ["./auth"],
-      "@/*": ["./*"],
+      // enables us to write `import X from "auth"` instead of `import X from "../../auth"`
+      "auth": ["./auth"], 
     }
   },
   "include": [
     "next-env.d.ts",
+    ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
