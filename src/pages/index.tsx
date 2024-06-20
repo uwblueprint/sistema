@@ -1,8 +1,7 @@
 import { SignInButton } from "../components/SignInButton";
 import { SignOutButton } from "../components/SignOutButton";
-import { useSession
+import { useSession } from "next-auth/react";
 
- } from "next-auth/react";
 export default function Index() {
   const session = useSession();
   return (
