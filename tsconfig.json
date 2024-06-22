@@ -17,13 +17,23 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "src/pages/fileuploader.tsx"  ],
+    "**/*.tsx",
+    "src/pages/failed-gogogaga/fileuploader.tsx",
+    "src/pages/api/uploadFile/route.ts",
+    "src/pages/api/createFolder/route.ts",
+    ".next/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules"
   ]
