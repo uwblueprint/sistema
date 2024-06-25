@@ -13,7 +13,6 @@ model Absence {
   subject             Subject
   lessonPlan          String?
   reasonOfAbsence     String
-  numberOfStudents    Int
   absentTeacherId     Int
   substituteTeacherId Int?
   locationId          Int
@@ -24,7 +23,7 @@ model Absence {
 
 model User {
   id          Int       @id @default(autoincrement())
-  authId      String
+  authId      String    @unique
   email       String    @unique
   firstName   String
   lastName    String
@@ -35,16 +34,16 @@ model User {
 }
 
 model Location {
-  id           Int    @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   name         String
   abbreviation String
   absences     Absence[]
 }
 
 model MailingList {
-  id           Int    @id @default(autoincrement())
-  name         String
-  emails       String[]
+  id     Int      @id @default(autoincrement())
+  name   String
+  emails String[]
 }
 
 enum Role {

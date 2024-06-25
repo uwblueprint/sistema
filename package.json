@@ -15,14 +15,15 @@
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.9.0",
     "@faker-js/faker": "^8.4.1",
-    "@prisma/client": "^5.15.0",
+    "@prisma/client": "^5.15.1",
     "@snaplet/copycat": "^5.0.0",
     "@snaplet/seed": "^0.97.20",
+    "@types/react-calendar": "^4.1.0",
     "framer-motion": "^6.3.0",
     "next": "^14.2.3",
     "postgres": "^3.4.4",
-    "prisma": "^5.15.0",
     "react": "^18.2.0",
+    "react-calendar": "^5.0.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
@@ -31,6 +32,7 @@
     "@types/react-dom": "^18.0.0",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.2.3",
+    "prisma": "^5.15.1",
     "typescript": "^4.7.2"
   },
   "@snaplet/seed": {
