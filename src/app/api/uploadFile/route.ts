@@ -29,8 +29,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
     requestBody: {
       name: filename,
       mimeType: "application/pdf",
-      parents: ["16teHTj0bEBLRaDM-MfomvmsmEPmzEWps"],
-      driveId: "16teHTj0bEBLRaDM-MfomvmsmEPmzEWps"
+      parents: ["1schkzvm_b46UGovHpQ2uH-X-nJtlm32_"],
+      driveId: "1schkzvm_b46UGovHpQ2uH-X-nJtlm32_"
     },
     media: {
       mimeType: "application/pdf",
