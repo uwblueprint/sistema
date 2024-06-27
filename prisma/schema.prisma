@@ -12,7 +12,6 @@ model Absence {
   lessonDate          DateTime
   lessonPlan          String?
   reasonOfAbsence     String
-  numberOfStudents    Int
   absentTeacherId     Int
   substituteTeacherId Int?
   locationId          Int
