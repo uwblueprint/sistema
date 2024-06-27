@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Absence {
+  id                  Int      @id @default(autoincrement())
+  lessonDate          DateTime
+  subject             Subject
+  lessonPlan          String?
+  reasonOfAbsence     String
+  absentTeacherId     Int
+  substituteTeacherId Int?
+  locationId          Int
+  absentTeacher       User     @relation("absentTeacher", fields: [absentTeacherId], references: [id])
+  substituteTeacher   User?    @relation("substituteTeacher", fields: [substituteTeacherId], references: [id])
+  location            Location @relation(fields: [locationId], references: [id])
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  authId      String    @unique
+  email       String    @unique
+  firstName   String
+  lastName    String
+  role        Role      @default(TEACHER)
+  status      Status    @default(INVITED)
+  absences    Absence[] @relation("absentTeacher")
+  substitutes Absence[] @relation("substituteTeacher")
+}
+
+model Location {
+  id           Int       @id @default(autoincrement())
+  name         String
+  abbreviation String
+  absences     Absence[]
+}
+
+model MailingList {
+  id     Int      @id @default(autoincrement())
+  name   String
+  emails String[]
+}
+
+enum Role {
+  TEACHER
+  ADMIN
+}
+
+enum Status {
+  ACTIVE
+  INVITED
+  DEACTIVATED
+}
+
+enum Subject {
+  M_AND_M
+  STRINGS
+  CHOIR
+  PERCUSSION
+}

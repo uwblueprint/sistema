@@ -26,6 +26,12 @@ cp .env.sample .env
 docker-compose up --build
 ```
 
+- Install dependencies locally
+
+```bash
+npm install
+```
+
 ## Secrets
 
 - Create A [HashiCorp Clous Cloud Platform Account](https://portal.cloud.hashicorp.com/sign-in?ajs_aid=9085f07d-f411-42b4-855b-72795f4fdbcc&product_intent=vault)
@@ -106,6 +112,11 @@ docker-compose down
 ```bash
 # get Names & Statuses of Running Containers
 docker ps
+```
+
+```bash
+# Remove all stopped containers, unused networks, dangling images, and build cache
+docker system prune -a --volumes
 ```
 
 ### Accessing PostgreSQL Database
