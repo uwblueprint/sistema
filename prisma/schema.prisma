@@ -30,7 +30,7 @@ model User {
   lastName      String
   role          Role      @default(TEACHER)
   status        Status    @default(INVITED)
-  numOfAbsences Int       @default(0)
+  numOfAbsences Int       @default(10)
   absences      Absence[] @relation("absentTeacher")
   substitutes   Absence[] @relation("substituteTeacher")
 }
