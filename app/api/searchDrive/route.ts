@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
   try {
     const res = await drive.files.list({
-      q: "'16teHTj0bEBLRaDM-MfomvmsmEPmzEWps' in parents",
+      q: "'1schkzvm_b46UGovHpQ2uH-X-nJtlm32_' in parents",
       fields: 'nextPageToken, files(id, name)',
       spaces: 'drive',
     });

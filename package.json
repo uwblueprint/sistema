@@ -17,24 +17,19 @@
     "@chakra-ui/theme-tools": "^2.0.2",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.9.0",
-    "@mantine/core": "^7.10.2",
-    "@mantine/dropzone": "^7.10.2",
-    "axios": "^1.7.2",
     "@prisma/client": "^5.15.0",
     "framer-motion": "^6.3.0",
-    "gapi-script": "^1.2.0",
-    "googleapis": "^140.0.0",
-    "mime": "^4.0.3",
-    "net": "^1.0.2",
+    "googleapis": "^140.0.1",
     "next": "^14.2.3",
+    "next-auth": "^5.0.0-beta.19",
     "prisma": "^5.15.0",
     "react": "^18.2.0",
     "react-calendar": "^5.0.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
-    "@types/react": "^18.0.0",
+    "@types/node": "^18.19.34",
+    "@types/react": "^18.3.3",
     "@types/react-dom": "^18.0.0",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.2.3",
@@ -43,11 +38,8 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.6",
     "prettier": "^3.3.2",
-    "typescript": "^4.7.2"
+    "typescript": "^4.9.5"
   },
-    "engines": {
-      "node": ">=18.0.0"
-    },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
