@@ -22,8 +22,14 @@ cp .env.sample .env
 
 - Build and start the Docker containers
 
-``` bash
+```bash
 docker-compose up --build
+```
+
+- Install dependencies locally
+
+```bash
+npm install
 ```
 
 ## Secrets
@@ -32,29 +38,29 @@ docker-compose up --build
 - Install [HashiCorp Vault](https://developer.hashicorp.com/hcp/tutorials/get-started-hcp-vault-secrets/hcp-vault-secrets-install-cli#install-hcp-vault-secrets-cli) in order to pull secrets
 - Log in to Vault
 
-``` bash
+```bash
 vlt login
 ```
 
 - Configure the Vault Command Line Interface
 
-``` bash
+```bash
 vlt config init
 ```
 
 - Select the `sistema` Organization and Project
 
-``` bash
+```bash
 ✔ Organization with name sistema ID 12cd56-88d2-69fb-8cc1-s3sAm3st selected
 ✔ Project with name sistema ID 12cd56-704c-46af-8ba5-mAtr3x selected
-Use the arrow keys to navigate: ↓ ↑ → ← 
-? Select an application name: 
+Use the arrow keys to navigate: ↓ ↑ → ←
+? Select an application name:
   ▸ sistema
 ```
 
 - Copy secrets to a `.env` file
 
-``` bash
+```bash
 ./setup_secrets.sh
 ```
 
@@ -88,24 +94,29 @@ this [docker compose overview](https://docs.docker.com/compose/reference/).
 docker-compose
 ```
 
-``` bash
+```bash
 # builds images (if they don’t exist) & starts containers
-docker-compose up 
+docker-compose up
 ```
 
-``` bash
+```bash
 # builds images & starts containers
 docker-compose up --build
 ```
 
-``` bash
+```bash
 # stops the containers
-docker-compose down 
+docker-compose down
 ```
 
 ```bash
 # get Names & Statuses of Running Containers
 docker ps
+```
+
+```bash
+# Remove all stopped containers, unused networks, dangling images, and build cache
+docker system prune -a --volumes
 ```
 
 ### Accessing PostgreSQL Database
@@ -124,6 +135,44 @@ psql -U sistema -d sistema
 \q
 # you can run any SQL query, don't forget the semicolon!
 SELECT * FROM <table-name>;
+```
+
+## Formatting and Linting
+
+### Prettier
+
+We use Prettier for code formatting. To check for formatting issues:
+
+```bash
+npm run prettier:check
+```
+
+To automatically fix formatting issues:
+
+```bash
+npm run prettier:fix
+```
+
+### ESLint
+
+We use ESLint for code linting. To check for linting issues:
+
+```bash
+npm run lint
+```
+
+To automatically fix linting issues:
+
+```bash
+npm run lint:fix
+```
+
+### Combined Formatting and Linting
+
+To run both Prettier and ESLint to format and fix linting issues in one command:
+
+```bash
+npm run format
 ```
 
 ### Commits

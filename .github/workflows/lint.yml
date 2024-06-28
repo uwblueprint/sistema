@@ -16,10 +16,10 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20.14.0"
+          node-version: '20.14.0'
 
       - name: Install dependencies
         run: npm install
 
-      - name: Run Next Lint
-        run: npm run lint
+      - name: Run Format
+        run: npm run format

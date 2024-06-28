@@ -1,6 +1,5 @@
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
-
 import { Readable } from "node:stream";
 
 export async function POST(req: NextRequest, res: NextResponse) {
@@ -23,14 +22,13 @@ export async function POST(req: NextRequest, res: NextResponse) {
     },
   });
   const drive = google.drive({ version: "v3", auth });
-
-
+  try{ 
   const googleRes = await drive.files.create({
     requestBody: {
       name: filename,
       mimeType: "application/pdf",
-      parents: ["1schkzvm_b46UGovHpQ2uH-X-nJtlm32_"],
-      driveId: "1schkzvm_b46UGovHpQ2uH-X-nJtlm32_"
+      parents: ["16teHTj0bEBLRaDM-MfomvmsmEPmzEWps"],
+      driveId: "16teHTj0bEBLRaDM-MfomvmsmEPmzEWps"
     },
     media: {
       mimeType: "application/pdf",
@@ -40,6 +38,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
   });
   console.log(googleRes)
   
-  return NextResponse.json({"status":200})
-
-}
+  return NextResponse.json({ message: 'File uploaded successfully'}, {"status":200})
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    return NextResponse.json(
+      { message: 'Error uploading file', error: (error as Error).message },
+      { status: 500 });
+}}
