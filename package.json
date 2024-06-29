@@ -1,13 +1,15 @@
 {
   "private": true,
   "scripts": {
-    "dev": "next",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint:fix": "next lint --fix",
+    "lint:fix": "eslint . --ext js,jsx,ts,tsx --fix",
     "prettier:check": "prettier --check .",
     "prettier:fix": "prettier --write .",
+    "format": "npm run prettier:fix && npm run lint:fix",
+    "prepare": "husky install"
     "migrate": "prisma migrate dev",
     "postmigrate": "npx @snaplet/seed sync"
   },
@@ -17,6 +19,7 @@
     "@chakra-ui/theme-tools": "^2.0.2",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.9.0",
+
     "@faker-js/faker": "^8.4.1",
     "@prisma/client": "^5.15.1",
     "@snaplet/copycat": "^5.0.0",
@@ -25,24 +28,45 @@
     "framer-motion": "^6.3.0",
     "next": "^14.2.3",
     "postgres": "^3.4.4",
+    "next-auth": "^5.0.0-beta.19",
+    "prisma": "^5.15.0",
     "react": "^18.2.0",
     "react-calendar": "^5.0.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
-    "@types/react": "^18.0.0",
+    "@types/node": "^18.19.34",
+    "@types/react": "^18.3.3",
     "@types/react-dom": "^18.0.0",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.2.3",
-    "prettier": "^3.3.2",
     "prisma": "^5.15.1",
-    "typescript": "^4.7.2"
   },
   "@snaplet/seed": {
     "config": "prisma/seed/seed.config.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed/seed.ts"
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.6",
+    "prettier": "^3.3.2",
+    "typescript": "^4.9.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "npm run format",
+      "git add"
+    ],
+    "schema.prisma": [
+      "npx prisma format",
+      "git add schema.prisma"
+    ]
   }
 }

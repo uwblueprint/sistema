@@ -26,6 +26,12 @@ cp .env.sample .env
 docker-compose up --build
 ```
 
+- Install dependencies locally
+
+```bash
+npm install
+```
+
 ## Secrets
 
 - Create A [HashiCorp Clous Cloud Platform Account](https://portal.cloud.hashicorp.com/sign-in?ajs_aid=9085f07d-f411-42b4-855b-72795f4fdbcc&product_intent=vault)
@@ -108,6 +114,11 @@ docker-compose down
 docker ps
 ```
 
+```bash
+# Remove all stopped containers, unused networks, dangling images, and build cache
+docker system prune -a --volumes
+```
+
 ### Accessing PostgreSQL Database
 
 ```bash
@@ -124,6 +135,44 @@ psql -U sistema -d sistema
 \q
 # you can run any SQL query, don't forget the semicolon!
 SELECT * FROM <table-name>;
+```
+
+## Formatting and Linting
+
+### Prettier
+
+We use Prettier for code formatting. To check for formatting issues:
+
+```bash
+npm run prettier:check
+```
+
+To automatically fix formatting issues:
+
+```bash
+npm run prettier:fix
+```
+
+### ESLint
+
+We use ESLint for code linting. To check for linting issues:
+
+```bash
+npm run lint
+```
+
+To automatically fix linting issues:
+
+```bash
+npm run lint:fix
+```
+
+### Combined Formatting and Linting
+
+To run both Prettier and ESLint to format and fix linting issues in one command:
+
+```bash
+npm run format
 ```
 
 ### Commits

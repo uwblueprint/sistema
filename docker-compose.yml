@@ -4,7 +4,7 @@ services:
   nextjs:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_HOST=db
@@ -13,10 +13,13 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT}
     depends_on:
       - db
+    volumes:
+      - .:/app
+      - /app/node_modules
   db:
-    image: postgres:latest
+    image: postgres:16-alpine
     ports:
-      - "5555:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
