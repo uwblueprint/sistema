@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 type DriveFile = {
   id: string;
   name: string;
-}
+};
 
 export default function FileUploadForm() {
   const [file, setFile] = useState(null);
