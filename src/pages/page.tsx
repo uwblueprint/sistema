@@ -2,10 +2,15 @@
 import { Container } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 
+type DriveFile = {
+  id: string;
+  name: string;
+}
+
 export default function FileUploadForm() {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('');
-  const [driveFiles, setDriveFiles] = useState([]);
+  const [driveFiles, setDriveFiles] = useState<DriveFile[]>([]);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
