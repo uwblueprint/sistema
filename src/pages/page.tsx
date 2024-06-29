@@ -1,10 +1,10 @@
-"use client";
-import { Container } from "@chakra-ui/react";
-import { useState, useEffect} from "react";
+'use client';
+import { Container } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
 
 export default function FileUploadForm() {
   const [file, setFile] = useState(null);
-  const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState('');
   const [driveFiles, setDriveFiles] = useState([]);
 
   const handleFileChange = (e) => {
@@ -17,12 +17,12 @@ export default function FileUploadForm() {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("fileName", fileName);
+    formData.append('file', file);
+    formData.append('fileName', fileName);
 
     try {
-      const res = await fetch("/api/uploadFile/", {
-        method: "POST",
+      const res = await fetch('/api/uploadFile/', {
+        method: 'POST',
         body: formData,
       });
 
@@ -31,7 +31,7 @@ export default function FileUploadForm() {
         const fakeEvent = { preventDefault: () => {} };
         handleSearch(fakeEvent);
       }
-      console.log("Upload result:", data);
+      console.log('Upload result:', data);
       if (res.ok) {
         const fakeEvent = { preventDefault: () => {} };
         handleSearch(fakeEvent);
@@ -44,32 +44,33 @@ export default function FileUploadForm() {
       console.error('Error deleting file:', error);
       alert('Error deleting file');
     }
-    };
-  
+  };
+
   const handleSearch = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("/api/searchDrive/")
+      const res = await fetch('/api/searchDrive/');
 
       const data = await res.json();
       setDriveFiles(data.results.files);
-      
-      console.log("Search result:", driveFiles);
-    } catch (error) { console.error("Error searching files:", error);}
 
+      console.log('Search result:', driveFiles);
+    } catch (error) {
+      console.error('Error searching files:', error);
+    }
   };
 
   useEffect(() => {
-      handleSearch({ preventDefault: () => {} }); // Call handleSearch with a fake event to prevent default
-  }, []); // Empty dependency array ensures this effect runs only once on mount
+    handleSearch({ preventDefault: () => {} });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFileDelete = async (fileId: string) => {
-      try {
+    try {
       const response = await fetch(`/api/deleteFile?fileId=${fileId}`, {
         method: 'DELETE',
       });
       const data = await response.json();
-      
 
       if (response.ok) {
         const fakeEvent = { preventDefault: () => {} };
@@ -85,28 +86,34 @@ export default function FileUploadForm() {
     }
   };
 
-
-  const handleFileClick= (fileId: string) => {
-    window.open(`https://drive.google.com/file/d/${fileId}/view`, '_blank')
+  const handleFileClick = (fileId: string) => {
+    window.open(`https://drive.google.com/file/d/${fileId}/view`, '_blank');
   };
-  
-  return(
-    <Container >
+
+  return (
+    <Container>
       <form onSubmit={handleSubmit}>
-        <input type="file" onChange={handleFileChange} accept="application/pdf" />
+        <input
+          type="file"
+          onChange={handleFileChange}
+          accept="application/pdf"
+        />
         <button type="submit">Upload</button>
       </form>
       <form onSubmit={handleSearch}>
-        <button type = "submit">Search</button>
+        <button type="submit">Search</button>
       </form>
-      <div className ="Search Results">
-        {driveFiles.map(file => ( 
+      <div className="Search Results">
+        {driveFiles.map((file) => (
           <div key={file.id}>
-          <button onClick={()=>handleFileClick(file.id)}>{file.name+"_________" }</button> 
-          <button onClick={()=>handleFileDelete(file.id)}>delete</button><br/>
-          </div>))}
+            <button onClick={() => handleFileClick(file.id)}>
+              {file.name + '_________'}
+            </button>
+            <button onClick={() => handleFileDelete(file.id)}>delete</button>
+            <br />
+          </div>
+        ))}
       </div>
-      
     </Container>
   );
 }
