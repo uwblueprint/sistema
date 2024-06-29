@@ -1,11 +1,19 @@
 import { useState } from 'react';
+import {
+  Box,
+  Button,
+  Input,
+  FormControl,
+  FormLabel,
+  FormHelperText,
+} from '@chakra-ui/react';
 
 interface Event {
-  title: string;
-  date: Date;
-  lessonPlan: string;
+  id?: number;
+  subject: string;
+  lessonDate: Date;
+  lessonPlan: string | null;
   reasonOfAbsence: string;
-  numberOfStudents: number;
   absentTeacherId: number;
   substituteTeacherId: number | null;
   locationId: number;
@@ -17,93 +25,129 @@ interface InputFormProps {
   onAddEvent: (newEvent: Event) => void;
 }
 
-function InputForm({ initialDate, onClose, onAddEvent }: InputFormProps) {
-  const [title, setTitle] = useState('');
+const InputForm: React.FC<InputFormProps> = ({
+  initialDate,
+  onClose,
+  onAddEvent,
+}) => {
+  const [subject, setSubject] = useState('');
   const [lessonPlan, setLessonPlan] = useState('');
   const [reasonOfAbsence, setReasonOfAbsence] = useState('');
-  const [numberOfStudents, setNumberOfStudents] = useState(0);
   const [absentTeacherId, setAbsentTeacherId] = useState('');
   const [substituteTeacherId, setSubstituteTeacherId] = useState('');
   const [locationId, setLocationId] = useState('');
 
-  const handleAddEvent = (e: React.FormEvent) => {
+  const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     const newEvent: Event = {
-      title,
-      date: initialDate,
-      lessonPlan,
+      subject,
+      lessonDate: initialDate,
+      lessonPlan: lessonPlan || null,
       reasonOfAbsence,
-      numberOfStudents: parseInt(numberOfStudents.toString()),
-      absentTeacherId: parseInt(absentTeacherId.toString()),
-      substituteTeacherId: substituteTeacherId ? parseInt(substituteTeacherId.toString()) : null,
-      locationId: parseInt(locationId.toString()),
+      absentTeacherId: parseInt(absentTeacherId, 10),
+      substituteTeacherId: substituteTeacherId
+        ? parseInt(substituteTeacherId, 10)
+        : null,
+      locationId: parseInt(locationId, 10),
     };
-    onAddEvent(newEvent);
-    setTitle('');
-    setLessonPlan('');
-    setReasonOfAbsence('');
-    setNumberOfStudents(0);
-    setAbsentTeacherId('');
-    setSubstituteTeacherId('');
-    setLocationId('');
+
+    try {
+      const response = await fetch('/api/absence', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newEvent),
+      });
+
+      if (response.ok) {
+        const addedEvent = await response.json();
+        onAddEvent(addedEvent);
+        setSubject('');
+        setLessonPlan('');
+        setReasonOfAbsence('');
+        setAbsentTeacherId('');
+        setSubstituteTeacherId('');
+        setLocationId('');
+        onClose();
+      } else {
+        console.error('Failed to add event:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error adding event:', error);
+    }
   };
 
   return (
-    <div className="form-container">
-      <form onSubmit={handleAddEvent}>
-        <input
+    <Box as="form" onSubmit={handleAddEvent} p={4}>
+      <FormControl mb={3}>
+        <FormLabel>Subject</FormLabel>
+        <Input
           type="text"
-          placeholder="Subject"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Enter subject"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
           required
+          color="black"
         />
-        <input
+      </FormControl>
+      <FormControl mb={3}>
+        <FormLabel>Lesson Plan</FormLabel>
+        <Input
           type="text"
-          placeholder="Lesson Plan"
+          placeholder="Enter lesson plan"
           value={lessonPlan}
           onChange={(e) => setLessonPlan(e.target.value)}
+          color="black" 
         />
-      
-        <input
+      </FormControl>
+      <FormControl mb={3}>
+        <FormLabel>Reason of Absence</FormLabel>
+        <Input
           type="text"
-          placeholder="Reason of Absence"
+          placeholder="Enter reason of absence"
           value={reasonOfAbsence}
           onChange={(e) => setReasonOfAbsence(e.target.value)}
           required
+          color="black" 
         />
-        <input
+      </FormControl>
+      <FormControl mb={3}>
+        <FormLabel>Absent Teacher ID</FormLabel>
+        <Input
           type="number"
-          placeholder="Number of Students"
-          value={numberOfStudents}
-          onChange={(e) => setNumberOfStudents(e.target.value)}
-          required
-        />
-        <input
-          type="number"
-          placeholder="Absent Teacher ID"
+          placeholder="Enter absent teacher ID"
           value={absentTeacherId}
           onChange={(e) => setAbsentTeacherId(e.target.value)}
           required
+          color="black" 
         />
-        <input
+      </FormControl>
+      <FormControl mb={3}>
+        <FormLabel>Substitute Teacher ID</FormLabel>
+        <Input
           type="number"
-          placeholder="Substitute Teacher ID"
+          placeholder="Enter substitute teacher ID"
           value={substituteTeacherId}
           onChange={(e) => setSubstituteTeacherId(e.target.value)}
+          color="black" 
         />
-        <input
+      </FormControl>
+      <FormControl mb={3}>
+        <FormLabel>Location ID</FormLabel>
+        <Input
           type="number"
-          placeholder="Location ID"
+          placeholder="Enter location ID"
           value={locationId}
           onChange={(e) => setLocationId(e.target.value)}
           required
+          color="black"
         />
-          <button type="button">Upload Lesson Plan</button>
-        <button type="submit">Add Event</button>
-      </form>
-    </div>
+        <FormHelperText>Enter the ID of the location for the event.</FormHelperText>
+      </FormControl>
+      <Button type="submit">Add Event</Button>
+    </Box>
   );
-}
+};
 
 export default InputForm;

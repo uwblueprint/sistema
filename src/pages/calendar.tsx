@@ -1,23 +1,27 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import 'react-calendar/dist/Calendar.css';
+import {
+  Box, Button, Modal, ModalOverlay, ModalContent, ModalHeader,
+  ModalCloseButton, ModalBody, Select, Text, VStack, Flex
+} from '@chakra-ui/react';
+import InputForm from '../components/InputForm';
 
 const Calendar = dynamic(() => import('react-calendar'), { ssr: false });
-const InputForm = dynamic(() => import('../components/InputForm'), { ssr: false });
 
 type ValuePiece = Date | null;
 type Value = ValuePiece | [ValuePiece, ValuePiece];
 
 interface Event {
+  id: number;
   title: string;
-  date: Date;
-  lessonPlan: string;
+  lessonDate: Date;
+  subject: string;
+  lessonPlan: string | null;
   reasonOfAbsence: string;
-  numberOfStudents: number;
   absentTeacherId: number;
   substituteTeacherId: number | null;
   locationId: number;
-  id: string;
 }
 
 function CalendarView() {
@@ -28,31 +32,48 @@ function CalendarView() {
   const [view, setView] = useState('month');
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-    }
+    fetchEvents();
   }, []);
+
+  const fetchEvents = async () => {
+    const res = await fetch('/api/absence');
+    const data: Event[] = await res.json();
+    setEvents(data.absences.map(event => ({
+      ...event,
+      lessonDate: new Date(event.lessonDate),
+    })));
+  };
 
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view === 'month') {
-      const dayEvents = events.filter(event => event.date.toDateString() === date.toDateString());
+      const dayEvents = events.filter(event => event.lessonDate.toDateString() === date.toDateString());
       return (
-        <>
+        <VStack spacing={1} p={1} align="start" height="100%" overflow="hidden">
           {dayEvents.map((event, index) => (
-            <div key={event.id || index} style={{ marginBottom: '10px' }}>
-              <p>{event.title}</p>
-              <button onClick={() => handleEventDelete(event)}>Delete</button>
-            </div>
+            <Box
+              key={event.id || index}
+              width="full"
+              p={2}
+              bg="blue.200"
+              borderRadius="md"
+              boxShadow="md"
+              mb={1}
+              _hover={{ bg: 'blue.300', cursor: 'pointer' }}
+              fontSize="sm"
+            >
+              <Text isTruncated>{event.subject}</Text>
+              <Button size="xs" colorScheme="red" onClick={() => handleEventDelete(event.id)} mt={1}>
+                Delete
+              </Button>
+            </Box>
           ))}
-          <button onClick={() => onAddButtonClick(date)} style={{ marginTop: '10px' }}>+</button>
-        </>
+          <Button size="xs" colorScheme="green" onClick={() => onAddButtonClick(date)}>
+            +
+          </Button>
+        </VStack>
       );
     }
     return null;
-  };
-
-  const onDateClick = (date: Date) => {
-    setFormDate(date);
-    setIsFormOpen(true);
   };
 
   const onAddButtonClick = (date: Date) => {
@@ -60,8 +81,38 @@ function CalendarView() {
     setIsFormOpen(true);
   };
 
-  const handleEventDelete = (eventToDelete: Event) => {
-    setEvents(events.filter(event => event !== eventToDelete));
+  const handleEventDelete = async (id: number) => {
+    try {
+      const response = await fetch(`/api/absence`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }),
+      });
+      if (response.ok) {
+        setEvents(prevEvents => prevEvents.filter(event => event.id !== id));
+      } else {
+        console.error(`Failed to delete event with id ${id}. Status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
+  };
+
+  const addEvent = async (event: Event) => {
+    const response = await fetch('/api/absence', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(event),
+    });
+
+    if (response.ok) {
+      const newEvent = await response.json();
+      setEvents([...events, { ...newEvent, lessonDate: new Date(newEvent.lessonDate) }]);
+    }
   };
 
   const renderWeekView = (date: Date) => {
@@ -75,37 +126,39 @@ function CalendarView() {
     });
 
     return (
-      <div className="week-view">
+      <Box p={4} borderWidth="1px" borderRadius="lg">
         {weekDays.map((day) => (
-          <div key={day.toDateString()} className="week-day">
-            <h3>{day.toDateString()}</h3>
+          <Box key={day.toDateString()} p={4} borderWidth="1px" borderRadius="lg" mb={4}>
+            <Text as="h3">{day.toDateString()}</Text>
             {events
-              .filter((event) => event.date.toDateString() === day.toDateString())
+              .filter((event) => event.lessonDate.toDateString() === day.toDateString())
               .map((event, index) => (
-                <div key={index}>
-                  <p>{event.title}</p>
-                  <button onClick={() => handleEventDelete(event)}>Delete</button>
-                </div>
+                <Box key={index}>
+                  <Text>Subject: {event.subject}</Text>
+                  <Text>Reason of Absence: {event.reasonOfAbsence}</Text>
+                  <Button size="sm" colorScheme="red" onClick={() => handleEventDelete(event.id)}>Delete</Button>
+                </Box>
               ))}
-          </div>
+          </Box>
         ))}
-      </div>
+      </Box>
     );
   };
 
   const renderDayView = (date: Date) => {
     return (
-      <div className="day-view">
-        <h2>{date.toDateString()}</h2>
+      <Box p={4} borderWidth="1px" borderRadius="lg">
+        <Text as="h2">{date.toDateString()}</Text>
         {events
-          .filter((event) => event.date.toDateString() === date.toDateString())
+          .filter((event) => event.lessonDate.toDateString() === date.toDateString())
           .map((event, index) => (
-            <div key={index}>
-              <p>{event.title}</p>
-              <button onClick={() => handleEventDelete(event)}>Delete</button>
-            </div>
+            <Box key={index} p={4} borderWidth="1px" borderRadius="lg" mb={4}>
+              <Text>Subject: {event.subject}</Text>
+              <Text>Reason of Absence: {event.reasonOfAbsence}</Text>
+              <Button size="sm" colorScheme="red" onClick={() => handleEventDelete(event.id)}>Delete</Button>
+            </Box>
           ))}
-      </div>
+      </Box>
     );
   };
 
@@ -113,11 +166,27 @@ function CalendarView() {
     switch (view) {
       case 'month':
         return (
-          <Calendar
-            onChange={setValue}
-            value={value}
-            tileContent={tileContent}
-          />
+          <Box 
+            width="100%" 
+            height="calc(100vh - 80px)" 
+            maxW="1200px" 
+            mx="auto" 
+            bg="#333333" 
+            border="1px solid #555555" 
+            borderRadius="8px" 
+            color="#ffffff" 
+            p={4}
+            overflow="hidden"
+          >
+            <Calendar
+              onChange={setValue}
+              value={value}
+              tileContent={tileContent}
+              tileClassName="calendar-tile"
+              className="react-calendar"
+              showNeighboringMonth={false}
+            />
+          </Box>
         );
       case 'week':
         return renderWeekView(value as Date);
@@ -125,44 +194,65 @@ function CalendarView() {
         return renderDayView(value as Date);
       default:
         return (
-          <Calendar
-            onChange={setValue}
-            value={value}
-            tileContent={tileContent}
-          />
+          <Box 
+            width="100%" 
+            height="calc(100vh - 80px)" 
+            maxW="1200px" 
+            mx="auto" 
+            bg="#333333" 
+            border="1px solid #555555" 
+            borderRadius="8px" 
+            color="#ffffff" 
+            p={4}
+            overflow="hidden"
+          >
+            <Calendar
+              onChange={setValue}
+              value={value}
+              tileContent={tileContent}
+              className="react-calendar"
+              showNeighboringMonth={false}
+            />
+          </Box>
         );
     }
   };
 
   return (
-    <div className="calendar-container">
-      <div className="view-selector">
-        <label>
-          View:
-          <select value={view} onChange={(e) => setView(e.target.value)}>
+    <Box p={5} height="100vh" display="flex" flexDirection="column">
+      <Flex justifyContent="center" mb={4}>
+        <Box>
+          <Text as="label" mr={2}>
+            View:
+          </Text>
+          <Select value={view} onChange={(e) => setView(e.target.value)} w="200px" display="inline-block">
             <option value="month">Month</option>
             <option value="week">Week</option>
             <option value="day">Day</option>
-          </select>
-        </label>
-      </div>
-      {renderCalendar()}
+          </Select>
+        </Box>
+        <Button ml={4} colorScheme="blue" size="lg" onClick={() => onAddButtonClick(new Date())}>Add Event</Button>
+      </Flex>
+      <Box bg="white" borderWidth="1px" borderRadius="lg" p={5} flex="1" overflow="auto">
+        {renderCalendar()}
+      </Box>
       {isFormOpen && formDate && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={() => setIsFormOpen(false)}>&times;</span>
-            <InputForm
-              initialDate={formDate}
-              onClose={() => setIsFormOpen(false)}
-              onAddEvent={(newEvent: Event) => {
-                setEvents([...events, newEvent]);
-                setIsFormOpen(false);
-              }}
-            />
-          </div>
-        </div>
+        <Modal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Add Event</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <InputForm
+                initialDate={formDate}
+                onClose={() => setIsFormOpen(false)}
+                onAddEvent={addEvent}
+              />
+            </ModalBody>
+          </ModalContent>
+        </Modal>
       )}
-    </div>
+    </Box>
   );
 }
 
