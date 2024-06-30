@@ -8,14 +8,16 @@ services:
     depends_on:
       - db
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/sistema
+      - /sistema/node_modules
   db:
     image: postgres:16-alpine
     ports:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
 volumes:
   postgres_data:
