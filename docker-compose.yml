@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   nextjs:
     build: .
@@ -8,14 +6,15 @@ services:
     depends_on:
       - db
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/sistema
+      - /sistema/node_modules
   db:
     image: postgres:16-alpine
     ports:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d
 
 volumes:
   postgres_data:
