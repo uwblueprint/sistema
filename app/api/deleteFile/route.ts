@@ -13,13 +13,13 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
   }
   try {
     const auth = new google.auth.GoogleAuth({
-      projectId: process.env.GDRIVE_PROJECTID,
+      projectId: process.env.GDRIVE_PROJECT_ID,
       scopes: 'https://www.googleapis.com/auth/drive',
       credentials: {
         type: 'service_account',
-        client_id: process.env.GDRIVE_CLIENTID,
+        client_id: process.env.GDRIVE_CLIENT_ID,
         client_email: process.env.GDRIVE_CLIENT_EMAIL,
-        private_key: process.env.GDRIVE_PRIVTKEY,
+        private_key: process.env.GDRIVE_PRIVATE_KEY,
       },
     });
     const drive = google.drive({ version: 'v3', auth });
