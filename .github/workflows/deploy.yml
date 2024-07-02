@@ -22,6 +22,8 @@ jobs:
         run: npm install
 
       - name: Build project
+        env: 
+          GDRIVE_CLIENT_EMAIL: ${{ secrets.GDRIVE_CLIENT_EMAIL }}
         run: npm run build
 
       - name: Deploy to GitHub Pages
