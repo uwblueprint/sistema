@@ -137,6 +137,23 @@ psql -U sistema -d sistema
 SELECT * FROM <table-name>;
 ```
 
+### Seeding the Database
+
+Ensure the database is running locally
+
+```bash
+# In the root directory to sync seed.ts to the current data models of the database
+npx @snaplet/seed sync
+
+# seeding the database according to seed.ts
+npx prisma db
+
+# check if the tables are seeded correctly
+SELECT * FROM public."<Table-name>";
+
+```
+
+
 ## Formatting and Linting
 
 ### Prettier
