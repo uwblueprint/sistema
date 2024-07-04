@@ -1,7 +1,5 @@
-/* eslint-disable prettier/prettier */
 import { NextApiRequest, NextApiResponse } from 'next';
-
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 type Data = {
   message?: string;
@@ -15,19 +13,24 @@ export default async function handler(
 ) {
   const { to, subject, text } = req.body;
 
+  // Validate the input
+  if (!to || !subject || !text) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
   // Create a transporter object
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: process.env.EMAIL_SERVICE,
       auth: {
-        user: ['kellypham@uwblueprint.org'],
-        pass: 'spnu pjuc zvxx subj', // app password
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS, // app password
       },
     });
 
-    // Configure the mailoptions object
+    // Configure the mailOptions object
     const mailOptions = {
-      from: 'kellypham@uwblueprint.org',
+      from: process.env.EMAIL_USER,
       to: to,
       subject: subject,
       text: text,

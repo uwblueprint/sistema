@@ -1,12 +1,11 @@
-// * eslint-disable prettier/prettier */
 import { useState } from 'react';
 import { Button, Container, Input, Text, Textarea } from '@chakra-ui/react';
 
 const Email = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string>('');
-  let [emailText, setEmailText] = useState('');
-  let [emailRecipients, setEmailRecipients] = useState([]);
+  const [emailText, setEmailText] = useState('');
+  const [emailRecipients, setEmailRecipients] = useState([]);
 
   const handleEmailSend = async () => {
     setLoading(true);
@@ -43,7 +42,7 @@ const Email = () => {
   };
 
   const handleEmailRecipientsChange = (e) => {
-    let recipientsString = e.target.value;
+    const recipientsString = e.target.value;
     setEmailRecipients(recipientsString.split(','));
   };
 
@@ -52,12 +51,12 @@ const Email = () => {
       <Input
         placeholder="Add recipients here"
         onChange={handleEmailRecipientsChange}
-      ></Input>
+      />
       <Textarea
         placeholder="Write your email here"
         value={emailText}
         onChange={handleEmailTextChange}
-      ></Textarea>
+      />
       <Button
         onClick={handleEmailSend}
         isLoading={loading}
