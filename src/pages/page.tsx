@@ -7,7 +7,7 @@ type DriveFile = {
   name: string;
 };
 
-export default function FileUploadForm() {
+function Page() {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('');
   const [driveFiles, setDriveFiles] = useState<DriveFile[]>([]);
@@ -122,3 +122,5 @@ export default function FileUploadForm() {
     </Container>
   );
 }
+
+export default Page;
