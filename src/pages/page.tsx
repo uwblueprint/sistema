@@ -46,8 +46,8 @@ export default function FileUploadForm() {
         throw new Error(data.message);
       }
     } catch (error) {
-      console.error('Error deleting file:', error);
-      alert('Error deleting file');
+      console.error('Error Uploading file:', error);
+      alert('Error Uploading file');
     }
   };
 
