@@ -3,22 +3,34 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 const prisma = new PrismaClient();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method === 'GET') {
     try {
-        const absences = await prisma.absence.findMany();
-        res.status(200).json({ absences });
-      } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch absences', message: error.message });
-      }      
+      const absences = await prisma.absence.findMany();
+      res.status(200).json({ absences });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: 'Failed to fetch absences', message: error.message });
+    }
   } else if (req.method === 'POST') {
-    const { lessonDate, subject, lessonPlan, reasonOfAbsence, absentTeacherId, substituteTeacherId, locationId } = req.body;
-
+    const {
+      lessonDate,
+      subject,
+      lessonPlan,
+      reasonOfAbsence,
+      absentTeacherId,
+      substituteTeacherId,
+      locationId,
+    } = req.body;
     try {
       const newAbsence = await prisma.absence.create({
         data: {
-          lessonDate: new Date(lessonDate),
-          subject,  
+          lessonDate,
+          subject,
           lessonPlan,
           reasonOfAbsence,
           absentTeacherId,
@@ -26,13 +38,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           locationId,
         },
       });
-      res.status(200).json(newAbsence);
+
+      res.status(200).json({ newAbsence });
     } catch (error) {
-      res.status(500).json(error);
+      res
+        .status(500)
+        .json({ error: 'Failed to add absence', message: error.message });
     }
   } else if (req.method === 'DELETE') {
     const { id } = req.body;
-
     try {
       await prisma.absence.delete({
         where: { id },
@@ -40,7 +54,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(200).json({ message: 'Absence deleted' });
     } catch (error) {
       res.status(500).json({ error: 'Failed to delete absence' });
-      console.log(error)
     }
   } else {
     res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
