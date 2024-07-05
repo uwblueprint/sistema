@@ -146,7 +146,7 @@ Ensure the database is running locally
 npx @snaplet/seed sync
 
 # seeding the database according to seed.ts
-npx prisma db
+npx prisma db seed
 
 # check if the tables are seeded correctly
 SELECT * FROM public."<Table-name>";
