@@ -1,6 +1,10 @@
 import { SeedPrisma } from '@snaplet/seed/adapter-prisma';
 import { defineConfig } from '@snaplet/seed/config';
 import { PrismaClient } from '@prisma/client';
+import { config as dotenvConfig } from 'dotenv';
+
+// Load environment variables from .env file
+dotenvConfig();
 
 export default defineConfig({
   adapter: () => {

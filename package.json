@@ -23,6 +23,7 @@
     "@prisma/client": "^5.15.1",
     "@snaplet/copycat": "^5.0.0",
     "@snaplet/seed": "^0.97.20",
+    "dotenv": "^16.4.5",
     "framer-motion": "^6.3.0",
     "next": "^14.2.3",
     "next-auth": "^5.0.0-beta.19",
