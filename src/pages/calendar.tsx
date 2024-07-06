@@ -34,6 +34,10 @@ interface Event {
   locationId: number;
 }
 
+interface FetchEventsResponse {
+  absences: Event[];
+}
+
 function CalendarView() {
   const [events, setEvents] = useState<Event[]>([]);
   const [value, setValue] = useState<Value>(new Date());
@@ -47,7 +51,7 @@ function CalendarView() {
 
   const FetchEvents = async () => {
     const res = await fetch('/api/absence');
-    const data: Event[] = await res.json();
+    const data: FetchEventsResponse = await res.json();
     setEvents(
       data.absences.map((event) => ({
         ...event,
