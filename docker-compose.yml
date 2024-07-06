@@ -8,6 +8,10 @@ services:
     volumes:
       - .:/sistema
       - /sistema/node_modules
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
   db:
     image: postgres:16-alpine
     ports:
