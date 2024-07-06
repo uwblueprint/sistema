@@ -8,8 +8,12 @@ services:
     depends_on:
       - db
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/sistema
+      - /sistema/node_modules
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
   db:
     image: postgres:16-alpine
     ports:
