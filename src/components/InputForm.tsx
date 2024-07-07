@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -7,6 +7,7 @@ import {
   FormLabel,
   FormHelperText,
   Select,
+  Text,
 } from '@chakra-ui/react';
 
 interface Event {
@@ -22,14 +23,18 @@ interface Event {
 
 interface InputFormProps {
   initialDate: Date;
+  initialValues?: Event;
   onClose: () => void;
-  onAddEvent: (newEvent: Event) => void;
+  onAddEvent?: (newEvent: Event) => void;
+  onSaveEvent?: (updatedEvent: Event) => void;
 }
 
 const InputForm: React.FC<InputFormProps> = ({
   initialDate,
+  initialValues,
   onClose,
   onAddEvent,
+  onSaveEvent,
 }) => {
   const [subject, setSubject] = useState('');
   const [lessonPlan, setLessonPlan] = useState('');
@@ -38,9 +43,21 @@ const InputForm: React.FC<InputFormProps> = ({
   const [substituteTeacherId, setSubstituteTeacherId] = useState('');
   const [locationId, setLocationId] = useState('');
 
-  const handleAddEvent = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (initialValues) {
+      setSubject(initialValues.subject);
+      setLessonPlan(initialValues.lessonPlan || '');
+      setReasonOfAbsence(initialValues.reasonOfAbsence);
+      setAbsentTeacherId(initialValues.absentTeacherId.toString());
+      setSubstituteTeacherId(initialValues.substituteTeacherId?.toString() || '');
+      setLocationId(initialValues.locationId.toString());
+    }
+  }, [initialValues]);
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newEvent: Event = {
+    const eventData: Event = {
+      id: initialValues?.id,
       subject,
       lessonDate: initialDate,
       lessonPlan: lessonPlan || null,
@@ -53,36 +70,66 @@ const InputForm: React.FC<InputFormProps> = ({
     };
 
     try {
-      const response = await fetch('/api/absence', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newEvent),
-      });
+      if (initialValues?.id) {
+        // Edit existing event
+        const response = await fetch(`/api/absence`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(eventData),
+        });
+        
 
-      if (response.ok) {
-        const addedEvent = await response.json();
-        onAddEvent(addedEvent);
-        setSubject('');
-        setLessonPlan('');
-        setReasonOfAbsence('');
-        setAbsentTeacherId('');
-        setSubstituteTeacherId('');
-        setLocationId('');
-        onClose();
+        if (response.ok) {
+          const updatedEvent = await response.json();
+          if (onSaveEvent) {
+            onSaveEvent(updatedEvent);
+          }
+        } else {
+          console.error('Failed to update event:', response.statusText);
+        }
       } else {
-        console.error('Failed to add event:', response.statusText);
+        // Add new event
+        const response = await fetch('/api/absence', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(eventData),
+        });
+
+        if (response.ok) {
+          const addedEvent = await response.json();
+          if (onAddEvent) {
+            onAddEvent(addedEvent);
+          }
+        } else {
+          console.error('Failed to add event:', response.statusText);
+          const errorResponse = await response.json();
+          console.error('Error response:', response.status, errorResponse);
+        }
       }
+
+      // Reset form fields and close modal
+      setSubject('');
+      setLessonPlan('');
+      setReasonOfAbsence('');
+      setAbsentTeacherId('');
+      setSubstituteTeacherId('');
+      setLocationId('');
+      onClose();
     } catch (error) {
-      console.error('Error adding event:', error);
+      console.error('Error submitting form:', error);
     }
   };
 
   return (
-    <Box as="form" onSubmit={handleAddEvent} p={4}>
+    <Box as="form" onSubmit={handleFormSubmit} p={4}>
       <FormControl mb={3}>
-        <FormLabel>Subject</FormLabel>
+        <FormLabel>
+          Subject <Text as="span" color="red.500">*</Text>
+        </FormLabel>
         <Select
           placeholder="Select subject"
           value={subject}
@@ -107,7 +154,9 @@ const InputForm: React.FC<InputFormProps> = ({
         />
       </FormControl>
       <FormControl mb={3}>
-        <FormLabel>Reason of Absence</FormLabel>
+        <FormLabel>
+          Reason of Absence <Text as="span" color="red.500">*</Text>
+        </FormLabel>
         <Input
           type="text"
           placeholder="Enter reason of absence"
@@ -118,7 +167,9 @@ const InputForm: React.FC<InputFormProps> = ({
         />
       </FormControl>
       <FormControl mb={3}>
-        <FormLabel>Absent Teacher ID</FormLabel>
+        <FormLabel>
+          Absent Teacher ID <Text as="span" color="red.500">*</Text>
+        </FormLabel>
         <Input
           type="number"
           placeholder="Enter absent teacher ID"
@@ -139,7 +190,9 @@ const InputForm: React.FC<InputFormProps> = ({
         />
       </FormControl>
       <FormControl mb={3}>
-        <FormLabel>Location ID</FormLabel>
+        <FormLabel>
+          Location ID <Text as="span" color="red.500">*</Text>
+        </FormLabel>
         <Input
           type="number"
           placeholder="Enter location ID"
@@ -148,11 +201,11 @@ const InputForm: React.FC<InputFormProps> = ({
           required
           color="black"
         />
-        <FormHelperText>
+         <FormHelperText>
           Enter the ID of the location for the event.
         </FormHelperText>
       </FormControl>
-      <Button type="submit">Add Event</Button>
+      <Button type="submit">{initialValues ? 'Update Event' : 'Save Event'}</Button>
     </Box>
   );
 };
