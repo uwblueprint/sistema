@@ -45,6 +45,47 @@ export default async function handler(
         .status(500)
         .json({ error: 'Failed to add absence', message: error.message });
     }
+  } else if (req.method === 'PUT') {
+    const {
+      id,
+      lessonDate,
+      subject,
+      lessonPlan,
+      reasonOfAbsence,
+      absentTeacherId,
+      substituteTeacherId,
+      locationId,
+    } = req.body;
+
+    try {
+      await prisma.absence.update({
+        where: { id },
+        data: {
+          lessonDate,
+          subject,
+          lessonPlan,
+          reasonOfAbsence,
+          absentTeacherId,
+          substituteTeacherId,
+          locationId,
+        },
+      });
+
+      res.status(200).json({  
+        id,
+        lessonDate,
+        subject,
+        lessonPlan,
+        reasonOfAbsence,
+        absentTeacherId,
+        substituteTeacherId,
+        locationId, 
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: 'Failed to update absence', message: error.message });
+    }
   } else if (req.method === 'DELETE') {
     const { id } = req.body;
     try {
@@ -56,7 +97,7 @@ export default async function handler(
       res.status(500).json({ error: 'Failed to delete absence' });
     }
   } else {
-    res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
+    res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
