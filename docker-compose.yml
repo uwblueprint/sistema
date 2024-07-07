@@ -3,17 +3,20 @@ services:
     build: .
     ports:
       - '3000:3000'
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_HOST=db
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_PORT=${POSTGRES_PORT}
     depends_on:
       - db
     volumes:
       - .:/sistema
       - /sistema/node_modules
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_HOST=db
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=${POSTGRES_PORT}
   db:
     image: postgres:16-alpine
     ports:
@@ -24,7 +27,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DATABASE}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db-init:/docker-entrypoint-initdb.d
 
 volumes:
   postgres_data:

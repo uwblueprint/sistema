@@ -64,7 +64,7 @@ export default function CalendarDownload() {
     e.preventDefault();
     try {
       const res = await fetch('/api/getAbsences/');
-      const data = await res.json;
+      const data = await res.json();
       console.log(data);
     } catch (err) {
       console.log(err);
