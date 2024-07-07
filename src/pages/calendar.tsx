@@ -39,12 +39,15 @@ interface FetchEventsResponse {
   absences: Event[];
 }
 
+
 function CalendarView() {
   const [events, setEvents] = useState<Event[]>([]);
   const [value, setValue] = useState<Value>(new Date());
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formDate, setFormDate] = useState<Date | null>(null);
   const [view, setView] = useState('month');
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isEditFormOpen, setIsEditFormOpen] = useState<boolean>(false);
 
   useEffect(() => {
     FetchEvents();
@@ -60,6 +63,11 @@ function CalendarView() {
       }))
     );
   };
+
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    setIsEditFormOpen(true)
+  }
 
   const TileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view === 'month') {
@@ -100,6 +108,7 @@ function CalendarView() {
                 borderRadius="sm"
                 boxShadow="sm"
                 _hover={{ bg: 'blue.200', cursor: 'pointer' }}
+                onClick={() => handleEventClick(event)}
               >
                 <Text fontSize="xs" fontWeight="bold" isTruncated>
                   {event.subject}
@@ -152,24 +161,52 @@ function CalendarView() {
     }
   };
 
-  const AddEvent = async (event: Event) => {
-    const response = await fetch('/api/absence', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(event.newAbsence),
-    });
+  const AddEvent = async (newEvent: Event) => {
+    // const response = await fetch('/api/absence', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(event.newAbsence),
+    // });
 
-    if (response.ok) {
-      const newEvent = await response.json();
+    //   const newEvent = await response.json();
       setEvents([
         ...events,
         {
           ...newEvent.newAbsence,
+          id: newEvent.newAbsence.id,
           lessonDate: new Date(newEvent.newAbsence.lessonDate),
         },
       ]);
+  };
+
+
+  const SaveEditedEvent = async (updatedEvent: Event) => {
+    const lessonDate = new Date(updatedEvent.lessonDate);
+
+    const response = await fetch(`/api/absence/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...updatedEvent,
+        lessonDate: lessonDate.toISOString(), // Convert to ISO string
+      }),
+    });
+  
+    if (response.ok) {
+      const updatedEventData = await response.json();
+      setEvents((prevEvents) =>
+        prevEvents.map((event) =>
+          event.id === updatedEventData.id ? {
+            ...updatedEventData,
+            lessonDate: new Date(updatedEventData.lessonDate), // Convert back to Date object
+          } : event
+        )
+      );
+      setIsEditFormOpen(false);
     } else {
       const errorResponse = await response.json();
       console.error('Error response:', response.status, errorResponse);
@@ -386,6 +423,23 @@ function CalendarView() {
                 initialDate={formDate}
                 onClose={() => setIsFormOpen(false)}
                 onAddEvent={AddEvent}
+              />
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      )}
+      {isEditFormOpen && selectedEvent && (
+        <Modal isOpen={isEditFormOpen} onClose={() => setIsEditFormOpen(false)}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Edit Event</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <InputForm
+                initialDate={selectedEvent.lessonDate}
+                initialValues={selectedEvent}
+                onClose={() => setIsEditFormOpen(false)}
+                onSaveEvent={SaveEditedEvent}
               />
             </ModalBody>
           </ModalContent>
