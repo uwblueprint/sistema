@@ -32,6 +32,7 @@ interface Event {
   absentTeacherId: number;
   substituteTeacherId: number | null;
   locationId: number;
+  newAbsence?: Omit<Event, 'id'>;
 }
 
 interface FetchEventsResponse {
