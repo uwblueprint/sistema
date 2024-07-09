@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { EventAttributes } from 'ics';
 import { writeFileSync } from 'fs';
-import * as ics from "ics";
+import * as ics from 'ics';
 
 export default function CalendarDownload() {
-  const [absences, setabsences] = useState<EventAttributes[]>([]);;
+  const [absences, setabsences] = useState<EventAttributes[]>([]);
 
   const searchAbsences = async (e) => {
     e.preventDefault();
@@ -46,8 +46,6 @@ export default function CalendarDownload() {
 
     URL.revokeObjectURL(url);
   }
-
-
 
   return (
     <div>

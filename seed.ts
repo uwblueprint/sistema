@@ -4,7 +4,7 @@
  * Use any TypeScript runner to run this script, for example: `npx tsx seed.ts`
  * Learn more about the Seed Client by following our guide: https://docs.snaplet.dev/seed/getting-started
  */
-import { createSeedClient } from "@snaplet/seed";
+import { createSeedClient } from '@snaplet/seed';
 
 const main = async () => {
   const seed = await createSeedClient();
@@ -17,7 +17,7 @@ const main = async () => {
 
   // Type completion not working? You might want to reload your TypeScript Server to pick up the changes
 
-  console.log("Database seeded successfully!");
+  console.log('Database seeded successfully!');
 
   process.exit();
 };

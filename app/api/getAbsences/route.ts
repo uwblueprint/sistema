@@ -53,9 +53,15 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const extractTimeArray = function(date: Date) {
-      return [date.getFullYear(), date.getMonth(), date.getDay(), date.getHours(), date.getMinutes()];
-    }
+    const extractTimeArray = function (date: Date) {
+      return [
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDay(),
+        date.getHours(),
+        date.getMinutes(),
+      ];
+    };
 
     const events = absences.map((absence) => {
       const attendees = [
@@ -107,9 +113,6 @@ export async function GET(req: NextRequest) {
         attendees: attendees,
       };
     });
-
-
-
 
     return NextResponse.json({ status: 200, body: { events } });
   } catch (err) {
