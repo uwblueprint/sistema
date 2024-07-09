@@ -17,5 +17,8 @@ export default defineConfig({
     });
     return new SeedPrisma(client);
   },
+  alias: {
+    inflection: true,
+  },
   select: ['!*_prisma_migrations'],
 });
