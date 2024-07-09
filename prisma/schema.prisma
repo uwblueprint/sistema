@@ -10,27 +10,29 @@ datasource db {
 model Absence {
   id                  Int      @id @default(autoincrement())
   lessonDate          DateTime
-  subject             Subject
   lessonPlan          String?
   reasonOfAbsence     String
   absentTeacherId     Int
   substituteTeacherId Int?
   locationId          Int
+  subjectId           Int
   absentTeacher       User     @relation("absentTeacher", fields: [absentTeacherId], references: [id])
   substituteTeacher   User?    @relation("substituteTeacher", fields: [substituteTeacherId], references: [id])
   location            Location @relation(fields: [locationId], references: [id])
+  subject             Subject  @relation(fields: [subjectId], references: [id])
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
-  authId      String    @unique
-  email       String    @unique
-  firstName   String
-  lastName    String
-  role        Role      @default(TEACHER)
-  status      Status    @default(INVITED)
-  absences    Absence[] @relation("absentTeacher")
-  substitutes Absence[] @relation("substituteTeacher")
+  id            Int       @id @default(autoincrement())
+  authId        String    @unique
+  email         String    @unique
+  firstName     String
+  lastName      String
+  role          Role      @default(TEACHER)
+  status        Status    @default(INVITED)
+  numOfAbsences Int       @default(10)
+  absences      Absence[] @relation("absentTeacher")
+  substitutes   Absence[] @relation("substituteTeacher")
 }
 
 model Location {
@@ -44,6 +46,13 @@ model MailingList {
   id     Int      @id @default(autoincrement())
   name   String
   emails String[]
+}
+
+model Subject {
+  id           Int       @id @default(autoincrement())
+  name         String
+  abbreviation String
+  absences     Absence[]
 }
 
 enum Role {
@@ -63,4 +72,5 @@ enum Subject {
   CHOIR
   PERCUSSION
 }
+
 
