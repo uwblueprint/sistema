@@ -27,7 +27,7 @@ interface SeedClient {
 }
 
 const main = async () => {
-  const seed: SeedClient = await createSeedClient({
+  const seed = await createSeedClient({
     connect: true,
   });
 

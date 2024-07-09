@@ -153,7 +153,6 @@ SELECT * FROM public."<Table-name>";
 
 ```
 
-
 ## Formatting and Linting
 
 ### Prettier
