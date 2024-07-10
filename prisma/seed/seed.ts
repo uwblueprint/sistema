@@ -1,31 +1,6 @@
 import { createSeedClient } from '@snaplet/seed';
 import { faker } from '@faker-js/faker';
 
-interface SeedClient {
-  createSeedClient: (options?: boolean) => Promise<SeedClient>;
-  $resetDatabase: (selectConfig?: boolean) => Promise<void>;
-  user: (
-    callback: (
-      createMany: (count: number, factory: () => object) => void
-    ) => void
-  ) => Promise<void>;
-  location: (
-    callback: (
-      createMany: (count: number, factory: () => object) => void
-    ) => void
-  ) => Promise<void>;
-  absence: (
-    callback: (
-      createMany: (count: number, factory: () => object) => void
-    ) => void
-  ) => Promise<void>;
-  mailingList: (
-    callback: (
-      createMany: (count: number, factory: () => object) => void
-    ) => void
-  ) => Promise<void>;
-}
-
 const main = async () => {
   const seed = await createSeedClient({
     connect: true,

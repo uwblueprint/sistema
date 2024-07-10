@@ -1,6 +1,6 @@
-import { SeedPrisma } from '@snaplet/seed/adapter-prisma';
+import { SeedPostgres } from '@snaplet/seed/adapter-postgres';
 import { defineConfig } from '@snaplet/seed/config';
-import { PrismaClient } from '@prisma/client';
+import postgres from 'postgres';
 import { config as dotenvConfig } from 'dotenv';
 
 // Load environment variables from .env file
@@ -8,17 +8,11 @@ dotenvConfig();
 
 export default defineConfig({
   adapter: () => {
-    const client = new PrismaClient({
-      datasources: {
-        db: {
-          url: process.env.DATABASE_URL,
-        },
-      },
-    });
-    return new SeedPrisma(client);
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL environment variable is not defined');
+    }
+    const client = postgres(databaseUrl);
+    return new SeedPostgres(client);
   },
-  alias: {
-    inflection: true,
-  },
-  select: ['!*_prisma_migrations'],
 });
