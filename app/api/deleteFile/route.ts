@@ -5,8 +5,7 @@ import { stringify } from 'querystring';
 export async function DELETE(req: NextRequest, res: NextResponse) {
   const { searchParams } = new URL(req.url);
   const fileId = searchParams.get('fileId');
-  const privatekey: string = process.env.GDRIVE_PRIVTKEY as string
-
+  const privatekey: string = process.env.GDRIVE_PRIVTKEY as string;
 
   if (!fileId) {
     return NextResponse.json(
@@ -24,10 +23,10 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
         type: 'service_account',
         client_id: process.env.GDRIVE_CLIENT_ID,
         client_email: process.env.GDRIVE_CLIENT_EMAIL,
-        private_key: private_key
+        private_key: private_key,
       },
     });
-    
+
     const drive = google.drive({ version: 'v3', auth });
 
     // Delete the file

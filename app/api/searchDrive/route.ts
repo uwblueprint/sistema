@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const private_key = process.env.GDRIVE_PRIVATE_KEY.replace(/\\n/g, '\n');
-  
+
   const auth = new google.auth.GoogleAuth({
     projectId: process.env.GDRIVE_PROJECTID,
     scopes: 'https://www.googleapis.com/auth/drive',
