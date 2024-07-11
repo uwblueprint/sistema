@@ -65,12 +65,3 @@ enum Status {
   INVITED
   DEACTIVATED
 }
-
-enum Subject {
-  M_AND_M
-  STRINGS
-  CHOIR
-  PERCUSSION
-}
-
-
