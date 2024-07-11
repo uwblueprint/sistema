@@ -19,7 +19,7 @@ const main = async () => {
     }))
   );
 
-  const generateAbbreviation = (schoolName: string): string => {
+  const generateSchoolNameAbbreviation = (schoolName: string): string => {
     const words = schoolName.split(' ');
     const abbreviation = words
       .map((word) => word.charAt(0).toUpperCase())
@@ -37,7 +37,30 @@ const main = async () => {
       ]);
       return {
         name: school,
-        abbreviation: generateAbbreviation(school),
+        abbreviation: generateSchoolNameAbbreviation(school),
+      };
+    })
+  );
+
+  const generateSubjectAbbreviation = (subjectName: string): string => {
+    const words = subjectName.split('_');
+    const abbreviation = words
+      .map((word) => word.charAt(0).toUpperCase())
+      .join('');
+    return abbreviation;
+  };
+
+  await seed.subject((createMany) =>
+    createMany(5, () => {
+      const subject = faker.helpers.arrayElement([
+        'STRINGS',
+        'M_AND_M',
+        'CHOIR',
+        'PERCUSSION',
+      ]);
+      return {
+        name: subject,
+        abbreviation: generateSubjectAbbreviation(subject),
       };
     })
   );
@@ -45,12 +68,6 @@ const main = async () => {
   await seed.absence((createMany) =>
     createMany(10, () => ({
       lessonDate: faker.date.future(),
-      subject: faker.helpers.arrayElement([
-        'M_AND_M',
-        'STRINGS',
-        'CHOIR',
-        'PERCUSSION',
-      ]),
       lessonPlan: faker.internet.url(),
       reasonOfAbsence: faker.lorem.sentence(),
     }))
