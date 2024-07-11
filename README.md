@@ -20,32 +20,32 @@ cd sistema
 cp .env.sample .env
 ```
 
-- Build and start the Docker containers
-
-```bash
-docker-compose up --build
-```
-
 - Install dependencies locally
 
 ```bash
 npm install
 ```
 
-## Secrets
-
-- Create A [HashiCorp Clous Cloud Platform Account](https://portal.cloud.hashicorp.com/sign-in?ajs_aid=9085f07d-f411-42b4-855b-72795f4fdbcc&product_intent=vault)
-- Install [HashiCorp Vault](https://developer.hashicorp.com/hcp/tutorials/get-started-hcp-vault-secrets/hcp-vault-secrets-install-cli#install-hcp-vault-secrets-cli) in order to pull secrets
-- Log in to Vault
+- Build and start the Docker containers
 
 ```bash
-vlt login
+docker-compose up --build
+```
+
+## Secrets
+
+- Create A [HashiCorp Cloud Platform Account](https://portal.cloud.hashicorp.com/sign-in?ajs_aid=9085f07d-f411-42b4-855b-72795f4fdbcc&product_intent=vault)
+- Install [HashiCorp Vault](https://developer.hashicorp.com/hcp/tutorials/get-started-hcp-vault-secrets/hcp-vault-secrets-install-cli#install-hcp-vault-secrets-cli) in order to pull secrets
+- In the folder where you cloned the Sistema repository, log into Vault
+
+```bash
+hcp auth login
 ```
 
 - Configure the Vault Command Line Interface
 
 ```bash
-vlt config init
+hcp profile init
 ```
 
 - Select the `sistema` Organization and Project
@@ -58,10 +58,20 @@ Use the arrow keys to navigate: ↓ ↑ → ←
   ▸ sistema
 ```
 
+### Copying secrets from the vault to local
+
 - Copy secrets to a `.env` file
 
 ```bash
 ./setup_secrets.sh
+```
+
+### Sending all local secrets to the vault (warning: this overwrites all secrets)
+
+- Push secrets from `.env` file to HashiCorp Vault
+
+```bash
+./push_secrets.sh
 ```
 
 ## Version Control Guide
@@ -110,6 +120,11 @@ docker-compose down
 ```
 
 ```bash
+# stops the containers and removes volumes
+docker-compose down --volumes
+```
+
+```bash
 # get Names & Statuses of Running Containers
 docker ps
 ```
@@ -121,6 +136,13 @@ docker system prune -a --volumes
 
 ### Accessing PostgreSQL Database
 
+Run in two lines (View Absences Table):
+```bash
+docker exec -it sistema-db-1 psql -U sistema -d sistema
+SELECT * FROM public."Absence";
+```
+
+Running the commands line by line.
 ```bash
 # run a bash shell in the container
 docker exec -it sistema-db-1 /bin/bash
@@ -134,7 +156,32 @@ psql -U sistema -d sistema
 # quit
 \q
 # you can run any SQL query, don't forget the semicolon!
-SELECT * FROM <table-name>;
+SELECT * FROM public."<table-name>";
+```
+
+### Seeding the Production Database
+** Database seeds automatically locally when docker compose build --up is run. Only run the following commands to seed the production database.
+
+In the schema.prisma, set env variable to VERCEL_DATABASE_NON_POOLING. Then run the following command.
+
+```bash
+npx prisma generate; npx prisma db push; npx @snaplet/seed sync; npx prisma db seed
+```
+
+Run the following commands:
+
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+```bash
+# In the root directory to sync seed.ts to the current data models of the database
+npx @snaplet/seed sync
+
+# Seeding the database according to seed.ts
+npx prisma db seed
+
 ```
 
 ## Formatting and Linting

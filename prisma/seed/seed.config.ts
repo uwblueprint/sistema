@@ -4,13 +4,7 @@ import { PrismaClient } from '@prisma/client';
 
 export default defineConfig({
   adapter: () => {
-    const client = new PrismaClient({
-      datasources: {
-        db: {
-          url: process.env.DATABASE_URL,
-        },
-      },
-    });
+    const client = new PrismaClient();
     return new SeedPrisma(client);
   },
   select: ['!*_prisma_migrations'],

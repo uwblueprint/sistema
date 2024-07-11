@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model Absence {
@@ -39,7 +40,7 @@ model Location {
   id           Int       @id @default(autoincrement())
   name         String
   abbreviation String
-  absences     Absence[]
+  Absence      Absence[]
 }
 
 model MailingList {
@@ -52,7 +53,7 @@ model Subject {
   id           Int       @id @default(autoincrement())
   name         String
   abbreviation String
-  absences     Absence[]
+  Absence      Absence[]
 }
 
 enum Role {
@@ -65,12 +66,3 @@ enum Status {
   INVITED
   DEACTIVATED
 }
-
-enum Subject {
-  M_AND_M
-  STRINGS
-  CHOIR
-  PERCUSSION
-}
-
-
