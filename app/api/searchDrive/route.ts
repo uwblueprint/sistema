@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const private_key = process.env.GDRIVE_PRIVATE_KEY;
-  const edited_private_key = await private_key.replace(/\\n/g, '\n');
 
   const auth = new google.auth.GoogleAuth({
     projectId: process.env.GDRIVE_PROJECTID,
@@ -12,7 +11,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
       type: 'service_account',
       client_id: process.env.GDRIVE_CLIENT_ID,
       client_email: process.env.GDRIVE_CLIENT_EMAIL,
-      private_key: edited_private_key,
+      private_key: private_key,
     },
   });
   const drive = google.drive({ version: 'v3', auth });
