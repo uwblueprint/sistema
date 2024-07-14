@@ -10,6 +10,7 @@ export default async function handler(
   if (req.method === 'GET') {
     try {
       const absences = await prisma.absence.findMany();
+      
       res.status(200).json({ absences });
     } catch (error) {
       res
@@ -19,23 +20,23 @@ export default async function handler(
   } else if (req.method === 'POST') {
     const {
       lessonDate,
-      subject,
       lessonPlan,
       reasonOfAbsence,
       absentTeacherId,
       substituteTeacherId,
       locationId,
+      subjectId
     } = req.body;
     try {
       const newAbsence = await prisma.absence.create({
         data: {
           lessonDate,
-          subject,
           lessonPlan,
           reasonOfAbsence,
           absentTeacherId,
           substituteTeacherId,
           locationId,
+          subjectId
         },
       });
 
