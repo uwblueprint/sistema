@@ -22,49 +22,49 @@ const Calendar = dynamic(() => import('react-calendar'), { ssr: false });
 type ValuePiece = Date | null;
 type Value = ValuePiece | [ValuePiece, ValuePiece];
 
-interface Event {
+interface Absence {
   id: number;
   title: string;
   lessonDate: Date;
-  subject: string;
   lessonPlan: string | null;
   reasonOfAbsence: string;
   absentTeacherId: number;
   substituteTeacherId: number | null;
+  subjectId: number,
   locationId: number;
-  newAbsence?: Omit<Event, 'id'>;
+  newAbsence?: Omit<Absence, 'id'>;
 }
 
-interface FetchEventsResponse {
-  absences: Event[];
+interface FetchAbsenceResponse {
+  absences: Absence[];
 }
 
 function CalendarView() {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [absences, setAbsences] = useState<Absence[]>([]);
   const [value, setValue] = useState<Value>(new Date());
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formDate, setFormDate] = useState<Date | null>(null);
   const [view, setView] = useState('month');
 
   useEffect(() => {
-    FetchEvents();
+    FetchAbsences();
   }, []);
 
-  const FetchEvents = async () => {
+  const FetchAbsences = async () => {
     const res = await fetch('/api/absence');
-    const data: FetchEventsResponse = await res.json();
-    setEvents(
-      data.absences.map((event) => ({
-        ...event,
-        lessonDate: new Date(event.lessonDate),
+    const data: FetchAbsenceResponse = await res.json();
+    setAbsences(
+      data.absences.map((absence) => ({
+        ...absence,
+        lessonDate: new Date(absence.lessonDate),
       }))
     );
   };
 
   const TileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view === 'month') {
-      const dayEvents = events.filter(
-        (event) => event.lessonDate.toDateString() === date.toDateString()
+      const dayAbsence = absences.filter(
+        (absence) => absence.lessonDate.toDateString() === date.toDateString()
       );
       return (
         <Box position="relative" height="100%" width="100%">
@@ -92,25 +92,22 @@ function CalendarView() {
             width="100%"
             overflowY="auto"
           >
-            {dayEvents.map((event, index) => (
+            {dayAbsence.map((absence, index) => (
               <Box
-                key={event.id || index}
+                key={absence.id || index}
                 bg="blue.100"
                 p={1}
                 borderRadius="sm"
                 boxShadow="sm"
                 _hover={{ bg: 'blue.200', cursor: 'pointer' }}
               >
-                <Text fontSize="xs" fontWeight="bold" isTruncated>
-                  {event.subject}
-                </Text>
                 <Button
                   size="xs"
                   colorScheme="red"
                   mt={1}
                   onClick={(e) => {
                     e.stopPropagation();
-                    HandleEventDelete(event.id);
+                    HandleAbsenceDelete(absence.id);
                   }}
                 >
                   Delete
@@ -129,7 +126,7 @@ function CalendarView() {
     setIsFormOpen(true);
   };
 
-  const HandleEventDelete = async (id: number) => {
+  const HandleAbsenceDelete = async (id: number) => {
     try {
       const response = await fetch('/api/absence', {
         method: 'DELETE',
@@ -139,35 +136,35 @@ function CalendarView() {
         body: JSON.stringify({ id }),
       });
       if (response.ok) {
-        setEvents((prevEvents) =>
-          prevEvents.filter((event) => event.id !== id)
+        setAbsences((prevAbsences) =>
+          prevAbsences.filter((absence) => absence.id !== id)
         );
       } else {
         console.error(
-          'Failed to delete event with id ${id}. Status: ${response.status}'
+          'Failed to delete absence with id ${id}. Status: ${response.status}'
         );
       }
     } catch (error) {
-      console.error('Error deleting event:', error);
+      console.error('Error deleting absence:', error);
     }
   };
 
-  const AddEvent = async (event: Event) => {
+  const AddAbsence = async (absence: Absence) => {
     const response = await fetch('/api/absence', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(event.newAbsence),
+      body: JSON.stringify(absence),
     });
 
     if (response.ok) {
-      const newEvent = await response.json();
-      setEvents([
-        ...events,
+      const newAbsence = await response.json();
+      setAbsences([
+        ...absences,
         {
-          ...newEvent.newAbsence,
-          lessonDate: new Date(newEvent.newAbsence.lessonDate),
+          ... newAbsence.newAbsence,
+          lessonDate: new Date(newAbsence.newAbsence.lessonDate),
         },
       ]);
     } else {
@@ -197,19 +194,18 @@ function CalendarView() {
             mb={4}
           >
             <Text as="h3">{day.toDateString()}</Text>
-            {events
+            {absences
               .filter(
-                (event) =>
-                  event.lessonDate.toDateString() === day.toDateString()
+                (absence) =>
+                  absence.lessonDate.toDateString() === day.toDateString()
               )
-              .map((event, index) => (
+              .map((absence, index) => (
                 <Box key={index}>
-                  <Text>Subject: {event.subject}</Text>
-                  <Text>Reason of Absence: {event.reasonOfAbsence}</Text>
+                  <Text>Reason of Absence: {absence.reasonOfAbsence}</Text>
                   <Button
                     size="sm"
                     colorScheme="red"
-                    onClick={() => HandleEventDelete(event.id)}
+                    onClick={() => HandleAbsenceDelete(absence.id)}
                   >
                     Delete
                   </Button>
@@ -225,18 +221,17 @@ function CalendarView() {
     return (
       <Box p={4} borderWidth="1px" borderRadius="lg">
         <Text as="h2">{date.toDateString()}</Text>
-        {events
+        {absences
           .filter(
-            (event) => event.lessonDate.toDateString() === date.toDateString()
+            (absence) => absence.lessonDate.toDateString() === date.toDateString()
           )
-          .map((event, index) => (
+          .map((absence, index) => (
             <Box key={index} p={4} borderWidth="1px" borderRadius="lg" mb={4}>
-              <Text>Subject: {event.subject}</Text>
-              <Text>Reason of Absence: {event.reasonOfAbsence}</Text>
+              <Text>Reason of Absence: {absence.reasonOfAbsence}</Text>
               <Button
                 size="sm"
                 colorScheme="red"
-                onClick={() => HandleEventDelete(event.id)}
+                onClick={() => HandleAbsenceDelete(absence.id)}
               >
                 Delete
               </Button>
@@ -379,13 +374,13 @@ function CalendarView() {
         <Modal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)}>
           <ModalOverlay />
           <ModalContent>
-            <ModalHeader>Add Event</ModalHeader>
+            <ModalHeader>Add Absence</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
               <InputForm
                 initialDate={formDate}
                 onClose={() => setIsFormOpen(false)}
-                onAddEvent={AddEvent}
+                onAddAbsence={AddAbsence}
               />
             </ModalBody>
           </ModalContent>
