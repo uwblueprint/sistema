@@ -12,6 +12,7 @@ services:
       - NODE_ENV=development
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
+
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_HOST=db
       - POSTGRES_DATABASE=${POSTGRES_DATABASE}
