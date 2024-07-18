@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
-import joi from 'joi';
 
 type Data = {
   message?: string;
