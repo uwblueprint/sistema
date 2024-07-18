@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { Button, Container, Input, Text, Textarea } from '@chakra-ui/react';
 
 const Email = () => {
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
   const [emailText, setEmailText] = useState('');
+  const [subject, setSubject] = useState('');
   const [emailRecipients, setEmailRecipients] = useState([]);
 
   const handleEmailSend = async () => {
-    setLoading(true);
+    setIsLoading(true);
     setMessage('');
     try {
       const response = await fetch('/api/sendEmail', {
@@ -18,7 +19,7 @@ const Email = () => {
         },
         body: JSON.stringify({
           to: emailRecipients,
-          subject: 'Hello World',
+          subject: subject,
           text: emailText,
         }),
       });
@@ -33,12 +34,16 @@ const Email = () => {
     } catch (error: any) {
       setMessage(`Error sending email: ${error.message}`);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const handleEmailTextChange = (e) => {
     setEmailText(e.target.value);
+  };
+
+  const handleSubjectChange = (e) => {
+    setSubject(e.target.value);
   };
 
   const handleEmailRecipientsChange = (e) => {
@@ -52,6 +57,7 @@ const Email = () => {
         placeholder="Add recipients here"
         onChange={handleEmailRecipientsChange}
       />
+      <Input placeholder="Add subject here" onChange={handleSubjectChange} />
       <Textarea
         placeholder="Write your email here"
         value={emailText}
@@ -59,7 +65,7 @@ const Email = () => {
       />
       <Button
         onClick={handleEmailSend}
-        isLoading={loading}
+        isLoading={isLoading}
         loadingText="Sending"
         colorScheme="blue"
       >
