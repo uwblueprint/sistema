@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Set DATABASE_URL environment variable
+        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }} >> $GITHUB_ENV
+
       - name: Run Prisma Migrations
         run: npx prisma migrate deploy
 
