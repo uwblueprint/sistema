@@ -150,28 +150,37 @@ function CalendarView() {
   };
 
   const AddAbsence = async (absence: Absence) => {
-    const response = await fetch('/api/absence', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(absence),
-    });
-
-    if (response.ok) {
-      const newAbsence = await response.json();
-      setAbsences([
-        ...absences,
-        {
-          ... newAbsence.newAbsence,
-          lessonDate: new Date(newAbsence.newAbsence.lessonDate),
+    try {
+      const response = await fetch('/api/absence', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      ]);
-    } else {
-      const errorResponse = await response.json();
-      console.error('Error response:', response.status, errorResponse);
+        body: JSON.stringify(absence),
+      });
+  
+      if (response.ok) {
+        const newAbsence = await response.json();
+        setAbsences([
+          ...absences,
+          {
+            ...newAbsence.newAbsence,
+            lessonDate: new Date(newAbsence.newAbsence.lessonDate),
+          },
+        ]);
+        setIsFormOpen(false);
+        return true; 
+      } else {
+        const errorResponse = await response.json();
+        console.error('Error response:', response.status, errorResponse);
+        return false; 
+      }
+    } catch (error) {
+      console.error('Error adding absence:', error);
+      return false;
     }
   };
+  
 
   const renderWeekView = (date: Date) => {
     const startOfWeek = new Date(date);
