@@ -32,9 +32,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Run Prisma Migrations
+        run: npx prisma migrate deploy
+
       - name: Snaplet sync
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npx @snaplet/seed sync
 
       - name: Build project
