@@ -5,6 +5,7 @@ import {
   Input,
   FormControl,
   FormLabel,
+  Text
 } from '@chakra-ui/react';
 
 interface Absence {
@@ -21,7 +22,7 @@ interface Absence {
 interface InputFormProps {
   initialDate: Date;
   onClose: () => void;
-  onAddAbsence: (newAbsence: Absence) => void;
+  onAddAbsence: (newAbsence: Absence) => Promise<boolean>;
 }
 
 const InputForm: React.FC<InputFormProps> = ({
@@ -35,9 +36,9 @@ const InputForm: React.FC<InputFormProps> = ({
   const [substituteTeacherId, setSubstituteTeacherId] = useState('');
   const [locationId, setLocationId] = useState('');
   const [subjectId, setSubjectId] = useState('');
+  const [error, setError] = useState('')
 
   const handleAddAbsence = async (e: React.FormEvent) => {
-    console.log("Input form")
     e.preventDefault();
     const newAbsence: Absence = {
       lessonDate: initialDate,
@@ -50,14 +51,19 @@ const InputForm: React.FC<InputFormProps> = ({
       locationId: parseInt(locationId, 10),
       subjectId: parseInt(subjectId, 10),
     };
-        onAddAbsence(newAbsence);
-        setLessonPlan('');
-        setReasonOfAbsence('');
-        setAbsentTeacherId('');
-        setSubstituteTeacherId('');
-        setLocationId('');
-        setSubjectId('');
-        onClose();
+    const success = await onAddAbsence(newAbsence); 
+    if (success) {
+      setLessonPlan('');
+      setReasonOfAbsence('');
+      setAbsentTeacherId('');
+      setSubstituteTeacherId('');
+      setLocationId('');
+      setSubjectId('');
+      onClose();
+    }
+    else {
+      setError('Invalid input. Please enter correct details.');
+    } 
   };
 
   return (
@@ -126,6 +132,9 @@ const InputForm: React.FC<InputFormProps> = ({
           color="black"
         />  
       </FormControl>
+      {error && (
+        <Text color="red.500" mt={2}>{error}</Text>
+      )}
       <Button type="submit">Add Absence</Button>
     </Box>
   );
