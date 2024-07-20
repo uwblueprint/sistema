@@ -5,7 +5,7 @@ import {
   Input,
   FormControl,
   FormLabel,
-  Text
+  Text,
 } from '@chakra-ui/react';
 
 interface Absence {
@@ -36,7 +36,7 @@ const InputForm: React.FC<InputFormProps> = ({
   const [substituteTeacherId, setSubstituteTeacherId] = useState('');
   const [locationId, setLocationId] = useState('');
   const [subjectId, setSubjectId] = useState('');
-  const [error, setError] = useState('')
+  const [error, setError] = useState('');
 
   const handleAddAbsence = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +51,7 @@ const InputForm: React.FC<InputFormProps> = ({
       locationId: parseInt(locationId, 10),
       subjectId: parseInt(subjectId, 10),
     };
-    const success = await onAddAbsence(newAbsence); 
+    const success = await onAddAbsence(newAbsence);
     if (success) {
       setLessonPlan('');
       setReasonOfAbsence('');
@@ -60,10 +60,9 @@ const InputForm: React.FC<InputFormProps> = ({
       setLocationId('');
       setSubjectId('');
       onClose();
-    }
-    else {
+    } else {
       setError('Invalid input. Please enter correct details.');
-    } 
+    }
   };
 
   return (
@@ -130,10 +129,12 @@ const InputForm: React.FC<InputFormProps> = ({
           onChange={(e) => setSubjectId(e.target.value)}
           required
           color="black"
-        />  
+        />
       </FormControl>
       {error && (
-        <Text color="red.500" mt={2}>{error}</Text>
+        <Text color="red.500" mt={2}>
+          {error}
+        </Text>
       )}
       <Button type="submit">Add Absence</Button>
     </Box>

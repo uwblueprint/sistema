@@ -30,7 +30,7 @@ interface Absence {
   reasonOfAbsence: string;
   absentTeacherId: number;
   substituteTeacherId: number | null;
-  subjectId: number,
+  subjectId: number;
   locationId: number;
   newAbsence?: Omit<Absence, 'id'>;
 }
@@ -158,7 +158,7 @@ function CalendarView() {
         },
         body: JSON.stringify(absence),
       });
-  
+
       if (response.ok) {
         const newAbsence = await response.json();
         setAbsences([
@@ -169,18 +169,17 @@ function CalendarView() {
           },
         ]);
         setIsFormOpen(false);
-        return true; 
+        return true;
       } else {
         const errorResponse = await response.json();
         console.error('Error response:', response.status, errorResponse);
-        return false; 
+        return false;
       }
     } catch (error) {
       console.error('Error adding absence:', error);
       return false;
     }
   };
-  
 
   const renderWeekView = (date: Date) => {
     const startOfWeek = new Date(date);
@@ -232,7 +231,8 @@ function CalendarView() {
         <Text as="h2">{date.toDateString()}</Text>
         {absences
           .filter(
-            (absence) => absence.lessonDate.toDateString() === date.toDateString()
+            (absence) =>
+              absence.lessonDate.toDateString() === date.toDateString()
           )
           .map((absence, index) => (
             <Box key={index} p={4} borderWidth="1px" borderRadius="lg" mb={4}>
