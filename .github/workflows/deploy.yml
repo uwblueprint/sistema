@@ -9,6 +9,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DATABASE }}
+        ports:
+          - 5432:5432
+        options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries 5
+  
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,19 +31,15 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-      
-      - name: Docker compose
-        run: docker-compose up --build
+
+      - name: Set DATABASE_URL environment variable
+        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
+
+      - name: Run Prisma Migrations
+        run: npx prisma migrate deploy
 
       - name: Snaplet sync
         run: npx @snaplet/seed sync
 
       - name: Build project
         run: npm run build
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
-          destination_dir: ${{ github.event.pull_request.head.ref }}
