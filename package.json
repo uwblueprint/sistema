@@ -9,7 +9,7 @@
     "prettier:check": "prettier --check .",
     "prettier:fix": "prettier --write .",
     "format": "npm run prettier:fix && npm run lint:fix",
-    "prepare": "husky install",
+    "prepare": "husky",
     "migrate": "prisma migrate dev",
     "postmigrate": "npx @snaplet/seed sync"
   },
