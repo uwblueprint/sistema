@@ -1,5 +1,5 @@
-import { google } from 'googleapis';
 import { NextRequest, NextResponse } from 'next/server';
+import { google } from 'googleapis';
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const private_key = process.env.GDRIVE_PRIVATE_KEY.replace(/\\n/g, '\n');
@@ -22,8 +22,14 @@ export async function GET(req: NextRequest, res: NextResponse) {
       fields: 'nextPageToken, files(id, name)',
       spaces: 'drive',
     });
+
+    
+     
     const files = res.data.files;
-    return NextResponse.json({ status: 200, results: { files } });
+    return NextResponse.json({ status: 200, results: { files }, headers :{
+      "Cache-Control":
+      "no-cache, no-store, max-age=0, must-revalidate"
+    }});
   } catch (err) {
     console.log(err);
     throw err;
