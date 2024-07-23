@@ -1,8 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 
-export async function GET(req: NextRequest, res: NextResponse) {
-  const private_key = process.env.GDRIVE_PRIVATE_KEY.replace(/\\n/g, '\n');
+export async function GET(req: NextRequest) {
+  const newHeaders = new Headers(req.headers);
+  newHeaders.set(
+    'Cache-Control',
+    'no-cache, no-store, max-age=0, must-revalidate'
+  );
+
+  const private_key = process.env.GDRIVE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+  if (!private_key) {
+    return NextResponse.json(
+      { error: 'Missing Google Drive private key' },
+      { status: 500 }
+    );
+  }
 
   const auth = new google.auth.GoogleAuth({
     projectId: process.env.GDRIVE_PROJECTID,
@@ -24,15 +37,18 @@ export async function GET(req: NextRequest, res: NextResponse) {
     });
 
     const files = res.data.files;
-    return NextResponse.json({
-      status: 200,
-      results: { files },
-      headers: {
-        'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-      },
-    });
+    return NextResponse.json(
+      { results: { files } },
+      {
+        status: 200,
+        headers: newHeaders,
+      }
+    );
   } catch (err) {
-    console.log(err);
-    throw err;
+    console.error(err);
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }

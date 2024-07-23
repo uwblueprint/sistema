@@ -52,6 +52,7 @@ export default function FileUploadForm() {
 
   const handleSearch = async (e) => {
     e.preventDefault();
+
     try {
       const res = await fetch('/api/searchDrive/');
 
