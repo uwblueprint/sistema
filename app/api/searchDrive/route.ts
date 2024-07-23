@@ -23,13 +23,14 @@ export async function GET(req: NextRequest, res: NextResponse) {
       spaces: 'drive',
     });
 
-    
-     
     const files = res.data.files;
-    return NextResponse.json({ status: 200, results: { files }, headers :{
-      "Cache-Control":
-      "no-cache, no-store, max-age=0, must-revalidate"
-    }});
+    return NextResponse.json({
+      status: 200,
+      results: { files },
+      headers: {
+        'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+      },
+    });
   } catch (err) {
     console.log(err);
     throw err;
