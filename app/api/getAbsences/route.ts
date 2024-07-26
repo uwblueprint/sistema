@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
           'For issues regarding unclaiming absences and lesson plans, please contact admin',
         location: absence.location.name,
         url: absence.lessonPlan,
-        categories: [absence.subject],
+        categories: [absence.subject.name],
         status: 'TENTATIVE',
         organizer: {
           name: 'Sistema Toronto',
