@@ -4,22 +4,22 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
-
 model Absence {
   id                  Int      @id @default(autoincrement())
+  absentTeacherId     Int
   lessonDate          DateTime
   lessonPlan          String?
   reasonOfAbsence     String
-  absentTeacherId     Int
   substituteTeacherId Int?
   locationId          Int
   subjectId           Int
   absentTeacher       User     @relation("absentTeacher", fields: [absentTeacherId], references: [id])
-  substituteTeacher   User?    @relation("substituteTeacher", fields: [substituteTeacherId], references: [id])
   location            Location @relation(fields: [locationId], references: [id])
   subject             Subject  @relation(fields: [subjectId], references: [id])
+  substituteTeacher   User?    @relation("substituteTeacher", fields: [substituteTeacherId], references: [id])
 }
 
 model User {

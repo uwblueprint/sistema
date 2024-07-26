@@ -20,9 +20,10 @@
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.9.0",
     "@faker-js/faker": "^8.4.1",
-    "@prisma/client": "^5.15.1",
+    "@prisma/client": "^5.17.0",
     "@snaplet/copycat": "^5.0.0",
     "@snaplet/seed": "^0.97.20",
+    "@vercel/postgres": "^0.9.0",
     "dotenv": "^16.4.5",
     "framer-motion": "^6.3.0",
     "ics": "^3.7.6",
@@ -47,7 +48,7 @@
     "prisma": "^5.15.1"
   },
   "@snaplet/seed": {
-    "config": "prisma/seed/seed.config.ts"
+    "config": "prisma\\seed\\seed.config.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed/seed.ts",
