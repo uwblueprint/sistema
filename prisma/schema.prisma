@@ -8,7 +8,6 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
-
 model Absence {
   id                  Int      @id @default(autoincrement())
   lessonDate          DateTime
@@ -60,13 +59,6 @@ model Subject {
 enum Role {
   TEACHER
   ADMIN
-}
-
-enum Status {
-  ACTIVE
-  INVITED
-  DEACTIVATED
-}DMIN
 }
 
 enum Status {
