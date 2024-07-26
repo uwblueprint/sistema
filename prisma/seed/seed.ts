@@ -2,9 +2,7 @@ import { createSeedClient } from '@snaplet/seed';
 import { faker } from '@faker-js/faker';
 
 const main = async () => {
-  const seed = await createSeedClient({
-    connect: true,
-  });
+  const seed = (await createSeedClient()) as any;
 
   await seed.$resetDatabase();
 
