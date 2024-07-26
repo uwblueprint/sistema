@@ -142,6 +142,7 @@ SELECT * FROM <table-name>;
 Local: Ensure the database is running locally
 
 In schema.prisma, replace datasource with:
+
 ```bash
 datasource db {
   provider = "postgresql"
@@ -150,6 +151,7 @@ datasource db {
 ```
 
 Run the following commands:
+
 ```bash
 npx prisma db generate
 npx prisma db push
@@ -170,6 +172,7 @@ SELECT * FROM public."<Table-name>";
 Vercel Postgres: make sure you pull the new secrets from hashicorp.
 
 In schema.prisma, replace datasource with:
+
 ```bash
 datasource db {
   provider = "postgresql"
@@ -179,6 +182,7 @@ datasource db {
 ```
 
 Run the following commands:
+
 ```bash
 npx prisma db generate
 npx prisma db push
@@ -195,7 +199,6 @@ npx prisma db seed
 SELECT * FROM public."<Table-name>";
 
 ```
-
 
 ## Formatting and Linting
 
