@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { createSeedClient } from '@snaplet/seed';
 import { faker } from '@faker-js/faker';
 
