@@ -10,7 +10,6 @@ export default async function handler(
   if (req.method === 'GET') {
     try {
       const absences = await prisma.absence.findMany();
-      console.log(absences);
       res.status(200).json({ absences });
     } catch (error) {
       res
