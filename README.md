@@ -153,7 +153,7 @@ datasource db {
 Run the following commands:
 
 ```bash
-npx prisma db generate
+npx prisma generate
 npx prisma db push
 ```
 
@@ -184,7 +184,7 @@ datasource db {
 Run the following commands:
 
 ```bash
-npx prisma db generate
+npx prisma generate
 npx prisma db push
 ```
 
