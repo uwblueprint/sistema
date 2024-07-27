@@ -2,14 +2,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && prisma migrate && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint . --ext js,jsx,ts,tsx --fix",
     "prettier:check": "prettier --check .",
     "prettier:fix": "prettier --write .",
     "format": "npm run prettier:fix && npm run lint:fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.2",
