@@ -142,6 +142,69 @@ psql -U sistema -d sistema
 SELECT * FROM <table-name>;
 ```
 
+### Seeding the Database
+
+Local: Ensure the database is running locally
+
+In schema.prisma, replace datasource with:
+
+```bash
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+```
+
+Run the following commands:
+
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+```bash
+# In the root directory to sync seed.ts to the current data models of the database
+npx @snaplet/seed sync
+
+# seeding the database according to seed.ts
+npx prisma db seed
+
+# check if the tables are seeded correctly
+SELECT * FROM public."<Table-name>";
+
+```
+
+Vercel Postgres: make sure you pull the new secrets from hashicorp.
+
+In schema.prisma, replace datasource with:
+
+```bash
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+```
+
+Run the following commands:
+
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+```bash
+# In the root directory to sync seed.ts to the current data models of the database
+npx @snaplet/seed sync
+
+# seeding the database according to seed.ts
+npx prisma db seed
+
+# check if the tables are seeded correctly
+SELECT * FROM public."<Table-name>";
+
+```
+
 ## Formatting and Linting
 
 ### Prettier
