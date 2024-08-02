@@ -192,10 +192,10 @@ npx prisma db push
 # In the root directory to sync seed.ts to the current data models of the database
 npx @snaplet/seed sync
 
-# seeding the database according to seed.ts
+# Seeding the database according to seed.ts
 npx prisma db seed
 
-# check if the tables are seeded correctly
+# Check if the tables are seeded correctly
 SELECT * FROM public."<Table-name>";
 
 ```
