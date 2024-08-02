@@ -19,27 +19,25 @@ export async function GET(req: NextRequest, params) {
 
   // TODO: rename realEmail to email to be used in the findUnique later
   const realEmail = params.params.email;
-  console.log('url email:' + realEmail);
 
   try {
     // TODO: remove once emails are set up
     // fake stuff begins
     // find random email in db for now
+    const useFake = true;
     const fakeEmailReq = await prisma.user.findFirst({
       select: {
         email: true,
       },
     });
-    console.log(fakeEmailReq);
     let email;
     if (!fakeEmailReq) {
       return new NextResponse('DEV ERROR: local db not seeded!', {
         status: 400,
       });
     } else {
-      email = fakeEmailReq.email;
+      email = useFake ? fakeEmailReq.email : realEmail;
     }
-    console.log('fake db email: ' + email);
     // fake stuff ends
 
     const user = await prisma.user.findUnique({
@@ -47,15 +45,12 @@ export async function GET(req: NextRequest, params) {
       include: { absences: getAbsences },
     });
 
-    console.log(user);
-
     if (!user) {
       return new NextResponse('User not found', { status: 400 });
     } else {
       return new NextResponse(JSON.stringify(user), { status: 200 });
     }
   } catch (error) {
-    console.log(error);
     return new NextResponse('Internal server error', { status: 500 });
   }
 }
