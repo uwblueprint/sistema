@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma migrate dev && @snaplet/seed sync && prisma db seed && next build",
+    "build": "next build",
+    "vercel build": "prisma generate && prisma migrate dev && @snaplet/seed sync && prisma db seed && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint . --ext js,jsx,ts,tsx --fix",
