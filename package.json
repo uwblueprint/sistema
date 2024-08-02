@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && prisma migrate dev && @snaplet/seed sync && prisma db seed && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint . --ext js,jsx,ts,tsx --fix",
@@ -11,7 +11,8 @@
     "format": "npm run prettier:fix && npm run lint:fix",
     "prepare": "husky",
     "migrate": "prisma migrate dev",
-    "postmigrate": "npx @snaplet/seed sync"
+    "postmigrate": "npx @snaplet/seed sync",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.2",
