@@ -142,7 +142,6 @@ SELECT * FROM <table-name>;
 Local: Ensure the database is running locally
 Repull Secrets
 
-```bash
 Run the following commands:
 
 ```bash
