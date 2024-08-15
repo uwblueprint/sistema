@@ -3,6 +3,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && prisma migrate dev && next build && prisma db seed",
+    "local build": "next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint . --ext js,jsx,ts,tsx --fix",
@@ -12,7 +13,7 @@
     "prepare": "husky",
     "migrate": "prisma migrate dev",
     "postmigrate": "npx @snaplet/seed sync",
-    "postinstall": "prisma generate"
+    "postinstall": "node scripts/conditional-postinstall.js"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.2",
@@ -57,7 +58,8 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.6",
     "prettier": "^3.3.2",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "schema": "./prisma/schema.prisma"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

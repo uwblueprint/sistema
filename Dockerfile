@@ -6,9 +6,12 @@ WORKDIR /sistema
 
 # Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
+COPY scripts ./scripts
+COPY prisma ./prisma
 
 # Install dependencies using npm
 RUN npm install
+RUN npx prisma generate && npx prisma db push && npx @snaplet/seed sync && npx prisma db seed
 
 # Expose the port the app runs on
 EXPOSE 3000
