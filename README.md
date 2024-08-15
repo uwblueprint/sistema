@@ -139,6 +139,11 @@ SELECT * FROM <table-name>;
 
 ### Seeding the Database
 
+Full Command:
+```bash
+npx prisma generate; npx prisma db push; npx @snaplet/seed sync; npx prisma db seed
+```
+
 Local: Ensure the database is running locally
 Repull Secrets
 
