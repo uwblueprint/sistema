@@ -85,6 +85,7 @@ git push -f
 ```
 
 ### Docker Commands
+*Make sure that the NON POOLING URL is changed to db not localhost before running"
 
 If you’re new to Docker, you can learn more about `docker-compose` commands at
 this [docker compose overview](https://docs.docker.com/compose/reference/).
@@ -121,6 +122,13 @@ docker system prune -a --volumes
 
 ### Accessing PostgreSQL Database
 
+Run in two lines:
+```bash
+docker exec -it sistema-db-1 psql -U sistema -d sistema
+SELECT * FROM public."Absence";
+```
+
+Broken into Parts
 ```bash
 # run a bash shell in the container
 docker exec -it sistema-db-1 /bin/bash

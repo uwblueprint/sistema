@@ -13,10 +13,12 @@ COPY prisma ./prisma
 RUN npm install
 COPY .env* ./
 
+# Copy the startup script
+COPY start.sh ./
+RUN chmod +x start.sh
+
 # Expose the port the app runs on
 EXPOSE 3000
 
-# Start the Next.js application in development mode
-CMD ["npm", "run", "dev"]
-
-# RUN npx prisma generate && npx prisma db push && npx @snaplet/seed sync && npx prisma db seed
+# Use the startup script as the entry point
+CMD ["./start.sh"]
