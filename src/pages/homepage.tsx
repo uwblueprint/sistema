@@ -26,10 +26,7 @@ const Index = () => (
         can mark their absences, upload lesson plans, claim classes from other
         absent teachers, and receive class related email notifications. Our
         Stack is <Code>Next.js</Code> + <Code>chakra-ui</Code> +
-        
-        <Code>
-          this text was changed for the branch/pr made by the non-pro account.
-        </Code>.
+        <Code>Rahul made this change from his non-pro account</Code>.
       </Text>
 
       <List spacing={3} my={0} color="text">
