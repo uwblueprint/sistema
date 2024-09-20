@@ -1,5 +1,5 @@
 import { Container } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 type DriveFile = {
   id: string;
@@ -7,16 +7,18 @@ type DriveFile = {
 };
 
 export default function FileUploadForm() {
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState('');
   const [driveFiles, setDriveFiles] = useState<DriveFile[]>([]);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-    setFileName(e.target.files[0].name);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+      setFileName(e.target.files[0].name);
+    }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!file) return;
 
@@ -32,13 +34,7 @@ export default function FileUploadForm() {
 
       const data = await res.json();
       if (res.ok) {
-        const fakeEvent = { preventDefault: () => {} };
-        handleSearch(fakeEvent);
-      }
-      console.log('Upload result:', data);
-      if (res.ok) {
-        const fakeEvent = { preventDefault: () => {} };
-        handleSearch(fakeEvent);
+        await handleSearch();
         // Remove the deleted file from the state
         alert(data.message);
       } else {
@@ -50,25 +46,20 @@ export default function FileUploadForm() {
     }
   };
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-
+  const handleSearch = useCallback(async () => {
     try {
       const res = await fetch('/api/searchDrive/');
-
       const data = await res.json();
+      console.log('Search result:', data.results.files);
       setDriveFiles(data.results.files);
-
-      console.log('Search result:', driveFiles);
     } catch (error) {
       console.error('Error searching files:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    handleSearch({ preventDefault: () => {} });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    handleSearch();
+  }, [handleSearch]);
 
   const handleFileDelete = async (fileId: string) => {
     try {
@@ -78,9 +69,7 @@ export default function FileUploadForm() {
       const data = await response.json();
 
       if (response.ok) {
-        const fakeEvent = { preventDefault: () => {} };
-        handleSearch(fakeEvent);
-        // Remove the deleted file from the state
+        await handleSearch();
         alert(data.message);
       } else {
         throw new Error(data.message);
@@ -114,7 +103,7 @@ export default function FileUploadForm() {
             <button onClick={() => handleFileClick(file.id)}>
               {file.name + '_________'}
             </button>
-            <button onClick={() => handleFileDelete(file.id)}>delete</button>
+            <button onClick={() => handleFileDelete(file.id)}>Delete</button>
             <br />
           </div>
         ))}

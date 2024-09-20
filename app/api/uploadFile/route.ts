@@ -2,27 +2,55 @@ import { google } from 'googleapis';
 import { NextRequest, NextResponse } from 'next/server';
 import { Readable } from 'node:stream';
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   const formData = await req.formData();
 
-  const file: any = formData.get('file');
-  const fileBuffer = file.stream();
+  const file: File | null = formData.get('file') as File | null;
+  let fileBuffer: Buffer;
 
-  const filename: any = formData.get('fileName');
+  if (file instanceof File) {
+    const arrayBuffer = await file.arrayBuffer();
+    fileBuffer = Buffer.from(arrayBuffer);
+  } else {
+    console.error('No file was provided in the form data');
+    return NextResponse.json(
+      { error: 'No file was provided' },
+      { status: 400 }
+    );
+  }
 
-  const private_key = process.env.GDRIVE_PRIVATE_KEY.replace(/\\n/g, '\n');
+  const filename: string | null = formData.get('fileName') as string | null;
+
+  if (!filename) {
+    console.error('No filename was provided in the form data');
+    return NextResponse.json(
+      { error: 'No filename was provided' },
+      { status: 400 }
+    );
+  }
+
+  const private_key = process.env.GDRIVE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+  if (!private_key) {
+    return NextResponse.json(
+      { error: 'Missing Google Drive private key' },
+      { status: 500 }
+    );
+  }
 
   const auth = new google.auth.GoogleAuth({
     projectId: process.env.GDRIVE_PROJECTID,
     scopes: 'https://www.googleapis.com/auth/drive',
     credentials: {
       type: 'service_account',
-      client_id: process.env.GDRIVE_CLIENT_ID,
+      client_id: process.env.GDRIVE_PROJECT_ID,
       client_email: process.env.GDRIVE_CLIENT_EMAIL,
       private_key: private_key,
     },
   });
+
   const drive = google.drive({ version: 'v3', auth });
+
   try {
     const googleRes = await drive.files.create({
       requestBody: {
@@ -37,8 +65,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       },
       supportsAllDrives: true,
     });
-    console.log(googleRes);
-
+    
     return NextResponse.json(
       { message: 'File uploaded successfully' },
       { status: 200 }

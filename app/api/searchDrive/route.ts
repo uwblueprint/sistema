@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     scopes: 'https://www.googleapis.com/auth/drive',
     credentials: {
       type: 'service_account',
-      client_id: process.env.GDRIVE_CLIENT_ID,
+      client_id: process.env.GDRIVE_PROJECT_ID,
       client_email: process.env.GDRIVE_CLIENT_EMAIL,
       private_key: private_key,
     },
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
       }
     );
   } catch (err) {
-    console.error(err);
+    console.error('Error querying Google Drive:', err);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 }
