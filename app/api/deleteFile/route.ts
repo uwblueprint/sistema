@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function DELETE(req: NextRequest, res: NextResponse) {
+export async function DELETE(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const fileId = searchParams.get('fileId');
 

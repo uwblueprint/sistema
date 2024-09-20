@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
   const drive = google.drive({ version: 'v3', auth });
 
   try {
-    const googleRes = await drive.files.create({
+    await drive.files.create({
       requestBody: {
         name: filename,
         mimeType: 'application/pdf',
