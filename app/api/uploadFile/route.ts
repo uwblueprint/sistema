@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
       },
       supportsAllDrives: true,
     });
-    
+
     return NextResponse.json(
       { message: 'File uploaded successfully' },
       { status: 200 }
