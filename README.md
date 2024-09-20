@@ -110,6 +110,11 @@ docker-compose down
 ```
 
 ```bash
+# stops the containers and removes volumes
+docker-compose down --volumes
+```
+
+```bash
 # get Names & Statuses of Running Containers
 docker ps
 ```
