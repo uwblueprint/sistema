@@ -12,7 +12,7 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
     );
   }
   try {
-    const private_key = process.env.GDRIVE_PRIVATE_KEY.replace(/\\n/g, '\n');
+    const private_key = process.env.GDRIVE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
     if (!private_key) {
       return NextResponse.json(
@@ -20,7 +20,6 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
         { status: 500 }
       );
     }
-
 
     const auth = new google.auth.GoogleAuth({
       projectId: process.env.GDRIVE_PROJECT_ID,
