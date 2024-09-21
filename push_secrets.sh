@@ -5,13 +5,13 @@ ENV_FILE=".env"
 
 # Login to Vault
 echo "Logging into Vault..."
-vlt login
+hcp auth login
 if [ $? -ne 0 ]; then
 echo "Failed to login to Vault. Please check your credentials."
 exit 1
 fi
 
-vlt config init
+hcp profile init
 
 # Check if .env file exists and exit if it doesn't
 if [ ! -f "$ENV_FILE" ]; then
@@ -21,11 +21,11 @@ fi
 
 # Fetch all existing secret keys and delete them
 echo "Fetching and deleting all existing secrets..."
-SECRET_KEYS=$(vlt secrets list -format=json | grep -Eo '"([^"]*)"\s*:\s*"([^"]*)"' | sed -E 's/^"([^"]*)"\s*:\s*"([^"]*)"$/\1=\2/' | grep "^name=" | grep -v "@" | sed 's/^name=//')
+SECRET_KEYS=$(hcp vault-secrets secrets list --format=json | grep -Eo '"([^"]*)"\s*:\s*"([^"]*)"' | sed -E 's/^"([^"]*)"\s*:\s*"([^"]*)"$/\1=\2/' | grep "^name=" | grep -v "@" | sed 's/^name=//')
 
 for secret_key in $SECRET_KEYS; do
     echo "Deleting secret with name $secret_key"
-    vlt secrets delete "$secret_key" || echo "Failed to delete secret $secret_key."
+    hcp vault-secrets secrets delete "$secret_key" --app=sistema || echo "Failed to delete secret $secret_key."
     echo ""
 done
 
@@ -33,7 +33,7 @@ done
 while IFS='=' read -r key value; do
     if [ -n "$key" ] && [ -n "$value" ]; then
         # Create the secret with the new value
-        vlt secrets create "$key"="$value" || echo "Failed to create secret for $key."
+        echo -n "$value" | hcp vault-secrets secrets create "$key" --app=sistema --data-file=- || echo "Failed to create secret for $key."
         echo ""
     fi
 done < "$ENV_FILE"
