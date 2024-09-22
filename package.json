@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "prisma generate && prisma migrate dev && next build && prisma db seed",
+    "dev": "prisma generate && prisma migrate dev && next dev",
+    "build": "next build",
     "local build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -13,7 +13,7 @@
     "prepare": "husky",
     "migrate": "prisma migrate dev",
     "postmigrate": "npx @snaplet/seed sync",
-    "postinstall": "node scripts/conditional-postinstall.js"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.2",
