@@ -147,18 +147,20 @@ psql -U sistema -d sistema
 # quit
 \q
 # you can run any SQL query, don't forget the semicolon!
-SELECT * FROM <table-name>;
+SELECT * FROM public."<table-name>";
 ```
 
 ### Seeding the Database
+** Database seeds automatically when docker compose build --up is run. Only run the following commands if the auto seeding fails.
 
-Full Command:
-```bash
-npx prisma generate; npx prisma db push; npx @snaplet/seed sync; npx prisma db seed
-```
+Full Command for Manual Seeding:
 
 Local: Ensure the database is running locally
 Repull Secrets
+
+```bash
+npx prisma generate; npx prisma db push; npx @snaplet/seed sync; npx prisma db seed
+```
 
 Run the following commands:
 
@@ -173,9 +175,6 @@ npx @snaplet/seed sync
 
 # Seeding the database according to seed.ts
 npx prisma db seed
-
-# Check if the tables are seeded correctly
-SELECT * FROM public."<Table-name>";
 
 ```
 
