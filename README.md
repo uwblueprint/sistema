@@ -34,9 +34,9 @@ npm install
 
 ## Secrets
 
-- Create A [HashiCorp Clous Cloud Platform Account](https://portal.cloud.hashicorp.com/sign-in?ajs_aid=9085f07d-f411-42b4-855b-72795f4fdbcc&product_intent=vault)
+- Create A [HashiCorp Cloud Platform Account](https://portal.cloud.hashicorp.com/sign-in?ajs_aid=9085f07d-f411-42b4-855b-72795f4fdbcc&product_intent=vault)
 - Install [HashiCorp Vault](https://developer.hashicorp.com/hcp/tutorials/get-started-hcp-vault-secrets/hcp-vault-secrets-install-cli#install-hcp-vault-secrets-cli) in order to pull secrets
-- Log in to Vault
+- In the folder where you cloned the Sistema repository, log into Vault
 
 ```bash
 vlt login
@@ -111,6 +111,11 @@ docker-compose down
 ```
 
 ```bash
+# stops the containers and removes volumes
+docker-compose down --volumes
+```
+
+```bash
 # get Names & Statuses of Running Containers
 docker ps
 ```
@@ -142,18 +147,20 @@ psql -U sistema -d sistema
 # quit
 \q
 # you can run any SQL query, don't forget the semicolon!
-SELECT * FROM <table-name>;
+SELECT * FROM public."<table-name>";
 ```
 
 ### Seeding the Database
+** Database seeds automatically when docker compose build --up is run. Only run the following commands if the auto seeding fails.
 
-Full Command:
-```bash
-npx prisma generate; npx prisma db push; npx @snaplet/seed sync; npx prisma db seed
-```
+Full Command for Manual Seeding:
 
 Local: Ensure the database is running locally
 Repull Secrets
+
+```bash
+npx prisma generate; npx prisma db push; npx @snaplet/seed sync; npx prisma db seed
+```
 
 Run the following commands:
 
@@ -168,9 +175,6 @@ npx @snaplet/seed sync
 
 # Seeding the database according to seed.ts
 npx prisma db seed
-
-# Check if the tables are seeded correctly
-SELECT * FROM public."<Table-name>";
 
 ```
 
