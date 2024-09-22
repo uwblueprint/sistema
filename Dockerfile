@@ -21,4 +21,4 @@ RUN chmod +x start.sh
 EXPOSE 3000
 
 # Use the startup script as the entry point
-CMD ["./start.sh"]
+ENTRYPOINT ["/bin/sh", "./start.sh"]
