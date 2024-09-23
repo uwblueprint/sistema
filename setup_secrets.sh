@@ -5,13 +5,13 @@ ENV_FILE=".env"
 
 # Login to Vault
 echo "Logging into Vault..."
-hcp auth login 
+hcp auth login
 if [ $? -ne 0 ]; then
 echo "Failed to login to Vault. Please check your credentials."
 exit 1
 fi
 
-hcp profile init 
+hcp profile init
 
 # Check if .env file exists and delete it if it does
 if [ -f "$ENV_FILE" ]; then
