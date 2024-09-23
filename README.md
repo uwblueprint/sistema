@@ -39,13 +39,13 @@ npm install
 - In the folder where you cloned the Sistema repository, log into Vault
 
 ```bash
-vlt login
+hcp auth login
 ```
 
 - Configure the Vault Command Line Interface
 
 ```bash
-vlt config init
+hcp profile init
 ```
 
 - Select the `sistema` Organization and Project
