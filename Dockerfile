@@ -6,7 +6,6 @@ WORKDIR /sistema
 
 # Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
-COPY scripts ./scripts
 COPY prisma ./prisma
 
 # Install dependencies using npm
