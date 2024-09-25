@@ -85,7 +85,6 @@ git push -f
 ```
 
 ### Docker Commands
-*Make sure that the NON POOLING URL is changed to db not localhost before running"
 
 If you’re new to Docker, you can learn more about `docker-compose` commands at
 this [docker compose overview](https://docs.docker.com/compose/reference/).
@@ -133,7 +132,7 @@ docker exec -it sistema-db-1 psql -U sistema -d sistema
 SELECT * FROM public."Absence";
 ```
 
-Broken into Parts
+Running the commands line by line.
 ```bash
 # run a bash shell in the container
 docker exec -it sistema-db-1 /bin/bash
@@ -153,10 +152,9 @@ SELECT * FROM public."<table-name>";
 ### Seeding the Database
 ** Database seeds automatically when docker compose build --up is run. Only run the following commands if the auto seeding fails.
 
-Full Command for Manual Seeding:
-
-Local: Ensure the database is running locally
-Repull Secrets
+Full Commands for Manual Seeding:
+- Local: In schema.prisma, set env to DATABASE_URL. Ensure the database is running locally
+- Production: Repull secrets and set to VERCEL_DATABASE_NON_POOLING. Then seed Manually
 
 ```bash
 npx prisma generate; npx prisma db push; npx @snaplet/seed sync; npx prisma db seed

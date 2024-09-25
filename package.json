@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "dev": "prisma generate && prisma migrate dev && next dev",
+    "dev": "next dev",
     "build": "next build",
     "local build": "next build",
     "start": "next start",
