@@ -21,7 +21,7 @@ fi
 
 # Fetch all existing secret keys and delete them
 echo "Fetching and deleting all existing secrets..."
-SECRET_KEYS=$(hcp vault-secrets secrets list --format=json | grep -Eo '"([^"]*)"\s*:\s*"([^"]*)"' | sed -E 's/^"([^"]*)"\s*:\s*"([^"]*)"$/\1=\2/' | grep "^name=" | grep -v "@" | sed 's/^name=//')
+SECRET_KEYS=$(hcp vault-secrets secrets list --format=json --app=sistema | grep -Eo '"([^"]*)"\s*:\s*"([^"]*)"' | sed -E 's/^"([^"]*)"\s*:\s*"([^"]*)"$/\1=\2/' | grep "^name=" | grep -v "@" | sed 's/^name=//')
 
 for secret_key in $SECRET_KEYS; do
     echo "Deleting secret with name $secret_key"
