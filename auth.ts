@@ -1,9 +1,18 @@
-// This is the configuration file for next-auth (now, more generally known as auth.js) https://authjs.dev/
-// Expects the following in the .env file: AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET
+// auth.ts or [...nextauth].ts
 
 import NextAuth from 'next-auth';
-import Google from 'next-auth/providers/google';
+import GoogleProvider from 'next-auth/providers/google';
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [Google],
-});
+export const authOptions = {
+  providers: [
+    GoogleProvider({
+      clientId: process.env.AUTH_GOOGLE_ID as string,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET as string,
+    }),
+  ],
+  secret: process.env.AUTH_SECRET,
+  // You can add callbacks or other NextAuth options here if needed
+};
+
+// Export NextAuth configured with the options
+export default NextAuth(authOptions);

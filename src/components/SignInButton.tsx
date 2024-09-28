@@ -4,7 +4,13 @@ import { signIn } from 'next-auth/react';
 
 export function SignInButton() {
   return (
-    <button onClick={() => signIn('google', { callbackUrl: `/homepage` })}>
+    <button
+      onClick={() =>
+        signIn('google', {
+          callbackUrl: `https://www.google.com/`,
+        })
+      }
+    >
       Sign In Google
     </button>
   );
