@@ -126,7 +126,7 @@ docker system prune -a --volumes
 
 ### Accessing PostgreSQL Database
 
-Run in two lines:
+Run in two lines (View Absences Table):
 ```bash
 docker exec -it sistema-db-1 psql -U sistema -d sistema
 SELECT * FROM public."Absence";
@@ -149,12 +149,10 @@ psql -U sistema -d sistema
 SELECT * FROM public."<table-name>";
 ```
 
-### Seeding the Database
-** Database seeds automatically when docker compose build --up is run. Only run the following commands if the auto seeding fails.
+### Seeding the Production Database
+** Database seeds automatically locally when docker compose build --up is run. Only run the following commands to seed the production database.
 
-Full Commands for Manual Seeding:
-- Local: In schema.prisma, set env to DATABASE_URL. Ensure the database is running locally
-- Production: Repull secrets and set to VERCEL_DATABASE_NON_POOLING. Then seed Manually
+In the schema.prisma, set env variable to VERCEL_DATABASE_NON_POOLING. Then run the following command.
 
 ```bash
 npx prisma generate; npx prisma db push; npx @snaplet/seed sync; npx prisma db seed

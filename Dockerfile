@@ -4,18 +4,14 @@ FROM node:20-alpine
 # Set the working directory
 WORKDIR /sistema
 
-# Copy package.json, package-lock.json, and prisma directory
+# Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
+
+# Copy Prisma Schema
 COPY prisma ./prisma
 
 # Install dependencies using npm
 RUN npm install
-
-# Copy the rest of the application code
-COPY . .
-
-# Copy environment variables
-COPY .env* ./
 
 # Expose the port the app runs on
 EXPOSE 3000
