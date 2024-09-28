@@ -39,7 +39,7 @@ model Location {
   id           Int       @id @default(autoincrement())
   name         String
   abbreviation String
-  absences     Absence[]
+  Absence      Absence[]
 }
 
 model MailingList {
@@ -52,7 +52,7 @@ model Subject {
   id           Int       @id @default(autoincrement())
   name         String
   abbreviation String
-  absences     Absence[]
+  Absence      Absence[]
 }
 
 enum Role {
