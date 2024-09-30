@@ -58,10 +58,20 @@ Use the arrow keys to navigate: ↓ ↑ → ←
   ▸ sistema
 ```
 
+### Copying secrets from the vault to local
+
 - Copy secrets to a `.env` file
 
 ```bash
 ./setup_secrets.sh
+```
+
+### Sending all local secrets to the vault (warning: this overwrites all secrets)
+
+- Push secrets from `.env` file to HashiCorp Vault
+
+```bash
+./push_secrets.sh
 ```
 
 ## Version Control Guide
