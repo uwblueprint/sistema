@@ -4,8 +4,9 @@ FROM node:20-alpine
 # Set the working directory
 WORKDIR /sistema
 
-# Copy package.json and package-lock.json
+# Copy package.json, package-lock.json, and prisma directory
 COPY package.json package-lock.json ./
+COPY prisma ./prisma
 
 # Install dependencies using npm
 RUN npm install

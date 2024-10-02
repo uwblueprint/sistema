@@ -67,7 +67,7 @@ const InputForm: React.FC<InputFormProps> = ({
 
   return (
     <Box as="form" onSubmit={handleAddAbsence} p={4}>
-      <FormControl mb={3}>
+      <FormControl mb={3} isRequired>
         <FormLabel>Lesson Plan</FormLabel>
         <Input
           type="text"
@@ -77,7 +77,7 @@ const InputForm: React.FC<InputFormProps> = ({
           color="black"
         />
       </FormControl>
-      <FormControl mb={3}>
+      <FormControl mb={3} isRequired>
         <FormLabel>Reason of Absence</FormLabel>
         <Input
           type="text"
@@ -88,7 +88,7 @@ const InputForm: React.FC<InputFormProps> = ({
           color="black"
         />
       </FormControl>
-      <FormControl mb={3}>
+      <FormControl mb={3} isRequired>
         <FormLabel>Absent Teacher ID</FormLabel>
         <Input
           type="number"
@@ -109,7 +109,7 @@ const InputForm: React.FC<InputFormProps> = ({
           color="black"
         />
       </FormControl>
-      <FormControl mb={3}>
+      <FormControl mb={3} isRequired>
         <FormLabel>Location ID</FormLabel>
         <Input
           type="number"
@@ -120,7 +120,7 @@ const InputForm: React.FC<InputFormProps> = ({
           color="black"
         />
       </FormControl>
-      <FormControl mb={3}>
+      <FormControl mb={3} isRequired>
         <FormLabel>Subject ID</FormLabel>
         <Input
           type="number"
