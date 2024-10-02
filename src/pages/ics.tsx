@@ -1,7 +1,11 @@
+import React, { useState, useEffect } from 'react';
 import { EventAttributes } from 'ics';
+import { writeFileSync } from 'fs';
 import * as ics from 'ics';
 
 export default function CalendarDownload() {
+  const [absences, setabsences] = useState<EventAttributes[]>([]);
+
   const searchAbsences = async (e) => {
     e.preventDefault();
     try {
@@ -9,7 +13,7 @@ export default function CalendarDownload() {
       const data = await res.json();
       const events = data.body.events;
 
-      return events;
+      setabsences(events);
       console.log(events);
     } catch (err) {
       console.log(err);
@@ -17,10 +21,10 @@ export default function CalendarDownload() {
   };
 
   async function handleDownload() {
-    const events = await searchAbsences(event);
+    searchAbsences(event);
     const filename = 'Sistema.ics';
     const file = await new Promise((resolve, reject) => {
-      ics.createEvents(events as EventAttributes[], (error, value) => {
+      ics.createEvents(absences as EventAttributes[], (error, value) => {
         if (error) {
           reject(error);
         }

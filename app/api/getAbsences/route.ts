@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { availableParallelism } from 'os';
+import { EventAttributes } from 'ics';
 
 // PrismaClient is attached to the `global` object in development to prevent
 // exhausting your database connection limit.
@@ -14,7 +16,7 @@ if (process.env.NODE_ENV === 'production') {
   prisma = (global as any).prisma;
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const absences = await prisma.absence.findMany({
       select: {
@@ -90,7 +92,7 @@ export async function GET() {
 
       return {
         // start: [2024, 7, 8, 12, 15],
-        start: extractTimeArray(absence.lessonDate),
+        start: absence.lessonDate.getTime(),
         duration: { hours: 2, minutes: 30 },
         title:
           absence.absentTeacher.firstName +
@@ -102,7 +104,7 @@ export async function GET() {
           'For issues regarding unclaiming absences and lesson plans, please contact admin',
         location: absence.location.name,
         url: absence.lessonPlan,
-        categories: [absence.subject.name],
+        categories: [absence.subject],
         status: 'TENTATIVE',
         organizer: {
           name: 'Sistema Toronto',
@@ -121,3 +123,10 @@ export async function GET() {
     });
   }
 }
+
+// const prisma = new PrismaClient()
+
+// export default async function handle(req,res) {
+//   const Absences = await prisma.absence.findMany()
+//   res.json(Absences)
+// }
