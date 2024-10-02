@@ -1,6 +1,7 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { SignOutButton } from '../components/SignOutButton';
+import { Image } from '@chakra-ui/react';
 
 export default function AnotherPage() {
   const { data: session, status } = useSession();
@@ -43,7 +44,7 @@ export default function AnotherPage() {
           <p>Email: {session.user.email}</p>
           <p>Image:</p>
           {session.user.image && (
-            <img src={session.user.image} alt="User Image" />
+            <Image src={session.user.image} alt="User Image" />
           )}
 
           <hr />
