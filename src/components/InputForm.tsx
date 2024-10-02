@@ -40,28 +40,38 @@ const InputForm: React.FC<InputFormProps> = ({
 
   const handleAddAbsence = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newAbsence: Absence = {
-      lessonDate: initialDate,
-      lessonPlan: lessonPlan || null,
-      reasonOfAbsence,
-      absentTeacherId: parseInt(absentTeacherId, 10),
-      substituteTeacherId: substituteTeacherId
-        ? parseInt(substituteTeacherId, 10)
-        : null,
-      locationId: parseInt(locationId, 10),
-      subjectId: parseInt(subjectId, 10),
-    };
-    const success = await onAddAbsence(newAbsence);
-    if (success) {
-      setLessonPlan('');
-      setReasonOfAbsence('');
-      setAbsentTeacherId('');
-      setSubstituteTeacherId('');
-      setLocationId('');
-      setSubjectId('');
-      onClose();
-    } else {
-      setError('Invalid input. Please enter correct details.');
+
+    try {
+      const newAbsence: Absence = {
+        lessonDate: initialDate,
+        lessonPlan: lessonPlan || null,
+        reasonOfAbsence,
+        absentTeacherId: parseInt(absentTeacherId, 10),
+        substituteTeacherId: substituteTeacherId
+          ? parseInt(substituteTeacherId, 10)
+          : null,
+        locationId: parseInt(locationId, 10),
+        subjectId: parseInt(subjectId, 10),
+      };
+
+      // Pass the newAbsence object to onAddAbsence and await the response
+      const success = await onAddAbsence(newAbsence);
+
+      if (success) {
+        // Clear the form on successful submission
+        setLessonPlan('');
+        setReasonOfAbsence('');
+        setAbsentTeacherId('');
+        setSubstituteTeacherId('');
+        setLocationId('');
+        setSubjectId('');
+        onClose();
+      } else {
+        setError('Invalid input. Please enter correct details.');
+      }
+    } catch (err) {
+      // In case of any error, set the error message
+      setError('Something went wrong. Please try again.');
     }
   };
 
