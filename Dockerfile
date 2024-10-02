@@ -14,6 +14,9 @@ COPY prisma ./prisma/
 # Copy Prisma Schema
 COPY prisma ./prisma
 
+# Copy Prisma Schema
+COPY prisma ./prisma
+
 # Install dependencies using npm
 RUN npm install
 
