@@ -8,11 +8,21 @@ WORKDIR /sistema
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
 
+# Copy Prisma Schema
+COPY prisma ./prisma
+
 # Install dependencies using npm
 RUN npm install
 
 # Expose the port the app runs on
 EXPOSE 3000
 
-# Start the Next.js application in development mode
-CMD ["npm", "run", "dev"]
+# Run the application
+CMD echo "Waiting for database to be ready..." && \
+    echo "Running Prisma commands..." && \
+    npx prisma generate && \
+    npx prisma db push && \
+    npx @snaplet/seed sync && \
+    npx prisma db seed && \
+    echo "Starting Next.js application..." && \
+    npm run dev
