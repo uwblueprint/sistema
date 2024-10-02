@@ -20,16 +20,16 @@ cd sistema
 cp .env.sample .env
 ```
 
-- Build and start the Docker containers
-
-```bash
-docker-compose up --build
-```
-
 - Install dependencies locally
 
 ```bash
 npm install
+```
+
+- Build and start the Docker containers
+
+```bash
+docker-compose up --build
 ```
 
 ## Secrets
