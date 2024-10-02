@@ -1,181 +1,164 @@
-import React, { useState } from 'react';
-import {
-  EventApi,
-  DateSelectArg,
-  EventClickArg,
-  EventContentArg,
-  formatDate,
-} from '@fullcalendar/core';
+import React, { useState, useRef, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { INITIAL_EVENTS, createEventId } from './event-utils';
-import {
-  Box,
-  Flex,
-  Heading,
-  List,
-  ListItem,
-  Text,
-  Switch,
-  VStack,
-  useColorModeValue,
-} from '@chakra-ui/react';
+import { DateTime } from 'luxon';
 
-const DemoApp: React.FC = () => {
-  const [weekendsVisible, setWeekendsVisible] = useState(true);
-  const [currentEvents, setCurrentEvents] = useState<EventApi[]>([]);
+const MyCalendar: React.FC = () => {
+  const containerRef = useRef<HTMLDivElement | null>(null); // Ref to track the scrollable container
+  const calendarRefs = useRef<(ReturnType<FullCalendar['getApi']> | null)[]>(
+    []
+  ); // Array of refs to FullCalendar APIs
+  const [currentMonth, setCurrentMonth] = useState<string>(
+    DateTime.local().toFormat('MMMM yyyy')
+  ); // Pinned header month
+  const [monthsToShow, setMonthsToShow] = useState<string[]>([
+    DateTime.local().toISODate(),
+  ]); // Show current month first
 
-  const handleWeekendsToggle = () => {
-    setWeekendsVisible(!weekendsVisible);
+  const today = DateTime.local(); // Get the current date
+
+  // Sample events
+  const [events] = useState([
+    { title: 'Event 1', start: '2024-09-01' },
+    { title: 'Event 2', start: '2024-09-05' },
+    { title: 'Event 3', start: '2024-10-01' },
+  ]);
+
+  // Handle scroll detection and trigger loading more months
+  const handleScroll = () => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+
+    // Log scroll positions for debugging
+    console.log('scrollTop:', scrollTop);
+    console.log('scrollHeight:', scrollHeight);
+    console.log('clientHeight:', clientHeight);
+
+    // Load the next month if scrolling to the bottom
+    if (scrollTop + clientHeight >= scrollHeight - 1) {
+      console.log('Loading next month');
+      loadMoreMonths('next');
+    }
+
+    // Load the previous month if scrolling to the top
+    if (scrollTop <= 0) {
+      console.log('Loading previous month');
+      loadMoreMonths('prev');
+    }
+
+    // Update the current month based on the closest visible calendar
+    let bestMonth = '';
+    let smallestDistance = Number.POSITIVE_INFINITY;
+
+    calendarRefs.current.forEach((calendarApi, index) => {
+      if (calendarApi) {
+        const calendarEl = container.querySelectorAll('.fc')[index]; // Get each FullCalendar DOM element
+        if (calendarEl) {
+          const rect = calendarEl.getBoundingClientRect();
+          const distanceFromViewportCenter = Math.abs(
+            rect.top + rect.height / 2 - window.innerHeight / 2
+          ); // Distance from center of viewport
+
+          if (distanceFromViewportCenter < smallestDistance) {
+            smallestDistance = distanceFromViewportCenter;
+            const monthInView = DateTime.fromJSDate(
+              calendarApi.view.currentStart
+            ).toFormat('MMMM yyyy');
+            bestMonth = monthInView;
+          }
+        }
+      }
+    });
+
+    if (bestMonth && bestMonth !== currentMonth) {
+      setCurrentMonth(bestMonth);
+    }
   };
 
-  const handleDateSelect = (selectInfo: DateSelectArg) => {
-    let title = prompt('Please enter a new title for your event');
-    let calendarApi = selectInfo.view.calendar;
+  // Load more months when scrolling
+  const loadMoreMonths = (direction: 'next' | 'prev') => {
+    if (direction === 'prev') {
+      const firstMonthShown = DateTime.fromISO(monthsToShow[0]);
+      if (firstMonthShown <= today.startOf('month')) {
+        return; // Don't load past the current month
+      }
+    }
 
-    calendarApi.unselect(); // clear date selection
-
-    if (title) {
-      calendarApi.addEvent({
-        id: createEventId(),
-        title,
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-        allDay: selectInfo.allDay,
+    let newMonth: DateTime;
+    if (direction === 'next') {
+      newMonth = DateTime.fromISO(monthsToShow[monthsToShow.length - 1]).plus({
+        months: 1,
       });
+    } else {
+      newMonth = DateTime.fromISO(monthsToShow[0]).minus({ months: 1 });
     }
+
+    const newMonthISO = newMonth.toISODate()!;
+    setMonthsToShow((prevMonths) =>
+      direction === 'next'
+        ? [...prevMonths, newMonthISO]
+        : [newMonthISO, ...prevMonths]
+    );
   };
 
-  const handleEventClick = (clickInfo: EventClickArg) => {
-    if (
-      confirm(
-        `Are you sure you want to delete the event '${clickInfo.event.title}'`
-      )
-    ) {
-      clickInfo.event.remove();
+  // Attach scroll event handler
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => {
+        container.removeEventListener('scroll', handleScroll);
+      };
     }
-  };
-
-  const handleEvents = (events: EventApi[]) => {
-    setCurrentEvents(events);
-  };
+  }, [monthsToShow, currentMonth]);
 
   return (
-    <Flex flexDirection="column" align="center" p={5}>
-      <Sidebar
-        weekendsVisible={weekendsVisible}
-        currentEvents={currentEvents}
-        onToggleWeekends={handleWeekendsToggle}
-      />
-      <Box w="100%" p={5} borderWidth={1} borderRadius="md" boxShadow="lg">
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay',
-          }}
-          initialView="dayGridMonth"
-          editable={true}
-          selectable={true}
-          selectMirror={true}
-          dayMaxEvents={true}
-          weekends={weekendsVisible}
-          initialEvents={INITIAL_EVENTS}
-          select={handleDateSelect}
-          eventContent={renderEventContent}
-          eventClick={handleEventClick}
-          eventsSet={handleEvents}
-        />
-      </Box>
-    </Flex>
+    <div>
+      {/* Pinned header displaying the current month */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: '#f0f0f0',
+          padding: '10px',
+          zIndex: 1000,
+        }}
+      >
+        <h2>{currentMonth}</h2>
+      </div>
+
+      {/* Scrollable container */}
+      <div
+        style={{ height: '100vh', overflowY: 'auto', marginTop: '60px' }}
+        ref={containerRef}
+      >
+        {monthsToShow.map((monthStart, index) => (
+          <div key={monthStart} style={{ marginBottom: '40px' }}>
+            <FullCalendar
+              plugins={[dayGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              initialDate={monthStart} // Start the calendar at the given month
+              editable={true}
+              selectable={true}
+              dayMaxEvents={true}
+              events={events}
+              headerToolbar={false} // Disable the header toolbar to remove the navigation buttons
+              ref={(el) => {
+                if (el) {
+                  calendarRefs.current[index] = el.getApi(); // Access the Calendar API and store it in the refs array
+                }
+              }}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 
-interface SidebarProps {
-  weekendsVisible: boolean;
-  currentEvents: EventApi[];
-  onToggleWeekends: () => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({
-  weekendsVisible,
-  currentEvents,
-  onToggleWeekends,
-}) => {
-  const bgColor = useColorModeValue('gray.100', 'gray.800');
-
-  return (
-    <VStack
-      spacing={4}
-      w="full"
-      maxW="300px"
-      p={4}
-      mb={4}
-      borderWidth={1}
-      borderRadius="md"
-      boxShadow="lg"
-      bg={bgColor}
-      alignItems="flex-start"
-    >
-      <Box w="full">
-        <Heading size="md" mb={2}>
-          Instructions
-        </Heading>
-        <List spacing={1}>
-          <ListItem>
-            Select dates and you will be prompted to create a new event
-          </ListItem>
-          <ListItem>Drag, drop, and resize events</ListItem>
-          <ListItem>Click an event to delete it</ListItem>
-        </List>
-      </Box>
-      <Box w="full">
-        <Flex alignItems="center" justifyContent="space-between">
-          <Text>Toggle Weekends</Text>
-          <Switch
-            isChecked={weekendsVisible}
-            onChange={onToggleWeekends}
-            size="lg"
-          />
-        </Flex>
-      </Box>
-      <Box w="full">
-        <Heading size="md" mb={2}>
-          All Events ({currentEvents.length})
-        </Heading>
-        <List spacing={1}>{currentEvents.map(renderSidebarEvent)}</List>
-      </Box>
-    </VStack>
-  );
-};
-
-function renderEventContent(eventContent: EventContentArg) {
-  return (
-    <Box>
-      <Text as="b">{eventContent.timeText}</Text>
-      <Text as="i">{eventContent.event.title}</Text>
-    </Box>
-  );
-}
-
-function renderSidebarEvent(event: EventApi) {
-  return (
-    <ListItem key={event.id}>
-      <Text>
-        <Text as="b">
-          {formatDate(event.start!, {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-          })}
-        </Text>{' '}
-        <Text as="i">{event.title}</Text>
-      </Text>
-    </ListItem>
-  );
-}
-
-export default DemoApp;
+export default MyCalendar;
