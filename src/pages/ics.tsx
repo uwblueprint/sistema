@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { EventAttributes } from 'ics';
-import { writeFileSync } from 'fs';
 import * as ics from 'ics';
 
 export default function CalendarDownload() {
