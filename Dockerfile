@@ -1,5 +1,6 @@
 # Use the official Node.js image
 FROM node:20-alpine
+
 # Set the working directory
 WORKDIR /sistema
 
