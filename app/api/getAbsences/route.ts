@@ -55,7 +55,7 @@ export async function GET() {
       return [
         date.getFullYear(),
         date.getMonth() + 1,
-        date.getDay(),
+        date.getDate(),
         date.getHours(),
         date.getMinutes(),
       ];
