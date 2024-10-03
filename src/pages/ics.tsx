@@ -49,9 +49,6 @@ export default function CalendarDownload() {
 
     try {
       const events = await searchAbsences();
-      if (events.length === 0) {
-        throw new Error('No events found');
-      }
       const file = await createCalendarFile(events);
       downloadFile(file);
     } catch (error) {
