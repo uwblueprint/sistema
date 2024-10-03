@@ -12,13 +12,7 @@ export default function CalendarDownload() {
       console.log('Fetched events:', events);
 
       // Ensure events are in the correct format for ics
-      return events.map((event: any) => ({
-        start: [event.startYear, event.startMonth, event.startDay],
-        end: [event.endYear, event.endMonth, event.endDay],
-        title: event.title,
-        description: event.description,
-        // Add any other required fields
-      }));
+      return events;
     } catch (err) {
       console.error('Error fetching absences:', err);
       throw err;

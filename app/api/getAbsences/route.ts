@@ -1,8 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
-// PrismaClient is attached to the `global` object in development to prevent
-// exhausting your database connection limit.
 let prisma: PrismaClient;
 
 if (process.env.NODE_ENV === 'production') {
@@ -50,6 +48,8 @@ export async function GET() {
         },
       },
     });
+
+    console.log(absences);
 
     const extractTimeArray = function (date: Date) {
       return [
