@@ -37,8 +37,9 @@ export default function CalendarDownload() {
     URL.revokeObjectURL(url);
   };
 
-  const handleDownload = async () => {
+  const handleDownload = async (event: React.MouseEvent<HTMLButtonElement>) => {
     try {
+      event.preventDefault();
       const events = await searchAbsences();
       const file = await createCalendarFile(events);
       downloadFile(file);
