@@ -1,15 +1,26 @@
+import React, { useState } from 'react';
 import { EventAttributes, createEvents } from 'ics';
 
 export default function CalendarDownload() {
-  const searchAbsences = async () => {
+  const [error, setError] = useState<string | null>(null);
+
+  const searchAbsences = async (): Promise<EventAttributes[]> => {
     try {
       const res = await fetch('/api/getAbsences/');
       const data = await res.json();
       const events = data.body.events;
-      console.log(events);
-      return events;
+      console.log('Fetched events:', events);
+
+      // Ensure events are in the correct format for ics
+      return events.map((event: any) => ({
+        start: [event.startYear, event.startMonth, event.startDay],
+        end: [event.endYear, event.endMonth, event.endDay],
+        title: event.title,
+        description: event.description,
+        // Add any other required fields
+      }));
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching absences:', err);
       throw err;
     }
   };
@@ -18,9 +29,10 @@ export default function CalendarDownload() {
     return new Promise((resolve, reject) => {
       createEvents(events, (error, value) => {
         if (error) {
+          console.error('Error creating events:', error);
           reject(error);
         } else {
-          resolve(new File([value], 'Sistema.ics', { type: 'text/calendar' }));
+          resolve(new File([value], 'Absences.ics', { type: 'text/calendar' }));
         }
       });
     });
@@ -38,20 +50,26 @@ export default function CalendarDownload() {
   };
 
   const handleDownload = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    setError(null);
+
     try {
-      event.preventDefault();
       const events = await searchAbsences();
+      if (events.length === 0) {
+        throw new Error('No events found');
+      }
       const file = await createCalendarFile(events);
       downloadFile(file);
     } catch (error) {
       console.error('Error during download process:', error);
-      // Handle the error appropriately, e.g., show an error message to the user
+      setError('Failed to download calendar. Please try again later.');
     }
   };
 
   return (
     <div>
       <button onClick={handleDownload}>Download iCal File</button>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 }
