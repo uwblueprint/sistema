@@ -53,7 +53,9 @@ export default async function handler(
       });
       res.status(200).json({ message: 'Absence deleted' });
     } catch (error) {
-      res.status(500).json({ error: 'Failed to delete absence' });
+      res
+        .status(500)
+        .json({ error: 'Failed to delete absence', message: error.message });
     }
   } else {
     res.setHeader('Allow', ['GET', 'POST', 'DELETE']);

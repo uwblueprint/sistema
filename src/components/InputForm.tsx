@@ -71,7 +71,7 @@ const InputForm: React.FC<InputFormProps> = ({
       }
     } catch (err) {
       // In case of any error, set the error message
-      setError('Something went wrong. Please try again.');
+      setError(err);
     }
   };
 
