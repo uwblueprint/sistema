@@ -9,7 +9,7 @@ export default function CalendarDownload() {
       const res = await fetch('/api/getAbsences/');
       const data = await res.json();
       const events = data.body.events;
-      console.log('Fetched events:', events);
+      console.log('Fetched events:', data);
 
       // Ensure events are in the correct format for ics
       return events;

@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgres://default:4xeBtlH1mvSP@ep-steep-bread-a4xjc2bw.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require"
 }
 
 model Absence {

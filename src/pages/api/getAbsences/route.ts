@@ -27,7 +27,6 @@ export async function GET() {
             firstName: true,
             lastName: true,
             email: true,
-            // Add any other fields you need from the User model
           },
         },
         substituteTeacher: {
@@ -36,20 +35,20 @@ export async function GET() {
             firstName: true,
             lastName: true,
             email: true,
-            // Add any other fields you need from the User model
           },
         },
         location: {
           select: {
             id: true,
             name: true,
-            // Add any other fields you need from the Location model
           },
         },
       },
     });
 
-    console.log(absences);
+    if (!absences || absences.length === 0) {
+      return NextResponse.json({ events: [] }, { status: 200 });
+    }
 
     const extractTimeArray = function (date: Date) {
       return [
@@ -64,10 +63,7 @@ export async function GET() {
     const events = absences.map((absence) => {
       const attendees = [
         {
-          name:
-            absence.absentTeacher.firstName +
-            ' ' +
-            absence.absentTeacher.lastName,
+          name: `${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName}`,
           email: absence.absentTeacher.email,
           rsvp: true,
           partstat: 'TENTATIVE',
@@ -77,10 +73,7 @@ export async function GET() {
 
       if (absence.substituteTeacher) {
         attendees.push({
-          name:
-            absence.substituteTeacher.firstName +
-            ' ' +
-            absence.substituteTeacher.lastName,
+          name: `${absence.substituteTeacher.firstName} ${absence.substituteTeacher.lastName}`,
           email: absence.substituteTeacher.email,
           rsvp: true,
           partstat: 'TENTATIVE',
@@ -89,20 +82,14 @@ export async function GET() {
       }
 
       return {
-        // start: [2024, 7, 8, 12, 15],
         start: extractTimeArray(absence.lessonDate),
         duration: { hours: 2, minutes: 30 },
-        title:
-          absence.absentTeacher.firstName +
-          ' ' +
-          absence.absentTeacher.lastName +
-          "'s " +
-          absence.subject,
+        title: `${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName}'s ${absence.subject}`,
         description:
           'For issues regarding unclaiming absences and lesson plans, please contact admin',
         location: absence.location.name,
         url: absence.lessonPlan,
-        categories: [absence.subject.name],
+        categories: [absence.subject],
         status: 'TENTATIVE',
         organizer: {
           name: 'Sistema Toronto',
@@ -112,12 +99,14 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json({ status: 200, body: { events } });
+    return NextResponse.json({ events }, { status: 200 });
   } catch (err) {
-    console.error(err);
-    return NextResponse.json({
-      status: 500,
-      body: { error: 'Internal Server Error' },
-    });
+    console.error('Error in GET /api/getAbsences:', err);
+    return NextResponse.json(
+      { error: 'Internal Server Error', details: err },
+      { status: 500 }
+    );
+  } finally {
+    await prisma.$disconnect();
   }
 }
