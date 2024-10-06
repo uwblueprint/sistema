@@ -43,7 +43,6 @@ export async function POST(req: NextRequest) {
     scopes: 'https://www.googleapis.com/auth/drive',
     credentials: {
       type: 'service_account',
-      client_id: process.env.GDRIVE_PROJECT_ID,
       client_email: process.env.GDRIVE_CLIENT_EMAIL,
       private_key: private_key,
     },
