@@ -31,8 +31,25 @@ model User {
   role          Role      @default(TEACHER)
   status        Status    @default(INVITED)
   numOfAbsences Int       @default(10)
-  absences      Absence[] @relation("absentTeacher")
-  substitutes   Absence[] @relation("substituteTeacher")
+  absences      Absence[] @relation("absentTeacher") // corrected relation for absences
+  substitutes   Absence[] @relation("substituteTeacher") // relation for substitute teacher absences
+  accounts      Account[]
+}
+
+model Account {
+  id                 String    @id @default(cuid())
+  userId             Int
+  providerType       String
+  providerId         String
+  providerAccountId  String
+  refreshToken       String?
+  accessToken        String?
+  accessTokenExpires DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, providerAccountId])
 }
 
 model Location {
