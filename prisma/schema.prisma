@@ -34,6 +34,7 @@ model User {
   absences      Absence[] @relation("absentTeacher") // corrected relation for absences
   substitutes   Absence[] @relation("substituteTeacher") // relation for substitute teacher absences
   accounts      Account[]
+  Session       Session[]
 }
 
 model Account {
@@ -50,6 +51,14 @@ model Account {
   user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       Int
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Location {
