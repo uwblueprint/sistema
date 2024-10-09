@@ -13,6 +13,8 @@ interface GoogleProfile {
   family_name: string;
 }
 
+console.log('1');
+
 // Define your NextAuth options
 export const authOptions: AuthOptions = {
   providers: [
@@ -47,25 +49,29 @@ export const authOptions: AuthOptions = {
       const firstName = googleProfile.firstName || '';
       const lastName = googleProfile.lastName || '';
 
+      console.log('Nigeria');
+
       if (account?.provider === 'google' && profile?.email) {
         try {
-          const existingUser = await prisma.user.findUnique({
-            where: { email: profile.email },
-          });
+          // const existingUser = await prisma.user.findUnique({
+          //   where: { email: profile.email },
+          // });
 
-          if (!existingUser) {
-            await prisma.user.create({
-              data: {
-                authId: account.id as string,
-                email: profile.email,
-                firstName,
-                lastName,
-                role: 'TEACHER',
-                status: 'INVITED',
-                numOfAbsences: 10,
-              },
-            });
-          }
+          // if (!existingUser) {
+          console.log('Nigeria');
+          console.log(account.providerAccountId);
+          await prisma.user.create({
+            data: {
+              authId: account.providerAccountId,
+              email: profile.email,
+              firstName,
+              lastName,
+              role: 'TEACHER',
+              status: 'INVITED',
+              numOfAbsences: 10,
+            },
+          });
+          // }
 
           return true;
         } catch (error) {
