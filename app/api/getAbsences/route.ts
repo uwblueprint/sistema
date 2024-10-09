@@ -1,16 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../../utils/prisma';
 import { NextResponse } from 'next/server';
-
-let prisma: PrismaClient;
-
-if (process.env.NODE_ENV === 'production') {
-  prisma = new PrismaClient();
-} else {
-  if (!(global as any).prisma) {
-    (global as any).prisma = new PrismaClient();
-  }
-  prisma = (global as any).prisma;
-}
 
 export async function GET() {
   try {
@@ -46,7 +35,7 @@ export async function GET() {
       },
     });
 
-if (!absences.length) {
+    if (!absences.length) {
       return NextResponse.json({ events: [] }, { status: 200 });
     }
 

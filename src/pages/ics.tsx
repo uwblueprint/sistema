@@ -4,22 +4,22 @@ import { EventAttributes, createEvents } from 'ics';
 export default function CalendarDownload() {
   const [error, setError] = useState<string | null>(null);
 
-const searchAbsences = async (): Promise<EventAttributes[]> => {
-  try {
-    const res = await fetch('/api/getAbsences/');
-    if (!res.ok) {
-      throw new Error(`Failed to fetch: ${res.statusText}`);
+  const searchAbsences = async (): Promise<EventAttributes[]> => {
+    try {
+      const res = await fetch('/api/getAbsences/');
+      if (!res.ok) {
+        throw new Error(`Failed to fetch: ${res.statusText}`);
+      }
+      const data = await res.json();
+      if (!data.body || !Array.isArray(data.body.events)) {
+        throw new Error('Invalid data format.');
+      }
+      return data.body.events;
+    } catch (err) {
+      console.error('Error fetching absences:', err);
+      throw err;
     }
-    const data = await res.json();
-    if (!data.body || !Array.isArray(data.body.events)) {
-      throw new Error('Invalid data format.');
-    }
-    return data.body.events;
-  } catch (err) {
-    console.error('Error fetching absences:', err);
-    throw err;
-  }
-};
+  };
 
   const createCalendarFile = (events: EventAttributes[]): Promise<File> => {
     return new Promise((resolve, reject) => {
