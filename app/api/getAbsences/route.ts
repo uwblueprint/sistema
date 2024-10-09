@@ -39,13 +39,13 @@ export async function GET() {
       return NextResponse.json({ events: [] }, { status: 200 });
     }
 
-const extractTimeArray = (date: Date) => [
-  date.getFullYear(),
-  date.getMonth() + 1,
-  date.getDate(),
-  date.getHours(),
-  date.getMinutes(),
-];
+    const extractTimeArray = (date: Date) => [
+      date.getFullYear(),
+      date.getMonth() + 1,
+      date.getDate(),
+      date.getHours(),
+      date.getMinutes(),
+    ];
 
     const events = absences.map((absence) => {
       const attendees = [
@@ -58,7 +58,7 @@ const extractTimeArray = (date: Date) => [
         },
       ];
 
-      if (absence.substituteTeacher) {
+      if (absence?.substituteTeacher) {
         attendees.push({
           name: `${absence.substituteTeacher.firstName} ${absence.substituteTeacher.lastName}`,
           email: absence.substituteTeacher.email,
@@ -88,12 +88,10 @@ const extractTimeArray = (date: Date) => [
 
     return NextResponse.json({ events }, { status: 200 });
   } catch (err) {
-    console.error('Error in GET /api/getAbsences:', err);
+    console.error('Error in GET /api/getAbsences:', err.message || err);
     return NextResponse.json(
-      { error: 'Internal Server Error', details: err },
+      { error: 'Internal Server Error', details: err.message },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
