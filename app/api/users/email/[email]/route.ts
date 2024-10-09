@@ -32,7 +32,7 @@ export async function GET(req: NextRequest, params) {
     });
     let email;
     if (!fakeEmailReq) {
-      return new NextResponse('DEV ERROR: local db not seeded!', {
+      return new NextResponse('ERROR: database is empty', {
         status: 400,
       });
     } else {
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest, params) {
     } else {
       return new NextResponse(JSON.stringify(user), { status: 200 });
     }
-  } catch (error) {
+  } catch {
     return new NextResponse('Internal server error', { status: 500 });
   }
 }

@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 import { SignOutButton } from '../components/SignOutButton';
 import { Image } from '@chakra-ui/react';
 
-export default function AnotherPage() {
+export default function Profile() {
   const { data: session, status } = useSession();
-  const [numAbsences, setNumAbsences] = useState(null);
+  const [numAbsences, setNumAbsences] = useState<number | null>(null);
   const [usedAbsences, setUsedAbsences] = useState<number | null>(null);
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function AnotherPage() {
           <hr />
           <h2>Metrics</h2>
           <p>
-            Absences: {usedAbsences} / {numAbsences}{' '}
+            Absences: {usedAbsences} / {numAbsences}
           </p>
           <hr />
         </div>
