@@ -44,8 +44,8 @@ export const authOptions: AuthOptions = {
       console.log('Profile: ', profile);
       const googleProfile = profile as any;
 
-      const firstName = googleProfile.firstName || '';
-      const lastName = googleProfile.lastName || '';
+      const firstName = googleProfile.given_name || '';
+      const lastName = googleProfile.family_name || '';
 
       if (account?.provider === 'google' && profile?.email) {
         try {
