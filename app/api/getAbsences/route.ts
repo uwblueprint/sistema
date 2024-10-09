@@ -46,7 +46,7 @@ export async function GET() {
       },
     });
 
-    if (!absences || absences.length === 0) {
+if (!absences.length) {
       return NextResponse.json({ events: [] }, { status: 200 });
     }
 
