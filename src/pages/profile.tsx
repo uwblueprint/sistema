@@ -6,7 +6,7 @@ import { Image } from '@chakra-ui/react';
 export default function AnotherPage() {
   const { data: session, status } = useSession();
   const [numAbsences, setNumAbsences] = useState(null);
-  const [usedAbsences, setUsedAbsences] = useState(null);
+  const [usedAbsences, setUsedAbsences] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchUserInfoByEmail = async () => {
