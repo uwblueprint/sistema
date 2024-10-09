@@ -1,7 +1,7 @@
+import NextAuth from 'next-auth';
 import { authOptions } from '../../authOptions';
 
 // Use NextAuth directly
-const canContinue = authOptions;
+const handler = NextAuth(authOptions);
 
-if (canContinue) {
-}
+export { handler as GET, handler as POST };
