@@ -39,15 +39,13 @@ export async function GET() {
       return NextResponse.json({ events: [] }, { status: 200 });
     }
 
-    const extractTimeArray = function (date: Date) {
-      return [
-        date.getFullYear(),
-        date.getMonth() + 1,
-        date.getDate(),
-        date.getHours(),
-        date.getMinutes(),
-      ];
-    };
+const extractTimeArray = (date: Date) => [
+  date.getFullYear(),
+  date.getMonth() + 1,
+  date.getDate(),
+  date.getHours(),
+  date.getMinutes(),
+];
 
     const events = absences.map((absence) => {
       const attendees = [
