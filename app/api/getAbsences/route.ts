@@ -68,9 +68,12 @@ export async function GET() {
         });
       }
 
+      let lessonEndDate = absence.lessonDate;
+      lessonEndDate.setDate(lessonEndDate.getDate() + 1);
+
       return {
         start: extractTimeArray(absence.lessonDate),
-        duration: { hours: 2, minutes: 30 },
+        end: extractTimeArray(lessonEndDate),
         title: `${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName}'s ${absence.subject}`,
         description:
           'For issues regarding unclaiming absences and lesson plans, please contact admin',
