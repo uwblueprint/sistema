@@ -25,59 +25,6 @@ const MyCalendar: React.FC = () => {
     { title: 'Event 3', start: '2024-10-01' },
   ]);
 
-  // Handle scroll detection and trigger loading more months
-  const handleScroll = () => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = container;
-
-    // Log scroll positions for debugging
-    console.log('scrollTop:', scrollTop);
-    console.log('scrollHeight:', scrollHeight);
-    console.log('clientHeight:', clientHeight);
-
-    // Load the next month if scrolling to the bottom
-    if (scrollTop + clientHeight >= scrollHeight - 1) {
-      console.log('Loading next month');
-      loadMoreMonths('next');
-    }
-
-    // Load the previous month if scrolling to the top
-    if (scrollTop <= 0) {
-      console.log('Loading previous month');
-      loadMoreMonths('prev');
-    }
-
-    // Update the current month based on the closest visible calendar
-    let bestMonth = '';
-    let smallestDistance = Number.POSITIVE_INFINITY;
-
-    calendarRefs.current.forEach((calendarApi, index) => {
-      if (calendarApi) {
-        const calendarEl = container.querySelectorAll('.fc')[index]; // Get each FullCalendar DOM element
-        if (calendarEl) {
-          const rect = calendarEl.getBoundingClientRect();
-          const distanceFromViewportCenter = Math.abs(
-            rect.top + rect.height / 2 - window.innerHeight / 2
-          ); // Distance from center of viewport
-
-          if (distanceFromViewportCenter < smallestDistance) {
-            smallestDistance = distanceFromViewportCenter;
-            const monthInView = DateTime.fromJSDate(
-              calendarApi.view.currentStart
-            ).toFormat('MMMM yyyy');
-            bestMonth = monthInView;
-          }
-        }
-      }
-    });
-
-    if (bestMonth && bestMonth !== currentMonth) {
-      setCurrentMonth(bestMonth);
-    }
-  };
-
   // Load more months when scrolling
   const loadMoreMonths = (direction: 'next' | 'prev') => {
     if (direction === 'prev') {
@@ -106,6 +53,58 @@ const MyCalendar: React.FC = () => {
 
   // Attach scroll event handler
   useEffect(() => {
+    const handleScroll = () => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = container;
+
+      // Log scroll positions for debugging
+      console.log('scrollTop:', scrollTop);
+      console.log('scrollHeight:', scrollHeight);
+      console.log('clientHeight:', clientHeight);
+
+      // Load the next month if scrolling to the bottom
+      if (scrollTop + clientHeight >= scrollHeight - 1) {
+        console.log('Loading next month');
+        loadMoreMonths('next');
+      }
+
+      // Load the previous month if scrolling to the top
+      if (scrollTop <= 0) {
+        console.log('Loading previous month');
+        loadMoreMonths('prev');
+      }
+
+      // Update the current month based on the closest visible calendar
+      let bestMonth = '';
+      let smallestDistance = Number.POSITIVE_INFINITY;
+
+      calendarRefs.current.forEach((calendarApi, index) => {
+        if (calendarApi) {
+          const calendarEl = container.querySelectorAll('.fc')[index]; // Get each FullCalendar DOM element
+          if (calendarEl) {
+            const rect = calendarEl.getBoundingClientRect();
+            const distanceFromViewportCenter = Math.abs(
+              rect.top + rect.height / 2 - window.innerHeight / 2
+            ); // Distance from center of viewport
+
+            if (distanceFromViewportCenter < smallestDistance) {
+              smallestDistance = distanceFromViewportCenter;
+              const monthInView = DateTime.fromJSDate(
+                calendarApi.view.currentStart
+              ).toFormat('MMMM yyyy');
+              bestMonth = monthInView;
+            }
+          }
+        }
+      });
+
+      if (bestMonth && bestMonth !== currentMonth) {
+        setCurrentMonth(bestMonth);
+      }
+    };
+
     const container = containerRef.current;
     if (container) {
       container.addEventListener('scroll', handleScroll);
@@ -148,6 +147,8 @@ const MyCalendar: React.FC = () => {
               dayMaxEvents={true}
               events={events}
               headerToolbar={false} // Disable the header toolbar to remove the navigation buttons
+              dayHeaders={false}
+              showNonCurrentDates={true}
               ref={(el) => {
                 if (el) {
                   calendarRefs.current[index] = el.getApi(); // Access the Calendar API and store it in the refs array
