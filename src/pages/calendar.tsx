@@ -222,7 +222,6 @@ function CalendarView() {
                   <Text>Reason of Absence: {absence.reasonOfAbsence}</Text>
                   <Box
                     as="button"
-                    size="sm"
                     mt={2}
                     p={2}
                     borderWidth="1px"
@@ -257,7 +256,6 @@ function CalendarView() {
               <Text>Reason of Absence: {absence.reasonOfAbsence}</Text>
               <Box
                 as="div"
-                size="sm"
                 mt={2}
                 p={2}
                 borderWidth="1px"
