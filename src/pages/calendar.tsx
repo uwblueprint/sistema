@@ -3,7 +3,6 @@ import dynamic from 'next/dynamic';
 import 'react-calendar/dist/Calendar.css';
 import {
   Box,
-  Button,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -68,11 +67,8 @@ function CalendarView() {
       );
       return (
         <Box position="relative" height="100%" width="100%">
-          {/* Changed Button to Box and applied button-like styling */}
           <Box
-            as="button"
-            size="xs"
-            colorScheme="green"
+            as="div"
             onClick={() => onAddButtonClick(date)}
             position="absolute"
             top="2px"
@@ -89,6 +85,7 @@ function CalendarView() {
             display="flex"
             alignItems="center"
             justifyContent="center"
+            cursor="pointer"
             _hover={{ bg: 'green.500' }}
           >
             +
@@ -113,8 +110,7 @@ function CalendarView() {
                 _hover={{ bg: 'blue.200', cursor: 'pointer' }}
               >
                 <Box
-                  as="button"
-                  size="sm"
+                  as="div"
                   bg="red.400"
                   color="white"
                   px={2}
@@ -122,6 +118,7 @@ function CalendarView() {
                   borderRadius="sm"
                   _hover={{ bg: 'red.500' }}
                   onClick={() => HandleAbsenceDelete(absence.id)}
+                  cursor="pointer"
                 >
                   Delete
                 </Box>
@@ -223,13 +220,21 @@ function CalendarView() {
               .map((absence, index) => (
                 <Box key={index}>
                   <Text>Reason of Absence: {absence.reasonOfAbsence}</Text>
-                  <Button
+                  <Box
+                    as="button"
                     size="sm"
-                    colorScheme="red"
+                    mt={2}
+                    p={2}
+                    borderWidth="1px"
+                    borderRadius="md"
+                    backgroundColor="red.500"
+                    color="white"
                     onClick={() => HandleAbsenceDelete(absence.id)}
+                    _hover={{ backgroundColor: 'red.600' }}
+                    _active={{ backgroundColor: 'red.700' }}
                   >
                     Delete
-                  </Button>
+                  </Box>
                 </Box>
               ))}
           </Box>
@@ -250,13 +255,21 @@ function CalendarView() {
           .map((absence, index) => (
             <Box key={index} p={4} borderWidth="1px" borderRadius="lg" mb={4}>
               <Text>Reason of Absence: {absence.reasonOfAbsence}</Text>
-              <Button
+              <Box
+                as="div"
                 size="sm"
-                colorScheme="red"
+                mt={2}
+                p={2}
+                borderWidth="1px"
+                borderRadius="md"
+                backgroundColor="red.500"
+                color="white"
                 onClick={() => HandleAbsenceDelete(absence.id)}
+                _hover={{ backgroundColor: 'red.600' }}
+                _active={{ backgroundColor: 'red.700' }}
               >
                 Delete
-              </Button>
+              </Box>
             </Box>
           ))}
       </Box>
