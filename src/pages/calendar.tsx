@@ -68,7 +68,9 @@ function CalendarView() {
       );
       return (
         <Box position="relative" height="100%" width="100%">
-          <Button
+          {/* Changed Button to Box and applied button-like styling */}
+          <Box
+            as="button"
             size="xs"
             colorScheme="green"
             onClick={() => onAddButtonClick(date)}
@@ -79,9 +81,18 @@ function CalendarView() {
             minW="20px"
             height="20px"
             p="0"
+            bg="green.400"
+            color="white"
+            borderRadius="full"
+            fontSize="sm"
+            textAlign="center"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            _hover={{ bg: 'green.500' }}
           >
             +
-          </Button>
+          </Box>
           <VStack
             spacing={1}
             pt="24px"
@@ -101,17 +112,19 @@ function CalendarView() {
                 boxShadow="sm"
                 _hover={{ bg: 'blue.200', cursor: 'pointer' }}
               >
-                <Button
-                  size="xs"
-                  colorScheme="red"
-                  mt={1}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    HandleAbsenceDelete(absence.id);
-                  }}
+                <Box
+                  as="button"
+                  size="sm"
+                  bg="red.400"
+                  color="white"
+                  px={2}
+                  py={1}
+                  borderRadius="sm"
+                  _hover={{ bg: 'red.500' }}
+                  onClick={() => HandleAbsenceDelete(absence.id)}
                 >
                   Delete
-                </Button>
+                </Box>
               </Box>
             ))}
           </VStack>
