@@ -22,7 +22,7 @@ interface Absence {
 interface InputFormProps {
   initialDate: Date;
   onClose: () => void;
-  onAddAbsence: (newAbsence: Absence) => Promise<boolean>;
+  onAddAbsence: (newAbsence: Absence) => Promise<Absence | null>;
 }
 
 const InputForm: React.FC<InputFormProps> = ({

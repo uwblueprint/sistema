@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import 'react-calendar/dist/Calendar.css';
 import {
@@ -11,45 +11,25 @@ import {
   ModalBody,
   Select,
   Text,
-  VStack,
   Flex,
 } from '@chakra-ui/react';
+import { Absence, FetchAbsenceResponse } from '../types/absence';
 import InputForm from '../components/InputForm';
+import TileContent from '../components/Calendar/TileContent';
+import WeekView from '../components/Calendar/WeekView';
+import DayView from '../components/Calendar/DayView';
+import { CalendarStyles } from '../components/Calendar/CalendarStyles';
 
 const Calendar = dynamic(() => import('react-calendar'), { ssr: false });
 
-type ValuePiece = Date | null;
-type Value = ValuePiece | [ValuePiece, ValuePiece];
-
-interface Absence {
-  id: number;
-  title: string;
-  lessonDate: Date;
-  lessonPlan: string | null;
-  reasonOfAbsence: string;
-  absentTeacherId: number;
-  substituteTeacherId: number | null;
-  subjectId: number;
-  locationId: number;
-  newAbsence?: Omit<Absence, 'id'>;
-}
-
-interface FetchAbsenceResponse {
-  absences: Absence[];
-}
-
 function CalendarView() {
   const [absences, setAbsences] = useState<Absence[]>([]);
-  const [value, setValue] = useState<Value>(new Date());
+  const [value, setValue] = useState<Date | [Date, Date] | null>(new Date());
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formDate, setFormDate] = useState<Date | null>(null);
   const [view, setView] = useState('month');
 
-  useEffect(() => {
-    FetchAbsences();
-  }, []);
-
-  const FetchAbsences = async () => {
+  const fetchAbsences = useCallback(async () => {
     const res = await fetch('/api/absence');
     const data: FetchAbsenceResponse = await res.json();
     setAbsences(
@@ -58,85 +38,18 @@ function CalendarView() {
         lessonDate: new Date(absence.lessonDate),
       }))
     );
-  };
+  }, []);
 
-  const TileContent = ({ date, view }: { date: Date; view: string }) => {
-    if (view === 'month') {
-      const dayAbsence = absences.filter(
-        (absence) => absence.lessonDate.toDateString() === date.toDateString()
-      );
-      return (
-        <Box position="relative" height="100%" width="100%">
-          <Box
-            as="div"
-            onClick={() => onAddButtonClick(date)}
-            position="absolute"
-            top="2px"
-            right="2px"
-            zIndex="1"
-            minW="20px"
-            height="20px"
-            p="0"
-            bg="green.400"
-            color="white"
-            borderRadius="full"
-            fontSize="sm"
-            textAlign="center"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            cursor="pointer"
-            _hover={{ bg: 'green.500' }}
-          >
-            +
-          </Box>
-          <VStack
-            spacing={1}
-            pt="24px"
-            pb="2px"
-            px="2px"
-            align="stretch"
-            height="100%"
-            width="100%"
-            overflowY="auto"
-          >
-            {dayAbsence.map((absence, index) => (
-              <Box
-                key={absence.id || index}
-                bg="blue.100"
-                p={1}
-                borderRadius="sm"
-                boxShadow="sm"
-                _hover={{ bg: 'blue.200', cursor: 'pointer' }}
-              >
-                <Box
-                  as="div"
-                  bg="red.400"
-                  color="white"
-                  px={2}
-                  py={1}
-                  borderRadius="sm"
-                  _hover={{ bg: 'red.500' }}
-                  onClick={() => HandleAbsenceDelete(absence.id)}
-                  cursor="pointer"
-                >
-                  Delete
-                </Box>
-              </Box>
-            ))}
-          </VStack>
-        </Box>
-      );
-    }
-    return null;
-  };
+  useEffect(() => {
+    fetchAbsences();
+  }, [fetchAbsences]);
 
   const onAddButtonClick = (date: Date) => {
     setFormDate(date);
     setIsFormOpen(true);
   };
 
-  const HandleAbsenceDelete = async (id: number) => {
+  const handleAbsenceDelete = async (id: number) => {
     try {
       const response = await fetch('/api/absence', {
         method: 'DELETE',
@@ -159,7 +72,7 @@ function CalendarView() {
     }
   };
 
-  const AddAbsence = async (absence: Absence) => {
+  const addAbsence = async (absence: Absence): Promise<Absence | null> => {
     try {
       const response = await fetch('/api/absence', {
         method: 'POST',
@@ -171,107 +84,39 @@ function CalendarView() {
 
       if (response.ok) {
         const newAbsence = await response.json();
-        setAbsences([
-          ...absences,
-          {
-            ...newAbsence.newAbsence,
-            lessonDate: new Date(newAbsence.newAbsence.lessonDate),
-          },
-        ]);
+        const addedAbsence = {
+          ...newAbsence.newAbsence,
+          lessonDate: new Date(newAbsence.newAbsence.lessonDate),
+        };
+        setAbsences([...absences, addedAbsence]);
         setIsFormOpen(false);
-        return true;
+        return addedAbsence;
       } else {
         const errorResponse = await response.json();
         console.error('Error response:', response.status, errorResponse);
-        return false;
+        return null;
       }
     } catch (error) {
       console.error('Error adding absence:', error);
-      return false;
+      return null;
     }
   };
 
-  const renderWeekView = (date: Date) => {
-    const startOfWeek = new Date(date);
-    startOfWeek.setDate(date.getDate() - date.getDay());
-
-    const weekDays = Array.from({ length: 7 }, (_, i) => {
-      const day = new Date(startOfWeek);
-      day.setDate(startOfWeek.getDate() + i);
-      return day;
-    });
-
-    return (
-      <Box p={4} borderWidth="1px" borderRadius="lg">
-        {weekDays.map((day) => (
-          <Box
-            key={day.toDateString()}
-            p={4}
-            borderWidth="1px"
-            borderRadius="lg"
-            mb={4}
-          >
-            <Text as="h3">{day.toDateString()}</Text>
-            {absences
-              .filter(
-                (absence) =>
-                  absence.lessonDate.toDateString() === day.toDateString()
-              )
-              .map((absence, index) => (
-                <Box key={index}>
-                  <Text>Reason of Absence: {absence.reasonOfAbsence}</Text>
-                  <Box
-                    as="button"
-                    mt={2}
-                    p={2}
-                    borderWidth="1px"
-                    borderRadius="md"
-                    backgroundColor="red.500"
-                    color="white"
-                    onClick={() => HandleAbsenceDelete(absence.id)}
-                    _hover={{ backgroundColor: 'red.600' }}
-                    _active={{ backgroundColor: 'red.700' }}
-                  >
-                    Delete
-                  </Box>
-                </Box>
-              ))}
-          </Box>
-        ))}
-      </Box>
-    );
+  const onDelete = async (id: number) => {
+    try {
+      await handleAbsenceDelete(id);
+      setAbsences((prevAbsences) =>
+        prevAbsences.filter((absence) => absence.id !== id)
+      );
+    } catch (error) {
+      console.error('Failed to delete absence:', error);
+    }
   };
 
-  const renderDayView = (date: Date) => {
-    return (
-      <Box p={4} borderWidth="1px" borderRadius="lg">
-        <Text as="h2">{date.toDateString()}</Text>
-        {absences
-          .filter(
-            (absence) =>
-              absence.lessonDate.toDateString() === date.toDateString()
-          )
-          .map((absence, index) => (
-            <Box key={index} p={4} borderWidth="1px" borderRadius="lg" mb={4}>
-              <Text>Reason of Absence: {absence.reasonOfAbsence}</Text>
-              <Box
-                as="div"
-                mt={2}
-                p={2}
-                borderWidth="1px"
-                borderRadius="md"
-                backgroundColor="red.500"
-                color="white"
-                onClick={() => HandleAbsenceDelete(absence.id)}
-                _hover={{ backgroundColor: 'red.600' }}
-                _active={{ backgroundColor: 'red.700' }}
-              >
-                Delete
-              </Box>
-            </Box>
-          ))}
-      </Box>
-    );
+  const handleDateChange = (newValue: Date | [Date, Date]) => {
+    if (newValue) {
+      setValue(newValue);
+    }
   };
 
   const renderCalendar = () => {
@@ -290,9 +135,16 @@ function CalendarView() {
             overflow="hidden"
           >
             <Calendar
-              onChange={setValue}
+              onChange={handleDateChange}
               value={value}
-              tileContent={TileContent}
+              tileContent={(props) => (
+                <TileContent
+                  {...props}
+                  absences={absences}
+                  onAddButtonClick={onAddButtonClick}
+                  onDelete={onDelete}
+                />
+              )}
               tileClassName="calendar-tile"
               className="react-calendar"
               showNeighboringMonth={false}
@@ -300,79 +152,29 @@ function CalendarView() {
           </Box>
         );
       case 'week':
-        return renderWeekView(value as Date);
-      case 'day':
-        return renderDayView(value as Date);
-      default:
         return (
-          <Box
-            width="100%"
-            height="calc(100vh - 80px)"
-            maxW="1200px"
-            mx="auto"
-            bg="#f0f0f0"
-            border="1px solid #555555"
-            borderRadius="8px"
-            color="#000000"
-            p={4}
-            overflow="hidden"
-          >
-            <Calendar
-              onChange={setValue}
-              value={value}
-              tileContent={TileContent}
-              className="react-calendar"
-              showNeighboringMonth={false}
-            />
-          </Box>
+          <WeekView
+            date={value instanceof Date ? value : new Date()}
+            absences={absences}
+            onDelete={onDelete}
+          />
         );
+      case 'day':
+        return (
+          <DayView
+            date={value instanceof Date ? value : new Date()}
+            absences={absences}
+            onDelete={onDelete}
+          />
+        );
+      default:
+        return null;
     }
   };
 
   return (
     <Box p={5} height="100vh" display="flex" flexDirection="column">
-      <style jsx global>{`
-        .react-calendar {
-          width: 100%;
-          max-width: 100%;
-          background: white;
-          border: none;
-          font-family: Arial, Helvetica, sans-serif;
-          line-height: 1.125em;
-        }
-        .react-calendar__tile {
-          max-width: 100%;
-          padding: 0;
-          background: none;
-          text-align: center;
-          line-height: 16px;
-          font-size: 0.9em;
-          height: 120px;
-          position: relative;
-        }
-        .react-calendar__month-view__days__day {
-          color: #1a202c;
-        }
-        .react-calendar__navigation button {
-          min-width: 44px;
-          background: none;
-          font-size: 1.2em;
-          margin-top: 8px;
-        }
-        .react-calendar__month-view__weekdays__weekday {
-          padding: 0.75em;
-          font-size: 1em;
-          font-weight: bold;
-          text-decoration: none;
-          color: #4a5568;
-        }
-        .react-calendar__tile > abbr {
-          position: absolute;
-          top: 4px;
-          left: 4px;
-          z-index: 1;
-        }
-      `}</style>
+      <CalendarStyles />
       <Flex justifyContent="center" mb={6}>
         <Box>
           <Text as="label" mr={3} fontSize="lg" fontWeight="medium">
@@ -413,7 +215,7 @@ function CalendarView() {
               <InputForm
                 initialDate={formDate}
                 onClose={() => setIsFormOpen(false)}
-                onAddAbsence={AddAbsence}
+                onAddAbsence={addAbsence}
               />
             </ModalBody>
           </ModalContent>
