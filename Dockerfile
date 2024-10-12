@@ -4,9 +4,8 @@ FROM node:20-alpine
 # Set the working directory
 WORKDIR /sistema
 
-# Copy package.json, package-lock.json, and prisma directory
+# Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
-COPY prisma ./prisma
 
 # Copy Prisma Schema
 COPY prisma ./prisma
@@ -18,8 +17,7 @@ RUN npm install
 EXPOSE 3000
 
 # Run the application
-CMD echo "Waiting for database to be ready..." && \
-    echo "Running Prisma commands..." && \
+CMD echo "Running Prisma commands..." && \
     npx prisma generate && \
     npx prisma db push && \
     npx @snaplet/seed sync && \
