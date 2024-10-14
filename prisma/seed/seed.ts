@@ -70,7 +70,8 @@ const main = async () => {
   await seed.absence((createMany) =>
     createMany(10, () => ({
       lessonDate: faker.date.future(),
-      lessonPlan: faker.internet.url(),
+      // lessonPlan: faker.internet.url(),
+      lessonPlan: Math.random() > 0.5 ? faker.internet.url() : null, // Randomly assign null or a URL
       reasonOfAbsence: faker.lorem.sentence(),
     }))
   );
