@@ -45,6 +45,38 @@ export default async function handler(
         .status(500)
         .json({ error: 'Failed to add absence', message: error.message });
     }
+  } else if (req.method === 'PUT') {
+    const {
+      id,
+      lessonDate,
+      lessonPlan,
+      reasonOfAbsence,
+      absentTeacherId,
+      substituteTeacherId,
+      locationId,
+      subjectId,
+    } = req.body;
+
+    try {
+      const updatedAbsence = await prisma.absence.update({
+        where: { id },
+        data: {
+          lessonDate,
+          lessonPlan,
+          reasonOfAbsence,
+          absentTeacherId,
+          substituteTeacherId,
+          locationId,
+          subjectId,
+        },
+      });
+
+      res.status(200).json({ updatedAbsence });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: 'Failed to update absence', message: error.message });
+    }
   } else if (req.method === 'DELETE') {
     const { id } = req.body;
     try {
