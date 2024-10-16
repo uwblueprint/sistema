@@ -21,21 +21,35 @@ interface Absence {
 
 interface InputFormProps {
   initialDate: Date;
+  initialAbsence?: Absence | null;
   onClose: () => void;
   onAddAbsence: (newAbsence: Absence) => Promise<Absence | null>;
 }
 
 const InputForm: React.FC<InputFormProps> = ({
   initialDate,
+  initialAbsence = null,
   onClose,
   onAddAbsence,
 }) => {
-  const [lessonPlan, setLessonPlan] = useState('');
-  const [reasonOfAbsence, setReasonOfAbsence] = useState('');
-  const [absentTeacherId, setAbsentTeacherId] = useState('');
-  const [substituteTeacherId, setSubstituteTeacherId] = useState('');
-  const [locationId, setLocationId] = useState('');
-  const [subjectId, setSubjectId] = useState('');
+  const [lessonPlan, setLessonPlan] = useState(
+    initialAbsence?.lessonPlan || ''
+  );
+  const [reasonOfAbsence, setReasonOfAbsence] = useState(
+    initialAbsence?.reasonOfAbsence || ''
+  );
+  const [absentTeacherId, setAbsentTeacherId] = useState(
+    initialAbsence?.absentTeacherId.toString() || ''
+  );
+  const [substituteTeacherId, setSubstituteTeacherId] = useState(
+    initialAbsence?.substituteTeacherId?.toString() || ''
+  );
+  const [locationId, setLocationId] = useState(
+    initialAbsence?.locationId.toString() || ''
+  );
+  const [subjectId, setSubjectId] = useState(
+    initialAbsence?.subjectId.toString() || ''
+  );
   const [error, setError] = useState('');
 
   const handleAddAbsence = async (e: React.FormEvent) => {
@@ -43,6 +57,7 @@ const InputForm: React.FC<InputFormProps> = ({
 
     try {
       const newAbsence: Absence = {
+        id: initialAbsence?.id,
         lessonDate: initialDate,
         lessonPlan: lessonPlan || null,
         reasonOfAbsence,
@@ -54,11 +69,9 @@ const InputForm: React.FC<InputFormProps> = ({
         subjectId: parseInt(subjectId, 10),
       };
 
-      // Pass the newAbsence object to onAddAbsence and await the response
       const success = await onAddAbsence(newAbsence);
 
       if (success) {
-        // Clear the form on successful submission
         setLessonPlan('');
         setReasonOfAbsence('');
         setAbsentTeacherId('');
@@ -70,8 +83,7 @@ const InputForm: React.FC<InputFormProps> = ({
         setError('Invalid input. Please enter correct details.');
       }
     } catch (err) {
-      // In case of any error, set the error message
-      setError(err);
+      setError(err.toString());
     }
   };
 
@@ -146,7 +158,9 @@ const InputForm: React.FC<InputFormProps> = ({
           {error}
         </Text>
       )}
-      <Button type="submit">Add Absence</Button>
+      <Button type="submit">
+        {initialAbsence ? 'Update Absence' : 'Add Absence'}
+      </Button>
     </Box>
   );
 };
