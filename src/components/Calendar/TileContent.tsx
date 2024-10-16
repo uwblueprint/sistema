@@ -7,6 +7,7 @@ interface TileContentProps {
   absences: Absence[];
   onAddButtonClick: (date: Date) => void;
   onDelete: (id: number) => Promise<void>;
+  onEditAbsence: (absence: Absence) => void;
 }
 
 const TileContent: React.FC<TileContentProps> = ({
@@ -15,6 +16,7 @@ const TileContent: React.FC<TileContentProps> = ({
   absences,
   onAddButtonClick,
   onDelete,
+  onEditAbsence,
 }) => {
   if (view !== 'month') return null;
 
@@ -66,6 +68,19 @@ const TileContent: React.FC<TileContentProps> = ({
             boxShadow="sm"
             _hover={{ bg: 'blue.200', cursor: 'pointer' }}
           >
+            <Box
+              as="div"
+              bg="green.400"
+              color="white"
+              px={2}
+              py={1}
+              borderRadius="sm"
+              _hover={{ bg: 'green.500' }}
+              onClick={() => onEditAbsence(absence)}
+              cursor="pointer"
+            >
+              Edit
+            </Box>
             <Box
               as="div"
               bg="red.400"

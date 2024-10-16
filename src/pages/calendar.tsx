@@ -27,6 +27,7 @@ function CalendarView() {
   const [value, setValue] = useState<Date | [Date, Date] | null>(new Date());
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formDate, setFormDate] = useState<Date | null>(null);
+  const [selectedAbsence, setSelectedAbsence] = useState<Absence | null>(null);
   const [view, setView] = useState('month');
 
   const fetchAbsences = useCallback(async () => {
@@ -46,6 +47,13 @@ function CalendarView() {
 
   const onAddButtonClick = (date: Date) => {
     setFormDate(date);
+    setSelectedAbsence(null);
+    setIsFormOpen(true);
+  };
+
+  const onEditAbsence = (absence: Absence) => {
+    setSelectedAbsence(absence);
+    setFormDate(absence.lessonDate);
     setIsFormOpen(true);
   };
 
@@ -102,6 +110,36 @@ function CalendarView() {
     }
   };
 
+  const updateAbsence = async (
+    updatedAbsence: Absence
+  ): Promise<Absence | null> => {
+    try {
+      const response = await fetch(`/api/absence`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedAbsence),
+      });
+
+      if (response.ok) {
+        setAbsences((prevAbsences) =>
+          prevAbsences.map((absence) =>
+            absence.id === updatedAbsence.id ? updatedAbsence : absence
+          )
+        );
+        setIsFormOpen(false);
+        return updatedAbsence;
+      } else {
+        console.error('Error response:', response.status);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error updating absence:', error);
+      return null;
+    }
+  };
+
   const onDelete = async (id: number) => {
     try {
       await handleAbsenceDelete(id);
@@ -116,6 +154,18 @@ function CalendarView() {
   const handleDateChange = (newValue: Date | [Date, Date]) => {
     if (newValue) {
       setValue(newValue);
+    }
+  };
+
+  const handleFormSubmit = async (
+    absence: Absence
+  ): Promise<Absence | null> => {
+    if (selectedAbsence) {
+      const updatedAbsence = await updateAbsence(absence);
+      return updatedAbsence;
+    } else {
+      const newAbsence = await addAbsence(absence);
+      return newAbsence;
     }
   };
 
@@ -143,6 +193,7 @@ function CalendarView() {
                   absences={absences}
                   onAddButtonClick={onAddButtonClick}
                   onDelete={onDelete}
+                  onEditAbsence={onEditAbsence}
                 />
               )}
               tileClassName="calendar-tile"
@@ -213,9 +264,10 @@ function CalendarView() {
             <ModalCloseButton />
             <ModalBody>
               <InputForm
-                initialDate={formDate}
+                initialDate={formDate!}
+                initialAbsence={selectedAbsence}
                 onClose={() => setIsFormOpen(false)}
-                onAddAbsence={addAbsence}
+                onAddAbsence={handleFormSubmit}
               />
             </ModalBody>
           </ModalContent>
