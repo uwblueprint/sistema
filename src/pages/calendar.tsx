@@ -2,12 +2,23 @@ import React, { useRef, useCallback, useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { DayHeaderContentArg, DayCellContentArg } from '@fullcalendar/core';
+import InputForm from '../components/InputForm';
+import DeclareAbsenceButton from '../components/DeclareAbsenceButon';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+} from '@chakra-ui/react';
 
 const InfiniteScrollCalendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentMonth, setCurrentMonth] = useState<string>('');
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formDate, setFormDate] = useState<Date | null>(null);
 
   const updateCurrentMonth = useCallback(() => {
     if (calendarRef.current && containerRef.current) {
@@ -125,6 +136,7 @@ const InfiniteScrollCalendar: React.FC = () => {
       >
         {currentMonth}
       </div>
+
       <FullCalendar
         ref={calendarRef}
         plugins={[dayGridPlugin]}
@@ -148,6 +160,37 @@ const InfiniteScrollCalendar: React.FC = () => {
         slotMinTime="00:00:00"
         slotMaxTime="24:00:00"
       />
+
+      <DeclareAbsenceButton
+        onClick={() => {
+          setIsFormOpen(true);
+          setFormDate(new Date());
+        }}
+      />
+
+      {isFormOpen && formDate && (
+        <>
+          <div
+            style={{
+              backgroundColor: '#D5D3D3', // Semi-transparent dark background
+            }}
+          />
+          <Modal isOpen={true} onClose={() => setIsFormOpen(false)}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Add Absence</ModalHeader>
+              <ModalBody>
+                <InputForm
+                  initialDate={formDate}
+                  onClose={() => setIsFormOpen(false)}
+                  //onAddAbsence={addAbsence}
+                />
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+        </>
+      )}
+
       <style>
         {`
           .fc {
@@ -157,8 +200,8 @@ const InfiniteScrollCalendar: React.FC = () => {
             background-color: #f3f4f6;
           }
           .fc-day-other .fc-daygrid-day-number {
-            opacity: 0.5;
-          }
+-           opacity: 0.5;
+-         }
           .fc-daygrid-day-number.current-month {
             color: black;
           }
