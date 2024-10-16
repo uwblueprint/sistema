@@ -53,6 +53,25 @@ const InfiniteScrollCalendar: React.FC = () => {
   useEffect(() => {
     // Initial update of current month
     updateCurrentMonth();
+
+    // Auto-scroll to current month
+    const scrollToCurrentMonth = () => {
+      if (calendarRef.current && containerRef.current) {
+        const calendarApi = calendarRef.current.getApi();
+        const containerElement = containerRef.current;
+        const today = new Date();
+        const viewStart = calendarApi.view.currentStart;
+        const totalDays =
+          (today.getTime() - viewStart.getTime()) / (1000 * 60 * 60 * 24);
+        const totalHeight =
+          containerElement.scrollHeight - containerElement.clientHeight;
+        const scrollPosition = (totalDays / (4 * 365)) * totalHeight; // 10 years total
+        containerElement.scrollTop = scrollPosition;
+      }
+    };
+
+    // Wait for the calendar to render before scrolling
+    setTimeout(scrollToCurrentMonth, 100);
   }, [updateCurrentMonth]);
 
   const renderDayHeader = useCallback((arg: DayHeaderContentArg) => {
@@ -79,6 +98,14 @@ const InfiniteScrollCalendar: React.FC = () => {
     return null; // This effectively hides all events
   }, []);
 
+  // Calculate the start date for the calendar (5 years ago)
+  const startDate = new Date();
+  startDate.setFullYear(startDate.getFullYear() - 1);
+
+  // Calculate the end date for the calendar (5 years from now)
+  const endDate = new Date();
+  endDate.setFullYear(endDate.getFullYear() + 3);
+
   return (
     <div
       ref={containerRef}
@@ -104,7 +131,7 @@ const InfiniteScrollCalendar: React.FC = () => {
         initialView="dayGridMonth"
         views={{
           dayGridMonth: {
-            duration: { months: 36 }, // Show 3 years at a time
+            duration: { years: 4 }, // Show 10 years at a time (5 years before and 5 years after the current date)
             fixedWeekCount: false,
           },
         }}
@@ -113,10 +140,10 @@ const InfiniteScrollCalendar: React.FC = () => {
         dayHeaderContent={renderDayHeader}
         dayCellContent={renderDayCell}
         eventContent={renderEventContent}
-        initialDate={new Date()} // Set initial date to today
+        initialDate={startDate} // Set initial date to the start of the range
         validRange={{
-          start: '2000-01-01',
-          end: '2050-12-31',
+          start: startDate,
+          end: endDate,
         }}
         slotMinTime="00:00:00"
         slotMaxTime="24:00:00"
