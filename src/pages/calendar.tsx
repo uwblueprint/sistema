@@ -1,165 +1,144 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import { DateTime } from 'luxon';
+import { DayHeaderContentArg, DayCellContentArg } from '@fullcalendar/core';
 
-const MyCalendar: React.FC = () => {
-  const containerRef = useRef<HTMLDivElement | null>(null); // Ref to track the scrollable container
-  const calendarRefs = useRef<(ReturnType<FullCalendar['getApi']> | null)[]>(
-    []
-  ); // Array of refs to FullCalendar APIs
-  const [currentMonth, setCurrentMonth] = useState<string>(
-    DateTime.local().toFormat('MMMM yyyy')
-  ); // Pinned header month
-  const [monthsToShow, setMonthsToShow] = useState<string[]>([
-    DateTime.local().toISODate(),
-  ]); // Show current month first
+const InfiniteScrollCalendar: React.FC = () => {
+  const calendarRef = useRef<FullCalendar>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [currentMonth, setCurrentMonth] = useState<string>('');
+  const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
 
-  const today = DateTime.local(); // Get the current date
+  const updateCurrentMonth = useCallback(() => {
+    if (calendarRef.current && containerRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      const containerElement = containerRef.current;
 
-  // Sample events
-  const [events] = useState([
-    { title: 'Event 1', start: '2024-09-01' },
-    { title: 'Event 2', start: '2024-09-05' },
-    { title: 'Event 3', start: '2024-10-01' },
-  ]);
+      const viewStart = calendarApi.view.currentStart;
+      const viewEnd = calendarApi.view.currentEnd;
+      const totalDays =
+        (viewEnd.getTime() - viewStart.getTime()) / (1000 * 60 * 60 * 24);
 
-  // Load more months when scrolling
-  const loadMoreMonths = (direction: 'next' | 'prev') => {
-    if (direction === 'prev') {
-      const firstMonthShown = DateTime.fromISO(monthsToShow[0]);
-      if (firstMonthShown <= today.startOf('month')) {
-        return; // Don't load past the current month
-      }
-    }
+      const scrollPosition = containerElement.scrollTop;
+      const totalHeight =
+        containerElement.scrollHeight - containerElement.clientHeight;
+      const scrollPercentage = scrollPosition / totalHeight;
 
-    let newMonth: DateTime;
-    if (direction === 'next') {
-      newMonth = DateTime.fromISO(monthsToShow[monthsToShow.length - 1]).plus({
-        months: 1,
+      const daysScrolled = Math.floor(totalDays * scrollPercentage);
+      const currentDate = new Date(
+        viewStart.getTime() + daysScrolled * 24 * 60 * 60 * 1000
+      );
+
+      const monthYear = currentDate.toLocaleString('default', {
+        month: 'long',
+        year: 'numeric',
       });
-    } else {
-      newMonth = DateTime.fromISO(monthsToShow[0]).minus({ months: 1 });
+      setCurrentMonth(monthYear);
+      setCurrentMonthDate(currentDate);
     }
+  }, []);
 
-    const newMonthISO = newMonth.toISODate()!;
-    setMonthsToShow((prevMonths) =>
-      direction === 'next'
-        ? [...prevMonths, newMonthISO]
-        : [newMonthISO, ...prevMonths]
-    );
-  };
-
-  // Attach scroll event handler
   useEffect(() => {
-    const handleScroll = () => {
-      const container = containerRef.current;
-      if (!container) return;
-
-      const { scrollTop, scrollHeight, clientHeight } = container;
-
-      // Log scroll positions for debugging
-      console.log('scrollTop:', scrollTop);
-      console.log('scrollHeight:', scrollHeight);
-      console.log('clientHeight:', clientHeight);
-
-      // Load the next month if scrolling to the bottom
-      if (scrollTop + clientHeight >= scrollHeight - 1) {
-        console.log('Loading next month');
-        loadMoreMonths('next');
-      }
-
-      // Load the previous month if scrolling to the top
-      if (scrollTop <= 0) {
-        console.log('Loading previous month');
-        loadMoreMonths('prev');
-      }
-
-      // Update the current month based on the closest visible calendar
-      let bestMonth = '';
-      let smallestDistance = Number.POSITIVE_INFINITY;
-
-      calendarRefs.current.forEach((calendarApi, index) => {
-        if (calendarApi) {
-          const calendarEl = container.querySelectorAll('.fc')[index]; // Get each FullCalendar DOM element
-          if (calendarEl) {
-            const rect = calendarEl.getBoundingClientRect();
-            const distanceFromViewportCenter = Math.abs(
-              rect.top + rect.height / 2 - window.innerHeight / 2
-            ); // Distance from center of viewport
-
-            if (distanceFromViewportCenter < smallestDistance) {
-              smallestDistance = distanceFromViewportCenter;
-              const monthInView = DateTime.fromJSDate(
-                calendarApi.view.currentStart
-              ).toFormat('MMMM yyyy');
-              bestMonth = monthInView;
-            }
-          }
-        }
-      });
-
-      if (bestMonth && bestMonth !== currentMonth) {
-        setCurrentMonth(bestMonth);
-      }
-    };
-
     const container = containerRef.current;
     if (container) {
-      container.addEventListener('scroll', handleScroll);
-      return () => {
-        container.removeEventListener('scroll', handleScroll);
+      const handleScroll = () => {
+        requestAnimationFrame(updateCurrentMonth);
       };
+
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
     }
-  }, [monthsToShow, currentMonth]);
+  }, [updateCurrentMonth]);
+
+  useEffect(() => {
+    // Initial update of current month
+    updateCurrentMonth();
+  }, [updateCurrentMonth]);
+
+  const renderDayHeader = useCallback((arg: DayHeaderContentArg) => {
+    return <div className="fc-daygrid-day-top">{arg.text}</div>;
+  }, []);
+
+  const renderDayCell = useCallback(
+    (arg: DayCellContentArg) => {
+      const isCurrentMonth =
+        arg.date.getMonth() === currentMonthDate.getMonth() &&
+        arg.date.getFullYear() === currentMonthDate.getFullYear();
+      return (
+        <div
+          className={`fc-daygrid-day-number ${isCurrentMonth ? 'current-month' : ''}`}
+        >
+          {arg.date.getDate()}
+        </div>
+      );
+    },
+    [currentMonthDate]
+  );
+
+  const renderEventContent = useCallback(() => {
+    return null; // This effectively hides all events
+  }, []);
 
   return (
-    <div>
-      {/* Pinned header displaying the current month */}
+    <div
+      ref={containerRef}
+      style={{ height: '100vh', position: 'relative', overflow: 'auto' }}
+    >
       <div
         style={{
           position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: '#f0f0f0',
-          padding: '10px',
+          top: '10px',
+          left: '10px',
           zIndex: 1000,
+          fontSize: '1.5rem',
+          fontWeight: 'bold',
+          backgroundColor: 'white',
+          padding: '5px',
         }}
       >
-        <h2>{currentMonth}</h2>
+        {currentMonth}
       </div>
-
-      {/* Scrollable container */}
-      <div
-        style={{ height: '100vh', overflowY: 'auto', marginTop: '60px' }}
-        ref={containerRef}
-      >
-        {monthsToShow.map((monthStart, index) => (
-          <div key={monthStart} style={{ marginBottom: '40px' }}>
-            <FullCalendar
-              plugins={[dayGridPlugin, interactionPlugin]}
-              initialView="dayGridMonth"
-              initialDate={monthStart} // Start the calendar at the given month
-              editable={true}
-              selectable={true}
-              dayMaxEvents={true}
-              events={events}
-              headerToolbar={false} // Disable the header toolbar to remove the navigation buttons
-              dayHeaders={false}
-              showNonCurrentDates={true}
-              ref={(el) => {
-                if (el) {
-                  calendarRefs.current[index] = el.getApi(); // Access the Calendar API and store it in the refs array
-                }
-              }}
-            />
-          </div>
-        ))}
-      </div>
+      <FullCalendar
+        ref={calendarRef}
+        plugins={[dayGridPlugin]}
+        initialView="dayGridMonth"
+        views={{
+          dayGridMonth: {
+            duration: { months: 36 }, // Show 3 years at a time
+            fixedWeekCount: false,
+          },
+        }}
+        headerToolbar={false}
+        height="auto"
+        dayHeaderContent={renderDayHeader}
+        dayCellContent={renderDayCell}
+        eventContent={renderEventContent}
+        initialDate={new Date()} // Set initial date to today
+        validRange={{
+          start: '2000-01-01',
+          end: '2050-12-31',
+        }}
+        slotMinTime="00:00:00"
+        slotMaxTime="24:00:00"
+      />
+      <style>
+        {`
+          .fc {
+            color: grey;
+          }
+          .fc-day-other {
+            background-color: #f3f4f6;
+          }
+          .fc-day-other .fc-daygrid-day-number {
+            opacity: 0.5;
+          }
+          .fc-daygrid-day-number.current-month {
+            color: black;
+          }
+        `}
+      </style>
     </div>
   );
 };
 
-export default MyCalendar;
+export default InfiniteScrollCalendar;
