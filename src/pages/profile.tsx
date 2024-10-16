@@ -13,7 +13,7 @@ export default function Profile() {
       if (!session || !session.user || !session.user.email) return;
 
       const email = session.user.email;
-      const apiUrl = `/api/users/email/${email}?getAbsences=true`;
+      const apiUrl = `/api/users/email/${email}?shouldIncludeAbsences=true`;
 
       try {
         const response = await fetch(apiUrl);
