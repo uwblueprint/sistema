@@ -19,7 +19,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: aadhyaaa/schedule-email-reminder
+          ref: aadhyaaa/schedule-email-reminders
 
       # Step 2: Set up Node.js environment
       - name: Set up Node.js
@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Set up Prisma 
+      # Step 4: Set up Prisma
       - name: Generate Prisma Client
         run: npx prisma generate
 
