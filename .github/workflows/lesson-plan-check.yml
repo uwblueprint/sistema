@@ -1,0 +1,44 @@
+name: Lesson Plan Reminder Cron Job
+
+# The event that triggers the workflow
+on:
+  schedule:
+    # Cron syntax: (min hour day-of-month month day-of-week)
+    # This runs daily at midnight (00:00 UTC)
+    - cron: '30 9 18 10 *'
+
+  # Also allow manual triggering of the workflow via the GitHub interface
+  workflow_dispatch:
+
+jobs:
+  check-lesson-plans:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code from your repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: aadhyaaa/schedule-email-reminder
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Set up Prisma 
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      # Step 5: Run your script that checks lesson plans
+      - name: Run lesson plan checker
+        run: npx ts-node src/cron/emailReminders.ts
+
+      # Step 6: Clean up resources (optional)
+      - name: Prisma disconnect
+        run: npx prisma db disconnect
