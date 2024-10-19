@@ -17,8 +17,7 @@ RUN npm install
 EXPOSE 3000
 
 # Run the application
-CMD echo "Waiting for database to be ready..." && \
-    echo "Running Prisma commands..." && \
+CMD echo "Running Prisma commands..." && \
     npx prisma generate && \
     npx prisma db push && \
     npx @snaplet/seed sync && \
