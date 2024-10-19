@@ -3,13 +3,17 @@ import { useEffect, useState } from 'react';
 import { SignOutButton } from '../components/SignOutButton';
 import { Image } from '@chakra-ui/react';
 
+interface UserData {
+  numOfAbsences: number;
+  absences: Array<any>;
+}
+
 export default function Profile() {
   const { data: session, status } = useSession();
   const [numAbsences, setNumAbsences] = useState<number | null>(null);
   const [usedAbsences, setUsedAbsences] = useState<number | null>(null);
-
   useEffect(() => {
-    const fetchUserInfoByEmail = async () => {
+    const fetchUserDataByEmail = async () => {
       if (!session || !session.user || !session.user.email) return;
 
       const email = session.user.email;
@@ -20,15 +24,15 @@ export default function Profile() {
         if (!response.ok) {
           throw new Error(response.statusText);
         }
-        const data = await response.json();
-        setNumAbsences(data['numOfAbsences']);
-        setUsedAbsences(data['absences'].length);
+        const data: UserData = await response.json();
+        setNumAbsences(data.numOfAbsences);
+        setUsedAbsences(data.absences.length);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
-    fetchUserInfoByEmail();
+    fetchUserDataByEmail();
   }, [session]);
 
   return (
