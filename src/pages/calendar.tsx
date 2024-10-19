@@ -3,14 +3,16 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { DayHeaderContentArg, DayCellContentArg } from '@fullcalendar/core';
 import InputForm from '../components/InputForm';
-import DeclareAbsenceButton from '../components/DeclareAbsenceButon';
 import {
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalBody,
+  Button,
+  useToast,
 } from '@chakra-ui/react';
+import { Absence, FetchAbsenceResponse } from '../../types/absence';
 
 const InfiniteScrollCalendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
@@ -19,6 +21,40 @@ const InfiniteScrollCalendar: React.FC = () => {
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formDate, setFormDate] = useState<Date | null>(null);
+  const [absences, setAbsences] = useState<Absence[]>([]);
+  const toast = useToast();
+
+  const fetchAbsences = useCallback(async () => {
+    try {
+      const res = await fetch('/api/absence');
+      if (res.ok) {
+        const data: FetchAbsenceResponse = await res.json();
+        setAbsences(
+          data.absences.map((absence) => ({
+            ...absence,
+            lessonDate: new Date(absence.lessonDate),
+          }))
+        );
+        console.log(absences);
+      } else {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+    } catch (error) {
+      console.error('Error fetching absences:', error);
+      toast({
+        title: 'Failed to fetch absences',
+        description:
+          'There was an error loading the absence data. Please try again later.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    fetchAbsences();
+  }, [fetchAbsences]);
 
   const updateCurrentMonth = useCallback(() => {
     if (calendarRef.current && containerRef.current) {
@@ -48,6 +84,23 @@ const InfiniteScrollCalendar: React.FC = () => {
       setCurrentMonthDate(currentDate);
     }
   }, []);
+
+  const handleTodayClick = useCallback(() => {
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.today();
+      updateCurrentMonth();
+
+      // Scroll to today's date
+      if (containerRef.current) {
+        const todayElement =
+          containerRef.current.querySelector('.fc-day-today');
+        if (todayElement) {
+          todayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }
+  }, [updateCurrentMonth]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -118,81 +171,96 @@ const InfiniteScrollCalendar: React.FC = () => {
   endDate.setFullYear(endDate.getFullYear() + 3);
 
   return (
-    <div
-      ref={containerRef}
-      style={{ height: '100vh', position: 'relative', overflow: 'auto' }}
-    >
+    <div>
       <div
         style={{
-          position: 'fixed',
           top: '10px',
           left: '10px',
           zIndex: 1000,
-          fontSize: '1.5rem',
-          fontWeight: 'bold',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           backgroundColor: 'white',
-          padding: '5px',
+          padding: '10px',
         }}
       >
-        {currentMonth}
+        <div
+          style={{
+            flexDirection: 'row',
+            columnGap: '12px',
+            justifyContent: 'center',
+          }}
+        >
+          <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>
+            {currentMonth}
+          </span>
+          <Button onClick={handleTodayClick} colorScheme="blue">
+            Today
+          </Button>
+        </div>
+
+        <Button
+          onClick={() => {
+            setIsFormOpen(true);
+            setFormDate(new Date());
+          }}
+        >
+          Declare Absence
+        </Button>
       </div>
+      <div
+        ref={containerRef}
+        style={{ height: '90vh', position: 'relative', overflow: 'auto' }}
+      >
+        <FullCalendar
+          ref={calendarRef}
+          plugins={[dayGridPlugin]}
+          initialView="dayGridMonth"
+          views={{
+            dayGridMonth: {
+              duration: { years: 4 }, // Show 10 years at a time (5 years before and 5 years after the current date)
+              fixedWeekCount: false,
+            },
+          }}
+          headerToolbar={false}
+          height="auto"
+          dayHeaderContent={renderDayHeader}
+          dayCellContent={renderDayCell}
+          eventContent={renderEventContent}
+          initialDate={startDate} // Set initial date to the start of the range
+          validRange={{
+            start: startDate,
+            end: endDate,
+          }}
+          slotMinTime="00:00:00"
+          slotMaxTime="24:00:00"
+        />
 
-      <FullCalendar
-        ref={calendarRef}
-        plugins={[dayGridPlugin]}
-        initialView="dayGridMonth"
-        views={{
-          dayGridMonth: {
-            duration: { years: 4 }, // Show 10 years at a time (5 years before and 5 years after the current date)
-            fixedWeekCount: false,
-          },
-        }}
-        headerToolbar={false}
-        height="auto"
-        dayHeaderContent={renderDayHeader}
-        dayCellContent={renderDayCell}
-        eventContent={renderEventContent}
-        initialDate={startDate} // Set initial date to the start of the range
-        validRange={{
-          start: startDate,
-          end: endDate,
-        }}
-        slotMinTime="00:00:00"
-        slotMaxTime="24:00:00"
-      />
+        {isFormOpen && formDate && (
+          <>
+            <div
+              style={{
+                backgroundColor: '#D5D3D3', // Semi-transparent dark background
+              }}
+            />
+            <Modal isOpen={true} onClose={() => setIsFormOpen(false)}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Add Absence</ModalHeader>
+                <ModalBody>
+                  <InputForm
+                    initialDate={formDate}
+                    onClose={() => setIsFormOpen(false)}
+                    //onAddAbsence={addAbsence}
+                  />
+                </ModalBody>
+              </ModalContent>
+            </Modal>
+          </>
+        )}
 
-      <DeclareAbsenceButton
-        onClick={() => {
-          setIsFormOpen(true);
-          setFormDate(new Date());
-        }}
-      />
-
-      {isFormOpen && formDate && (
-        <>
-          <div
-            style={{
-              backgroundColor: '#D5D3D3', // Semi-transparent dark background
-            }}
-          />
-          <Modal isOpen={true} onClose={() => setIsFormOpen(false)}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Add Absence</ModalHeader>
-              <ModalBody>
-                <InputForm
-                  initialDate={formDate}
-                  onClose={() => setIsFormOpen(false)}
-                  //onAddAbsence={addAbsence}
-                />
-              </ModalBody>
-            </ModalContent>
-          </Modal>
-        </>
-      )}
-
-      <style>
-        {`
+        <style>
+          {`
           .fc {
             color: grey;
           }
@@ -206,7 +274,8 @@ const InfiniteScrollCalendar: React.FC = () => {
             color: black;
           }
         `}
-      </style>
+        </style>
+      </div>
     </div>
   );
 };
