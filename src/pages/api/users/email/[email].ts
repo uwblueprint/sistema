@@ -1,6 +1,7 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { prisma } from '../../../../../utils/prisma';
+
 import type { NextApiRequest, NextApiResponse } from 'next';
-const prisma = new PrismaClient();
 
 async function getRandomUser() {
   const user = await prisma.user.findFirstOrThrow({
