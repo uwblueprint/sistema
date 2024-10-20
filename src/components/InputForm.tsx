@@ -26,7 +26,7 @@ import {
 interface InputFormProps {
   initialDate: Date;
   onClose: () => void;
-  //onAddAbsence: (newAbsence: Absence) => Promise<Absence | null>;
+  // onAddAbsence: (newAbsence: Absence) => Promise<Absence | null>;
 }
 
 const InputForm: React.FC<InputFormProps> = (

@@ -9,7 +9,12 @@ export default async function handler(
 ) {
   if (req.method === 'GET') {
     try {
-      const absences = await prisma.absence.findMany();
+      const absences = await prisma.absence.findMany({
+        include: {
+          subject: true,
+          location: true,
+        },
+      });
       res.status(200).json({ absences });
     } catch (error) {
       res

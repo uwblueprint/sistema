@@ -2,6 +2,7 @@ import React, { useRef, useCallback, useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { DayHeaderContentArg, DayCellContentArg } from '@fullcalendar/core';
+import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction';
 import InputForm from '../components/InputForm';
 import {
   Modal,
@@ -12,8 +13,21 @@ import {
   Button,
   useToast,
 } from '@chakra-ui/react';
+import { EventInput } from '@fullcalendar/core';
 import { Absence, FetchAbsenceResponse } from '../../types/absence';
 
+const renderEventContent = (eventInfo) => {
+  return (
+    <div>
+      <div className="fc-event-title-container">
+        <div className="fc-event-title fc-sticky">{eventInfo.event.title}</div>
+      </div>
+      <div className="fc-event-title fc-sticky">
+        {eventInfo.event.extendedProps.location}
+      </div>
+    </div>
+  );
+};
 const InfiniteScrollCalendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -21,21 +35,28 @@ const InfiniteScrollCalendar: React.FC = () => {
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formDate, setFormDate] = useState<Date | null>(null);
-  const [absences, setAbsences] = useState<Absence[]>([]);
+  const [events, setEvents] = useState<EventInput[]>([]);
   const toast = useToast();
+
+  const convertAbsenceToEvent = (absenceData: Absence): EventInput => {
+    return {
+      title: absenceData.subject.name,
+      start: absenceData.lessonDate,
+      allDay: true,
+      display: 'auto',
+      location: absenceData.location.name,
+    };
+  };
 
   const fetchAbsences = useCallback(async () => {
     try {
       const res = await fetch('/api/absence');
       if (res.ok) {
         const data: FetchAbsenceResponse = await res.json();
-        setAbsences(
-          data.absences.map((absence) => ({
-            ...absence,
-            lessonDate: new Date(absence.lessonDate),
-          }))
+        setEvents(
+          data.absences.map((absence) => convertAbsenceToEvent(absence))
         );
-        console.log(absences);
+        console.log(data);
       } else {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -158,9 +179,10 @@ const InfiniteScrollCalendar: React.FC = () => {
     [currentMonthDate]
   );
 
-  const renderEventContent = useCallback(() => {
-    return null; // This effectively hides all events
-  }, []);
+  const handleDateClick = (info: DateClickArg) => {
+    setFormDate(info.date);
+    setIsFormOpen(true);
+  };
 
   // Calculate the start date for the calendar (5 years ago)
   const startDate = new Date();
@@ -214,7 +236,7 @@ const InfiniteScrollCalendar: React.FC = () => {
       >
         <FullCalendar
           ref={calendarRef}
-          plugins={[dayGridPlugin]}
+          plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
           views={{
             dayGridMonth: {
@@ -226,7 +248,6 @@ const InfiniteScrollCalendar: React.FC = () => {
           height="auto"
           dayHeaderContent={renderDayHeader}
           dayCellContent={renderDayCell}
-          eventContent={renderEventContent}
           initialDate={startDate} // Set initial date to the start of the range
           validRange={{
             start: startDate,
@@ -234,6 +255,10 @@ const InfiniteScrollCalendar: React.FC = () => {
           }}
           slotMinTime="00:00:00"
           slotMaxTime="24:00:00"
+          events={events}
+          eventContent={renderEventContent}
+          eventDisplay="auto"
+          dateClick={handleDateClick}
         />
 
         {isFormOpen && formDate && (
@@ -251,7 +276,7 @@ const InfiniteScrollCalendar: React.FC = () => {
                   <InputForm
                     initialDate={formDate}
                     onClose={() => setIsFormOpen(false)}
-                    //onAddAbsence={addAbsence}
+                    // onAddAbsence={addAbsence}
                   />
                 </ModalBody>
               </ModalContent>
@@ -272,6 +297,26 @@ const InfiniteScrollCalendar: React.FC = () => {
 -         }
           .fc-daygrid-day-number.current-month {
             color: black;
+          }
+          .fc-event {
+            border: none;
+            background-color: #3788d8;
+            color: white;
+            padding: 2px 5px;
+            margin: 1px 0;
+            border-radius: 3px;
+          }
+          .fc-event-main-frame {
+            display: flex;
+            flex-direction: column;
+          }
+          .fc-event-time {
+            font-weight: bold;
+            margin-bottom: 2px;
+          }
+          .fc-event-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         `}
         </style>

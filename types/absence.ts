@@ -6,7 +6,17 @@ export interface Absence {
   reasonOfAbsence: string;
   absentTeacherId: number;
   substituteTeacherId: number | null;
-  subjectId: number;
+  subject: {
+    abbreviation: string;
+    id: number;
+    name: string;
+  };
+  location: {
+    abbreviation: string;
+    id: number;
+    name: string;
+  };
+  subjectId: 2;
   locationId: number;
   newAbsence?: Omit<Absence, 'id'>;
 }
