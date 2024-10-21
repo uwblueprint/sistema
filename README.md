@@ -136,28 +136,17 @@ docker system prune -a --volumes
 
 ### Accessing PostgreSQL Database
 
-Run in two lines (View Absences Table):
-
 ```bash
+# Open a Postgres shell in the sistema-db -1 Docker container and connect to the sistema database
 docker exec -it sistema-db-1 psql -U sistema -d sistema
+# Retrieve all rows from the "Absence" table
 SELECT * FROM public."Absence";
-```
-
-Running the commands line by line.
-
-```bash
-# run a bash shell in the container
-docker exec -it sistema-db-1 /bin/bash
-
-# in container now
-psql -U sistema -d sistema
-
-# in postgres shell, some common commands:
-# display all table names
+# Some other helpful commands:
+# Display all table names
 \dt
-# quit
+# Quit
 \q
-# you can run any SQL query, don't forget the semicolon!
+# Retrieve rows from other tables (don't forget the semicolon)
 SELECT * FROM public."<table-name>";
 ```
 
