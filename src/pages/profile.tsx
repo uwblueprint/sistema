@@ -48,9 +48,12 @@ export default function Profile() {
           <p>Email: {session.user.email}</p>
           <p>Image:</p>
           {session.user.image && (
-            <Image src={session.user.image} alt="User Image" />
+            <Image
+              src={session.user.image}
+              alt="User Image"
+              referrerPolicy="no-referrer"
+            />
           )}
-
           <hr />
           <h2>Metrics</h2>
           <p>
