@@ -31,8 +31,8 @@ model User {
   role          Role      @default(TEACHER)
   status        Status    @default(INVITED)
   numOfAbsences Int       @default(10)
-  absences      Absence[] @relation("absentTeacher") // corrected relation for absences
-  substitutes   Absence[] @relation("substituteTeacher") // relation for substitute teacher absences
+  absences      Absence[] @relation("absentTeacher")
+  substitutes   Absence[] @relation("substituteTeacher")
   accounts      Account[]
   Session       Session[]
 }
