@@ -58,26 +58,6 @@ export default async function handler(
     } catch (error) {
       return res.status(500).json({ error: 'Internal server error' });
     }
-  } else if (req.method === 'DELETE') {
-    const id = Number(req.query.id as string);
-
-    if (Number.isNaN(id)) {
-      return res.status(400).json({ error: 'Invalid ID provided' });
-    }
-
-    try {
-      const deletedUser = await prisma.user.delete({
-        where: { id },
-      });
-
-      if (!deletedUser) {
-        return res.status(400).json({ error: 'User not found' });
-      }
-
-      return res.status(200).json({ message: `User with id ${id} deleted` });
-    } catch (error) {
-      return res.status(500).json({ error: 'Internal server error' });
-    }
   } else {
     return res.status(405).json({ error: 'Method not allowed' });
   }

@@ -31,30 +31,6 @@ export default function AnotherPage() {
     fetchUsers();
   }, []);
 
-  const deleteUser = async (userId: number) => {
-    const confirmed = window.confirm('Confirm delete user');
-
-    if (!confirmed) {
-      return;
-    }
-
-    const apiUrl = `/api/users/${userId}`;
-
-    try {
-      // delete server side
-      const response = await fetch(apiUrl, { method: 'DELETE' });
-
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-
-      // delete in frontend
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
-    } catch (error) {
-      console.error('Error deleting user:', error);
-    }
-  };
-
   const updateUserRole = async (userId: number, newRole: string) => {
     const confirmed = window.confirm('Confirm change role to ' + newRole);
 
@@ -99,7 +75,6 @@ export default function AnotherPage() {
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
-              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -117,9 +92,6 @@ export default function AnotherPage() {
                     <option value="TEACHER">Teacher</option>
                     <option value="ADMIN">Admin</option>
                   </select>
-                </td>
-                <td>
-                  <button onClick={() => deleteUser(user.id)}>Delete</button>
                 </td>
               </tr>
             ))}
