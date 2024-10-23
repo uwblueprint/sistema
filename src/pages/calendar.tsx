@@ -192,6 +192,28 @@ const InfiniteScrollCalendar: React.FC = () => {
   const endDate = new Date();
   endDate.setFullYear(endDate.getFullYear() + 3);
 
+  const handleAddAbsence = async (absence: Absence) => {
+    try {
+      const response = await fetch('/api/absence', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(absence),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add absence');
+      }
+
+      const data = await response.json();
+      return data.newAbsence;
+    } catch (error) {
+      console.log('Error adding absence:', error);
+      return null;
+    }
+  };
+
   return (
     <div>
       <div
@@ -276,7 +298,7 @@ const InfiniteScrollCalendar: React.FC = () => {
                   <InputForm
                     initialDate={formDate}
                     onClose={() => setIsFormOpen(false)}
-                    // onAddAbsence={addAbsence}
+                    onAddAbsence={handleAddAbsence}
                   />
                 </ModalBody>
               </ModalContent>

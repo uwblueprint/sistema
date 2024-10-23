@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
   const drive = google.drive({ version: 'v3', auth });
 
   try {
-    await drive.files.create({
+    const response = await drive.files.create({
       requestBody: {
         name: filename,
         mimeType: 'application/pdf',
@@ -65,8 +65,10 @@ export async function POST(req: NextRequest) {
       supportsAllDrives: true,
     });
 
+    const fileId = response.data.id;
+
     return NextResponse.json(
-      { message: 'File uploaded successfully' },
+      { message: 'File uploaded successfully', fileId: fileId },
       { status: 200 }
     );
   } catch (error) {
