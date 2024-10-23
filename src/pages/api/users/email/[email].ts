@@ -40,7 +40,9 @@ export default async function handler(
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2025'
     ) {
-      return res.status(400).json({ error: 'Database is empty or user not found.' });
+      return res
+        .status(400)
+        .json({ error: 'Database is empty or user not found.' });
     }
     return res.status(500).json({ error: 'Internal server error' });
   }
