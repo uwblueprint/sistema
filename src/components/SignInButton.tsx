@@ -4,7 +4,7 @@ import { signIn } from 'next-auth/react';
 import { Button } from '@chakra-ui/react';
 import { FcGoogle } from 'react-icons/fc';
 
-export function SignInButton() {
+export function SignInButton(): JSX.Element {
   return (
     <Button
       variant="outline"
@@ -12,7 +12,7 @@ export function SignInButton() {
       colorScheme="gray"
       width="275px"
       height="45px"
-      color="black"
+      color="text"
       fontWeight="bold"
       leftIcon={<FcGoogle fontSize="18px" />}
       onClick={() => signIn('google', { callbackUrl: `/homepage` })}

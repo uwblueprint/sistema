@@ -2,7 +2,7 @@ import { SignInButton } from '../components/SignInButton';
 import { SistemaLogoColour } from '../components/SistemaLogoColour';
 import { Box, Flex, Text } from '@chakra-ui/react';
 
-export default function Index() {
+export default function Index(): JSX.Element {
   return (
     <Flex direction="column" align="center" justify="center" height="100vh">
       <Box width="280px" height="auto" mb="5">
