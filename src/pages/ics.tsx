@@ -11,10 +11,10 @@ export default function CalendarDownload() {
         throw new Error(`Failed to fetch: ${res.statusText}`);
       }
       const data = await res.json();
-      if (!data.body || !Array.isArray(data.body.events)) {
+      if (!data.events || !Array.isArray(data.events)) {
         throw new Error('Invalid data format.');
       }
-      return data.body.events;
+      return data.events;
     } catch (err) {
       console.error('Error fetching absences:', err);
       throw err;
