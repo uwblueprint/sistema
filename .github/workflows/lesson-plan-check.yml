@@ -3,9 +3,9 @@ name: Lesson Plan Reminder Cron Job
 # The event that triggers the workflow
 on:
   schedule:
-    # Cron syntax: (min hour day-of-month month day-of-week)
-    # This runs daily at midnight (00:00 UTC)
-    - cron: '30 9 18 10 *'
+    # This runs at 11:45 PM UTC on October 25
+    - cron: '45 23 25 10 *'
+
 
   # Also allow manual triggering of the workflow via the GitHub interface
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: aadhyaaa/schedule-email-reminders
+          ref: aadhyaaa/schedule-email-reminders 
 
       # Step 2: Set up Node.js environment
       - name: Set up Node.js
