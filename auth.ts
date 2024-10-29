@@ -56,8 +56,6 @@ export const authOptions: AuthOptions = {
           });
 
           if (!existingUser) {
-            console.log('Creating new user...');
-            // console.log(account.providerAccountId);
             existingUser = await prisma.user.create({
               data: {
                 authId: account.providerAccountId,
@@ -69,12 +67,7 @@ export const authOptions: AuthOptions = {
                 numOfAbsences: 10,
               },
             });
-            console.log(
-              'BAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAMBAM'
-            );
-            console.log('NEW USER IS CREATED   ', existingUser.id);
-
-            console.log('ONTO ACCOUNTS');
+           
 
             await prisma.account.create({
               data: {
@@ -89,7 +82,6 @@ export const authOptions: AuthOptions = {
                 providerType: 'oauth',
               },
             });
-            console.log('Linked Google account to existing user');
           }
 
           return true;
