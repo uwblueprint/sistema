@@ -13,7 +13,6 @@ interface GoogleProfile {
   family_name: string;
 }
 
-// Define your NextAuth options
 export const authOptions: AuthOptions = {
   providers: [
     GoogleProvider({
