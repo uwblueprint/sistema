@@ -1,5 +1,4 @@
-import auth from 'auth'; // Import the default export from auth.ts
+import auth from 'auth'; 
 
-// Export GET and POST to handle API routes
 export const GET = auth;
 export const POST = auth;
