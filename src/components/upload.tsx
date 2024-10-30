@@ -5,6 +5,7 @@ import {
   Input,
   Text,
   useToast,
+  Progress,
 } from '@chakra-ui/react';
 
 interface FileUploadProps {
@@ -17,16 +18,25 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   label = 'Attachment',
 }) => {
   const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const toast = useToast();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
+      setUploading(true);
 
       try {
-        var fileId = await uploadFile(selectedFile);
+        const fileId = await uploadFile(selectedFile);
         onFileUpload(fileId);
+        toast({
+          title: 'Success',
+          description: 'File uploaded successfully',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
       } catch (error) {
         console.error('Error uploading file:', error);
         toast({
@@ -37,6 +47,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           isClosable: true,
         });
         onFileUpload(null);
+      } finally {
+        setUploading(false);
       }
     }
   };
@@ -51,12 +63,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       body: formData,
     });
 
-    const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.message);
+      const data = await res.json();
+      throw new Error(data.message || 'Failed to upload file');
     }
-    console.log(data);
-    return `https://drive.google.com/file/d/${data.fileId}/view}`;
+
+    const data = await res.json();
+    return `https://drive.google.com/file/d/${data.fileId}/view`;
   };
 
   return (
@@ -67,8 +80,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         onChange={handleFileChange}
         accept="application/pdf"
         p={1}
+        disabled={uploading}
       />
-      {file && (
+      {uploading && <Progress size="xs" isIndeterminate mt={2} />}
+      {file && !uploading && (
         <Text fontSize="sm" mt={1}>
           Selected file: {file.name}
         </Text>
