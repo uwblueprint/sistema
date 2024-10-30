@@ -28,7 +28,7 @@
     "framer-motion": "^6.3.0",
     "googleapis": "^140.0.1",
     "next": "^14.2.13",
-    "next-auth": "^5.0.0-beta.19",
+    "next-auth": "^5.0.0-beta.25",
     "nodemailer": "^6.9.14",
     "pnpm": "^9.4.0",
     "postgres": "^3.4.4",
