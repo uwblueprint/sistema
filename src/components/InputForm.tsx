@@ -121,7 +121,7 @@ const InputForm: React.FC<InputFormProps> = ({
     try {
       const newAbsence: Absence = {
         lessonDate: new Date(formData.lessonDate),
-        lessonPlan: lessonPlan || null,
+        lessonPlan: lessonPlan,
         reasonOfAbsence: formData.reasonOfAbsence,
         absentTeacherId: parseInt(formData.absentTeacherId, 10),
         substituteTeacherId: formData.substituteTeacherId
