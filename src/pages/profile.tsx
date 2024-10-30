@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { SignOutButton } from '../components/SignOutButton';
 import { Image } from '@chakra-ui/react';
 
+// @rahul: remember to UNSTASH!
+
 interface UserData {
   numOfAbsences: number;
   absences: Array<any>;
