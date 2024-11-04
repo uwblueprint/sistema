@@ -127,12 +127,8 @@
           "isRequired": true,
           "kind": "object",
           "relationName": "AbsenceToLocation",
-          "relationFromFields": [
-            "locationId"
-          ],
-          "relationToFields": [
-            "id"
-          ],
+          "relationFromFields": ["locationId"],
+          "relationToFields": ["id"],
           "isList": false,
           "isId": false,
           "isGenerated": false,
@@ -145,12 +141,8 @@
           "isRequired": true,
           "kind": "object",
           "relationName": "AbsenceToSubject",
-          "relationFromFields": [
-            "subjectId"
-          ],
-          "relationToFields": [
-            "id"
-          ],
+          "relationFromFields": ["subjectId"],
+          "relationToFields": ["id"],
           "isList": false,
           "isId": false,
           "isGenerated": false,
@@ -163,12 +155,8 @@
           "isRequired": true,
           "kind": "object",
           "relationName": "Absence_absentTeacherIdToUser",
-          "relationFromFields": [
-            "absentTeacherId"
-          ],
-          "relationToFields": [
-            "id"
-          ],
+          "relationFromFields": ["absentTeacherId"],
+          "relationToFields": ["id"],
           "isList": false,
           "isId": false,
           "isGenerated": false,
@@ -181,12 +169,8 @@
           "isRequired": false,
           "kind": "object",
           "relationName": "Absence_substituteTeacherIdToUser",
-          "relationFromFields": [
-            "substituteTeacherId"
-          ],
-          "relationToFields": [
-            "id"
-          ],
+          "relationFromFields": ["substituteTeacherId"],
+          "relationToFields": ["id"],
           "isList": false,
           "isId": false,
           "isGenerated": false,
@@ -197,9 +181,7 @@
       "uniqueConstraints": [
         {
           "name": "Absence_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         }
       ]
@@ -273,9 +255,7 @@
       "uniqueConstraints": [
         {
           "name": "Location_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         }
       ]
@@ -335,9 +315,7 @@
       "uniqueConstraints": [
         {
           "name": "MailingList_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         }
       ]
@@ -411,9 +389,7 @@
       "uniqueConstraints": [
         {
           "name": "Subject_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         }
       ]
@@ -571,23 +547,17 @@
       "uniqueConstraints": [
         {
           "name": "User_pkey",
-          "fields": [
-            "id"
-          ],
+          "fields": ["id"],
           "nullNotDistinct": false
         },
         {
           "name": "User_authId_key",
-          "fields": [
-            "authId"
-          ],
+          "fields": ["authId"],
           "nullNotDistinct": false
         },
         {
           "name": "User_email_key",
-          "fields": [
-            "email"
-          ],
+          "fields": ["email"],
           "nullNotDistinct": false
         }
       ]
