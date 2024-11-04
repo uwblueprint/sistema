@@ -30,6 +30,19 @@ export default async function handler(
       },
     });
 
+    // Verify connection configuration
+    await new Promise((resolve, reject) => {
+      transporter.verify(function (error, success) {
+        if (error) {
+          console.log('Error verifying SMTP configuration:', error);
+          reject(error);
+        } else {
+          console.log('SMTP Server is ready to take messages');
+          resolve(success);
+        }
+      });
+    });
+
     // Configure the mailOptions object
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -39,7 +52,17 @@ export default async function handler(
     };
 
     // Send the email
-    await transporter.sendMail(mailOptions);
+    await new Promise((resolve, reject) => {
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.error('Error sending email:', err);
+          reject(err);
+        } else {
+          console.log('Email sent successfully:', info);
+          resolve(info);
+        }
+      });
+    });
 
     res.status(200).json({ message: 'Email sent successfully' });
   } catch (error: any) {
