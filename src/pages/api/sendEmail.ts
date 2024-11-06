@@ -66,12 +66,8 @@ export default async function handler(
 
     res.status(200).json({ message: 'Email sent successfully' });
   } catch (error: any) {
-    res.status(500).json({
-      error:
-        'Error sending email' +
-        process.env.EMAIL_USER +
-        process.env.EMAIL_SERVICE,
-      details: error.message,
-    });
+    res
+      .status(500)
+      .json({ error: 'Error sending email', details: error.message });
   }
 }
