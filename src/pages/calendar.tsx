@@ -19,6 +19,7 @@ import TileContent from '../components/Calendar/TileContent';
 import WeekView from '../components/Calendar/WeekView';
 import DayView from '../components/Calendar/DayView';
 import { CalendarStyles } from '../components/Calendar/CalendarStyles';
+import Sidebar from '../components/Calendar/Sidebar';
 
 const Calendar = dynamic(() => import('react-calendar'), { ssr: false });
 
@@ -29,6 +30,30 @@ function CalendarView() {
   const [formDate, setFormDate] = useState<Date | null>(null);
   const [view, setView] = useState('month');
 
+  const [selectedSubjects, setSelectedSubjects] = useState<number[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<number[]>([]);
+
+  // Function to update selected subjects
+  const handleSubjectChange = (subject: number, isSelected: boolean) => {
+    setSelectedSubjects((prev) =>
+      isSelected ? [...prev, subject] : prev.filter((s) => s !== subject)
+    );
+  };
+
+  // Function to update selected locations
+  const handleLocationChange = (location: number, isSelected: boolean) => {
+    setSelectedLocations((prev) =>
+      isSelected ? [...prev, location] : prev.filter((l) => l !== location)
+    );
+  };
+
+  const filteredAbsences = absences.filter(
+    (absence) =>
+      (selectedSubjects.length === 0 ||
+        selectedSubjects.includes(absence.subjectId)) &&
+      (selectedLocations.length === 0 ||
+        selectedLocations.includes(absence.locationId))
+  );
   const fetchAbsences = useCallback(async () => {
     const res = await fetch('/api/absence');
     const data: FetchAbsenceResponse = await res.json();
@@ -42,7 +67,14 @@ function CalendarView() {
 
   useEffect(() => {
     fetchAbsences();
+    console.log('absences: ', absences);
   }, [fetchAbsences]);
+
+  useEffect(() => {
+    console.log('filtered locations: ', selectedLocations);
+    console.log('filtered subjects: ', selectedSubjects);
+    console.log('filtered: ', filteredAbsences);
+  }, [selectedLocations, selectedSubjects, filteredAbsences]);
 
   const onAddButtonClick = (date: Date) => {
     setFormDate(date);
@@ -140,7 +172,7 @@ function CalendarView() {
               tileContent={(props) => (
                 <TileContent
                   {...props}
-                  absences={absences}
+                  absences={filteredAbsences}
                   onAddButtonClick={onAddButtonClick}
                   onDelete={onDelete}
                 />
@@ -155,7 +187,7 @@ function CalendarView() {
         return (
           <WeekView
             date={value instanceof Date ? value : new Date()}
-            absences={absences}
+            absences={filteredAbsences}
             onDelete={onDelete}
           />
         );
@@ -163,7 +195,7 @@ function CalendarView() {
         return (
           <DayView
             date={value instanceof Date ? value : new Date()}
-            absences={absences}
+            absences={filteredAbsences}
             onDelete={onDelete}
           />
         );
@@ -173,55 +205,69 @@ function CalendarView() {
   };
 
   return (
-    <Box p={5} height="100vh" display="flex" flexDirection="column">
-      <CalendarStyles />
-      <Flex justifyContent="center" mb={6}>
-        <Box>
-          <Text as="label" mr={3} fontSize="lg" fontWeight="medium">
-            View:
-          </Text>
-          <Select
-            value={view}
-            onChange={(e) => setView(e.target.value)}
-            w="200px"
-            display="inline-block"
-            size="lg"
-            borderColor="gray.300"
-            _hover={{ borderColor: 'gray.400' }}
-          >
-            <option value="month">Month</option>
-            <option value="week">Week</option>
-            <option value="day">Day</option>
-          </Select>
-        </Box>
-      </Flex>
+    <Flex>
+      <Sidebar
+        selectedSubjects={selectedSubjects}
+        selectedLocations={selectedLocations}
+        onSubjectChange={handleSubjectChange}
+        onLocationChange={handleLocationChange}
+      />
       <Box
-        bg="white"
-        borderWidth="1px"
-        borderRadius="lg"
         p={5}
-        flex="1"
-        overflow="auto"
+        height="100vh"
+        display="flex"
+        flexDirection="column"
+        width="100%"
       >
-        {renderCalendar()}
+        <CalendarStyles />
+        <Flex justifyContent="center" mb={6}>
+          <Box>
+            <Text as="label" mr={3} fontSize="lg" fontWeight="medium">
+              View:
+            </Text>
+            <Select
+              value={view}
+              onChange={(e) => setView(e.target.value)}
+              w="200px"
+              display="inline-block"
+              size="lg"
+              borderColor="gray.300"
+              _hover={{ borderColor: 'gray.400' }}
+            >
+              <option value="month">Month</option>
+              <option value="week">Week</option>
+              <option value="day">Day</option>
+            </Select>
+          </Box>
+        </Flex>
+        <Box
+          bg="white"
+          borderWidth="1px"
+          borderRadius="lg"
+          p={5}
+          flex="1"
+          overflow="auto"
+        >
+          {renderCalendar()}
+        </Box>
+        {isFormOpen && formDate && (
+          <Modal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Add Absence</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <InputForm
+                  initialDate={formDate}
+                  onClose={() => setIsFormOpen(false)}
+                  onAddAbsence={addAbsence}
+                />
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+        )}
       </Box>
-      {isFormOpen && formDate && (
-        <Modal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Add Absence</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <InputForm
-                initialDate={formDate}
-                onClose={() => setIsFormOpen(false)}
-                onAddAbsence={addAbsence}
-              />
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-      )}
-    </Box>
+    </Flex>
   );
 }
 
