@@ -26,12 +26,16 @@ const Email = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.details || 'Failed to send email');
+        console.error('Detailed error response:', errorData); // Log the error details for debugging
+        throw new Error(
+          `Failed to send email. Status: ${response.status}. ${errorData.details || 'Unknown error'}`
+        );
       }
 
       const data = await response.json();
       setMessage(data.message);
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error caught:', error); // Log the full error object for debugging
       setMessage(`Error sending email: ${error.message}`);
     } finally {
       setIsLoading(false);
