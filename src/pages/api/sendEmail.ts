@@ -45,28 +45,28 @@ export default async function handler(
       });
     });
 
-    // Configure the mailOptions object
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: to,
-      subject: subject,
-      text: text,
-    };
+    //   // Configure the mailOptions object
+    //   const mailOptions = {
+    //     from: process.env.EMAIL_USER,
+    //     to: to,
+    //     subject: subject,
+    //     text: text,
+    //   };
 
-    // Send the email
-    await new Promise((resolve, reject) => {
-      transporter.sendMail(mailOptions, (err, info) => {
-        if (err) {
-          console.error('Error sending email:', err);
-          reject(err);
-        } else {
-          console.log('Email sent successfully:', info);
-          resolve(info);
-        }
-      });
-    });
+    //   // Send the email
+    //   await new Promise((resolve, reject) => {
+    //     transporter.sendMail(mailOptions, (err, info) => {
+    //       if (err) {
+    //         console.error('Error sending email:', err);
+    //         reject(err);
+    //       } else {
+    //         console.log('Email sent successfully:', info);
+    //         resolve(info);
+    //       }
+    //     });
+    //   });
 
-    res.status(200).json({ message: 'Email sent successfully' });
+    //   res.status(200).json({ message: 'Email sent successfully' });
   } catch (error: any) {
     res
       .status(500)
