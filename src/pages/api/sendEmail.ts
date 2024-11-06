@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import nodemailer from 'nodemailer';
+// import nodemailer from 'nodemailer';
 
 type Data = {
   message?: string;
@@ -22,28 +22,28 @@ export default async function handler(
   try {
     console.log(process.env.EMAIL_USER);
     console.log(process.env.EMAIL_SERVICE);
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // app password
-      },
-    });
+    // const transporter = nodemailer.createTransport({
+    //   host: 'smtp.gmail.com',
+    //   port: 465,
+    //   secure: true,
+    //   auth: {
+    //     user: process.env.EMAIL_USER,
+    //     pass: process.env.EMAIL_PASS, // app password
+    //   },
+    // });
 
-    // Verify connection configuration
-    await new Promise((resolve, reject) => {
-      transporter.verify(function (error, success) {
-        if (error) {
-          console.log('Error verifying SMTP configuration:', error);
-          reject(error);
-        } else {
-          console.log('SMTP Server is ready to take messages');
-          resolve(success);
-        }
-      });
-    });
+    // // Verify connection configuration
+    // await new Promise((resolve, reject) => {
+    //   transporter.verify(function (error, success) {
+    //     if (error) {
+    //       console.log('Error verifying SMTP configuration:', error);
+    //       reject(error);
+    //     } else {
+    //       console.log('SMTP Server is ready to take messages');
+    //       resolve(success);
+    //     }
+    //   });
+    // });
 
     //   // Configure the mailOptions object
     //   const mailOptions = {
