@@ -136,55 +136,41 @@ docker system prune -a --volumes
 
 ### Accessing PostgreSQL Database
 
-Run in two lines (View Absences Table):
-
 ```bash
+# Open a Postgres shell in the sistema-db -1 Docker container and connect to the sistema database
 docker exec -it sistema-db-1 psql -U sistema -d sistema
+# Retrieve all rows from the "Absence" table
 SELECT * FROM public."Absence";
-```
-
-Running the commands line by line.
-
-```bash
-# run a bash shell in the container
-docker exec -it sistema-db-1 /bin/bash
-
-# in container now
-psql -U sistema -d sistema
-
-# in postgres shell, some common commands:
-# display all table names
+# Some other helpful commands:
+# Display all table names
 \dt
-# quit
+# Quit
 \q
-# you can run any SQL query, don't forget the semicolon!
+# Retrieve rows from other tables (don't forget the semicolon)
 SELECT * FROM public."<table-name>";
 ```
 
 ### Seeding the Production Database
 
-\*\* Database seeds automatically locally when docker compose build --up is run. Only run the following commands to seed the production database.
+The local database seeds automatically locally when `docker compose build --up` is run. Only run the commands below to seed the production database:
 
-In the schema.prisma, set env variable to VERCEL_DATABASE_NON_POOLING. Then run the following command.
+In the schema.prisma, set the db datasource as follows:
 
-```bash
-npx prisma generate; npx prisma db push; npx @snaplet/seed sync; npx prisma db seed
+```prisma
+datasource db {
+  provider = "postgresql"
+  url = env("VERCEL_POSTGRES_PRISMA_URL")
+  directUrl = env("VERCEL_POSTGRES_URL_NON_POOLING")
+}
 ```
 
-Run the following commands:
+Then, run the following commands:
 
 ```bash
 npx prisma generate
 npx prisma db push
-```
-
-```bash
-# In the root directory to sync seed.ts to the current data models of the database
 npx @snaplet/seed sync
-
-# Seeding the database according to seed.ts
 npx prisma db seed
-
 ```
 
 ## Formatting and Linting
