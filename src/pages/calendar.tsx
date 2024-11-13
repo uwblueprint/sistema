@@ -28,6 +28,7 @@ const renderEventContent = (eventInfo) => {
     </div>
   );
 };
+
 const InfiniteScrollCalendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -111,7 +112,6 @@ const InfiniteScrollCalendar: React.FC = () => {
       calendarApi.today();
       updateCurrentMonth();
 
-      // Scroll to today's date
       if (containerRef.current) {
         const todayElement =
           containerRef.current.querySelector('.fc-day-today');
@@ -149,7 +149,7 @@ const InfiniteScrollCalendar: React.FC = () => {
           (today.getTime() - viewStart.getTime()) / (1000 * 60 * 60 * 24);
         const totalHeight =
           containerElement.scrollHeight - containerElement.clientHeight;
-        const scrollPosition = (totalDays / (4 * 365)) * totalHeight; // 10 years total
+        const scrollPosition = (totalDays / (4 * 365 + 1)) * totalHeight; //we love leap years
         containerElement.scrollTop = scrollPosition;
       }
     };
@@ -283,7 +283,7 @@ const InfiniteScrollCalendar: React.FC = () => {
           initialView="dayGridMonth"
           views={{
             dayGridMonth: {
-              duration: { years: 4 }, // Show 10 years at a time (5 years before and 5 years after the current date)
+              duration: { years: 4 },
               fixedWeekCount: false,
             },
           }}
@@ -291,7 +291,7 @@ const InfiniteScrollCalendar: React.FC = () => {
           height="auto"
           dayHeaderContent={renderDayHeader}
           dayCellContent={renderDayCell}
-          initialDate={startDate} // Set initial date to the start of the range
+          initialDate={startDate}
           validRange={{
             start: startDate,
             end: endDate,
@@ -310,7 +310,7 @@ const InfiniteScrollCalendar: React.FC = () => {
           <>
             <div
               style={{
-                backgroundColor: '#D5D3D3', // Semi-transparent dark background
+                backgroundColor: '#D5D3D3',
               }}
             />
             <Modal isOpen={true} onClose={() => setIsFormOpen(false)}>
@@ -338,8 +338,8 @@ const InfiniteScrollCalendar: React.FC = () => {
             background-color: #f3f4f6;
           }
           .fc-day-other .fc-daygrid-day-number {
--           opacity: 0.5;
--         }
+            opacity: 0.5;
+          }
           .fc-daygrid-day-number.current-month {
             color: black;
           }
