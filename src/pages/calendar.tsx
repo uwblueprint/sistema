@@ -184,11 +184,11 @@ const InfiniteScrollCalendar: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  // Calculate the start date for the calendar (5 years ago)
+  // Calculate the start date for the calendar (1 years ago)
   const startDate = new Date();
   startDate.setFullYear(startDate.getFullYear() - 1);
 
-  // Calculate the end date for the calendar (5 years from now)
+  // Calculate the end date for the calendar (3 years from now)
   const endDate = new Date();
   endDate.setFullYear(endDate.getFullYear() + 3);
 
@@ -207,9 +207,33 @@ const InfiniteScrollCalendar: React.FC = () => {
       }
 
       const data = await response.json();
-      return data.newAbsence;
+
+      const newAbsence = {
+        ...data.newAbsence,
+        subject: {
+          name: `Subject ${data.newAbsence.subjectId}`,
+        },
+        location: {
+          name: `Location ${data.newAbsence.locationId}`,
+        },
+      };
+
+      const newEvent = convertAbsenceToEvent(newAbsence);
+      setEvents((prevEvents) => [...prevEvents, newEvent]);
+      setIsFormOpen(false);
+
+      return newAbsence;
     } catch (error) {
       console.log('Error adding absence:', error);
+
+      toast({
+        title: 'Error adding in Calendar',
+        description: 'Failed to add the absence. Please try again.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+
       return null;
     }
   };
@@ -275,12 +299,14 @@ const InfiniteScrollCalendar: React.FC = () => {
             start: startDate,
             end: endDate,
           }}
+          nextDayThreshold="00:00:00"
           slotMinTime="00:00:00"
-          slotMaxTime="24:00:00"
+          slotMaxTime="23:59:59"
           events={events}
           eventContent={renderEventContent}
           eventDisplay="auto"
           dateClick={handleDateClick}
+          timeZone="local"
         />
 
         {isFormOpen && formDate && (

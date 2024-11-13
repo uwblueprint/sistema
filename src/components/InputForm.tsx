@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { FileUpload } from './upload';
 
-interface Absence {
+interface InsertAbsence {
   id?: number;
   lessonDate: Date;
   lessonPlan: string | null;
@@ -21,11 +21,17 @@ interface Absence {
   locationId: number;
   subjectId: number;
   notes?: string;
+  subject?: {
+    name: string;
+  };
+  location?: {
+    name: string;
+  };
 }
 
 interface InputFormProps {
   onClose?: () => void;
-  onAddAbsence: (absence: Absence) => Promise<Absence | null>;
+  onAddAbsence: (absence: InsertAbsence) => Promise<InsertAbsence | null>;
   initialDate?: Date;
 }
 
@@ -105,22 +111,14 @@ const InputForm: React.FC<InputFormProps> = ({
       return;
     }
 
-    if (!onAddAbsence) {
-      toast({
-        title: 'Configuration Error',
-        description: 'Form submission handler is not properly configured.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
-      const newAbsence: Absence = {
-        lessonDate: new Date(formData.lessonDate),
+      const lessonDate = new Date(formData.lessonDate);
+      lessonDate.setHours(lessonDate.getHours() + 12);
+
+      const newAbsence: InsertAbsence = {
+        lessonDate: lessonDate,
         lessonPlan: lessonPlan || null,
         reasonOfAbsence: formData.reasonOfAbsence,
         absentTeacherId: parseInt(formData.absentTeacherId, 10),
@@ -129,7 +127,7 @@ const InputForm: React.FC<InputFormProps> = ({
           : null,
         locationId: parseInt(formData.locationId, 10),
         subjectId: parseInt(formData.subjectId, 10),
-        notes: formData.notes || undefined,
+        notes: formData.notes,
       };
 
       const response = await onAddAbsence(newAbsence);
@@ -143,8 +141,8 @@ const InputForm: React.FC<InputFormProps> = ({
           isClosable: true,
         });
 
-        setLessonPlan('');
         // Reset form
+        setLessonPlan('');
         setFormData({
           reasonOfAbsence: '',
           absentTeacherId: '',

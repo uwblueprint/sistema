@@ -16,7 +16,7 @@ export interface Absence {
     id: number;
     name: string;
   };
-  subjectId: 2;
+  subjectId: number;
   locationId: number;
   newAbsence?: Omit<Absence, 'id'>;
 }
