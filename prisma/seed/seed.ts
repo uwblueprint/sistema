@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { createSeedClient } from '@snaplet/seed';
 import { faker } from '@faker-js/faker';
 
@@ -6,7 +8,7 @@ const main = async () => {
     connect: true,
   });
 
-  // await seed.$resetDatabase();
+  await seed.$resetDatabase();
 
   await seed.user((createMany) =>
     createMany(5, () => ({
