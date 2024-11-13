@@ -11,6 +11,7 @@ interface User {
 
 export default function AnotherPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -23,8 +24,12 @@ export default function AnotherPage() {
         }
         const data: User[] = await response.json();
         setUsers(data);
-      } catch (error) {
-        console.error('Error fetching users:', error);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error('Error fetching users:', error.message);
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -33,15 +38,18 @@ export default function AnotherPage() {
 
   const updateUserRole = async (userId: number, newRole: string) => {
     const confirmed = window.confirm('Confirm change role to ' + newRole);
-
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     const apiUrl = `/api/users/${userId}`;
+    const originalUsers = [...users];
+
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.id === userId ? { ...user, role: newRole } : user
+      )
+    );
 
     try {
-      // update server side
       const response = await fetch(apiUrl, {
         method: 'PATCH',
         headers: {
@@ -51,24 +59,22 @@ export default function AnotherPage() {
       });
 
       if (!response.ok) {
+        setUsers(originalUsers);
         throw new Error(response.statusText);
       }
-
-      // update in frontend
-      setUsers(
-        users.map((user) =>
-          user.id === userId ? { ...user, role: newRole } : user
-        )
-      );
-    } catch (error) {
-      console.error('Error updating user:', error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error updating user:', error.message);
+      }
     }
   };
 
   return (
     <div>
       <h1>Admin Management</h1>
-      {users ? (
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
         <table>
           <thead>
             <tr>
@@ -97,8 +103,6 @@ export default function AnotherPage() {
             ))}
           </tbody>
         </table>
-      ) : (
-        <p>Loading...</p>
       )}
     </div>
   );
