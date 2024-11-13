@@ -56,7 +56,6 @@ const InfiniteScrollCalendar: React.FC = () => {
         setEvents(
           data.absences.map((absence) => convertAbsenceToEvent(absence))
         );
-        console.log(data);
       } else {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -224,11 +223,9 @@ const InfiniteScrollCalendar: React.FC = () => {
 
       return newAbsence;
     } catch (error) {
-      console.log('Error adding absence:', error);
-
       toast({
         title: 'Error adding in Calendar',
-        description: 'Failed to add the absence. Please try again.',
+        description: error,
         status: 'error',
         duration: 5000,
         isClosable: true,

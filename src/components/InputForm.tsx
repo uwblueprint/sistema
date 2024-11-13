@@ -78,7 +78,6 @@ const InputForm: React.FC<InputFormProps> = ({
   };
 
   const handleFileUpload = (url: string) => {
-    console.log('File uploaded with ID:', url);
     setLessonPlan(url);
   };
 
