@@ -29,14 +29,15 @@
     "ics": "^3.8.1",
     "googleapis": "^140.0.1",
     "next": "^14.2.13",
-    "next-auth": "^5.0.0-beta.19",
+    "next-auth": "^5.0.0-beta.25",
     "nodemailer": "^6.9.14",
     "pnpm": "^9.4.0",
     "postgres": "^3.4.4",
     "prisma": "^5.16.0",
     "react": "^18.2.0",
     "react-calendar": "^5.0.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-icons": "^5.3.0"
   },
   "devDependencies": {
     "@snaplet/copycat": "^5.0.0",
