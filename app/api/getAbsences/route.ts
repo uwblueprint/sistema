@@ -30,6 +30,7 @@ export async function GET() {
           select: {
             id: true,
             name: true,
+            abbreviation: true,
           },
         },
       },
@@ -39,56 +40,37 @@ export async function GET() {
       return NextResponse.json({ events: [] }, { status: 200 });
     }
 
-    const extractTimeArray = (date: Date) => [
-      date.getFullYear(),
-      date.getMonth() + 1,
-      date.getDate(),
-      date.getHours(),
-      date.getMinutes(),
-    ];
-
     const events = absences.map((absence) => {
-      const attendees = [
-        {
-          name: `${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName}`,
-          email: absence.absentTeacher.email,
-          rsvp: true,
-          partstat: 'TENTATIVE',
-          role: 'OPT-PARTICIPANT',
-        },
-      ];
-
+      function extractTimeArray(date: Date, offset = 0) {
+        return [
+          date.getFullYear(),
+          date.getMonth() + 1,
+          date.getDate() + offset,
+        ];
+      }
       if (absence?.substituteTeacher) {
-        attendees.push({
-          name: `${absence.substituteTeacher.firstName} ${absence.substituteTeacher.lastName}`,
-          email: absence.substituteTeacher.email,
-          rsvp: true,
-          partstat: 'TENTATIVE',
-          role: 'REQ-PARTICIPANT',
-        });
+        var substituteTeacherString = ` (${absence.substituteTeacher?.firstName} ${absence.substituteTeacher?.lastName[0]})`;
+      } else {
+        var substituteTeacherString = '';
       }
 
-      let lessonEndDate = absence.lessonDate;
-      lessonEndDate.setDate(lessonEndDate.getDate() + 1);
+      if (absence?.lessonPlan) {
+        var lessonString = absence.lessonPlan;
+      } else {
+        var lessonString = 'Lesson Plan Not Submitted.';
+      }
 
       return {
         start: extractTimeArray(absence.lessonDate),
-        end: extractTimeArray(lessonEndDate),
-        title: `${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName}'s ${absence.subject}`,
-        description:
-          'For issues regarding unclaiming absences and lesson plans, please contact admin',
+        end: extractTimeArray(absence.lessonDate, 1),
+        title:
+          `${absence.subject.abbreviation} : ${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName[0]}` +
+          substituteTeacherString,
+        description: `Subject: ${absence.subject.name} \nlessonPlan: ${lessonString} \n\nFor issues regarding unclaiming absences and lesson plans, Please contact Admin`,
         location: absence.location.name,
-        url: absence.lessonPlan,
         categories: [absence.subject.name],
-        status: 'TENTATIVE',
-        organizer: {
-          name: 'Sistema Toronto',
-          email: 'sistema@uwblueprint.org',
-        },
-        attendees: attendees,
       };
     });
-
     return NextResponse.json({ events }, { status: 200 });
   } catch (err) {
     console.error('Error in GET /api/getAbsences:', err.message || err);
