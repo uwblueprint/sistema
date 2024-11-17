@@ -56,7 +56,7 @@ const main = async () => {
     createMany(5, () => {
       const subject = faker.helpers.arrayElement([
         'STRINGS',
-        'M_AND_M',
+        'M&M',
         'CHOIR',
         'PERCUSSION',
       ]);
