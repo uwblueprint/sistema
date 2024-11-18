@@ -52,7 +52,8 @@
     "eslint-plugin-prettier": "^5.1.3",
     "husky": "^9.0.11",
     "prettier": "^3.3.2",
-    "prisma": "^5.15.1"
+    "prisma": "^5.15.1",
+    "tsx": "^4.19.2"
   },
   "@snaplet/seed": {
     "config": "prisma/seed/seed.config.ts"
