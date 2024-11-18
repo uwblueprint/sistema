@@ -18,9 +18,4 @@ EXPOSE 3000
 
 # Run the application
 CMD echo "Running Prisma commands..." && \
-    npx prisma generate && \
-    npx prisma db push && \
-    npx @snaplet/seed sync && \
-    npx prisma db seed && \
-    echo "Starting Next.js application..." && \
     npm run dev
