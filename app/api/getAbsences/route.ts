@@ -66,11 +66,10 @@ export async function GET() {
         start: extractTimeArray(absence.lessonDate),
         end: extractTimeArray(absence.lessonDate, 1),
         title:
-          `${absence.subject.abbreviation} : ${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName[0]}` +
+          `${absence.subject.abbreviation}: ${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName[0]}` +
           substituteTeacherString,
-        description: `Subject: ${absence.subject.name} \nlessonPlan: ${lessonString} \n\nFor issues regarding unclaiming absences and lesson plans, Please contact Admin`,
+        description: `Subject: ${absence.subject.name}\nLesson Plan: ${lessonString}`,
         location: absence.location.name,
-        categories: [absence.subject.name],
       };
     });
     return NextResponse.json({ events }, { status: 200 });
