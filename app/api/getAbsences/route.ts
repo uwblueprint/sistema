@@ -42,10 +42,12 @@ export async function GET() {
 
     const events = absences.map((absence) => {
       function extractTimeArray(date: Date, offset = 0) {
+        const newDate = new Date(date);
+        newDate.setDate(date.getDate() + offset);
         return [
-          date.getFullYear(),
-          date.getMonth() + 1,
-          date.getDate() + offset,
+          newDate.getFullYear(),
+          newDate.getMonth() + 1,
+          newDate.getDate(),
         ];
       }
       if (absence?.substituteTeacher) {
