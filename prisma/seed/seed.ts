@@ -1,7 +1,5 @@
-//@ts-nocheck
-
-import { createSeedClient } from '@snaplet/seed';
 import { faker } from '@faker-js/faker';
+import { createSeedClient } from '@snaplet/seed';
 
 const main = async () => {
   const seed = await createSeedClient({
