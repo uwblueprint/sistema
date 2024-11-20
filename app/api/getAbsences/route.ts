@@ -51,7 +51,7 @@ export async function GET() {
         ];
       }
       if (absence?.substituteTeacher) {
-        var substituteTeacherString = ` (${absence.substituteTeacher?.firstName} ${absence.substituteTeacher?.lastName[0]})`;
+        var substituteTeacherString = `(${absence.substituteTeacher?.firstName} ${absence.substituteTeacher?.lastName[0]})`;
       } else {
         var substituteTeacherString = '';
       }
