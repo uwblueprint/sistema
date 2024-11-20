@@ -12,16 +12,15 @@ import {
 import { FileUpload } from './upload';
 import { Absence } from '@prisma/client';
 import { Prisma } from '@prisma/client';
-import { prisma } from '../../utils/prisma';
-
 interface InputFormProps {
   onClose?: () => void;
-  onAddAbsence: (absence: Absence) => Promise<Absence | null>;
+  onAddAbsence: (absence: Prisma.AbsenceCreateInput) => Promise<Absence | null>;
   initialDate?: Date;
 }
 
 const InputForm: React.FC<InputFormProps> = ({
   onClose,
+  onAddAbsence,
   initialDate = new Date(),
 }) => {
   const toast = useToast();
@@ -99,28 +98,20 @@ const InputForm: React.FC<InputFormProps> = ({
     try {
       const lessonDate = new Date(formData.lessonDate);
       lessonDate.setHours(lessonDate.getHours() + 12);
-
-      const newAbsence: Prisma.AbsenceCreateInput = {
+      const absenceData: Prisma.AbsenceCreateInput = {
         lessonDate: lessonDate,
         lessonPlan: lessonPlan || null,
         reasonOfAbsence: formData.reasonOfAbsence,
-        absentTeacher: {
-          connect: { id: parseInt(formData.absentTeacherId, 10) },
-        },
-        substituteTeacher: formData.substituteTeacherId
-          ? {
-              connect: { id: parseInt(formData.substituteTeacherId, 10) },
-            }
-          : undefined,
-
-        location: { connect: { id: parseInt(formData.locationId, 10) } },
-        subject: { connect: { id: parseInt(formData.subjectId, 10) } },
+        absentTeacherId: parseInt(formData.absentTeacherId, 10),
+        substituteTeacherId: formData.substituteTeacherId
+          ? parseInt(formData.substituteTeacherId, 10)
+          : null,
+        locationId: parseInt(formData.locationId, 10),
+        subjectId: parseInt(formData.subjectId, 10),
         notes: formData.notes,
       };
 
-      const response = await prisma.absence.create({
-        data: newAbsence,
-      });
+      const response = onAddAbsence(absenceData);
 
       if (response) {
         toast({
@@ -156,6 +147,7 @@ const InputForm: React.FC<InputFormProps> = ({
         duration: 5000,
         isClosable: true,
       });
+      console.log(error);
     } finally {
       setIsSubmitting(false);
     }
