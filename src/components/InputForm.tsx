@@ -10,6 +10,7 @@ import {
   FormErrorMessage,
 } from '@chakra-ui/react';
 import { FileUpload } from './upload';
+import Dropdown, { Option } from './Dropdown';
 import { Absence } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../../utils/prisma';
@@ -35,6 +36,8 @@ const InputForm: React.FC<InputFormProps> = ({
     lessonDate: initialDate.toISOString().split('T')[0],
     notes: '',
   });
+  const [location, setLocation] = useState<Option | null>(null);
+  const [subject, setSubject] = useState<Option | null>(null);
   const [lessonPlan, setLessonPlan] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -44,12 +47,13 @@ const InputForm: React.FC<InputFormProps> = ({
     if (!formData.absentTeacherId) {
       newErrors.absentTeacherId = 'Absent teacher ID is required';
     }
-    if (!formData.locationId) {
-      newErrors.locationId = 'Location ID is required';
+    if (!location) {
+      newErrors.location = 'Location is required';
     }
-    if (!formData.subjectId) {
-      newErrors.subjectId = 'Subject ID is required';
+    if (!subject) {
+      newErrors.subject = 'Subject is required';
     }
+
     if (!formData.reasonOfAbsence) {
       newErrors.reasonOfAbsence = 'Reason of absence is required';
     }
@@ -165,10 +169,10 @@ const InputForm: React.FC<InputFormProps> = ({
     <Box as="form" onSubmit={handleSubmit} p={4}>
       <VStack spacing={4}>
         <FormControl isRequired isInvalid={!!errors.absentTeacherId}>
-          <FormLabel>Absent Teacher</FormLabel>
+          <FormLabel>Teacher Absent</FormLabel>
           <Input
             name="absentTeacherId"
-            placeholder="Enter absent teacher ID"
+            placeholder="Add teacher"
             value={formData.absentTeacherId}
             onChange={handleChange}
             type="number"
@@ -177,10 +181,10 @@ const InputForm: React.FC<InputFormProps> = ({
         </FormControl>
 
         <FormControl>
-          <FormLabel>Substitute Teacher</FormLabel>
+          <FormLabel>Substitute</FormLabel>
           <Input
             name="substituteTeacherId"
-            placeholder="Enter substitute teacher ID"
+            placeholder="Add teacher"
             value={formData.substituteTeacherId}
             onChange={handleChange}
             type="number"
@@ -188,25 +192,21 @@ const InputForm: React.FC<InputFormProps> = ({
         </FormControl>
 
         <FormControl isRequired isInvalid={!!errors.subjectId}>
-          <FormLabel>Class Type</FormLabel>
-          <Input
-            name="subjectId"
-            placeholder="Enter subject ID"
-            value={formData.subjectId}
-            onChange={handleChange}
-            type="number"
+          <FormLabel>Subject</FormLabel>
+          <Dropdown
+            label="subject"
+            type="subject"
+            onChange={(option) => setSubject(option)}
           />
           <FormErrorMessage>{errors.subjectId}</FormErrorMessage>
         </FormControl>
 
         <FormControl isRequired isInvalid={!!errors.locationId}>
           <FormLabel>Location</FormLabel>
-          <Input
-            name="locationId"
-            placeholder="Enter location ID"
-            value={formData.locationId}
-            onChange={handleChange}
-            type="number"
+          <Dropdown
+            label="class location"
+            type="location"
+            onChange={(option) => setLocation(option)}
           />
           <FormErrorMessage>{errors.locationId}</FormErrorMessage>
         </FormControl>
@@ -226,7 +226,7 @@ const InputForm: React.FC<InputFormProps> = ({
           <FormLabel>Reason of Absence</FormLabel>
           <Input
             name="reasonOfAbsence"
-            placeholder="Enter reason of absence"
+            placeholder="Only visible to admin"
             value={formData.reasonOfAbsence}
             onChange={handleChange}
           />
