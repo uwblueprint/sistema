@@ -20,6 +20,7 @@ model Absence {
   substituteTeacher   User?    @relation("substituteTeacher", fields: [substituteTeacherId], references: [id])
   location            Location @relation(fields: [locationId], references: [id])
   subject             Subject  @relation(fields: [subjectId], references: [id])
+  notes               String?
 }
 
 model User {

@@ -14,7 +14,8 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { EventInput } from '@fullcalendar/core';
-import { Absence, FetchAbsenceResponse } from '../../types/absence';
+import { Absence } from '@prisma/client';
+import { FetchAbsenceResponse } from '../../types/absence';
 
 const renderEventContent = (eventInfo) => {
   return (
@@ -28,6 +29,7 @@ const renderEventContent = (eventInfo) => {
     </div>
   );
 };
+
 const InfiniteScrollCalendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -38,7 +40,9 @@ const InfiniteScrollCalendar: React.FC = () => {
   const [events, setEvents] = useState<EventInput[]>([]);
   const toast = useToast();
 
-  const convertAbsenceToEvent = (absenceData: Absence): EventInput => {
+  const convertAbsenceToEvent = (
+    absenceData: FetchAbsenceResponse['absences'][0]
+  ): EventInput => {
     return {
       title: absenceData.subject.name,
       start: absenceData.lessonDate,
@@ -56,7 +60,6 @@ const InfiniteScrollCalendar: React.FC = () => {
         setEvents(
           data.absences.map((absence) => convertAbsenceToEvent(absence))
         );
-        console.log(data);
       } else {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -112,7 +115,6 @@ const InfiniteScrollCalendar: React.FC = () => {
       calendarApi.today();
       updateCurrentMonth();
 
-      // Scroll to today's date
       if (containerRef.current) {
         const todayElement =
           containerRef.current.querySelector('.fc-day-today');
@@ -150,7 +152,7 @@ const InfiniteScrollCalendar: React.FC = () => {
           (today.getTime() - viewStart.getTime()) / (1000 * 60 * 60 * 24);
         const totalHeight =
           containerElement.scrollHeight - containerElement.clientHeight;
-        const scrollPosition = (totalDays / (4 * 365)) * totalHeight; // 10 years total
+        const scrollPosition = (totalDays / (4 * 365 + 1)) * totalHeight; //we love leap years
         containerElement.scrollTop = scrollPosition;
       }
     };
@@ -184,11 +186,11 @@ const InfiniteScrollCalendar: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  // Calculate the start date for the calendar (5 years ago)
+  // Calculate the start date for the calendar (1 years ago)
   const startDate = new Date();
   startDate.setFullYear(startDate.getFullYear() - 1);
 
-  // Calculate the end date for the calendar (5 years from now)
+  // Calculate the end date for the calendar (3 years from now)
   const endDate = new Date();
   endDate.setFullYear(endDate.getFullYear() + 3);
 
@@ -207,9 +209,31 @@ const InfiniteScrollCalendar: React.FC = () => {
       }
 
       const data = await response.json();
-      return data.newAbsence;
+
+      const newAbsence = {
+        ...data.newAbsence,
+        subject: {
+          name: `Subject ${data.newAbsence.subjectId}`,
+        },
+        location: {
+          name: `Location ${data.newAbsence.locationId}`,
+        },
+      };
+
+      const newEvent = convertAbsenceToEvent(newAbsence);
+      setEvents((prevEvents) => [...prevEvents, newEvent]);
+      setIsFormOpen(false);
+
+      return newAbsence;
     } catch (error) {
-      console.log('Error adding absence:', error);
+      toast({
+        title: 'Error adding in Calendar',
+        description: error,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+
       return null;
     }
   };
@@ -262,7 +286,7 @@ const InfiniteScrollCalendar: React.FC = () => {
           initialView="dayGridMonth"
           views={{
             dayGridMonth: {
-              duration: { years: 4 }, // Show 10 years at a time (5 years before and 5 years after the current date)
+              duration: { years: 4 },
               fixedWeekCount: false,
             },
           }}
@@ -270,24 +294,26 @@ const InfiniteScrollCalendar: React.FC = () => {
           height="auto"
           dayHeaderContent={renderDayHeader}
           dayCellContent={renderDayCell}
-          initialDate={startDate} // Set initial date to the start of the range
+          initialDate={startDate}
           validRange={{
             start: startDate,
             end: endDate,
           }}
+          nextDayThreshold="00:00:00"
           slotMinTime="00:00:00"
-          slotMaxTime="24:00:00"
+          slotMaxTime="23:59:59"
           events={events}
           eventContent={renderEventContent}
           eventDisplay="auto"
           dateClick={handleDateClick}
+          timeZone="local"
         />
 
         {isFormOpen && formDate && (
           <>
             <div
               style={{
-                backgroundColor: '#D5D3D3', // Semi-transparent dark background
+                backgroundColor: '#D5D3D3',
               }}
             />
             <Modal isOpen={true} onClose={() => setIsFormOpen(false)}>
@@ -315,8 +341,8 @@ const InfiniteScrollCalendar: React.FC = () => {
             background-color: #f3f4f6;
           }
           .fc-day-other .fc-daygrid-day-number {
--           opacity: 0.5;
--         }
+            opacity: 0.5;
+          }
           .fc-daygrid-day-number.current-month {
             color: black;
           }
