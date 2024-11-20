@@ -26,6 +26,7 @@
     "@prisma/client": "^5.17.0",
     "dotenv": "^16.4.5",
     "framer-motion": "^6.3.0",
+    "ics": "^3.8.1",
     "googleapis": "^140.0.1",
     "next": "^14.2.13",
     "next-auth": "^5.0.0-beta.25",
