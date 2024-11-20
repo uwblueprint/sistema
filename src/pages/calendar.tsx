@@ -14,7 +14,8 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { EventInput } from '@fullcalendar/core';
-import { Absence, FetchAbsenceResponse } from '../../types/absence';
+import { Absence } from '@prisma/client';
+import { FetchAbsenceResponse } from '../../types/absence';
 
 const renderEventContent = (eventInfo) => {
   return (
@@ -39,7 +40,9 @@ const InfiniteScrollCalendar: React.FC = () => {
   const [events, setEvents] = useState<EventInput[]>([]);
   const toast = useToast();
 
-  const convertAbsenceToEvent = (absenceData: Absence): EventInput => {
+  const convertAbsenceToEvent = (
+    absenceData: FetchAbsenceResponse['absences'][0]
+  ): EventInput => {
     return {
       title: absenceData.subject.name,
       start: absenceData.lessonDate,

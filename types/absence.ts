@@ -1,26 +1,8 @@
-export interface Absence {
-  id: number;
-  title: string;
-  lessonDate: Date;
-  lessonPlan: string | null;
-  reasonOfAbsence: string;
-  absentTeacherId: number;
-  substituteTeacherId: number | null;
-  subject: {
-    abbreviation: string;
-    id: number;
-    name: string;
-  };
-  location: {
-    abbreviation: string;
-    id: number;
-    name: string;
-  };
-  subjectId: number;
-  locationId: number;
-  newAbsence?: Omit<Absence, 'id'>;
-}
+import { Absence, Subject, Location } from '@prisma/client';
 
 export interface FetchAbsenceResponse {
-  absences: Absence[];
+  absences: (Absence & {
+    subject: Subject;
+    location: Location;
+  })[];
 }
