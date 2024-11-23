@@ -154,7 +154,9 @@ SELECT * FROM public."<table-name>";
 
 The local database seeds automatically locally when `docker compose build --up` is run. Only run the commands below to seed the production database:
 
-In the schema.prisma, set the db datasource as follows:
+In the schema.prisma, set the db datasource as follows (where
+`VERCEL_POSTGRES_PRISMA_URL` and `VERCEL_POSTGRES_URL_NON_POOLING` are Vercel
+environment variables):
 
 ```prisma
 datasource db {
