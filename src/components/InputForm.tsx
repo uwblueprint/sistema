@@ -14,7 +14,9 @@ import { Absence } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 interface InputFormProps {
   onClose?: () => void;
-  onAddAbsence: (absence: Prisma.AbsenceCreateInput) => Promise<Absence | null>;
+  onAddAbsence: (
+    absence: Prisma.AbsenceCreateManyInput
+  ) => Promise<Absence | null>;
   initialDate?: Date;
 }
 
@@ -98,7 +100,7 @@ const InputForm: React.FC<InputFormProps> = ({
     try {
       const lessonDate = new Date(formData.lessonDate);
       lessonDate.setHours(lessonDate.getHours() + 12);
-      const absenceData: Prisma.AbsenceCreateInput = {
+      const absenceData: Prisma.AbsenceCreateManyInput = {
         lessonDate: lessonDate,
         lessonPlan: lessonPlan || null,
         reasonOfAbsence: formData.reasonOfAbsence,
@@ -111,7 +113,7 @@ const InputForm: React.FC<InputFormProps> = ({
         notes: formData.notes,
       };
 
-      const response = onAddAbsence(absenceData);
+      const response = await onAddAbsence(absenceData);
 
       if (response) {
         toast({
