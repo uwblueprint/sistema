@@ -23,6 +23,7 @@ interface InputFormProps {
 const InputForm: React.FC<InputFormProps> = ({
   onClose,
   onAddAbsence,
+  onAddAbsence,
   initialDate = new Date(),
 }) => {
   const toast = useToast();
@@ -110,6 +111,12 @@ const InputForm: React.FC<InputFormProps> = ({
           : null,
         locationId: parseInt(formData.locationId, 10),
         subjectId: parseInt(formData.subjectId, 10),
+        absentTeacherId: parseInt(formData.absentTeacherId, 10),
+        substituteTeacherId: formData.substituteTeacherId
+          ? parseInt(formData.substituteTeacherId, 10)
+          : null,
+        locationId: parseInt(formData.locationId, 10),
+        subjectId: parseInt(formData.subjectId, 10),
         notes: formData.notes,
       };
 
@@ -149,6 +156,7 @@ const InputForm: React.FC<InputFormProps> = ({
         duration: 5000,
         isClosable: true,
       });
+      console.log(error);
     } finally {
       setIsSubmitting(false);
     }
