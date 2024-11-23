@@ -1,98 +1,116 @@
-import NextAuth, { AuthOptions } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import NextAuth from 'next-auth';
+import Google, { GoogleProfile } from 'next-auth/providers/google';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+
 import { prisma } from './app/api/prisma';
 
-// Custom Google Profile Type
-interface GoogleProfile {
-  sub: string;
-  name: string;
-  email: string;
-  picture: string;
-  given_name: string;
-  family_name: string;
-}
+console.log('auth running');
 
-export const authOptions: AuthOptions = {
+// Custom Google Profile Type
+// interface GoogleProfile {
+//   sub: string;
+//   name: string;
+//   email: string;
+//   picture: string;
+//   given_name: string;
+//   family_name: string;
+// }
+
+// export const authOptions: NextAuthConfig = {
+export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
-    GoogleProvider({
+    Google({
       clientId: process.env.AUTH_GOOGLE_ID as string,
       clientSecret: process.env.AUTH_GOOGLE_SECRET as string,
+
+      // temp rahul commentary: overriding default authorization scopes
       authorization: {
         params: {
           scope: 'openid email profile',
         },
       },
-      profile(profile: GoogleProfile) {
-        return {
-          id: profile.sub,
-          name: profile.name,
-          email: profile.email,
-          picture: profile.picture,
-          firstName: profile.given_name,
-          lastName: profile.family_name,
-        };
-      },
+
+      // what I return will be used to create the user object in the database
+      // profile(profile: GoogleProfile) {
+      //   return {
+      //     id: profile.sub,
+      //     name: profile.name,
+      //     email: profile.email,
+      //     picture: profile.picture,
+      //     firstName: profile.given_name,
+      //     lastName: profile.family_name,
+      //   };
+      // },
     }),
   ],
-  adapter: PrismaAdapter(prisma),
-  secret: process.env.AUTH_SECRET,
 
-  debug: true,
+  adapter: PrismaAdapter(prisma),
+
+  // debug: true,
 
   callbacks: {
     async signIn({ account, profile }) {
       console.log('Account: ', account);
       console.log('Profile: ', profile);
-      const googleProfile = profile as any;
-
+      // const googleProfile = profile as any;
+      if (account?.provider !== 'google' || !profile) {
+        console.error('');
+        return false;
+      }
+      // if I'm here, I know that the provider is google and profile is defined
+      const googleProfile = profile as GoogleProfile;
       const firstName = googleProfile.given_name || '';
       const lastName = googleProfile.family_name || '';
 
-      if (account?.provider === 'google' && profile?.email) {
-        try {
-          let existingUser = await prisma.user.findUnique({
-            where: { email: profile.email },
+      try {
+        // find user if it exists
+        let existingUser = await prisma.user.findUnique({
+          where: { email: googleProfile.email },
+        });
+
+        /**
+         * TODOs
+         * abstraction & ease of reading
+         * ? in typescript.
+         * user vs account stuff
+         */
+
+        // if user does not exist, create user and account.
+        if (!existingUser) {
+          existingUser = await prisma.user.create({
+            data: {
+              authId: account.providerAccountId,
+              email: googleProfile.email,
+              firstName,
+              lastName,
+            },
           });
 
-          if (!existingUser) {
-            existingUser = await prisma.user.create({
-              data: {
-                authId: account.providerAccountId,
-                email: profile.email,
-                firstName,
-                lastName,
-                role: 'TEACHER',
-                status: 'INVITED',
-                numOfAbsences: 10,
-              },
-            });
-           
-
-            await prisma.account.create({
-              data: {
-                userId: existingUser.id,
-                provider: account.provider!,
-                providerAccountId: account.providerAccountId!,
-                refreshToken: account.refresh_token,
-                accessToken: account.access_token,
-                accessTokenExpires: account.expires_at
-                  ? new Date(account.expires_at * 1000)
-                  : null,
-                providerType: 'oauth',
-              },
-            });
-          }
-
-          return true;
-        } catch (error) {
-          console.error('Error during sign-in:', error);
-          return false;
+          await prisma.account.create({
+            data: {
+              userId: existingUser.id,
+              provider: account.provider!,
+              providerAccountId: account.providerAccountId!,
+              refreshToken: account.refresh_token,
+              accessToken: account.access_token,
+              accessTokenExpires: account.expires_at
+                ? new Date(account.expires_at * 1000)
+                : null,
+              providerType: 'oauth',
+            },
+          });
         }
+
+        return true;
+      } catch (error) {
+        console.error('Error during sign-in:', error);
+        return false;
       }
+      // }
       return false;
     },
   },
-};
+});
 
-export default NextAuth(authOptions);
+// export default NextAuth(authOptions);
+// export const { auth, handlers, signIn, signOut } = NextAuth(authOptions)

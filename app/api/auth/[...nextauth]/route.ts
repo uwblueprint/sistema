@@ -1,4 +1,2 @@
-import auth from 'auth'; 
-
-export const GET = auth;
-export const POST = auth;
+import { handlers } from 'auth';
+export const { GET, POST } = handlers;
