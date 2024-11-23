@@ -149,7 +149,6 @@ const InputForm: React.FC<InputFormProps> = ({
         duration: 5000,
         isClosable: true,
       });
-      console.log(error);
     } finally {
       setIsSubmitting(false);
     }
