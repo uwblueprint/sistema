@@ -74,27 +74,7 @@ Use the arrow keys to navigate: ↓ ↑ → ←
 ./push_secrets.sh
 ```
 
-## Version Control Guide
-
-### Branching
-
-- Branch off of `main` for all feature work and bug fixes, creating a "feature branch". Prefix the feature branch name with your name. The branch name should be in kebab case and it should be short and descriptive. E.g. `chinemerem/readme-update`
-
-- To integrate changes on `main` into your feature branch, **use rebase instead of merge**
-
-```bash
-# currently working on feature branch, there are new commits on main
-git pull origin main --rebase
-
-# if there are conflicts, resolve them and then:
-git add .
-git rebase --continue
-
-# force push to remote feature branch
-git push -f
-```
-
-### Docker Commands
+## Docker Commands
 
 If you’re new to Docker, you can learn more about `docker-compose` commands at
 this [docker compose overview](https://docs.docker.com/compose/reference/).
@@ -134,7 +114,7 @@ docker ps
 docker system prune -a --volumes
 ```
 
-### Accessing PostgreSQL Database
+## Accessing PostgreSQL Database
 
 ```bash
 # Open a Postgres shell in the sistema-db -1 Docker container and connect to the sistema database
@@ -235,3 +215,21 @@ git push -f
 
 - Commit messages and PR names are descriptive and written in **imperative tense**. The first word should be capitalized. E.g. "Create user REST endpoints", not "Created user REST endpoints"
 - PRs can contain multiple commits, they do not need to be squashed together before merging as long as each commit is atomic. Our repo is configured to only allow squash commits to `main` so the entire PR will appear as 1 commit on `main`, but the individual commits are preserved when viewing the PR.
+
+## Version Control Guide
+
+- Branch off of `main` for all feature work and bug fixes, creating a "feature branch". Prefix the feature branch name with your name. The branch name should be in kebab case and it should be short and descriptive. E.g. `chinemerem/readme-update`
+
+- To integrate changes on `main` into your feature branch, **use rebase instead of merge**
+
+```bash
+# currently working on feature branch, there are new commits on main
+git pull origin main --rebase
+
+# if there are conflicts, resolve them and then:
+git add .
+git rebase --continue
+
+# force push to remote feature branch
+git push -f
+```
