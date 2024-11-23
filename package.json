@@ -67,6 +67,9 @@
     "*.{js,jsx,ts,tsx}": [
       "npm run format"
     ],
+    "*.json": [
+      "prettier --write"
+    ],
     "schema.prisma": [
       "npx prisma format"
     ]
