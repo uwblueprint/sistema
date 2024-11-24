@@ -1,68 +1,61 @@
-import React, { useRef, useCallback, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import { DayHeaderContentArg, DayCellContentArg } from '@fullcalendar/core';
-import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction';
-import InputForm from '../components/InputForm';
+import interactionPlugin from '@fullcalendar/interaction';
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  Button,
-  useToast,
-} from '@chakra-ui/react';
-import { EventInput } from '@fullcalendar/core';
-import { Absence } from '@prisma/client';
-import { FetchAbsenceResponse } from '../../types/absence';
+  AddIcon,
+  ArrowBackIcon,
+  ArrowForwardIcon,
+  CalendarIcon,
+} from '@chakra-ui/icons';
+import { ButtonGroup, Button, IconButton, useToast } from '@chakra-ui/react';
+import { EventInput, EventContentArg } from '@fullcalendar/core';
+import { AbsenceWithRelations } from '../../types/absence';
+import { SistemaLogoColour } from '../components/SistemaLogoColour';
 
-const renderEventContent = (eventInfo) => {
-  return (
-    <div>
-      <div className="fc-event-title-container">
-        <div className="fc-event-title fc-sticky">{eventInfo.event.title}</div>
-      </div>
-      <div className="fc-event-title fc-sticky">
-        {eventInfo.event.extendedProps.location}
-      </div>
-    </div>
-  );
-};
-
-const InfiniteScrollCalendar: React.FC = () => {
+const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [currentMonth, setCurrentMonth] = useState<string>('');
-  const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [formDate, setFormDate] = useState<Date | null>(null);
   const [events, setEvents] = useState<EventInput[]>([]);
+  const [currentMonthYear, setCurrentMonthYear] = useState('');
   const toast = useToast();
 
-  const convertAbsenceToEvent = (
-    absenceData: FetchAbsenceResponse['absences'][0]
-  ): EventInput => {
-    return {
-      title: absenceData.subject.name,
-      start: absenceData.lessonDate,
-      allDay: true,
-      display: 'auto',
-      location: absenceData.location.name,
-    };
+  const renderEventContent = (eventInfo: EventContentArg) => {
+    return (
+      <div>
+        <div className="fc-event-title-container">
+          <div className="fc-event-title fc-sticky">
+            {eventInfo.event.title}
+          </div>
+        </div>
+        <div className="fc-event-title fc-sticky">
+          {eventInfo.event.extendedProps.location}
+        </div>
+      </div>
+    );
   };
+
+  const convertAbsenceToEvent = (
+    absenceData: AbsenceWithRelations
+  ): EventInput => ({
+    title: absenceData.subject.name,
+    start: absenceData.lessonDate,
+    allDay: true,
+    display: 'auto',
+    location: absenceData.location.name,
+  });
 
   const fetchAbsences = useCallback(async () => {
     try {
-      const res = await fetch('/api/absence');
-      if (res.ok) {
-        const data: FetchAbsenceResponse = await res.json();
-        setEvents(
-          data.absences.map((absence) => convertAbsenceToEvent(absence))
-        );
-      } else {
-        throw new Error(`HTTP error! status: ${res.status}`);
+      const res = await fetch('/api/getAbsences/');
+      if (!res.ok) {
+        throw new Error(`Failed to fetch: ${res.statusText}`);
       }
+      const data = await res.json();
+      if (!data.events || !Array.isArray(data.events)) {
+        throw new Error('Invalid data format.');
+      }
+      const formattedEvents = data.events.map(convertAbsenceToEvent);
+      setEvents(formattedEvents);
     } catch (error) {
       console.error('Error fetching absences:', error);
       toast({
@@ -80,32 +73,19 @@ const InfiniteScrollCalendar: React.FC = () => {
     fetchAbsences();
   }, [fetchAbsences]);
 
-  const updateCurrentMonth = useCallback(() => {
-    if (calendarRef.current && containerRef.current) {
+  const formatMonthYear = (date: Date): string => {
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'long',
+      year: 'numeric',
+    };
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  };
+
+  const updateMonthYearTitle = useCallback(() => {
+    if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
-      const containerElement = containerRef.current;
-
-      const viewStart = calendarApi.view.currentStart;
-      const viewEnd = calendarApi.view.currentEnd;
-      const totalDays =
-        (viewEnd.getTime() - viewStart.getTime()) / (1000 * 60 * 60 * 24);
-
-      const scrollPosition = containerElement.scrollTop;
-      const totalHeight =
-        containerElement.scrollHeight - containerElement.clientHeight;
-      const scrollPercentage = scrollPosition / totalHeight;
-
-      const daysScrolled = Math.floor(totalDays * scrollPercentage);
-      const currentDate = new Date(
-        viewStart.getTime() + daysScrolled * 24 * 60 * 60 * 1000
-      );
-
-      const monthYear = currentDate.toLocaleString('default', {
-        month: 'long',
-        year: 'numeric',
-      });
-      setCurrentMonth(monthYear);
-      setCurrentMonthDate(currentDate);
+      const date = calendarApi.getDate();
+      setCurrentMonthYear(formatMonthYear(date));
     }
   }, []);
 
@@ -113,264 +93,142 @@ const InfiniteScrollCalendar: React.FC = () => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       calendarApi.today();
-      updateCurrentMonth();
-
-      if (containerRef.current) {
-        const todayElement =
-          containerRef.current.querySelector('.fc-day-today');
-        if (todayElement) {
-          todayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
+      updateMonthYearTitle();
     }
-  }, [updateCurrentMonth]);
+  }, [updateMonthYearTitle]);
+
+  const handlePrevClick = useCallback(() => {
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.prev();
+      updateMonthYearTitle();
+    }
+  }, [updateMonthYearTitle]);
+
+  const handleNextClick = useCallback(() => {
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.next();
+      updateMonthYearTitle();
+    }
+  }, [updateMonthYearTitle]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (container) {
-      const handleScroll = () => {
-        requestAnimationFrame(updateCurrentMonth);
-      };
+    updateMonthYearTitle();
+  }, [updateMonthYearTitle]);
 
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
-    }
-  }, [updateCurrentMonth]);
-
-  useEffect(() => {
-    // Initial update of current month
-    updateCurrentMonth();
-
-    // Auto-scroll to current month
-    const scrollToCurrentMonth = () => {
-      if (calendarRef.current && containerRef.current) {
-        const calendarApi = calendarRef.current.getApi();
-        const containerElement = containerRef.current;
-        const today = new Date();
-        const viewStart = calendarApi.view.currentStart;
-        const totalDays =
-          (today.getTime() - viewStart.getTime()) / (1000 * 60 * 60 * 24);
-        const totalHeight =
-          containerElement.scrollHeight - containerElement.clientHeight;
-        const scrollPosition = (totalDays / (4 * 365 + 1)) * totalHeight; //we love leap years
-        containerElement.scrollTop = scrollPosition;
-      }
-    };
-
-    // Wait for the calendar to render before scrolling
-    setTimeout(scrollToCurrentMonth, 100);
-  }, [updateCurrentMonth]);
-
-  const renderDayHeader = useCallback((arg: DayHeaderContentArg) => {
-    return <div className="fc-daygrid-day-top">{arg.text}</div>;
-  }, []);
-
-  const renderDayCell = useCallback(
-    (arg: DayCellContentArg) => {
-      const isCurrentMonth =
-        arg.date.getMonth() === currentMonthDate.getMonth() &&
-        arg.date.getFullYear() === currentMonthDate.getFullYear();
-      return (
-        <div
-          className={`fc-daygrid-day-number ${isCurrentMonth ? 'current-month' : ''}`}
-        >
-          {arg.date.getDate()}
-        </div>
-      );
-    },
-    [currentMonthDate]
-  );
-
-  const handleDateClick = (info: DateClickArg) => {
-    setFormDate(info.date);
-    setIsFormOpen(true);
-  };
-
-  // Calculate the start date for the calendar (1 years ago)
-  const startDate = new Date();
-  startDate.setFullYear(startDate.getFullYear() - 1);
-
-  // Calculate the end date for the calendar (3 years from now)
-  const endDate = new Date();
-  endDate.setFullYear(endDate.getFullYear() + 3);
-
-  const handleAddAbsence = async (absence: Absence) => {
-    try {
-      const response = await fetch('/api/absence', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(absence),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to add absence');
-      }
-
-      const data = await response.json();
-
-      const newAbsence = {
-        ...data.newAbsence,
-        subject: {
-          name: `Subject ${data.newAbsence.subjectId}`,
-        },
-        location: {
-          name: `Location ${data.newAbsence.locationId}`,
-        },
-      };
-
-      const newEvent = convertAbsenceToEvent(newAbsence);
-      setEvents((prevEvents) => [...prevEvents, newEvent]);
-      setIsFormOpen(false);
-
-      return newAbsence;
-    } catch (error) {
-      toast({
-        title: 'Error adding in Calendar',
-        description: error,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-
-      return null;
-    }
+  const addWeekendClass = (date: Date): string => {
+    const day = date.getDay();
+    return day === 0 || day === 6 ? 'fc-weekend' : '';
   };
 
   return (
-    <div>
+    <div style={{ display: 'flex', height: '100vh' }}>
       <div
         style={{
-          top: '10px',
-          left: '10px',
-          zIndex: 1000,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          backgroundColor: 'white',
+          width: '260px',
           padding: '10px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+          alignItems: 'center',
         }}
       >
-        <div
-          style={{
-            flexDirection: 'row',
-            columnGap: '12px',
-            justifyContent: 'center',
-          }}
-        >
-          <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>
-            {currentMonth}
-          </span>
-          <Button onClick={handleTodayClick} colorScheme="blue">
-            Today
-          </Button>
+        <div style={{ width: '150px' }}>
+          <SistemaLogoColour />
         </div>
 
-        <Button
-          onClick={() => {
-            setIsFormOpen(true);
-            setFormDate(new Date());
-          }}
-        >
+        <Button colorScheme="blue" size={'lg'} leftIcon={<AddIcon />}>
           Declare Absence
         </Button>
       </div>
-      <div
-        ref={containerRef}
-        style={{ height: '90vh', position: 'relative', overflow: 'auto' }}
-      >
+
+      <div style={{ flex: 1, padding: '10px', height: '100%' }}>
+        <div
+          style={{
+            display: 'flex',
+            marginBottom: '10px',
+          }}
+        >
+          <ButtonGroup isAttached variant="outline">
+            <IconButton
+              colorScheme="blue"
+              onClick={handlePrevClick}
+              icon={<ArrowBackIcon />}
+              aria-label="Previous"
+            />
+            <Button
+              onClick={handleTodayClick}
+              variant="outline"
+              colorScheme="blue"
+              leftIcon={<CalendarIcon />}
+            >
+              Today
+            </Button>
+            <IconButton
+              colorScheme="blue"
+              onClick={handleNextClick}
+              icon={<ArrowForwardIcon />}
+              aria-label="Next"
+            />
+          </ButtonGroup>
+          <h2
+            style={{
+              fontFamily: 'Poppins, sans-serif',
+              fontSize: '28px',
+              textAlign: 'center',
+              marginLeft: '30px',
+              marginRight: '30px',
+            }}
+          >
+            {currentMonthYear}
+          </h2>
+        </div>
         <FullCalendar
           ref={calendarRef}
+          headerToolbar={false}
           plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
-          views={{
-            dayGridMonth: {
-              duration: { years: 4 },
-              fixedWeekCount: false,
-            },
-          }}
-          headerToolbar={false}
-          height="auto"
-          dayHeaderContent={renderDayHeader}
-          dayCellContent={renderDayCell}
-          initialDate={startDate}
-          validRange={{
-            start: startDate,
-            end: endDate,
-          }}
-          nextDayThreshold="00:00:00"
-          slotMinTime="00:00:00"
-          slotMaxTime="23:59:59"
+          height="100%"
           events={events}
           eventContent={renderEventContent}
-          eventDisplay="auto"
-          dateClick={handleDateClick}
           timeZone="local"
+          datesSet={updateMonthYearTitle}
+          fixedWeekCount={false}
+          dayCellClassNames={({ date }) => addWeekendClass(date)}
         />
-
-        {isFormOpen && formDate && (
-          <>
-            <div
-              style={{
-                backgroundColor: '#D5D3D3',
-              }}
-            />
-            <Modal isOpen={true} onClose={() => setIsFormOpen(false)}>
-              <ModalOverlay />
-              <ModalContent>
-                <ModalHeader>Add Absence</ModalHeader>
-                <ModalBody>
-                  <InputForm
-                    initialDate={formDate}
-                    onClose={() => setIsFormOpen(false)}
-                    onAddAbsence={handleAddAbsence}
-                  />
-                </ModalBody>
-              </ModalContent>
-            </Modal>
-          </>
-        )}
-
         <style>
           {`
-          .fc {
-            color: grey;
-          }
-          .fc-day-other {
-            background-color: #f3f4f6;
-          }
-          .fc-day-other .fc-daygrid-day-number {
-            opacity: 0.5;
-          }
-          .fc-daygrid-day-number.current-month {
-            color: black;
-          }
-          .fc-event {
-            border: none;
-            background-color: #3788d8;
-            color: white;
-            padding: 2px 5px;
-            margin: 1px 0;
-            border-radius: 3px;
-          }
-          .fc-event-main-frame {
-            display: flex;
-            flex-direction: column;
-          }
-          .fc-event-time {
-            font-weight: bold;
-            margin-bottom: 2px;
-          }
-          .fc-event-title {
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-        `}
+            .fc .fc-daygrid-day-top {
+              flex-direction: row;
+            }
+            .fc th {
+              text-transform: uppercase;
+              font-size: 14px;
+              font-style: normal;
+              font-weight: 400;
+            }
+            .fc-day-today {
+              background-color: inherit !important;
+              color: white;
+            }
+            .fc-weekend {
+              background-color: rgba(0, 0, 0, 0.05) !important;
+            }
+            .fc-event {
+              padding: 2px 5px;
+              margin: 2px 0;
+              border-radius: 5px;
+            }
+            .fc-event-title {
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          `}
         </style>
       </div>
     </div>
   );
 };
 
-export default InfiniteScrollCalendar;
+export default Calendar;
