@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "npx @snaplet/seed sync && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint . --ext js,jsx,ts,tsx --fix",
@@ -11,7 +11,6 @@
     "format": "npm run prettier:fix && npm run lint:fix",
     "prepare": "husky",
     "migrate": "prisma migrate dev",
-    "postmigrate": "npx @snaplet/seed sync",
     "postinstall": "prisma generate"
   },
   "dependencies": {
