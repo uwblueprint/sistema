@@ -5,13 +5,17 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function connectPrisma() {
-  await prisma.$connect();
+  try {
+    await prisma.$connect();
+  } catch (error) {
+    console.error('Error connecting to the database:', error);
+    process.exit(1);
+  }
 }
 
-connectPrisma().catch((e) => {
-  console.error('Failed to connect to the database:', e);
-  process.exit(1);
-});
+if (process.env.NODE_ENV !== 'production') {
+  connectPrisma();
+}
 
 export default defineConfig({
   adapter: () => {
