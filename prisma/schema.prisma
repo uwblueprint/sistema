@@ -49,10 +49,19 @@ model MailingList {
 }
 
 model Subject {
-  id           Int       @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   name         String
   abbreviation String
   Absence      Absence[]
+  colorGroupId Int
+  colorGroup   ColorGroup @relation(fields: [colorGroupId], references: [id])
+}
+
+model ColorGroup {
+  id         Int       @id @default(autoincrement())
+  name       String
+  colorCodes String[]
+  Subject    Subject[]
 }
 
 enum Role {
