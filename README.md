@@ -4,6 +4,11 @@
 
 - Make sure you have been added to the [UW Blueprint Github Workspace](https://github.com/uwblueprint/).
 - Install Docker Desktop ([MacOS](https://docs.docker.com/docker-for-mac/install/) | [Windows](https://docs.docker.com/desktop/install/windows-install/) | [Linux](https://docs.docker.com/engine/install/#server)) and ensure that it is running.
+- Install [Node.js](https://nodejs.org/) (v22 tested). It's recommended to use [NVM (Node Version Manager)](https://github.com/nvm-sh/nvm) to manage your Node.js versions.
+
+  - [Node.js for MacOS](https://nodejs.org/en/download/)
+  - [Node.js for Windows](https://nodejs.org/en/download/)
+  - [Node.js for Linux](https://nodejs.org/en/download/package-manager/)
 
 - Clone the [Sistema Github Repository](https://github.com/uwblueprint/sistema) to your local machine and `cd` into the project folder:
 
@@ -80,38 +85,40 @@ If you’re new to Docker, you can learn more about `docker-compose` commands at
 this [docker compose overview](https://docs.docker.com/compose/reference/).
 
 ```bash
-# build Builds images
-docker-compose
-```
-
-```bash
-# builds images (if they don’t exist) & starts containers
-docker-compose up
-```
-
-```bash
-# builds images & starts containers
+# Start Docker Containers
 docker-compose up --build
 ```
 
 ```bash
-# stops the containers
+# Stop Containers
 docker-compose down
 ```
 
 ```bash
-# stops the containers and removes volumes
+# Remove Containers, Networks, and Volumes:
 docker-compose down --volumes
 ```
 
 ```bash
-# get Names & Statuses of Running Containers
+# View Running Containers:
 docker ps
 ```
 
 ```bash
-# Remove all stopped containers, unused networks, dangling images, and build cache
+# Clean Up Stopped Containers & Unused Resources:
 docker system prune -a --volumes
+```
+
+## Migrating After a Schema Change
+
+```bash
+# Generate Prisma Client:
+npx prisma generate
+```
+
+```bash
+# Apply Migrations:
+npx prisma migrate dev
 ```
 
 ## Accessing PostgreSQL Database
