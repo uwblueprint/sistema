@@ -128,13 +128,21 @@ const main = async () => {
     })
   );
 
+  const generateWeekdayFutureDate = (): Date => {
+    let date: Date;
+    do {
+      date = faker.date.future();
+    } while (date.getDay() === 0 || date.getDay() === 6);
+    return date;
+  };
+
   await seed.absence((createMany) =>
     createMany(10, () => {
       const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
         probability: 0.5,
       });
       return {
-        lessonDate: faker.date.future(),
+        lessonDate: generateWeekdayFutureDate(),
         lessonPlan: faker.internet.url(),
         reasonOfAbsence: faker.lorem.sentence(),
         notes: maybeNotes ?? null,
