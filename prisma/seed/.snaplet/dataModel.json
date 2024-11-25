@@ -122,6 +122,20 @@
           "maxLength": null
         },
         {
+          "id": "public.Absence.notes",
+          "name": "notes",
+          "columnName": "notes",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "name": "Location",
           "type": "Location",
           "isRequired": true,

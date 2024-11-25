@@ -133,6 +133,9 @@ const main = async () => {
       lessonDate: faker.date.future(),
       lessonPlan: faker.internet.url(),
       reasonOfAbsence: faker.lorem.sentence(),
+      notes: faker.helpers.maybe(() => faker.lorem.paragraph(), {
+        probability: 0.5,
+      }),
     }))
   );
 

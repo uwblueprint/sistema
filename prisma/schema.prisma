@@ -12,6 +12,7 @@ model Absence {
   lessonDate          DateTime
   lessonPlan          String?
   reasonOfAbsence     String
+  notes               String?
   absentTeacherId     Int
   substituteTeacherId Int?
   locationId          Int
