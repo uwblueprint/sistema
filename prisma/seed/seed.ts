@@ -129,14 +129,17 @@ const main = async () => {
   );
 
   await seed.absence((createMany) =>
-    createMany(10, () => ({
-      lessonDate: faker.date.future(),
-      lessonPlan: faker.internet.url(),
-      reasonOfAbsence: faker.lorem.sentence(),
-      notes: faker.helpers.maybe(() => faker.lorem.paragraph(), {
+    createMany(10, () => {
+      const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
         probability: 0.5,
-      }),
-    }))
+      });
+      return {
+        lessonDate: faker.date.future(),
+        lessonPlan: faker.internet.url(),
+        reasonOfAbsence: faker.lorem.sentence(),
+        notes: maybeNotes ?? null,
+      };
+    })
   );
 
   await seed.mailingList((createMany) =>
