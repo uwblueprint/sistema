@@ -1,7 +1,23 @@
-import { Box, VStack, Text, Checkbox, Divider } from '@chakra-ui/react';
+import {
+  Box,
+  VStack,
+  Text,
+  Checkbox,
+  Divider,
+  useDisclosure,
+  IconButton,
+  HStack,
+  Collapse,
+} from '@chakra-ui/react';
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { useEffect, useState } from 'react';
 import { Subject } from '../../types/subject';
 import { Location } from '../../types/location';
+import {
+  mapName,
+  subjectProperties,
+  transformName,
+} from '../../../utils/nameMapper';
 
 interface SidebarProps {
   selectedSubjects: number[];
@@ -19,7 +35,15 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [locations, setLocations] = useState<Location[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
 
-  // Fetch data on component mount
+  // Disclosure hooks for toggles
+  const { isOpen: isSubjectOpen, onToggle: toggleSubjects } = useDisclosure({
+    defaultIsOpen: true,
+  });
+  const { isOpen: isLocationOpen, onToggle: toggleLocations } = useDisclosure({
+    defaultIsOpen: true,
+  });
+
+  // Fetch subjects and locations dynamically
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -31,69 +55,117 @@ const Sidebar: React.FC<SidebarProps> = ({
         const locationsData = await locationsRes.json();
         const subjectsData = await subjectsRes.json();
 
-        setLocations(locationsData.locations);
-        setSubjects(subjectsData.subjects);
+        // Dynamically assign colors to subjects
 
-        // defaultly show all subjects and locations
-        locationsData.locations.forEach((location: Location) => {
-          onLocationChange(location.id, true);
+        const mappedLocations = locationsData.locations.map(
+          (location: Location) => ({
+            ...location,
+            name: mapName(location.name), // Use the utility function
+          })
+        );
+        const mappedSubjects = subjectsData.subjects.map((subject: Subject) => {
+          const properties = subjectProperties[subject.name] || {
+            color: '#000000',
+          }; // Fallback to black
+          return {
+            ...subject,
+            name: transformName(subject.name), // Transform the name for display
+            color: properties.color,
+          };
         });
-        subjectsData.subjects.forEach((subject: Subject) => {
-          onSubjectChange(subject.id, true); //
-        });
+
+        setSubjects(mappedSubjects);
+        setLocations(mappedLocations);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       }
     };
-
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    console.log(subjects);
   }, []);
 
   return (
     <Box
-      w="300px"
+      w="262px"
       p="4"
       bg="white"
       borderRight="1px"
       borderColor="gray.200"
       height="100vh"
     >
-      {/* Class Type Filter Section */}
-      <VStack align="flex-start" mb="6">
-        <Text fontSize="md" fontWeight="bold">
-          Class Type
-        </Text>
-        {subjects.map((subject) => (
-          <Checkbox
-            key={subject.id}
-            isChecked={selectedSubjects.includes(subject.id)}
-            onChange={(e) => onSubjectChange(subject.id, e.target.checked)}
-          >
-            {subject.name}
-          </Checkbox>
-        ))}
+      {/* Subject Dropdown */}
+      <VStack align="flex-start" mb="4">
+        <HStack justify="space-between" w="full">
+          <Text fontSize="md" fontWeight="bold">
+            Subject
+          </Text>
+          <IconButton
+            aria-label="Toggle Subject"
+            icon={isSubjectOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            size="lg"
+            variant="ghost"
+            onClick={toggleSubjects}
+          />
+        </HStack>
+        <Collapse in={isSubjectOpen}>
+          <VStack align="flex-start" spacing="2" mt="2">
+            {subjects.map((subject) => (
+              <HStack key={subject.id} align="center" w="full">
+                <Checkbox
+                  isChecked={selectedSubjects.includes(subject.id)}
+                  onChange={(e) =>
+                    onSubjectChange(subject.id, e.target.checked)
+                  }
+                  size="lg"
+                  iconColor="white"
+                  borderColor={subject.color}
+                  _checked={{
+                    '& .chakra-checkbox__control': {
+                      background: subject.color,
+                      borderColor: subject.color,
+                    },
+                  }}
+                >
+                  <Text>{subject.name}</Text>
+                </Checkbox>
+              </HStack>
+            ))}
+          </VStack>
+        </Collapse>
       </VStack>
 
       <Divider />
 
-      {/* Location Filter Section */}
-      <VStack align="flex-start" mt="6">
-        <Text fontSize="md" fontWeight="bold">
-          Location
-        </Text>
-        {locations.map((location) => (
-          <Checkbox
-            key={location.id}
-            isChecked={selectedLocations.includes(location.id)}
-            onChange={(e) => onLocationChange(location.id, e.target.checked)}
-          >
-            {location.name}
-          </Checkbox>
-        ))}
+      {/* Location Dropdown */}
+      <VStack align="flex-start" mt="4">
+        <HStack justify="space-between" w="full">
+          <Text fontSize="md" fontWeight="bold">
+            Location
+          </Text>
+          <IconButton
+            aria-label="Toggle Location"
+            icon={isLocationOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            size="lg"
+            variant="ghost"
+            onClick={toggleLocations}
+          />
+        </HStack>
+        <Collapse in={isLocationOpen}>
+          <VStack align="flex-start" spacing="2" mt="2">
+            {locations.map((location) => (
+              <HStack key={location.id} align="center" w="full">
+                <Checkbox
+                  isChecked={selectedLocations.includes(location.id)}
+                  onChange={(e) =>
+                    onLocationChange(location.id, e.target.checked)
+                  }
+                  colorScheme="blue"
+                  size="lg"
+                />
+                <Text>{location.name}</Text>
+              </HStack>
+            ))}
+          </VStack>
+        </Collapse>
       </VStack>
     </Box>
   );
