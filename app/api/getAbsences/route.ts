@@ -1,18 +1,47 @@
 import { prisma } from '../../../utils/prisma';
 import { NextResponse } from 'next/server';
 
+export interface AbsenceWithRelations {
+  lessonDate: Date;
+  lessonPlan: string | null;
+  reasonOfAbsence: string;
+  notes: string | null;
+  absentTeacher: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  substituteTeacher: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  } | null;
+  location: {
+    name: string;
+    abbreviation: string;
+  };
+  subject: {
+    name: string;
+    abbreviation: string;
+  };
+}
+
 export async function GET() {
   try {
-    const absences = await prisma.absence.findMany({
+    const absences: AbsenceWithRelations[] = await prisma.absence.findMany({
       select: {
-        id: true,
         lessonDate: true,
-        subject: true,
+        subject: {
+          select: {
+            name: true,
+            abbreviation: true,
+          },
+        },
         lessonPlan: true,
         reasonOfAbsence: true,
+        notes: true,
         absentTeacher: {
           select: {
-            id: true,
             firstName: true,
             lastName: true,
             email: true,
@@ -20,7 +49,6 @@ export async function GET() {
         },
         substituteTeacher: {
           select: {
-            id: true,
             firstName: true,
             lastName: true,
             email: true,
@@ -28,7 +56,6 @@ export async function GET() {
         },
         location: {
           select: {
-            id: true,
             name: true,
             abbreviation: true,
           },
@@ -40,39 +67,7 @@ export async function GET() {
       return NextResponse.json({ events: [] }, { status: 200 });
     }
 
-    const events = absences.map((absence) => {
-      function extractTimeArray(date: Date, offset = 0) {
-        const newDate = new Date(date);
-        newDate.setDate(date.getDate() + offset);
-        return [
-          newDate.getFullYear(),
-          newDate.getMonth() + 1,
-          newDate.getDate(),
-        ];
-      }
-      if (absence?.substituteTeacher) {
-        var substituteTeacherString = `(${absence.substituteTeacher?.firstName} ${absence.substituteTeacher?.lastName[0]})`;
-      } else {
-        var substituteTeacherString = '';
-      }
-
-      if (absence?.lessonPlan) {
-        var lessonString = absence.lessonPlan;
-      } else {
-        var lessonString = 'Lesson Plan Not Submitted.';
-      }
-
-      return {
-        start: extractTimeArray(absence.lessonDate),
-        end: extractTimeArray(absence.lessonDate, 1),
-        title:
-          `${absence.subject.abbreviation}: ${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName[0]}` +
-          substituteTeacherString,
-        description: `Subject: ${absence.subject.name}\nLesson Plan: ${lessonString}`,
-        location: absence.location.name,
-      };
-    });
-    return NextResponse.json({ events }, { status: 200 });
+    return NextResponse.json({ events: absences }, { status: 200 });
   } catch (err) {
     console.error('Error in GET /api/getAbsences:', err.message || err);
     return NextResponse.json(
