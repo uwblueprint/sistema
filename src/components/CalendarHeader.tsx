@@ -51,7 +51,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           aria-label="Next"
         />
       </ButtonGroup>
-      <Heading fontSize="xl" textAlign="center" marginX={theme.space[6]}>
+      <Heading fontSize="2xl" textAlign="center" marginX={theme.space[6]}>
         {currentMonthYear}
       </Heading>
     </Flex>
