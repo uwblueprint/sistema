@@ -15,7 +15,7 @@ export function SignInButton(): JSX.Element {
       color="text"
       fontWeight="bold"
       leftIcon={<FcGoogle fontSize="18px" />}
-      onClick={() => signIn('google', { callbackUrl: `/homepage` })}
+      onClick={() => signIn('google', { callbackUrl: `/calendar` })}
     >
       Sign in with Google
     </Button>
