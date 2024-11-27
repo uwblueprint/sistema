@@ -1,6 +1,9 @@
 import { extendTheme } from '@chakra-ui/react';
 
-const fonts = { mono: `'Menlo', monospace` };
+const fonts = {
+  heading: `'Poppins', sans-serif`,
+  mono: `'Menlo', monospace`,
+};
 
 const breakpoints = {
   sm: '40em',
