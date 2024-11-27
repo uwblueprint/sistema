@@ -3,7 +3,13 @@ import { Flex, Box, Button, useTheme } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { SistemaLogoColour } from '../components/SistemaLogoColour';
 
-const CalendarSidebar: React.FC = () => {
+interface CalendarSidebarProps {
+  onDeclareAbsenceClick: () => void;
+}
+
+const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
+  onDeclareAbsenceClick,
+}) => {
   const theme = useTheme();
 
   return (
@@ -17,7 +23,12 @@ const CalendarSidebar: React.FC = () => {
       <Box width="150px">
         <SistemaLogoColour />
       </Box>
-      <Button colorScheme="blue" size="lg" leftIcon={<AddIcon />}>
+      <Button
+        colorScheme="blue"
+        size="lg"
+        leftIcon={<AddIcon />}
+        onClick={onDeclareAbsenceClick}
+      >
         Declare Absence
       </Button>
     </Flex>

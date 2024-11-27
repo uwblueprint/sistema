@@ -2,19 +2,34 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { Box, Flex, useToast, useTheme } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  useToast,
+  useTheme,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { EventInput, EventContentArg } from '@fullcalendar/core';
 import { AbsenceWithRelations } from '../../app/api/getAbsences/route';
 import Sidebar from '../components/CalendarSidebar';
 import CalendarHeader from '../components/CalendarHeader';
+import InputForm from '../components/InputForm';
 import { Global } from '@emotion/react';
 
 const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const [events, setEvents] = useState<EventInput[]>([]);
   const [currentMonthYear, setCurrentMonthYear] = useState('');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const toast = useToast();
   const theme = useTheme();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => (
@@ -80,9 +95,15 @@ const Calendar: React.FC = () => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       const date = calendarApi.getDate();
+      console.log(date);
       setCurrentMonthYear(formatMonthYear(date));
     }
   }, []);
+
+  const handleDateClick = (arg: { date: Date }) => {
+    setSelectedDate(arg.date);
+    onOpen();
+  };
 
   const handleTodayClick = useCallback(() => {
     if (calendarRef.current) {
@@ -115,6 +136,16 @@ const Calendar: React.FC = () => {
   const addWeekendClass = (date: Date): string => {
     const day = date.getDay();
     return day === 0 || day === 6 ? 'fc-weekend' : '';
+  };
+
+  const handleDeclareAbsenceClick = () => {
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      const today = calendarApi.getDate();
+      console.log(today);
+      setSelectedDate(today);
+      onOpen();
+    }
   };
 
   return (
@@ -166,7 +197,7 @@ const Calendar: React.FC = () => {
       />
 
       <Flex height="100vh">
-        <Sidebar />
+        <Sidebar onDeclareAbsenceClick={handleDeclareAbsenceClick} />
         <Box flex={1} padding={theme.space[4]} height="100%">
           <CalendarHeader
             currentMonthYear={currentMonthYear}
@@ -186,9 +217,25 @@ const Calendar: React.FC = () => {
             datesSet={updateMonthYearTitle}
             fixedWeekCount={false}
             dayCellClassNames={({ date }) => addWeekendClass(date)}
+            dateClick={handleDateClick}
           />
         </Box>
       </Flex>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Declare Absence</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <InputForm
+              onClose={onClose}
+              onAddAbsence={fetchAbsences}
+              initialDate={selectedDate}
+            />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
