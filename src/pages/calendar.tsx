@@ -16,7 +16,8 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { EventInput } from '@fullcalendar/core';
-import { Absence, FetchAbsenceResponse } from '../../types/absence';
+import { Absence } from '@prisma/client';
+import { FetchAbsenceResponse } from '../../types/absence';
 import Sidebar from '../components/Calendar/Sidebar';
 import { Subject } from '../types/subject';
 import { Location } from '../types/location';

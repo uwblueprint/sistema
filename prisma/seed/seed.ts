@@ -1,7 +1,7 @@
 //@ts-nocheck
 
-import { createSeedClient } from '@snaplet/seed';
 import { faker } from '@faker-js/faker';
+import { createSeedClient } from '@snaplet/seed';
 
 const main = async () => {
   const seed = await createSeedClient({
@@ -10,59 +10,65 @@ const main = async () => {
 
   await seed.$resetDatabase();
 
+  enum RoleEnum {
+    TEACHER = 'TEACHER',
+    ADMIN = 'ADMIN',
+  }
+
+  enum StatusEnum {
+    ACTIVE = 'ACTIVE',
+    INVITED = 'INVITED',
+    DEACTIVATED = 'DEACTIVATED',
+  }
+
+  const roles = [RoleEnum.TEACHER, RoleEnum.ADMIN];
+  const statuses = [
+    StatusEnum.ACTIVE,
+    StatusEnum.INVITED,
+    StatusEnum.DEACTIVATED,
+  ];
+
   await seed.user((createMany) =>
     createMany(5, () => ({
       authId: faker.string.uuid(),
       email: faker.internet.email(),
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
-      role: faker.helpers.arrayElement(['TEACHER', 'ADMIN']),
-      status: faker.helpers.arrayElement(['ACTIVE', 'INVITED', 'DEACTIVATED']),
+      role: faker.helpers.arrayElement(roles),
+      status: faker.helpers.arrayElement(statuses),
     }))
   );
 
-  const generateSchoolNameAbbreviation = (schoolName: string): string => {
-    const words = schoolName.split(' ');
-    const abbreviation = words
-      .map((word) => word.charAt(0).toUpperCase())
-      .join('');
-    return abbreviation;
-  };
+  const schools = [
+    { name: 'Lambton Park Community School', abbreviation: 'LP' },
+    { name: 'St Martin de Porres Catholic School', abbreviation: 'SC' },
+    { name: 'Yorkwoods Public School', abbreviation: 'YW' },
+    { name: 'Parkdale Junior Senior Public School', abbreviation: 'PD' },
+  ];
 
   await seed.location((createMany) =>
     createMany(5, () => {
-      const school = faker.helpers.arrayElement([
-        'Lambton Park Community School',
-        'St Martin de Porres Catholic School',
-        'Yorkwoods Public School',
-        'Parkdale Junior Senior Public School',
-      ]);
+      const school = faker.helpers.arrayElement(schools);
       return {
-        name: school,
-        abbreviation: generateSchoolNameAbbreviation(school),
+        name: school.name,
+        abbreviation: school.abbreviation,
       };
     })
   );
 
-  const generateSubjectAbbreviation = (subjectName: string): string => {
-    const words = subjectName.split('_');
-    const abbreviation = words
-      .map((word) => word.charAt(0).toUpperCase())
-      .join('');
-    return abbreviation;
-  };
+  const subjects = [
+    { name: 'Strings', abbreviation: 'STR' },
+    { name: 'Music and Movement', abbreviation: 'M&M' },
+    { name: 'Choir', abbreviation: 'CHO' },
+    { name: 'Percussion', abbreviation: 'PER' },
+  ];
 
   await seed.subject((createMany) =>
     createMany(5, () => {
-      const subject = faker.helpers.arrayElement([
-        'STRINGS',
-        'M_AND_M',
-        'CHOIR',
-        'PERCUSSION',
-      ]);
+      const subject = faker.helpers.arrayElement(subjects);
       return {
-        name: subject,
-        abbreviation: generateSubjectAbbreviation(subject),
+        name: subject.name,
+        abbreviation: subject.abbreviation,
       };
     })
   );
@@ -76,15 +82,13 @@ const main = async () => {
   );
 
   await seed.mailingList((createMany) =>
-    createMany(10, () => ({
-      name: faker.helpers.arrayElement([
-        'M_AND_M',
-        'STRINGS',
-        'CHOIR',
-        'PERCUSSION',
-      ]),
-      emails: [faker.internet.email(), faker.internet.email()],
-    }))
+    createMany(10, () => {
+      const subject = faker.helpers.arrayElement(subjects);
+      return {
+        name: subject.name,
+        emails: [faker.internet.email(), faker.internet.email()],
+      };
+    })
   );
 
   console.log('Database seeded successfully!');

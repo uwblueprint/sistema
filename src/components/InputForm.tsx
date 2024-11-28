@@ -164,28 +164,13 @@ import {
   FormErrorMessage,
 } from '@chakra-ui/react';
 import { FileUpload } from './upload';
-
-interface InsertAbsence {
-  id?: number;
-  lessonDate: Date;
-  lessonPlan: string | null;
-  reasonOfAbsence: string;
-  absentTeacherId: number;
-  substituteTeacherId: number | null;
-  locationId: number;
-  subjectId: number;
-  notes?: string;
-  subject?: {
-    name: string;
-  };
-  location?: {
-    name: string;
-  };
-}
-
+import { Absence } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 interface InputFormProps {
   onClose?: () => void;
-  onAddAbsence: (absence: InsertAbsence) => Promise<InsertAbsence | null>;
+  onAddAbsence: (
+    absence: Prisma.AbsenceCreateManyInput
+  ) => Promise<Absence | null>;
   initialDate?: Date;
 }
 
@@ -269,8 +254,7 @@ const InputForm: React.FC<InputFormProps> = ({
     try {
       const lessonDate = new Date(formData.lessonDate);
       lessonDate.setHours(lessonDate.getHours() + 12);
-
-      const newAbsence: InsertAbsence = {
+      const absenceData: Prisma.AbsenceCreateManyInput = {
         lessonDate: lessonDate,
         lessonPlan: lessonPlan || null,
         reasonOfAbsence: formData.reasonOfAbsence,
@@ -283,7 +267,7 @@ const InputForm: React.FC<InputFormProps> = ({
         notes: formData.notes,
       };
 
-      const response = await onAddAbsence(newAbsence);
+      const response = await onAddAbsence(absenceData);
 
       if (response) {
         toast({

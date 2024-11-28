@@ -28,6 +28,7 @@ export default async function handler(
       substituteTeacherId,
       locationId,
       subjectId,
+      notes,
     } = req.body;
     try {
       const newAbsence = await prisma.absence.create({
@@ -39,6 +40,7 @@ export default async function handler(
           substituteTeacherId,
           locationId,
           subjectId,
+          notes,
         },
       });
 
