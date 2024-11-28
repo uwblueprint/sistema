@@ -19,9 +19,9 @@ import { EventInput } from '@fullcalendar/core';
 import { Absence } from '@prisma/client';
 import { FetchAbsenceResponse } from '../../types/absence';
 import Sidebar from '../components/Calendar/Sidebar';
-import { Subject } from '../types/subject';
 import { Location } from '../types/location';
 import { subjectProperties } from '../../utils/nameMapper';
+import { Subject } from '../types/subjects';
 
 const renderEventContent = (eventInfo) => {
   return (

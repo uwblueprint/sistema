@@ -1,4 +1,8 @@
+import { Location, Subject } from '@prisma/client';
+
 export interface Absence {
+  location: Location;
+  subject: Subject;
   id: number;
   title: string;
   lessonDate: Date;

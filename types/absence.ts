@@ -6,3 +6,5 @@ export interface FetchAbsenceResponse {
     location: Location;
   })[];
 }
+
+export { Absence };

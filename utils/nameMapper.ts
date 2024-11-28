@@ -21,9 +21,9 @@ export const transformName = (name: string): string => {
 };
 
 export const subjectProperties: Record<string, { color: string }> = {
-  STRINGS: { color: '#A761A3' }, // Primary Purple
-  CHOIR: { color: '#F6A957' }, // Primary Yellow
-  M_AND_M: { color: '#33B4A9' }, // Primary Green
-  PERCUSSION: { color: '#685777' }, // Primary Violet
-  TRUMPET_AND_CLARINET: { color: '#EC6A6B' }, // Primary Red
+  Strings: { color: '#A761A3' }, // Primary Purple
+  Choir: { color: '#F6A957' }, // Primary Yellow
+  'Music and Movement': { color: '#33B4A9' }, // Primary Green
+  Percussion: { color: '#685777' }, // Primary Violet
+  'Trumpet and Clarinet': { color: '#EC6A6B' }, // Primary Red
 };
