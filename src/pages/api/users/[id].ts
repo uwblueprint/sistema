@@ -5,14 +5,16 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const id = Number(req.query.id);
+  const method = req.method;
+  const params = req.query;
+  const id = Number(params.id);
 
   if (Number.isNaN(id)) {
     return res.status(400).json({ error: 'Invalid ID provided' });
   }
 
-  if (req.method === 'GET') {
-    const getAbsences = req.query.getAbsences === 'true';
+  if (method === 'GET') {
+    const getAbsences = params.getAbsences === 'true';
 
     try {
       const user = await prisma.user.findUnique({
@@ -29,13 +31,8 @@ export default async function handler(
       console.error('Error fetching user:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
-  } else if (req.method === 'PATCH') {
+  } else if (method === 'PATCH') {
     const { email, firstName, lastName, role, status } = req.body;
-    const id = Number(req.query.id as string);
-
-    if (Number.isNaN(id)) {
-      return res.status(400).json({ error: 'Invalid ID provided' });
-    }
 
     try {
       const updatedUser = await prisma.user.update({

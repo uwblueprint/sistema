@@ -9,7 +9,7 @@ interface User {
   numOfAbsences: string;
 }
 
-export default function AnotherPage() {
+export default function Manage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 

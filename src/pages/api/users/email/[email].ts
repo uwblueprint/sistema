@@ -17,7 +17,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const params = req.query;
-  const shouldIncludeAbsences = params.shouldIncludeAbsences === 'true';
+  const getAbsences = params.getAbsences === 'true';
   const realEmail = params.email as string;
   try {
     const useFake = true;
@@ -31,7 +31,7 @@ export default async function handler(
 
     const user = await prisma.user.findUniqueOrThrow({
       where: { email },
-      include: { absences: shouldIncludeAbsences },
+      include: { absences: getAbsences },
     });
 
     return res.status(200).json(user);
