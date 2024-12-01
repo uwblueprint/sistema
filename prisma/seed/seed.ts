@@ -28,8 +28,16 @@ const main = async () => {
     StatusEnum.DEACTIVATED,
   ];
 
+  const numUsers = 5;
+  const numMailingLists = 10;
+  const userIds = Array.from({ length: numUsers }, (_, i) => i + 1);
+  const mailingListIds = Array.from(
+    { length: numMailingLists },
+    (_, i) => i + 1
+  );
+
   await seed.user((createMany) =>
-    createMany(5, () => ({
+    createMany(numUsers, () => ({
       authId: faker.string.uuid(),
       email: faker.internet.email(),
       firstName: faker.person.firstName(),
@@ -151,7 +159,7 @@ const main = async () => {
   );
 
   await seed.mailingList((createMany) =>
-    createMany(10, () => {
+    createMany(numMailingLists, () => {
       const subject = faker.helpers.arrayElement(subjects);
       return {
         name: subject.name,
@@ -159,6 +167,18 @@ const main = async () => {
       };
     })
   );
+
+  for (const mailingListId of mailingListIds) {
+    const randomUserIds = faker.helpers.arrayElements(userIds, 3);
+    for (const userId of randomUserIds) {
+      await seed.usersOnMailingLists((createMany) =>
+        createMany(1, () => ({
+          mailingListId: mailingListId,
+          userId: userId,
+        }))
+      );
+    }
+  }
 
   console.log('Database seeded successfully!');
 
