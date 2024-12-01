@@ -1,13 +1,5 @@
 import { useEffect, useState } from 'react';
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-  status: string;
-  numOfAbsences: string;
-}
+import { User } from '../types/types';
 
 export default function Manage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -15,15 +7,15 @@ export default function Manage() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const apiUrl = `/api/users/`;
+      const apiUrl = `/api/users?getMailingLists=true`;
 
       try {
         const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error(response.statusText);
         }
-        const data: User[] = await response.json();
-        setUsers(data);
+        const users: User[] = await response.json();
+        setUsers(users);
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error('Error fetching users:', error.message);
@@ -81,6 +73,7 @@ export default function Manage() {
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Email Subscriptions</th>
             </tr>
           </thead>
           <tbody>
@@ -98,6 +91,11 @@ export default function Manage() {
                     <option value="TEACHER">Teacher</option>
                     <option value="ADMIN">Admin</option>
                   </select>
+                </td>
+                <td>
+                  {user.mailingLists
+                    ?.map((mailingList) => mailingList.mailingList.name)
+                    .join(', ')}
                 </td>
               </tr>
             ))}

@@ -11,7 +11,13 @@ export default async function handler(
   try {
     const users = await prisma.user.findMany({
       include: {
-        mailingLists: getMailingLists,
+        mailingLists: getMailingLists
+          ? {
+              include: {
+                mailingList: true,
+              },
+            }
+          : false,
       },
     });
 
