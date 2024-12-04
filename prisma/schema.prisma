@@ -34,6 +34,32 @@ model User {
   numOfAbsences Int       @default(10)
   absences      Absence[] @relation("absentTeacher")
   substitutes   Absence[] @relation("substituteTeacher")
+  accounts      Account[]
+  Session       Session[]
+}
+
+model Account {
+  id                 String    @id @default(cuid())
+  userId             Int
+  providerType       String
+  provider           String
+  providerAccountId  String
+  refreshToken       String?
+  accessToken        String?
+  accessTokenExpires DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       Int
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Location {
