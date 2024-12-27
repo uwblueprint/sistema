@@ -1,6 +1,9 @@
 # Use the official Node.js image
 FROM node:20-alpine
 
+#Add OpenSSL
+RUN apk add --no-cache openssl openssl-dev
+
 # Set the working directory
 WORKDIR /sistema
 
