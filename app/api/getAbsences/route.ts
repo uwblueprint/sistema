@@ -1,4 +1,4 @@
-import { prisma } from '../../../utils/prisma';
+import { prisma } from '@utils/prisma';
 import { NextResponse } from 'next/server';
 
 export interface AbsenceWithRelations {
