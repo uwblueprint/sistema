@@ -17,7 +17,11 @@ interface DropdownProps {
   onChange: (value: Option | null) => void;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ label, type, onChange }) => {
+export const Dropdown: React.FC<DropdownProps> = ({
+  label,
+  type,
+  onChange,
+}) => {
   const [options, setOptions] = useState<Option[]>([]);
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
 
@@ -75,5 +79,3 @@ const Dropdown: React.FC<DropdownProps> = ({ label, type, onChange }) => {
     </Menu>
   );
 };
-
-export default Dropdown;

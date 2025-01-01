@@ -11,6 +11,7 @@ import {
 import { Absence, Prisma } from '@prisma/client';
 import { useState } from 'react';
 import { FileUpload } from './upload';
+import { Dropdown } from './Dropdown';
 interface InputFormProps {
   onClose?: () => void;
   onAddAbsence: (
@@ -181,24 +182,46 @@ const InputForm: React.FC<InputFormProps> = ({
 
         <FormControl isRequired isInvalid={!!errors.subjectId}>
           <FormLabel>Class Type</FormLabel>
-          <Input
-            name="subjectId"
-            placeholder="Enter subject ID"
-            value={formData.subjectId}
-            onChange={handleChange}
-            type="number"
+          <Dropdown
+            label="class type"
+            type="subject"
+            onChange={(value) => {
+              // Handle selected subject
+              setFormData((prev) => ({
+                ...prev,
+                subjectId: value ? String(value.id) : '',
+              }));
+              // Clear error when user selects a value
+              if (errors.subjectId) {
+                setErrors((prev) => ({
+                  ...prev,
+                  subjectId: '',
+                }));
+              }
+            }}
           />
           <FormErrorMessage>{errors.subjectId}</FormErrorMessage>
         </FormControl>
 
         <FormControl isRequired isInvalid={!!errors.locationId}>
           <FormLabel>Location</FormLabel>
-          <Input
-            name="locationId"
-            placeholder="Enter location ID"
-            value={formData.locationId}
-            onChange={handleChange}
-            type="number"
+          <Dropdown
+            label="class location"
+            type="location"
+            onChange={(value) => {
+              // Handle selected location
+              setFormData((prev) => ({
+                ...prev,
+                locationId: value ? String(value.id) : '',
+              }));
+              // Clear error when user selects a value
+              if (errors.locationId) {
+                setErrors((prev) => ({
+                  ...prev,
+                  locationId: '',
+                }));
+              }
+            }}
           />
           <FormErrorMessage>{errors.locationId}</FormErrorMessage>
         </FormControl>
