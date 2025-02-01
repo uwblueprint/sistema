@@ -104,7 +104,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
         ref={inputRef}
         value={searchQuery}
         onChange={handleSearchChange}
-        placeholder={`${label}`}
+        placeholder={`Search for ${label}`}
       />
       <MenuList rootProps={{ width: '100%' }}>
         {filteredOptions.length > 0 ? (

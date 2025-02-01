@@ -15,7 +15,7 @@ interface FileUploadProps {
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   onFileUpload,
-  label = 'Attachment',
+  label = 'Lesson Plan',
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
