@@ -3,7 +3,7 @@ import { getAbsenceEvents, createCalendarFile } from './ics';
 
 const getICSFileById = async (id: string) => {
   console.log('Getting ICS file for id:', id);
-  let events = await getAbsenceEvents();
+  const events = await getAbsenceEvents();
   return createCalendarFile(events);
 };
 
