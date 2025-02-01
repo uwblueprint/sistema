@@ -46,15 +46,14 @@ const main = async () => {
     { name: 'Parkdale Junior Senior Public School', abbreviation: 'PD' },
   ];
 
-  await seed.location((createMany) =>
-    createMany(5, () => {
-      const school = faker.helpers.arrayElement(schools);
-      return {
+  for (const school of schools) {
+    await seed.location((createMany) =>
+      createMany(1, () => ({
         name: school.name,
         abbreviation: school.abbreviation,
-      };
-    })
-  );
+      }))
+    );
+  }
 
   const subjects = [
     { name: 'Strings', abbreviation: 'STR', colorGroup: 'Coral' },
@@ -115,18 +114,17 @@ const main = async () => {
     );
   }
 
-  await seed.subject((createMany) =>
-    createMany(5, () => {
-      const subject = faker.helpers.arrayElement(subjects);
-      return {
+  for (const subject of subjects) {
+    await seed.subject((createMany) =>
+      createMany(1, () => ({
         name: subject.name,
         abbreviation: subject.abbreviation,
         colorGroupId: colorGroups.find(
           (group) => group.name === subject.colorGroup
         )?.id,
-      };
-    })
-  );
+      }))
+    );
+  }
 
   const generateWeekdayFutureDate = (): Date => {
     let date: Date;
