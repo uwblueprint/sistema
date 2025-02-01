@@ -40,6 +40,7 @@ docker-compose up --build
 ## Secrets
 
 - Create A [HashiCorp Cloud Platform Account](https://portal.cloud.hashicorp.com/sign-in?ajs_aid=9085f07d-f411-42b4-855b-72795f4fdbcc&product_intent=vault)
+- Make sure you have been added to the [Sistema HashiCorp Vault](https://github.com/uwblueprint/).
 - Install [HashiCorp Vault](https://developer.hashicorp.com/hcp/tutorials/get-started-hcp-vault-secrets/hcp-vault-secrets-install-cli#install-hcp-vault-secrets-cli) in order to pull secrets
 - In the folder where you cloned the Sistema repository, log into Vault
 
