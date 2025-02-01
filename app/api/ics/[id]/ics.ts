@@ -1,6 +1,8 @@
 import { EventAttributes, createEvents } from 'ics';
-import { AbsenceWithRelations } from '../../getAbsences/route';
-import { searchAbsences } from '../../getAbsences/route';
+import {
+  AbsenceWithRelations,
+  searchAbsences,
+} from '../../getAbsences/absences';
 
 export const getAbsenceEvents = async (): Promise<EventAttributes[]> => {
   try {
