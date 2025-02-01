@@ -162,7 +162,7 @@ const InputForm: React.FC<InputFormProps> = ({
         <FormControl isRequired isInvalid={!!errors.absentTeacherId}>
           <FormLabel>Teacher Absent</FormLabel>
           <SearchDropdown
-            label="teachername@sistema.ca"
+            label="Teacher"
             type="user"
             onChange={(value) => {
               // Handle selected subject
@@ -183,9 +183,9 @@ const InputForm: React.FC<InputFormProps> = ({
         </FormControl>
 
         <FormControl>
-          <FormLabel>Substitute</FormLabel>
+          <FormLabel>Substitute Teacher</FormLabel>
           <SearchDropdown
-            label="teachername@sistema.ca"
+            label="Teacher"
             type="user"
             onChange={(value) => {
               // Handle selected subject
