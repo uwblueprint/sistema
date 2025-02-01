@@ -15,6 +15,10 @@ export default async function handler(
         select: { id: true, name: true },
       });
 
+      const users = await prisma.user.findMany({
+        select: { id: true, firstName: true, lastName: true },
+      });
+
       const subjectMap: Record<number, { id: number; name: string }> = {};
       subjects.forEach((subject) => {
         subjectMap[subject.id] = subject;
@@ -33,9 +37,22 @@ export default async function handler(
         id: location.id,
       }));
 
+      const userMap: Record<number, { id: number; name: string }> = {};
+      users.forEach((user) => {
+        userMap[user.id] = {
+          id: user.id,
+          name: `${user.firstName} ${user.lastName}`,
+        };
+      });
+      const userOptions = users.map((user) => ({
+        name: `${user.firstName} ${user.lastName}`,
+        id: user.id,
+      }));
+
       res.status(200).json({
         subjectOptions,
         locationOptions,
+        userOptions,
       });
     } catch (error) {
       res.status(500).json({
