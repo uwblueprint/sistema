@@ -12,6 +12,8 @@ import { Absence, Prisma } from '@prisma/client';
 import { useState } from 'react';
 import { FileUpload } from './upload';
 import { Dropdown } from './Dropdown';
+import { SearchDropdown } from './SearchDropdown';
+
 interface InputFormProps {
   onClose?: () => void;
   onAddAbsence: (
@@ -159,24 +161,46 @@ const InputForm: React.FC<InputFormProps> = ({
       <VStack spacing={4}>
         <FormControl isRequired isInvalid={!!errors.absentTeacherId}>
           <FormLabel>Teacher Absent</FormLabel>
-          <Input
-            name="absentTeacherId"
-            placeholder="Add teacher"
-            value={formData.absentTeacherId}
-            onChange={handleChange}
-            type="number"
+          <SearchDropdown
+            label="teachername@sistema.ca"
+            type="user"
+            onChange={(value) => {
+              // Handle selected subject
+              setFormData((prev) => ({
+                ...prev,
+                subjectId: value ? String(value.id) : '',
+              }));
+              // Clear error when user selects a value
+              if (errors.subjectId) {
+                setErrors((prev) => ({
+                  ...prev,
+                  subjectId: '',
+                }));
+              }
+            }}
           />
           <FormErrorMessage>{errors.absentTeacherId}</FormErrorMessage>
         </FormControl>
 
         <FormControl>
           <FormLabel>Substitute</FormLabel>
-          <Input
-            name="substituteTeacherId"
-            placeholder="Add teacher"
-            value={formData.substituteTeacherId}
-            onChange={handleChange}
-            type="number"
+          <SearchDropdown
+            label="teachername@sistema.ca"
+            type="user"
+            onChange={(value) => {
+              // Handle selected subject
+              setFormData((prev) => ({
+                ...prev,
+                subjectId: value ? String(value.id) : '',
+              }));
+              // Clear error when user selects a value
+              if (errors.subjectId) {
+                setErrors((prev) => ({
+                  ...prev,
+                  subjectId: '',
+                }));
+              }
+            }}
           />
         </FormControl>
 
