@@ -1,25 +1,26 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
-type Data = {
-  message?: string;
-  error?: string;
-  details?: string;
+type EmailBody = {
+  to: string;
+  subject: string;
+  text: string;
 };
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
-  const { to, subject, text } = req.body;
-
-  // Validate the input
-  if (!to || !subject || !text) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  // Create a transporter object
+export async function POST(request: NextRequest) {
   try {
+    const body: EmailBody = await request.json();
+    const { to, subject, text } = body;
+
+    // Validate the input
+    if (!to || !subject || !text) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // Create a transporter object
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
@@ -64,10 +65,14 @@ export default async function handler(
       });
     });
 
-    res.status(200).json({ message: 'Email sent successfully' });
+    return NextResponse.json(
+      { message: 'Email sent successfully' },
+      { status: 200 }
+    );
   } catch (error: any) {
-    res
-      .status(500)
-      .json({ error: 'Error sending email', details: error.message });
+    return NextResponse.json(
+      { error: 'Error sending email', details: error.message },
+      { status: 500 }
+    );
   }
 }
