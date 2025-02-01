@@ -22,7 +22,8 @@
     "strictNullChecks": true,
     "paths": {
       // enables us to write `import X from "auth"` instead of `import X from "../../auth"`
-      "auth": ["./auth"]
+      "auth": ["./auth"],
+      "@utils/prisma": ["./utils/prisma"]
     }
   },
   "include": [
