@@ -26,7 +26,7 @@ export interface AbsenceWithRelations {
   };
 }
 
-export async function GET() {
+export const searchAbsences = async (): Promise<AbsenceWithRelations[]> => {
   try {
     const absences: AbsenceWithRelations[] = await prisma.absence.findMany({
       select: {
@@ -62,6 +62,17 @@ export async function GET() {
         },
       },
     });
+
+    return absences;
+  } catch (err) {
+    console.error('Error fetching absences:', err);
+    throw err;
+  }
+};
+
+export async function GET() {
+  try {
+    const absences = await searchAbsences();
 
     if (!absences.length) {
       return NextResponse.json({ events: [] }, { status: 200 });
