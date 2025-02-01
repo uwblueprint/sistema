@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import {
-  Box,
   Menu,
   MenuList,
   MenuItem,
@@ -23,6 +22,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   onChange,
 }) => {
   const [options, setOptions] = useState<Option[]>([]);
+  const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -32,8 +32,18 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    onOpen();
+    const value = e.target.value;
+    setSearchQuery(value);
+    if (value.trim() === '') {
+      setFilteredOptions([]);
+      onClose();
+    } else {
+      const filtered = options.filter((option) =>
+        option.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredOptions(filtered);
+      onOpen();
+    }
   };
 
   const fetchData = useCallback(async () => {
@@ -44,6 +54,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
 
         if (type === 'user') {
           setOptions(data.userOptions);
+          setFilteredOptions(data.userOptions);
         }
       }
     } catch (error) {
@@ -88,26 +99,26 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   }, [onClose]);
 
   return (
-    <Menu isOpen={isOpen} onClose={onClose}>
+    <Menu isOpen={isOpen} onClose={onClose} placement="bottom-start">
       <Input
         ref={inputRef}
-        value={selectedOption ? selectedOption.name : searchQuery}
+        value={searchQuery}
         onChange={handleSearchChange}
-        textAlign="left"
-        placeholder={`Search ${label}`}
+        placeholder={`${label}`}
       />
       <MenuList rootProps={{ width: '100%' }}>
-        {options.map((option) => (
-          <MenuItem
-            width="100%"
-            key={option.id}
-            onClick={() => handleOptionSelect(option)}
-          >
-            <Box>
+        {filteredOptions.length > 0 ? (
+          filteredOptions.map((option) => (
+            <MenuItem
+              key={option.id}
+              onClick={() => handleOptionSelect(option)}
+            >
               <Text>{option.name}</Text>
-            </Box>
-          </MenuItem>
-        ))}
+            </MenuItem>
+          ))
+        ) : (
+          <MenuItem disabled>No matching teachers!</MenuItem>
+        )}
       </MenuList>
     </Menu>
   );
