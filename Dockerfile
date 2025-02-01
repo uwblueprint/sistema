@@ -22,3 +22,5 @@ CMD echo "Waiting for database to be ready..." && \
     npx prisma generate && \
     npx prisma db push && \
     npx @snaplet/seed sync && \
+    echo "Starting Next.js application..." && \
+    npm run dev
