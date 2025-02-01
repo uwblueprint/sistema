@@ -1,8 +1,6 @@
-// app/api/users/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@utils/prisma';
 
-// Helper function to validate ID
 function validateId(id: string): number | null {
   const parsedId = Number(id);
   return Number.isNaN(parsedId) ? null : parsedId;
