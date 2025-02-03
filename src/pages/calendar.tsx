@@ -108,6 +108,13 @@ const Calendar: React.FC = () => {
     }
   }, [updateMonthYearTitle]);
 
+  const handleDateSelect = (date: Date) => {
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.gotoDate(date);
+    }
+  };
+
   useEffect(() => {
     updateMonthYearTitle();
   }, [updateMonthYearTitle]);
@@ -169,7 +176,7 @@ const Calendar: React.FC = () => {
       />
 
       <Flex height="100vh">
-        <Sidebar />
+        <Sidebar onDateSelect={handleDateSelect} />{' '}
         <Box flex={1} padding={theme.space[4]} height="100%">
           <CalendarHeader
             currentMonthYear={currentMonthYear}

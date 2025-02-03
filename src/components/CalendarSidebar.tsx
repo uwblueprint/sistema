@@ -4,7 +4,9 @@ import { AddIcon } from '@chakra-ui/icons';
 import { SistemaLogoColour } from '../components/SistemaLogoColour';
 import MiniCalendar from './MiniCalendar';
 
-const CalendarSidebar: React.FC = () => {
+const CalendarSidebar: React.FC<{ onDateSelect: (date: Date) => void }> = ({
+  onDateSelect,
+}) => {
   const theme = useTheme();
 
   return (
@@ -21,10 +23,7 @@ const CalendarSidebar: React.FC = () => {
       <Button colorScheme="blue" size="lg" leftIcon={<AddIcon />}>
         Declare Absence
       </Button>
-      <MiniCalendar
-        initialDate={new Date()}
-        onDateSelect={(date) => console.log('Selected date:', date)}
-      />
+      <MiniCalendar initialDate={new Date()} onDateSelect={onDateSelect} />
     </Flex>
   );
 };
