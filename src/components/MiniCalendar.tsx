@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -21,8 +21,20 @@ export default function MiniCalendar({
   initialDate = new Date(),
   onDateSelect,
 }: CalendarProps) {
+  const [mounted, setMounted] = useState(false);
+
   const [currentMonth, setCurrentMonth] = useState(new Date(initialDate));
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const todayBgColor = useColorModeValue('blue.500', 'blue.200');
+  const todayColor = useColorModeValue('white', 'gray.800');
+  const selectedBgColor = useColorModeValue('blue.100', 'blue.700');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -77,14 +89,8 @@ export default function MiniCalendar({
   };
 
   const isToday = (date: Date) => date.toDateString() === today.toDateString();
-
   const isSelected = (date: Date) =>
     selectedDate?.toDateString() === date.toDateString();
-
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const todayBgColor = useColorModeValue('blue.500', 'blue.200');
-  const todayColor = useColorModeValue('white', 'gray.800');
-  const selectedBgColor = useColorModeValue('blue.100', 'blue.700');
 
   return (
     <Box width="100%" p={0} bg={bgColor}>
@@ -95,12 +101,10 @@ export default function MiniCalendar({
           alignItems="center"
           ml="2"
         >
-          {/* Left: Month/Year text */}
           <Text fontSize="sm" fontWeight="bold" textAlign="left">
             {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </Text>
 
-          {/* Right: Chevron buttons */}
           <HStack spacing={0}>
             <Button
               onClick={handlePrevMonth}
