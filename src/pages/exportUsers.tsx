@@ -12,7 +12,7 @@ export default function ExportUsersPage() {
     const rows = data
       .map((row) =>
         Object.values(row)
-          .map((value) => `"${value}"`)
+          .map((value) => `"${String(value).replace(/"/g, '""')}"`)
           .join(',')
       )
       .join('\n');
