@@ -29,6 +29,7 @@ export const getAbsenceEvents = async (): Promise<EventAttributes[]> => {
         title: `${absence.subject.name}: ${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName[0]}${substituteTeacherString}`,
         description: `Subject: ${absence.subject.name}\nLesson Plan: ${lessonString}${notesLine}`,
         location: absence.location.name,
+        calName: 'Sistema Absences',
       };
     });
   } catch (err) {

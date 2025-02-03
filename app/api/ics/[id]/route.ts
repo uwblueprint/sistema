@@ -24,8 +24,16 @@ export async function GET(
       return NextResponse.json({ error: 'File not found' }, { status: 404 });
     }
 
-    return new Response(icsFile, {
-      headers: { 'Content-Type': 'text/calendar' },
+    // convert file to response
+    const buffer = await icsFile.arrayBuffer();
+    const blob = new Blob([buffer], { type: 'text/calendar' });
+
+    return new Response(blob, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/calendar',
+        'Content-Disposition': `attachment; filename=${id}`,
+      },
     });
   } catch (error) {
     console.error('Error fetching ICS file:', error);
