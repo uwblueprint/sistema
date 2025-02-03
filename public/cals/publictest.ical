@@ -1,0 +1,113 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:adamgibbons/ics
+METHOD:PUBLISH
+X-WR-CALNAME:Sistema Absences
+X-PUBLISHED-TTL:PT1H
+BEGIN:VEVENT
+UID:Pyjlh8ond4m9vzGIE1CKx
+SUMMARY:Music and Movement: Jackie H(Jackie H)
+DTSTAMP:20250203T161253Z
+DTSTART;VALUE=DATE:20251023
+DTEND;VALUE=DATE:20251024
+DESCRIPTION:Subject: Music and Movement\nLesson Plan: https://mild-wrapper.
+	com/
+LOCATION:Lambton Park Community School
+END:VEVENT
+BEGIN:VEVENT
+UID:0q_JAPHymQuedVNzF6KJM
+SUMMARY:Percussion: Devon E(Devon E)
+DTSTAMP:20250203T161253Z
+DTSTART;VALUE=DATE:20250429
+DTEND;VALUE=DATE:20250430
+DESCRIPTION:Subject: Percussion\nLesson Plan: https://alarmed-vein.com/
+LOCATION:St Martin de Porres Catholic School
+END:VEVENT
+BEGIN:VEVENT
+UID:UBoyoltEtBmUGt8gUSu7A
+SUMMARY:Percussion: Jackie H(Magnus E)
+DTSTAMP:20250203T161253Z
+DTSTART;VALUE=DATE:20250721
+DTEND;VALUE=DATE:20250722
+DESCRIPTION:Subject: Percussion\nLesson Plan: https://outgoing-sequence.org
+	\nNotes: Abstergo decumbo acies certus ceno accusamus in adopto clibanus p
+	eccatus. Pecto attonbitus amplexus aeger quam conscendo. Audio utrum usita
+	s turbo damnatio.
+LOCATION:St Martin de Porres Catholic School
+END:VEVENT
+BEGIN:VEVENT
+UID:hD93iAntBSu6mcu_ORFEH
+SUMMARY:Percussion: Jackie H(Magnus E)
+DTSTAMP:20250203T161253Z
+DTSTART;VALUE=DATE:20250521
+DTEND;VALUE=DATE:20250522
+DESCRIPTION:Subject: Percussion\nLesson Plan: https://slimy-fight.biz/
+LOCATION:Lambton Park Community School
+END:VEVENT
+BEGIN:VEVENT
+UID:zJ6K56JGOojPGG4okcIHN
+SUMMARY:Music and Movement: Magnus E(Brenden H)
+DTSTAMP:20250203T161253Z
+DTSTART;VALUE=DATE:20250503
+DTEND;VALUE=DATE:20250504
+DESCRIPTION:Subject: Music and Movement\nLesson Plan: https://cylindrical-b
+	roiler.name
+LOCATION:Lambton Park Community School
+END:VEVENT
+BEGIN:VEVENT
+UID:WEVBlVGo_4OmYlZ9MHNOC
+SUMMARY:Music and Movement: Jackie H(Magnus E)
+DTSTAMP:20250203T161253Z
+DTSTART;VALUE=DATE:20250429
+DTEND;VALUE=DATE:20250430
+DESCRIPTION:Subject: Music and Movement\nLesson Plan: https://glaring-gran.
+	com
+LOCATION:Lambton Park Community School
+END:VEVENT
+BEGIN:VEVENT
+UID:7pp-g-HGC9k_gLKV0uZml
+SUMMARY:Percussion: Brenden H(Delaney H)
+DTSTAMP:20250203T161253Z
+DTSTART;VALUE=DATE:20251010
+DTEND;VALUE=DATE:20251011
+DESCRIPTION:Subject: Percussion\nLesson Plan: https://multicolored-snuck.or
+	g/
+LOCATION:Parkdale Junior Senior Public School
+END:VEVENT
+BEGIN:VEVENT
+UID:9Sc00SQ_mlAc6KaGo3oQn
+SUMMARY:Percussion: Delaney H(Magnus E)
+DTSTAMP:20250203T161253Z
+DTSTART;VALUE=DATE:20250630
+DTEND;VALUE=DATE:20250701
+DESCRIPTION:Subject: Percussion\nLesson Plan: https://sentimental-upstairs.
+	name\nNotes: Basium amoveo acerbitas cito solio. Pax tricesimus viduo unus
+	 degusto. Ubi bene ratione vis viridis.
+LOCATION:Parkdale Junior Senior Public School
+END:VEVENT
+BEGIN:VEVENT
+UID:2MC90xV8fUUZko-dD-Koo
+SUMMARY:Percussion: Magnus E(Magnus E)
+DTSTAMP:20250203T161253Z
+DTSTART;VALUE=DATE:20250618
+DTEND;VALUE=DATE:20250619
+DESCRIPTION:Subject: Percussion\nLesson Plan: https://exemplary-vacation.na
+	me\nNotes: Canto adipisci nihil vox carbo audentia repellendus pariatur. A
+	dmoveo depereo cupio terreo conforto damnatio vae. Claustrum claustrum con
+	servo crepusculum assentator pariatur.
+LOCATION:Parkdale Junior Senior Public School
+END:VEVENT
+BEGIN:VEVENT
+UID:e9OnAusDqWsM8XNT_G0zI
+SUMMARY:Strings: Delaney H(Devon E)
+DTSTAMP:20250203T161253Z
+DTSTART;VALUE=DATE:20250124
+DTEND;VALUE=DATE:20250125
+DESCRIPTION:Subject: Strings\nLesson Plan: https://lopsided-stepping-stone.
+	com\nNotes: Defessus confugo aliquid depopulo adhaero atrox. Tepidus armar
+	ium asporto ut ventosus. Aliquid absorbeo odio vorago cicuta velut tutamen
+	 quaerat ante congregatio.
+LOCATION:Parkdale Junior Senior Public School
+END:VEVENT
+END:VCALENDAR
