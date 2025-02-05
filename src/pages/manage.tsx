@@ -7,7 +7,7 @@ export default function ManagePage() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const apiUrl = `/api/users/`;
+      const apiUrl = `/api/users?getMailingLists=true`;
 
       try {
         const response = await fetch(apiUrl);
@@ -73,6 +73,7 @@ export default function ManagePage() {
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Email Subscriptions</th>
             </tr>
           </thead>
           <tbody>
@@ -90,6 +91,11 @@ export default function ManagePage() {
                     <option value="TEACHER">Teacher</option>
                     <option value="ADMIN">Admin</option>
                   </select>
+                </td>
+                <td>
+                  {user.mailingLists
+                    ?.map((mailingList) => mailingList.mailingList.name)
+                    .join(', ')}
                 </td>
               </tr>
             ))}
