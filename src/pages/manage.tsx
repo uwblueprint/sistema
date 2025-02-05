@@ -1,14 +1,7 @@
 import { useEffect, useState } from 'react';
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-  status: string;
-}
+import { User } from '../types/types';
 
-export default function AnotherPage() {
+export default function ManagePage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -21,8 +14,8 @@ export default function AnotherPage() {
         if (!response.ok) {
           throw new Error(response.statusText);
         }
-        const data: User[] = await response.json();
-        setUsers(data);
+        const users: User[] = await response.json();
+        setUsers(users);
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error('Error fetching users:', error.message);
