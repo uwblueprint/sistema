@@ -1,9 +1,26 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@utils/prisma';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const getMailingLists = searchParams.get('getMailingLists') === 'true';
+
   try {
-    const users = await prisma.user.findMany();
+    const users = await prisma.user.findMany({
+      include: {
+        mailingLists: getMailingLists
+          ? {
+              include: {
+                mailingList: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            }
+          : false,
+      },
+    });
     return NextResponse.json(users);
   } catch (error) {
     console.error('Error fetching users:', error);
