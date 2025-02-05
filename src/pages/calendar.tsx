@@ -8,13 +8,16 @@ import { AbsenceWithRelations } from '../../app/api/getAbsences/route';
 import Sidebar from '../components/CalendarSidebar';
 import CalendarHeader from '../components/CalendarHeader';
 import { Global } from '@emotion/react';
+import { useSession } from 'next-auth/react';
 
 const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
+  const { data: session } = useSession();
   const [events, setEvents] = useState<EventInput[]>([]);
   const [currentMonthYear, setCurrentMonthYear] = useState('');
   const toast = useToast();
   const theme = useTheme();
+  const [userData, setUserData] = useState<any>(null);
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => (
@@ -31,6 +34,32 @@ const Calendar: React.FC = () => {
     ),
     []
   );
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (session?.user?.email) {
+        try {
+          const res = await fetch(
+            `/api/users/email/${session.user.email}?shouldIncludeAbsences=true`
+          );
+          const data = await res.json();
+          // data.numOfAbsences plus data.absences?.length is the usage
+          const usedAbsences = data.absences?.length ?? 0;
+          const newUserData = {
+            name: session.user.name ?? '',
+            email: session.user.email,
+            image: session.user.image,
+            numOfAbsences: data.numOfAbsences,
+            usedAbsences: usedAbsences,
+          };
+          setUserData(newUserData);
+        } catch (err) {
+          console.error('Could not fetch user data:', err);
+        }
+      }
+    };
+    fetchUserData();
+  }, [session]);
 
   const convertAbsenceToEvent = (
     absenceData: AbsenceWithRelations
@@ -173,6 +202,7 @@ const Calendar: React.FC = () => {
             onTodayClick={handleTodayClick}
             onPrevClick={handlePrevClick}
             onNextClick={handleNextClick}
+            userData={userData}
           />
           <FullCalendar
             ref={calendarRef}

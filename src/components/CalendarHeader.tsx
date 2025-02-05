@@ -12,12 +12,23 @@ import {
   ArrowForwardIcon,
   CalendarIcon,
 } from '@chakra-ui/icons';
+import ProfileMenu from './ProfileMenu';
+
+// Example interface for userData; adjust fields as needed.
+interface UserData {
+  name: string;
+  email: string;
+  image?: string;
+  usedAbsences: number; // e.g. 4
+  numOfAbsences: number; // e.g. 10
+}
 
 interface CalendarHeaderProps {
   currentMonthYear: string;
   onTodayClick: () => void;
   onPrevClick: () => void;
   onNextClick: () => void;
+  userData?: UserData;
 }
 
 const CalendarHeader: React.FC<CalendarHeaderProps> = ({
@@ -25,10 +36,17 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onTodayClick,
   onPrevClick,
   onNextClick,
+  userData,
 }) => {
   const theme = useTheme();
+
   return (
-    <Flex marginBottom={theme.space[4]} alignItems="center">
+    <Flex
+      marginBottom={theme.space[4]}
+      alignItems="center"
+      justifyContent="space-between"
+    >
+      {/* Left side: Prev/Today/Next buttons */}
       <ButtonGroup isAttached variant="outline">
         <IconButton
           colorScheme="blue"
@@ -51,9 +69,14 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           aria-label="Next"
         />
       </ButtonGroup>
-      <Heading fontSize="2xl" textAlign="center" marginX={theme.space[6]}>
+
+      {/* Center: month-year heading */}
+      <Heading fontSize="2xl" textAlign="center">
         {currentMonthYear}
       </Heading>
+
+      {/* Right side: the new ProfileMenu component */}
+      <ProfileMenu userData={userData} />
     </Flex>
   );
 };
