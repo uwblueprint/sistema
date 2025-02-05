@@ -2,13 +2,9 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { SignOutButton } from '../components/SignOutButton';
 import { Image } from '@chakra-ui/react';
+import { User } from '../types/types';
 
-interface UserData {
-  numOfAbsences: number;
-  absences: Array<any>;
-}
-
-export default function Profile() {
+export default function ProfilePage() {
   const { data: session, status } = useSession();
   const [numAbsences, setNumAbsences] = useState<number | null>(null);
   const [usedAbsences, setUsedAbsences] = useState<number | null>(null);
@@ -17,16 +13,16 @@ export default function Profile() {
       if (!session || !session.user || !session.user.email) return;
 
       const email = session.user.email;
-      const apiUrl = `/api/users/email/${email}?shouldIncludeAbsences=true`;
+      const apiUrl = `/api/users/email/${email}?getAbsences=true`;
 
       try {
         const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error(response.statusText);
         }
-        const data: UserData = await response.json();
-        setNumAbsences(data.numOfAbsences);
-        setUsedAbsences(data.absences.length);
+        const user: User = await response.json();
+        setNumAbsences(user.numOfAbsences);
+        setUsedAbsences(user.absences?.length || null);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
