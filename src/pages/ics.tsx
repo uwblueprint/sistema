@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import { createCalendarFile } from '../../app/api/ics/[id]/ics';
-import { AbsenceWithRelations } from '../../app/api/getAbsences/absences';
 import { convertAbsenceToICSEvent } from '../../app/api/ics/[id]/ics';
 
 export default function CalendarDownload() {
   const [error, setError] = useState<string | null>(null);
-
-  const CALENDAR_NAME: string = 'Sistema Absences';
 
   const downloadFile = (file: File) => {
     const url = URL.createObjectURL(file);
@@ -34,9 +31,7 @@ export default function CalendarDownload() {
         throw new Error('Invalid data format.');
       }
 
-      const icsEvents = data.events.map((eventData: AbsenceWithRelations) =>
-        convertAbsenceToICSEvent(eventData, CALENDAR_NAME)
-      );
+      const icsEvents = data.events.map(convertAbsenceToICSEvent);
 
       const file = await createCalendarFile(icsEvents);
       downloadFile(file);
