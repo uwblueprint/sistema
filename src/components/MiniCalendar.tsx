@@ -191,7 +191,13 @@ export default function MiniCalendar({
                       ? selectedBgColor
                       : 'transparent'
                 }
-                color={isToday(date) ? todayColor : 'inherit'}
+                color={
+                  isToday(date)
+                    ? todayColor
+                    : isSelected(date)
+                      ? 'darkblue'
+                      : 'inherit'
+                }
                 fontSize="xs"
                 fontWeight="normal"
                 borderRadius="50%"
@@ -205,7 +211,7 @@ export default function MiniCalendar({
           })}
 
           {Array.from({
-            length: 35 - (firstDayOfMonth + daysInMonth),
+            length: 42 - (firstDayOfMonth + daysInMonth),
           }).map((_, index) => (
             <Button
               key={`next-${index}`}
