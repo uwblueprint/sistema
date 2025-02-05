@@ -1,9 +1,10 @@
 import { EventAttributes, createEvents } from 'ics';
 import { AbsenceWithRelations } from '../../getAbsences/absences';
 
+const CALENDAR_NAME: string = 'Sistema Absences';
+
 export const convertAbsenceToICSEvent = (
-  absence: AbsenceWithRelations,
-  calendarName: string
+  absence: AbsenceWithRelations
 ): EventAttributes => {
   const substituteTeacherString = absence.substituteTeacher
     ? `(${absence.substituteTeacher.firstName} ${absence.substituteTeacher.lastName[0]})`
@@ -25,7 +26,7 @@ export const convertAbsenceToICSEvent = (
     title: `${absence.subject.name}: ${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName[0]}${substituteTeacherString}`,
     description: `Subject: ${absence.subject.name}\nLesson Plan: ${lessonString}${notesLine}`,
     location: absence.location.name,
-    calName: calendarName,
+    calName: CALENDAR_NAME,
   };
 };
 
