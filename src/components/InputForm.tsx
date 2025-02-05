@@ -168,13 +168,13 @@ const InputForm: React.FC<InputFormProps> = ({
               // Handle selected subject
               setFormData((prev) => ({
                 ...prev,
-                subjectId: value ? String(value.id) : '',
+                absentTeacherId: value ? String(value.id) : '',
               }));
               // Clear error when user selects a value
-              if (errors.subjectId) {
+              if (errors.absentTeacherId) {
                 setErrors((prev) => ({
                   ...prev,
-                  subjectId: '',
+                  absentTeacherId: '',
                 }));
               }
             }}
@@ -191,13 +191,13 @@ const InputForm: React.FC<InputFormProps> = ({
               // Handle selected subject
               setFormData((prev) => ({
                 ...prev,
-                subjectId: value ? String(value.id) : '',
+                substituteTeacherId: value ? String(value.id) : '',
               }));
               // Clear error when user selects a value
-              if (errors.subjectId) {
+              if (errors.substituteTeacherId) {
                 setErrors((prev) => ({
                   ...prev,
-                  subjectId: '',
+                  substituteTeacherId: '',
                 }));
               }
             }}
