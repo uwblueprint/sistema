@@ -2,6 +2,7 @@ import React from 'react';
 import { Flex, Box, Button, useTheme } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { SistemaLogoColour } from '../components/SistemaLogoColour';
+import SubjectDropdown from './SubjectDropdown';
 
 const CalendarSidebar: React.FC = () => {
   const theme = useTheme();
@@ -17,9 +18,13 @@ const CalendarSidebar: React.FC = () => {
       <Box width="150px">
         <SistemaLogoColour />
       </Box>
-      <Button colorScheme="blue" size="lg" leftIcon={<AddIcon />}>
+      <Button width="100%" colorScheme="blue" size="lg" leftIcon={<AddIcon />}>
         Declare Absence
       </Button>
+
+      <SubjectDropdown
+        setFilter={(subjects: string[]) => console.log(subjects)}
+      />
     </Flex>
   );
 };
