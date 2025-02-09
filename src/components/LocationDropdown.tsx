@@ -14,38 +14,36 @@ import {
 import { ChevronDownIcon, ChevronUpIcon, CheckIcon } from '@chakra-ui/icons';
 import * as React from 'react';
 
-interface SubjectDropdownProps {
-  setFilter: (subjects: string[]) => void;
+interface LocationDropdownProps {
+  setFilter: (locations: string[]) => void;
 }
 
-const subjects = [
-  { name: 'Strings', color: 'purple.500' },
-  { name: 'Choir', color: 'orange.300' },
-  { name: 'Music and Movement', color: 'green.400' },
-  { name: 'Percussion', color: 'blue.500' },
-  { name: 'Trumpet/Clarinet', color: 'red.400' },
-  { name: 'Orchestra', color: 'gray.600' },
+const locations = [
+  { name: 'Lambton Park', color: 'blue.700' },
+  { name: 'Yorkwood', color: 'blue.700' },
+  { name: 'St. Martin de Porres', color: 'blue.700' },
+  { name: 'Parkdale', color: 'blue.700' },
 ];
 
-export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
+export default function LocationDropdown({ setFilter }: LocationDropdownProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-  // Initialize with all subjects selected by default
-  const [selectedSubjects, setSelectedSubjects] = React.useState<string[]>(
-    subjects.map((subject) => subject.name)
+  // Initialize with all locations selected by default
+  const [selectedLocations, setSelectedLocations] = React.useState<string[]>(
+    locations.map((location) => location.name)
   );
 
   React.useEffect(() => {
-    setFilter(selectedSubjects);
-  }, [setFilter, selectedSubjects]);
+    setFilter(selectedLocations);
+  }, [setFilter, selectedLocations]);
 
-  const toggleSubject = (subject: string) => {
+  const toggleLocation = (location: string) => {
     let newSelection: string[];
-    if (selectedSubjects.includes(subject)) {
-      newSelection = selectedSubjects.filter((s) => s !== subject);
+    if (selectedLocations.includes(location)) {
+      newSelection = selectedLocations.filter((s) => s !== location);
     } else {
-      newSelection = [...selectedSubjects, subject];
+      newSelection = [...selectedLocations, location];
     }
-    setSelectedSubjects(newSelection);
+    setSelectedLocations(newSelection);
     setFilter(newSelection);
   };
 
@@ -70,7 +68,7 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
         >
           <Flex justify="space-between" align="center" width="100%">
             <Text fontWeight="semibold" fontSize="16px">
-              Subject
+              Location
             </Text>
             {isOpen ? (
               <ChevronUpIcon boxSize="2.1em" p={0} m={0} />
@@ -80,18 +78,18 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
           </Flex>
         </MenuButton>
         <MenuList width="100%" border={0} boxShadow="none" m={0} p={0}>
-          {subjects.map((subject) => (
+          {locations.map((location) => (
             <MenuItem
-              key={subject.name}
-              onClick={() => toggleSubject(subject.name)}
+              key={location.name}
+              onClick={() => toggleLocation(location.name)}
               border={0}
               px={0}
               py={1}
             >
               <Flex alignItems="center" gap={2}>
                 <Box position="relative" width="20px" height="20px">
-                  <Box position="absolute" inset={0} bg={subject.color} />
-                  {selectedSubjects.includes(subject.name) && (
+                  <Box position="absolute" inset={0} bg={location.color} />
+                  {selectedLocations.includes(location.name) && (
                     <Icon
                       as={CheckIcon}
                       position="absolute"
@@ -102,7 +100,7 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
                     />
                   )}
                 </Box>
-                <Text fontSize="14px">{subject.name}</Text>
+                <Text fontSize="14px">{location.name}</Text>
               </Flex>
             </MenuItem>
           ))}
