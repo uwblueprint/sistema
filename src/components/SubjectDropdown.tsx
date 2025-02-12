@@ -12,29 +12,54 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon, CheckIcon } from '@chakra-ui/icons';
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
+import { SubjectWithColorGroup } from '../../app/api/filter/subjects/route';
 
 interface SubjectDropdownProps {
   setFilter: (subjects: string[]) => void;
 }
 
-const subjects = [
-  { name: 'Strings', color: 'purple.500' },
-  { name: 'Choir', color: 'orange.300' },
-  { name: 'Music and Movement', color: 'green.400' },
-  { name: 'Percussion', color: 'blue.500' },
-  { name: 'Trumpet/Clarinet', color: 'red.400' },
-  { name: 'Orchestra', color: 'gray.600' },
-];
+interface SubjectItem {
+  id: number;
+  name: string;
+  color: string;
+}
 
 export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  // Initialize with all subjects selected by default
-  const [selectedSubjects, setSelectedSubjects] = React.useState<string[]>(
-    subjects.map((subject) => subject.name)
-  );
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+  const [subjects, setSubjects] = useState<SubjectItem[]>([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    async function fetchSubjects() {
+      try {
+        const response = await fetch('/api/filter/subjects');
+        if (!response.ok) {
+          throw new Error('Failed to fetch subjects');
+        }
+        const data = await response.json();
+        if (data.subjects) {
+          const fetchedSubjects: SubjectItem[] = data.subjects.map(
+            (subj: SubjectWithColorGroup) => ({
+              id: subj.id,
+              name: subj.name,
+              color: subj.colorGroup?.colorCodes?.[1] || 'blue.700',
+            })
+          );
+          setSubjects(fetchedSubjects);
+
+          // Optionally select all subjects by default
+          setSelectedSubjects(fetchedSubjects.map((s) => s.name));
+        }
+      } catch (error) {
+        console.error('Error fetching subjects:', error);
+      }
+    }
+
+    fetchSubjects();
+  }, []);
+
+  useEffect(() => {
     setFilter(selectedSubjects);
   }, [setFilter, selectedSubjects]);
 
@@ -90,7 +115,17 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
             >
               <Flex alignItems="center" gap={2}>
                 <Box position="relative" width="20px" height="20px">
-                  <Box position="absolute" inset={0} bg={subject.color} />
+                  <Box
+                    position="absolute"
+                    inset={0}
+                    bg={
+                      selectedSubjects.includes(subject.name)
+                        ? subject.color
+                        : 'white'
+                    }
+                    border={`2px solid ${subject.color}`}
+                    borderRadius="0"
+                  />
                   {selectedSubjects.includes(subject.name) && (
                     <Icon
                       as={CheckIcon}

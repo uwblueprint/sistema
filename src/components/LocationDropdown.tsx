@@ -12,27 +12,50 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon, CheckIcon } from '@chakra-ui/icons';
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Location } from '../../app/api/filter/locations/route';
 
 interface LocationDropdownProps {
   setFilter: (locations: string[]) => void;
 }
 
-const locations = [
-  { name: 'Lambton Park', color: 'blue.700' },
-  { name: 'Yorkwood', color: 'blue.700' },
-  { name: 'St. Martin de Porres', color: 'blue.700' },
-  { name: 'Parkdale', color: 'blue.700' },
-];
+interface LocationItem extends Location {
+  color: string;
+}
 
 export default function LocationDropdown({ setFilter }: LocationDropdownProps) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  // Initialize with all locations selected by default
-  const [selectedLocations, setSelectedLocations] = React.useState<string[]>(
+  const [isOpen, setIsOpen] = useState(false);
+
+  const [locations, setLocations] = useState<LocationItem[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>(
     locations.map((location) => location.name)
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
+    async function fetchLocations() {
+      try {
+        const response = await fetch('/api/filter/locations');
+        if (!response.ok) {
+          throw new Error('Failed to fetch locations');
+        }
+        const data = await response.json();
+        if (data.locations) {
+          const fetched = data.locations.map((loc: Location) => ({
+            ...loc,
+            color: 'blue.600',
+          }));
+          setLocations(fetched);
+          setSelectedLocations(fetched.map((location) => location.name));
+        }
+      } catch (error) {
+        console.error('Error fetching locations:', error);
+      }
+    }
+
+    fetchLocations();
+  }, []);
+
+  useEffect(() => {
     setFilter(selectedLocations);
   }, [setFilter, selectedLocations]);
 
@@ -77,18 +100,34 @@ export default function LocationDropdown({ setFilter }: LocationDropdownProps) {
             )}
           </Flex>
         </MenuButton>
-        <MenuList width="100%" border={0} boxShadow="none" m={0} p={0}>
+        <MenuList
+          width="100%"
+          border={0}
+          boxShadow="none"
+          m={0}
+          p={0}
+          minWidth="240px"
+        >
           {locations.map((location) => (
             <MenuItem
               key={location.name}
               onClick={() => toggleLocation(location.name)}
-              border={0}
               px={0}
               py={1}
             >
               <Flex alignItems="center" gap={2}>
                 <Box position="relative" width="20px" height="20px">
-                  <Box position="absolute" inset={0} bg={location.color} />
+                  <Box
+                    position="absolute"
+                    inset={0}
+                    bg={
+                      selectedLocations.includes(location.name)
+                        ? location.color
+                        : 'white'
+                    }
+                    border={`2px solid #2B6CB0`}
+                    borderRadius="0"
+                  />
                   {selectedLocations.includes(location.name) && (
                     <Icon
                       as={CheckIcon}
