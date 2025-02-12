@@ -6,7 +6,7 @@ import { Role } from '../components/UserManagementTable';
 export default function ManagePage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [absenceCap, setAbsenceCap] = useState<number>(10); // Default value
+  const [absenceCap, setAbsenceCap] = useState<number>(10);
 
   useEffect(() => {
     const fetchData = async () => {
