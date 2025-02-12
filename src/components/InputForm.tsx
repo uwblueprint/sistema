@@ -126,18 +126,6 @@ const InputForm: React.FC<InputFormProps> = ({
           isClosable: true,
         });
 
-        // Reset form
-        setLessonPlan('');
-        setFormData({
-          reasonOfAbsence: '',
-          absentTeacherId: '',
-          substituteTeacherId: '',
-          locationId: '',
-          subjectId: '',
-          lessonDate: initialDate.toISOString().split('T')[0],
-          notes: '',
-        });
-
         if (onClose) {
           onClose();
         }

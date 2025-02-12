@@ -20,6 +20,8 @@ import { AbsenceWithRelations } from '../../app/api/getAbsences/absences';
 import Sidebar from '../components/CalendarSidebar';
 import CalendarHeader from '../components/CalendarHeader';
 import InputForm from '../components/InputForm';
+import { Absence } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { Global } from '@emotion/react';
 
 const Calendar: React.FC = () => {
@@ -56,6 +58,29 @@ const Calendar: React.FC = () => {
     display: 'auto',
     location: absenceData.location.name,
   });
+
+  const handleAddAbsence = async (
+    absence: Prisma.AbsenceCreateManyInput
+  ): Promise<Absence | null> => {
+    try {
+      const res = await fetch('/api/addAbsence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(absence),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to add absence: ${res.statusText}`);
+      }
+
+      const addedAbsence = await res.json();
+      await fetchAbsences();
+      return addedAbsence;
+    } catch (error) {
+      console.error('Error adding absence:', error);
+      return null;
+    }
+  };
 
   const fetchAbsences = useCallback(async () => {
     try {
@@ -262,8 +287,8 @@ const Calendar: React.FC = () => {
           <ModalBody>
             <InputForm
               onClose={onClose}
-              onAddAbsence={fetchAbsences}
-              initialDate={selectedDate}
+              onAddAbsence={handleAddAbsence}
+              initialDate={selectedDate!!}
             />
           </ModalBody>
         </ModalContent>
