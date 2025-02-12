@@ -1,13 +1,7 @@
-import { useEffect, useState } from 'react';
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-  status: string;
-  numOfAbsences: string;
-}
+import React, { useEffect, useState } from 'react';
+import { User, UserManagementTable } from '../components/UserManagementTable';
+import { Box, Spinner } from '@chakra-ui/react';
+import { Role } from '../components/UserManagementTable';
 
 export default function AnotherPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -36,7 +30,7 @@ export default function AnotherPage() {
     fetchUsers();
   }, []);
 
-  const updateUserRole = async (userId: number, newRole: string) => {
+  const updateUserRole = async (userId: number, newRole: Role) => {
     const confirmed = window.confirm('Confirm change role to ' + newRole);
     if (!confirmed) return;
 
@@ -69,41 +63,16 @@ export default function AnotherPage() {
     }
   };
 
-  return (
-    <div>
-      <h1>Admin Management</h1>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td>
-                  {user.firstName} {user.lastName}
-                </td>
-                <td>{user.email}</td>
-                <td>
-                  <select
-                    value={user.role}
-                    onChange={(e) => updateUserRole(user.id, e.target.value)}
-                  >
-                    <option value="TEACHER">Teacher</option>
-                    <option value="ADMIN">Admin</option>
-                  </select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+  return loading ? (
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      height="100vh"
+    >
+      <Spinner />
+    </Box>
+  ) : (
+    <UserManagementTable users={users} updateUserRole={updateUserRole} />
   );
 }
