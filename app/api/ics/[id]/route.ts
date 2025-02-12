@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createCalendarFile } from './ics';
 import { getAbsencesFromDatabase } from '../../getAbsences/absences';
-import { convertAbsenceToICSEvent } from './ics';
+import { convertAbsenceToICSEvent, createCalendarFile } from './ics';
 
 const getICSFileById = async (id: string) => {
   console.log('Getting ICS file for id:', id);
@@ -15,7 +14,6 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
-  console.log('ICS file requested:', id);
 
   if (!id || typeof id !== 'string') {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
@@ -27,7 +25,7 @@ export async function GET(
       return NextResponse.json({ error: 'File not found' }, { status: 404 });
     }
 
-    // convert file to response
+    // Convert file to response
     const buffer = await icsFile.arrayBuffer();
     const blob = new Blob([buffer], { type: 'text/calendar' });
 
