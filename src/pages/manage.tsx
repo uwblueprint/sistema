@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Role, UserAPI } from '../../utils/types';
+import {
+  UserManagementTable,
+  User,
+  Role,
+} from '../components/UserManagementTable';
+import { Box, Spinner } from '@chakra-ui/react';
 
 export default function ManagePage() {
-  const [users, setUsers] = useState<UserAPI[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -14,7 +19,7 @@ export default function ManagePage() {
         if (!response.ok) {
           throw new Error(response.statusText);
         }
-        const users: UserAPI[] = await response.json();
+        const users: User[] = await response.json();
         setUsers(users);
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -61,52 +66,16 @@ export default function ManagePage() {
     }
   };
 
-  return (
-    <div>
-      <h1>Admin Management</h1>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Email Subscriptions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td>
-                  {user.firstName} {user.lastName}
-                </td>
-                <td>{user.email}</td>
-                <td>
-                  <select
-                    value={user.role}
-                    onChange={(e) =>
-                      updateUserRole(user.id, e.target.value as Role)
-                    }
-                  >
-                    {Object.values(Role).map((role) => (
-                      <option key={role} value={role}>
-                        {role.charAt(0) + role.slice(1).toLowerCase()}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  {user.mailingLists
-                    ?.map((mailingList) => mailingList.subject.name)
-                    .join(', ')}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+  return loading ? (
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      height="100vh"
+    >
+      <Spinner />
+    </Box>
+  ) : (
+    <UserManagementTable users={users} updateUserRole={updateUserRole} />
   );
 }
