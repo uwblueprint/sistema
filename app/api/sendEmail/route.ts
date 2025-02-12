@@ -1,11 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { google } from 'googleapis';
 
 type EmailBody = {
   to: string;
   subject: string;
   text: string;
 };
+
+// Google API Credentials (store securely in environment variables)
+const CLIENT_ID = process.env.AUTH_GOOGLE_ID!;
+const CLIENT_SECRET = process.env.AUTH_GOOGLE_SECRET!;
+const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
+const REFRESH_TOKEN = process.env.GOOGLE_REFRESH_TOKEN!;
+const EMAIL_USER = process.env.EMAIL_USER!;
+const oAuth2Client = new google.auth.OAuth2(
+  CLIENT_ID,
+  CLIENT_SECRET,
+  REDIRECT_URI
+);
+oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,28 +34,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get OAuth2 access token
+    const accessToken = await oAuth2Client.getAccessToken();
+
     // Create a transporter object
     const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
+      service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // app password
+        type: 'OAuth2',
+        user: EMAIL_USER,
+        clientId: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        refreshToken: REFRESH_TOKEN,
+        accessToken: accessToken.token!,
       },
-    });
-
-    // Verify connection configuration
-    await new Promise((resolve, reject) => {
-      transporter.verify(function (error, success) {
-        if (error) {
-          console.log('Error verifying SMTP configuration:', error);
-          reject(error);
-        } else {
-          console.log('SMTP Server is ready to take messages');
-          resolve(success);
-        }
-      });
     });
 
     // Configure the mailOptions object
@@ -52,21 +58,10 @@ export async function POST(request: NextRequest) {
       text: text,
     };
 
-    // Send the email
-    await new Promise((resolve, reject) => {
-      transporter.sendMail(mailOptions, (err, info) => {
-        if (err) {
-          console.error('Error sending email:', err);
-          reject(err);
-        } else {
-          console.log('Email sent successfully:', info);
-          resolve(info);
-        }
-      });
-    });
+    const result = await transporter.sendMail(mailOptions);
 
     return NextResponse.json(
-      { message: 'Email sent successfully' },
+      { message: 'Email sent successfully', result },
       { status: 200 }
     );
   } catch (error: any) {
