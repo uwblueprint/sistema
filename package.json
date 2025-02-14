@@ -5,7 +5,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint:fix": "eslint . --ext js,jsx,ts,tsx --fix",
+    "lint:fix": "eslint . --fix",
     "prettier:check": "prettier --check .",
     "prettier:fix": "prettier --write .",
     "format": "npm run prettier:fix && npm run lint:fix",
@@ -43,6 +43,8 @@
     "react-icons": "^5.3.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.20.0",
     "@snaplet/copycat": "^5.0.0",
     "@snaplet/seed": "^0.97.20",
     "@types/node": "^18.19.34",
