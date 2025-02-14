@@ -27,7 +27,7 @@
     "@fullcalendar/react": "^6.1.15",
     "@mui/material": "^5.15.20",
     "@mui/system": "^5.15.20",
-    "@prisma/client": "^5.17.0",
+    "@prisma/client": "^6.3.1",
     "dotenv": "^16.4.5",
     "framer-motion": "^6.3.0",
     "googleapis": "^140.0.1",
@@ -37,7 +37,6 @@
     "nodemailer": "^6.9.14",
     "pnpm": "^9.15.0",
     "postgres": "^3.4.4",
-    "prisma": "^5.16.0",
     "react": "^18.2.0",
     "react-calendar": "^5.0.0",
     "react-dom": "^18.2.0",
@@ -57,7 +56,7 @@
     "eslint-plugin-prettier": "^5.2.3",
     "husky": "^9.0.11",
     "prettier": "^3.3.2",
-    "prisma": "^5.15.1",
+    "prisma": "^6.3.1",
     "tsx": "^4.19.2"
   },
   "@snaplet/seed": {
