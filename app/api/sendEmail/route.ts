@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
 
 type EmailBody = {
@@ -8,7 +7,6 @@ type EmailBody = {
   text: string;
 };
 
-// Google API Credentials (store securely in environment variables)
 const CLIENT_ID = process.env.AUTH_GOOGLE_ID!;
 const CLIENT_SECRET = process.env.AUTH_GOOGLE_SECRET!;
 const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
@@ -37,28 +35,25 @@ export async function POST(request: NextRequest) {
     // Get OAuth2 access token
     const accessToken = await oAuth2Client.getAccessToken();
 
-    // Create a transporter object
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        type: 'OAuth2',
-        user: EMAIL_USER,
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        refreshToken: REFRESH_TOKEN,
-        accessToken: accessToken.token!,
+    // Create the email message
+    const email = [
+      `From: ${EMAIL_USER}`,
+      `To: ${to}`,
+      `Subject: ${subject}`,
+      '',
+      text,
+    ].join('\n');
+
+    const encodedEmail = Buffer.from(email).toString('base64');
+
+    const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
+
+    const result = await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedEmail,
       },
     });
-
-    // Configure the mailOptions object
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: to,
-      subject: subject,
-      text: text,
-    };
-
-    const result = await transporter.sendMail(mailOptions);
 
     return NextResponse.json(
       { message: 'Email sent successfully', result },
