@@ -29,6 +29,7 @@ const eslintConfig = [
       ],
       'no-unused-vars': 'off',
     },
+    ignorePatterns: ['.next/'],
   }),
 ];
 
