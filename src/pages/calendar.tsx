@@ -13,6 +13,7 @@ const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const [events, setEvents] = useState<EventInput[]>([]);
   const [currentMonthYear, setCurrentMonthYear] = useState('');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const toast = useToast();
   const theme = useTheme();
 
@@ -108,13 +109,27 @@ const Calendar: React.FC = () => {
     }
   }, [updateMonthYearTitle]);
 
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.gotoDate(date);
+    }
+  };
+
   useEffect(() => {
     updateMonthYearTitle();
   }, [updateMonthYearTitle]);
 
-  const addWeekendClass = (date: Date): string => {
+  const addSquareClasses = (date: Date): string => {
     const day = date.getDay();
-    return day === 0 || day === 6 ? 'fc-weekend' : '';
+    let classes = day === 0 || day === 6 ? 'fc-weekend' : '';
+
+    if (selectedDate && date.toDateString() === selectedDate.toDateString()) {
+      classes += ' fc-selected-date';
+    }
+
+    return classes;
   };
 
   return (
@@ -169,7 +184,7 @@ const Calendar: React.FC = () => {
       />
 
       <Flex height="100vh">
-        <Sidebar />
+        <Sidebar onDateSelect={handleDateSelect} />{' '}
         <Box flex={1} padding={theme.space[4]} height="100%">
           <CalendarHeader
             currentMonthYear={currentMonthYear}
@@ -188,7 +203,7 @@ const Calendar: React.FC = () => {
             timeZone="local"
             datesSet={updateMonthYearTitle}
             fixedWeekCount={false}
-            dayCellClassNames={({ date }) => addWeekendClass(date)}
+            dayCellClassNames={({ date }) => addSquareClasses(date)}
           />
         </Box>
       </Flex>
