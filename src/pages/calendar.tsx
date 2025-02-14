@@ -139,7 +139,7 @@ const Calendar: React.FC = () => {
             font-weight: ${theme.fontWeights.normal};
           }
           .fc-day-today .fc-daygrid-day-number {
-            background-color: ${theme.colors.blue[500]};
+            background-color: ${theme.colors.primaryBlue[300]};
             color: white;
             border-radius: 50%;
             width: 30px;
@@ -161,6 +161,9 @@ const Calendar: React.FC = () => {
             text-overflow: ellipsis;
             font-size: ${theme.fontSizes.sm};
             font-weight: ${theme.fontWeights.normal};
+          }
+          .fc-selected-date {
+            background-color: ${theme.colors.primaryBlue[50]} !important;
           }
         `}
       />
