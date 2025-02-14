@@ -13,30 +13,160 @@ const breakpoints = {
 };
 
 const theme = extendTheme({
-  semanticTokens: {
-    colors: {
-      text: {
-        default: '#16161D',
-        _dark: '#ade3b8',
-      },
-      heroGradientStart: {
-        default: '#7928CA',
-        _dark: '#e3a7f9',
-      },
-      heroGradientEnd: {
-        default: '#FF0080',
-        _dark: '#fbec8f',
-      },
-    },
-    radii: {
-      button: '12px',
-    },
-  },
-  colors: {
-    black: '#16161D',
-  },
   fonts,
   breakpoints,
+  colors: {
+    primaryBlue: {
+      600: '#24385E',
+      500: '#244990',
+      400: '#2248AF',
+      300: '#0468C1',
+      200: '#248DFE',
+      100: '#63BAFF',
+      50: '#E4F3FF',
+    },
+    neutralGray: {
+      900: '#141414',
+      800: '#343434',
+      700: '#525252',
+      600: '#656565',
+      500: '#8C8C8C',
+      400: '#ADADAD',
+      300: '#0202132',
+      200: '#E3E3E3',
+      100: '#EFEFEF',
+      50: '#F7F7F7',
+    },
+    eventColors: {
+      orange: {
+        100: '#FEEED5',
+        200: '#FBD38D',
+        300: '#F7A75C',
+        400: '#7E3E02',
+      },
+      coral: {
+        100: '#8B2321',
+        200: '#F06E6B',
+        300: '#FFBFBD',
+        400: '#FFEBEB',
+      },
+      purple: {
+        100: '#5F2D66',
+        200: '#9F65A8',
+        300: '#D2AED8',
+        400: '#EED5F2',
+      },
+      turquoise: {
+        100: '#D5F6F3',
+        200: '#81E6D9',
+        300: '#25BAAB',
+        400: '#0D5A53',
+      },
+      orchid: {
+        100: '#D8CCED',
+        200: '#AEA2C3',
+        300: '#615574',
+        400: '#3D324F',
+      },
+      blue: {
+        100: '#D9E4FF',
+        200: '#A7C1FF',
+        300: '#6592FF',
+        400: '#263C71',
+      },
+      green: {
+        100: '#DDFBDD',
+        200: '#C0E3A4',
+        300: '#79A854',
+        400: '#2D4F12',
+      },
+      yellow: {
+        100: '#FDF8E1',
+        200: '#FCEFB4',
+        300: '#F9DC5C',
+        400: '#615219',
+      },
+    },
+    positiveGreen: {
+      100: '#D8F5C1',
+      200: '#5A8934',
+      300: '#2D4F12',
+    },
+    warningOrange: {
+      100: '#FEEED5',
+      200: '#E2941F',
+      300: '#9B520E',
+    },
+    errorRed: {
+      100: '#FFE4E4',
+      200: '#BF3232',
+      300: '#900A0A',
+    },
+  },
+  styles: {
+    global: {
+      'html, body': {
+        backgroundColor: 'white',
+        color: 'neutralGray.900',
+      },
+      h1: {
+        color: 'neutralGray.900',
+      },
+      h2: {
+        color: 'neutralGray.800',
+      },
+      p: {
+        color: 'neutralGray.700',
+      },
+    },
+  },
+  components: {
+    Button: {
+      baseStyle: {
+        bg: '#FDFDFD',
+        color: 'primaryBlue.300',
+        _active: {
+          bg: 'primaryBlue.400',
+        },
+        _disabled: {
+          bg: 'neutralGray.200',
+          color: 'neutralGray.400',
+        },
+      },
+      variants: {
+        solid: {
+          bg: 'primaryBlue.300',
+          color: 'white',
+          _hover: {
+            bg: 'primaryBlue.500',
+          },
+        },
+        outline: {
+          borderColor: 'outline',
+          color: 'primaryBlue.300',
+          _hover: {
+            bg: 'primaryBlue.50',
+          },
+        },
+      },
+    },
+    Text: {
+      baseStyle: {
+        color: 'black',
+      },
+      variants: {
+        header: {
+          color: 'black',
+        },
+        subtitle: {
+          color: 'neutralGray.500',
+        },
+        inactive: {
+          color: 'neutralGray.400',
+        },
+      },
+    },
+  },
 });
 
 export default theme;
