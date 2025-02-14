@@ -178,7 +178,7 @@ const Calendar: React.FC = () => {
             font-weight: ${theme.fontWeights.normal};
           }
           .fc-selected-date {
-            background-color: ${theme.colors.blue[100]} !important;
+            background-color: ${theme.colors.primaryBlue[50]} !important;
           }
         `}
       />

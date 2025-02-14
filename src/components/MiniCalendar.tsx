@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 import {
   Box,
@@ -25,10 +23,13 @@ export default function MiniCalendar({
 
   const [currentMonth, setCurrentMonth] = useState(new Date(initialDate));
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const todayBgColor = useColorModeValue('blue.500', 'blue.200');
-  const todayColor = useColorModeValue('white', 'gray.800');
-  const selectedBgColor = useColorModeValue('blue.100', 'blue.700');
+  const bgColor = useColorModeValue('white', 'neutralGray.800');
+  const todayBgColor = useColorModeValue('primaryBlue.300', 'primaryBlue.200');
+  const todayColor = useColorModeValue('white', 'neutralGray.800');
+  const selectedBgColor = useColorModeValue(
+    'primaryBlue.50',
+    'primaryBlue.600'
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -91,6 +92,8 @@ export default function MiniCalendar({
   const isToday = (date: Date) => date.toDateString() === today.toDateString();
   const isSelected = (date: Date) =>
     selectedDate?.toDateString() === date.toDateString();
+  const totalWeeksToDisplay = 6; // Always show 6 weeks in the grid
+  const totalDaysToDisplay = totalWeeksToDisplay * 7; // 6 rows * 7 columns (days)
 
   return (
     <Box width="100%" p={0} bg={bgColor}>
@@ -166,6 +169,10 @@ export default function MiniCalendar({
               variant="ghost"
               fontSize="xs"
               fontWeight="normal"
+              sx={{
+                bg: 'transparent !important',
+                color: 'inherit !important',
+              }}
             >
               {lastDateOfPrevMonth - firstDayOfMonth + index + 1}
             </Button>
@@ -195,7 +202,7 @@ export default function MiniCalendar({
                   isToday(date)
                     ? todayColor
                     : isSelected(date)
-                      ? 'darkblue'
+                      ? 'primaryBlue.300'
                       : 'inherit'
                 }
                 fontSize="xs"
@@ -211,7 +218,7 @@ export default function MiniCalendar({
           })}
 
           {Array.from({
-            length: 42 - (firstDayOfMonth + daysInMonth),
+            length: totalDaysToDisplay - (firstDayOfMonth + daysInMonth),
           }).map((_, index) => (
             <Button
               key={`next-${index}`}
@@ -220,8 +227,11 @@ export default function MiniCalendar({
               size="sm"
               variant="ghost"
               fontSize="xs"
-              color="gray.400"
               fontWeight="normal"
+              sx={{
+                bg: 'transparent !important',
+                color: 'inherit !important',
+              }}
             >
               {index + 1}
             </Button>
