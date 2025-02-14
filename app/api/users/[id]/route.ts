@@ -8,10 +8,11 @@ function validateId(id: string): number | null {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const id = validateId(params.id);
-  if (id === null) {
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
+  const { id } = await params;
+  const validatedId = validateId(id);
+  if (validatedId === null) {
     return NextResponse.json({ error: 'Invalid ID provided' }, { status: 400 });
   }
 
@@ -20,7 +21,7 @@ export async function GET(
 
   try {
     const user = await prisma.user.findUnique({
-      where: { id },
+      where: { id: validatedId },
       include: { absences: getAbsences },
     });
 
@@ -40,10 +41,11 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const id = validateId(params.id);
-  if (id === null) {
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
+  const { id } = await params;
+  const validatedId = validateId(id);
+  if (validatedId === null) {
     return NextResponse.json({ error: 'Invalid ID provided' }, { status: 400 });
   }
 
@@ -51,13 +53,9 @@ export async function PATCH(
     const { email, firstName, lastName, role, status } = await request.json();
 
     const updatedUser = await prisma.user.update({
-      where: { id },
+      where: { id: validatedId },
       data: { email, firstName, lastName, role, status },
     });
-
-    if (!updatedUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 400 });
-    }
 
     return NextResponse.json(updatedUser);
   } catch (error) {
