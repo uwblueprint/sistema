@@ -56,10 +56,15 @@ const main = async () => {
   }
 
   const subjects = [
-    { name: 'Strings', abbreviation: 'STR', colorGroup: 'Coral' },
-    { name: 'Music and Movement', abbreviation: 'M&M', colorGroup: 'Orange' },
-    { name: 'Choir', abbreviation: 'CHO', colorGroup: 'Purple' },
-    { name: 'Percussion', abbreviation: 'PER', colorGroup: 'Turquoise' },
+    { name: 'Strings', abbreviation: 'STR', colorGroup: 'Purple' },
+    { name: 'Choir', abbreviation: 'CHO', colorGroup: 'Yellow' },
+    {
+      name: 'Music and Movement',
+      abbreviation: 'M&M',
+      colorGroup: 'Turquoise',
+    },
+    { name: 'Percussion', abbreviation: 'PER', colorGroup: 'Blue' },
+    { name: 'Trumpet/Clarinet', abbreviation: 'T&C', colorGroup: 'Coral' },
   ];
 
   const colorGroups = [
