@@ -148,17 +148,22 @@ const Calendar: React.FC = () => {
             background-color: inherit !important;
           }
           .fc-daygrid-day-number {
-            margin-left: 7px;
-            margin-top: 5px;
-            font-size: ${theme.fontSizes.md};
+            margin-left: 6px;
+            margin-top: 6px;
+            font-size: ${theme.fontSizes.xs};
             font-weight: ${theme.fontWeights.normal};
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
           .fc-day-today .fc-daygrid-day-number {
             background-color: ${theme.colors.primaryBlue[300]};
             color: white;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 25px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -177,15 +182,22 @@ const Calendar: React.FC = () => {
             font-size: ${theme.fontSizes.sm};
             font-weight: ${theme.fontWeights.normal};
           }
-          .fc-selected-date {
-            background-color: ${theme.colors.primaryBlue[50]} !important;
-          }
+          .fc-selected-date .fc-daygrid-day-number {
+            background-color: ${theme.colors.primaryBlue[50]};
+            color: ${theme.colors.primaryBlue[300]};
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            }
         `}
       />
 
       <Flex height="100vh">
         <Sidebar onDateSelect={handleDateSelect} />{' '}
-        <Box flex={1} padding={theme.space[4]} height="100%">
+        <Box flex={1} paddingY={theme.space[4]} height="100%">
           <CalendarHeader
             currentMonthYear={currentMonthYear}
             onTodayClick={handleTodayClick}
