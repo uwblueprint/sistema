@@ -11,9 +11,9 @@ const getICSFileById = async (id: string) => {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await context.params;
 
   if (!id || typeof id !== 'string') {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
