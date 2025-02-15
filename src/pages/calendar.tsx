@@ -279,12 +279,18 @@ const Calendar: React.FC = () => {
         </Box>
       </Flex>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Declare Absence</ModalHeader>
+        <ModalContent
+          width={362}
+          sx={{ padding: '33px 31px' }}
+          borderRadius="16px"
+        >
+          <ModalHeader fontSize={22} sx={{ padding: '0 0 28px 0' }}>
+            Declare Absence
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody p={0}>
             <InputForm
               onClose={onClose}
               onAddAbsence={handleAddAbsence}

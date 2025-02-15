@@ -7,6 +7,7 @@ import {
   Input,
   VStack,
   useToast,
+  Textarea,
 } from '@chakra-ui/react';
 import { Absence, Prisma } from '@prisma/client';
 import { useState } from 'react';
@@ -68,7 +69,9 @@ const InputForm: React.FC<InputFormProps> = ({
     setLessonPlan(url);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -145,8 +148,8 @@ const InputForm: React.FC<InputFormProps> = ({
   };
 
   return (
-    <Box as="form" onSubmit={handleSubmit} p={4}>
-      <VStack spacing={4}>
+    <Box as="form" onSubmit={handleSubmit}>
+      <VStack sx={{ gap: '24px' }}>
         <FormControl isRequired isInvalid={!!errors.absentTeacherId}>
           <FormLabel>Teacher Absent</FormLabel>
           <SearchDropdown
@@ -264,11 +267,12 @@ const InputForm: React.FC<InputFormProps> = ({
 
         <FormControl>
           <FormLabel>Notes</FormLabel>
-          <Input
+          <Textarea
             name="notes"
             placeholder="Additional relevant info..."
             value={formData.notes}
             onChange={handleChange}
+            minH="88px"
           />
         </FormControl>
 
@@ -278,6 +282,7 @@ const InputForm: React.FC<InputFormProps> = ({
           isLoading={isSubmitting}
           loadingText="Submitting"
           width="full"
+          height="44px"
         >
           Declare Absence
         </Button>
