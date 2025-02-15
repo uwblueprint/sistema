@@ -8,7 +8,7 @@ export function SignInButton(): JSX.Element {
   return (
     <Button
       variant="outline"
-      borderColor="blue.400"
+      borderColor="primaryBlue.300"
       colorScheme="gray"
       width="275px"
       height="45px"
