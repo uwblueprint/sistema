@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
 
 type EmailBody = {
@@ -13,7 +12,6 @@ const CLIENT_ID = process.env.AUTH_GOOGLE_ID!;
 const CLIENT_SECRET = process.env.AUTH_GOOGLE_SECRET!;
 const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
 const REFRESH_TOKEN = process.env.GOOGLE_REFRESH_TOKEN!;
-const EMAIL_USER = process.env.EMAIL_USER!;
 const oAuth2Client = new google.auth.OAuth2(
   CLIENT_ID,
   CLIENT_SECRET,
@@ -34,37 +32,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get OAuth2 access token
-    const accessToken = await oAuth2Client.getAccessToken();
+    const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
 
-    // Create a transporter object
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        type: 'OAuth2',
-        user: EMAIL_USER,
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        refreshToken: REFRESH_TOKEN,
-        accessToken: accessToken.token!,
-      },
+    // Construct the email message
+    const email = [
+      `To: ${to}`,
+      `Subject: ${subject}`,
+      'MIME-Version: 1.0',
+      'Content-Type: text/plain; charset="UTF-8"',
+      '',
+      text,
+    ].join('\n');
+
+    const encodedMessage = Buffer.from(email)
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_');
+
+    // Send email using Gmail API
+    const response = await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: { raw: encodedMessage },
     });
 
-    // Configure the mailOptions object
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: to,
-      subject: subject,
-      text: text,
-    };
-
-    const result = await transporter.sendMail(mailOptions);
-
     return NextResponse.json(
-      { message: 'Email sent successfully', result },
+      { message: 'Email sent successfully', data: response.data },
       { status: 200 }
     );
   } catch (error: any) {
+    console.error('Error sending email:', error);
     return NextResponse.json(
       { error: 'Error sending email', details: error.message },
       { status: 500 }
