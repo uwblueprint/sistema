@@ -15,12 +15,14 @@ export type Option = { name: string; id: number };
 interface SearchDropdownProps {
   label: string;
   type: 'user';
+  excludedId?: string;
   onChange: (value: Option | null) => void;
 }
 
 export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   label,
   type,
+  excludedId,
   onChange,
 }) => {
   const [options, setOptions] = useState<Option[]>([]);
@@ -40,9 +42,16 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
       setFilteredOptions([]);
       onClose();
     } else {
-      const filtered = options.filter((option) =>
+      let filtered = options.filter((option) =>
         option.name.toLowerCase().includes(value.toLowerCase())
       );
+
+      if (excludedId) {
+        filtered = filtered.filter(
+          (option) => String(option.id) !== excludedId
+        );
+      }
+
       setFilteredOptions(filtered);
       onOpen();
     }

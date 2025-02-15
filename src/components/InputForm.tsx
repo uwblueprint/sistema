@@ -155,6 +155,7 @@ const InputForm: React.FC<InputFormProps> = ({
           <SearchDropdown
             label="Teacher"
             type="user"
+            excludedId={formData.substituteTeacherId}
             onChange={(value) => {
               // Handle selected subject
               setFormData((prev) => ({
@@ -178,6 +179,7 @@ const InputForm: React.FC<InputFormProps> = ({
           <SearchDropdown
             label="Teacher"
             type="user"
+            excludedId={formData.absentTeacherId}
             onChange={(value) => {
               // Handle selected subject
               setFormData((prev) => ({
