@@ -209,7 +209,7 @@ export default function MiniCalendar({
                 fontWeight="normal"
                 borderRadius="50%"
                 _hover={{
-                  bg: isToday(date) ? todayBgColor : selectedBgColor,
+                  bg: isToday(date) ? todayBgColor : 'neutralGray.100',
                 }}
               >
                 {index + 1}
