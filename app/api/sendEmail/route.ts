@@ -3,6 +3,8 @@ import { google } from 'googleapis';
 
 type EmailBody = {
   to: string;
+  cc?: string;
+  bcc?: string;
   subject: string;
   text: string;
 };
@@ -22,7 +24,7 @@ oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 export async function POST(request: NextRequest) {
   try {
     const body: EmailBody = await request.json();
-    const { to, subject, text } = body;
+    const { to, cc, bcc, subject, text } = body;
 
     // Validate the input
     if (!to || !subject || !text) {
@@ -39,6 +41,8 @@ export async function POST(request: NextRequest) {
     const email = [
       `From: ${EMAIL_USER}`,
       `To: ${to}`,
+      cc ? `Cc: ${cc}` : '',
+      bcc ? `Bcc: ${bcc}` : '',
       `Subject: ${subject}`,
       '',
       text,
