@@ -1,19 +1,8 @@
 'use client';
 
-import {
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Button,
-  Flex,
-  Box,
-  Icon,
-  Text,
-} from '@chakra-ui/react';
-import { ChevronDownIcon, ChevronUpIcon, CheckIcon } from '@chakra-ui/icons';
 import React, { useEffect, useState } from 'react';
 import { SubjectWithColorGroup } from '../../app/api/filter/subjects/route';
+import Dropdown, { DropdownItem } from './Dropdown';
 
 interface SubjectDropdownProps {
   setFilter: (subjects: string[]) => void;
@@ -74,75 +63,23 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
     setFilter(newSelection);
   };
 
+  const toggleOpen = () => {
+    setIsOpen((prev) => !prev);
+  };
+
+  const dropdownItems: DropdownItem[] = subjects.map((subject) => ({
+    name: subject.name,
+    color: subject.color,
+  }));
+
   return (
-    <Box width="100%" p={0}>
-      <Menu
-        isOpen={isOpen}
-        onOpen={() => setIsOpen(true)}
-        onClose={() => setIsOpen(false)}
-        matchWidth
-        closeOnSelect={false}
-      >
-        <MenuButton
-          as={Button}
-          width="100%"
-          variant="outline"
-          border={0}
-          p={0}
-          _hover={{ bg: 'none' }}
-          _focus={{ bg: 'none', boxShadow: 'none', outline: 'none' }}
-          _active={{ bg: 'none' }}
-        >
-          <Flex justify="space-between" align="center" width="100%">
-            <Text fontWeight="semibold" fontSize="16px">
-              Subject
-            </Text>
-            {isOpen ? (
-              <ChevronUpIcon boxSize="2.1em" p={0} m={0} />
-            ) : (
-              <ChevronDownIcon boxSize="2.1em" p={0} m={0} />
-            )}
-          </Flex>
-        </MenuButton>
-        <MenuList width="100%" border={0} boxShadow="none" m={0} p={0}>
-          {subjects.map((subject) => (
-            <MenuItem
-              key={subject.name}
-              onClick={() => toggleSubject(subject.name)}
-              border={0}
-              px={0}
-              py={1}
-            >
-              <Flex alignItems="center" gap={2}>
-                <Box position="relative" width="20px" height="20px">
-                  <Box
-                    position="absolute"
-                    inset={0}
-                    bg={
-                      selectedSubjects.includes(subject.name)
-                        ? subject.color
-                        : 'white'
-                    }
-                    border={`2px solid ${subject.color}`}
-                    borderRadius="0"
-                  />
-                  {selectedSubjects.includes(subject.name) && (
-                    <Icon
-                      as={CheckIcon}
-                      position="absolute"
-                      inset={0}
-                      color="white"
-                      w="20px"
-                      h="20px"
-                    />
-                  )}
-                </Box>
-                <Text fontSize="14px">{subject.name}</Text>
-              </Flex>
-            </MenuItem>
-          ))}
-        </MenuList>
-      </Menu>
-    </Box>
+    <Dropdown
+      title="Subject"
+      items={dropdownItems}
+      selectedItems={selectedSubjects}
+      isOpen={isOpen}
+      toggleOpen={toggleOpen}
+      toggleItem={toggleSubject}
+    />
   );
 }
