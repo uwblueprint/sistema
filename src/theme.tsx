@@ -16,6 +16,7 @@ const theme = extendTheme({
   fonts,
   breakpoints,
   colors: {
+    buttonBackground: '#FDFDFD',
     primaryBlue: {
       600: '#24385E',
       500: '#244990',
@@ -32,7 +33,7 @@ const theme = extendTheme({
       600: '#656565',
       500: '#8C8C8C',
       400: '#ADADAD',
-      300: '#0202132',
+      300: '#D2D2D2',
       200: '#E3E3E3',
       100: '#EFEFEF',
       50: '#F7F7F7',
@@ -123,8 +124,9 @@ const theme = extendTheme({
   components: {
     Button: {
       baseStyle: {
-        bg: '#FDFDFD',
+        bg: 'buttonBackground',
         color: 'primaryBlue.300',
+        borderRadius: '7px',
         _active: {
           bg: 'primaryBlue.400',
         },
@@ -142,8 +144,8 @@ const theme = extendTheme({
           },
         },
         outline: {
-          borderColor: 'outline',
-          color: 'primaryBlue.300',
+          borderColor: 'neutralGray.300',
+          color: 'black',
           _hover: {
             bg: 'primaryBlue.50',
           },
@@ -164,6 +166,11 @@ const theme = extendTheme({
         inactive: {
           color: 'neutralGray.400',
         },
+      },
+    },
+    Heading: {
+      baseStyle: {
+        color: 'black',
       },
     },
   },
