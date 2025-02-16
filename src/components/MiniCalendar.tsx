@@ -85,6 +85,9 @@ export default function MiniCalendar({
   };
 
   const handleDateClick = (date: Date) => {
+    if (date.getMonth() !== currentMonth.getMonth()) {
+      setCurrentMonth(new Date(date.getFullYear(), date.getMonth(), 1));
+    }
     setSelectedDate(date);
     onDateSelect?.(date);
   };
@@ -169,23 +172,38 @@ export default function MiniCalendar({
           width="100%"
           justifyItems="center"
         >
-          {Array.from({ length: firstDayOfMonth }).map((_, index) => (
-            <Button
-              key={`prev-${index}`}
-              disabled
-              size="sm"
-              w="100%"
-              variant="ghost"
-              fontSize="xs"
-              fontWeight="normal"
-              sx={{
-                bg: 'transparent !important',
-                color: 'inherit !important',
-              }}
-            >
-              {lastDateOfPrevMonth - firstDayOfMonth + index + 1}
-            </Button>
-          ))}
+          {Array.from({ length: firstDayOfMonth }).map((_, index) => {
+            const date = new Date(
+              currentMonth.getFullYear(),
+              currentMonth.getMonth() - 1,
+              lastDateOfPrevMonth - firstDayOfMonth + index + 1
+            );
+            return (
+              <Button
+                key={`prev-${index}`}
+                onClick={() => handleDateClick(date)}
+                size="sm"
+                w="100%"
+                variant="ghost"
+                fontSize="xs"
+                fontWeight="normal"
+                borderRadius="50%"
+                bg={
+                  isToday(date)
+                    ? todayBgColor
+                    : isSelected(date)
+                      ? selectedBgColor
+                      : 'transparent'
+                }
+                color="neutralGray.500"
+                _hover={{
+                  bg: isToday(date) ? todayBgColor : 'neutralGray.100',
+                }}
+              >
+                {lastDateOfPrevMonth - firstDayOfMonth + index + 1}
+              </Button>
+            );
+          })}
 
           {Array.from({ length: daysInMonth }).map((_, index) => {
             const date = new Date(
@@ -228,23 +246,38 @@ export default function MiniCalendar({
 
           {Array.from({
             length: totalDaysToDisplay - (firstDayOfMonth + daysInMonth),
-          }).map((_, index) => (
-            <Button
-              key={`next-${index}`}
-              disabled
-              w="100%"
-              size="sm"
-              variant="ghost"
-              fontSize="xs"
-              fontWeight="normal"
-              sx={{
-                bg: 'transparent !important',
-                color: 'inherit !important',
-              }}
-            >
-              {index + 1}
-            </Button>
-          ))}
+          }).map((_, index) => {
+            const date = new Date(
+              currentMonth.getFullYear(),
+              currentMonth.getMonth() + 1,
+              index + 1
+            );
+            return (
+              <Button
+                key={`next-${index}`}
+                onClick={() => handleDateClick(date)}
+                w="100%"
+                size="sm"
+                variant="ghost"
+                fontSize="xs"
+                fontWeight="normal"
+                borderRadius="50%"
+                bg={
+                  isToday(date)
+                    ? todayBgColor
+                    : isSelected(date)
+                      ? selectedBgColor
+                      : 'transparent'
+                }
+                color="neutralGray.500"
+                _hover={{
+                  bg: isToday(date) ? todayBgColor : 'neutralGray.100',
+                }}
+              >
+                {index + 1}
+              </Button>
+            );
+          })}
         </Grid>
       </VStack>
     </Box>
