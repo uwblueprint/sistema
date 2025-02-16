@@ -116,6 +116,10 @@ export default function MiniCalendar({
               aria-label="Previous month"
               borderRadius="full"
               p={0}
+              bg="transparent"
+              _hover={{
+                bg: 'neutralGray.100',
+              }}
             >
               <ChevronUpIcon boxSize={8} />
             </Button>
@@ -126,6 +130,10 @@ export default function MiniCalendar({
               aria-label="Next month"
               borderRadius="full"
               p={0}
+              bg="transparent"
+              _hover={{
+                bg: 'neutralGray.100',
+              }}
             >
               <ChevronDownIcon boxSize={8} />
             </Button>
@@ -139,15 +147,16 @@ export default function MiniCalendar({
           justifyItems="center"
           alignItems="center"
         >
-          {days.map((day) => (
+          {days.map((day, index) => (
             <Button
-              key={day}
+              key={`day-${index}`}
               w="100%"
               size="sm"
               variant="ghost"
               pointerEvents="none"
               fontSize="sm"
               fontWeight="normal"
+              bg="transparent"
             >
               {day}
             </Button>
@@ -186,7 +195,7 @@ export default function MiniCalendar({
             );
             return (
               <Button
-                key={index}
+                key={`date-${index + 1}-${date.toDateString()}`}
                 onClick={() => handleDateClick(date)}
                 size="sm"
                 variant={isToday(date) ? 'solid' : 'ghost'}

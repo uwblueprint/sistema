@@ -1,17 +1,13 @@
 import React from 'react';
 import {
-  ButtonGroup,
+  HStack,
   Button,
   IconButton,
   Flex,
   Heading,
   useTheme,
 } from '@chakra-ui/react';
-import {
-  ArrowBackIcon,
-  ArrowForwardIcon,
-  CalendarIcon,
-} from '@chakra-ui/icons';
+import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 
 interface CalendarHeaderProps {
   currentMonthYear: string;
@@ -29,28 +25,31 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   const theme = useTheme();
   return (
     <Flex marginBottom={theme.space[4]} alignItems="center">
-      <ButtonGroup isAttached variant="outline">
+      <HStack spacing={2}>
         <IconButton
           colorScheme="blue"
           onClick={onPrevClick}
-          icon={<ArrowBackIcon />}
+          icon={<ChevronLeftIcon boxSize={6} color="neutralGray.600" />}
           aria-label="Previous"
+          variant="outline"
         />
         <Button
           onClick={onTodayClick}
           variant="outline"
           colorScheme="blue"
-          leftIcon={<CalendarIcon />}
+          paddingX="20px"
         >
           Today
         </Button>
         <IconButton
           colorScheme="blue"
           onClick={onNextClick}
-          icon={<ArrowForwardIcon />}
+          icon={<ChevronRightIcon boxSize={6} color="neutralGray.600" />}
           aria-label="Next"
+          variant="outline"
         />
-      </ButtonGroup>
+      </HStack>
+
       <Heading fontSize="2xl" textAlign="center" marginX={theme.space[6]}>
         {currentMonthYear}
       </Heading>
