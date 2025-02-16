@@ -5,8 +5,30 @@ import { SistemaLogoColour } from '../components/SistemaLogoColour';
 import SubjectDropdown from './SubjectDropdown';
 import LocationDropdown from './LocationDropdown';
 
-const CalendarSidebar: React.FC = () => {
+interface CalendarSidebarProps {
+  setSearchQuery: React.Dispatch<
+    React.SetStateAction<{ titles: string[]; locations: string[] }>
+  >;
+}
+
+const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
+  setSearchQuery,
+}) => {
   const theme = useTheme();
+
+  const handleSubjectFilter = (subjects: string[]) => {
+    setSearchQuery((prev) => ({
+      ...prev,
+      titles: subjects,
+    }));
+  };
+
+  const handleLocationFilter = (locations: string[]) => {
+    setSearchQuery((prev) => ({
+      ...prev,
+      locations: locations,
+    }));
+  };
 
   return (
     <Flex
@@ -23,12 +45,9 @@ const CalendarSidebar: React.FC = () => {
         Declare Absence
       </Button>
 
-      <SubjectDropdown
-        setFilter={(subjects: string[]) => console.log(subjects)}
-      />
-      <LocationDropdown
-        setFilter={(locations: string[]) => console.log(locations)}
-      />
+      <SubjectDropdown setFilter={handleSubjectFilter} />
+
+      <LocationDropdown setFilter={handleLocationFilter} />
     </Flex>
   );
 };

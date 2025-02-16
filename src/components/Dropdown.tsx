@@ -47,13 +47,16 @@ const Dropdown = ({
         _active={{ bg: 'none' }}
       >
         <Flex justify="space-between" align="center" width="100%">
-          <Text fontWeight="semibold" fontSize="16px">
+          <Text fontWeight="semibold" fontSize="14px">
             {title}
           </Text>
+          {/* <Text fontFamily="Poppins" fontSize="14px" fontWeight="medium" color="#1B1B1B">
+                {title}
+               </Text> */}
           {isOpen ? (
-            <ChevronUpIcon boxSize="2.1em" p={0} m={0} />
+            <ChevronUpIcon boxSize="2.0em" p={0} m={0} />
           ) : (
-            <ChevronDownIcon boxSize="2.1em" p={0} m={0} />
+            <ChevronDownIcon boxSize="2.0em" p={0} m={0} />
           )}
         </Flex>
       </Button>
@@ -85,7 +88,7 @@ const Dropdown = ({
                   />
                 )}
               </Box>
-              <Text fontSize="14px">{item.name}</Text>
+              <Text fontSize="13px">{item.name}</Text>
             </Flex>
           ))}
         </Stack>

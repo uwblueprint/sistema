@@ -12,6 +12,14 @@ import { Global } from '@emotion/react';
 const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const [events, setEvents] = useState<EventInput[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
+  const [searchQuery, setSearchQuery] = useState<{
+    titles: string[];
+    locations: string[];
+  }>({
+    titles: [],
+    locations: [],
+  });
   const [currentMonthYear, setCurrentMonthYear] = useState('');
   const toast = useToast();
   const theme = useTheme();
@@ -117,6 +125,22 @@ const Calendar: React.FC = () => {
     return day === 0 || day === 6 ? 'fc-weekend' : '';
   };
 
+  useEffect(() => {
+    const { titles, locations } = searchQuery;
+
+    const filtered = events.filter((event) => {
+      const titleMatch = titles.some((title) =>
+        event.title?.toLowerCase().includes(title.toLowerCase())
+      );
+      const locationMatch = locations.some((location) =>
+        event.location?.toLowerCase().includes(location.toLowerCase())
+      );
+      return titleMatch && locationMatch;
+    });
+
+    setFilteredEvents(filtered);
+  }, [searchQuery, events]);
+
   return (
     <>
       <Global
@@ -166,7 +190,7 @@ const Calendar: React.FC = () => {
       />
 
       <Flex height="100vh">
-        <Sidebar />
+        <Sidebar setSearchQuery={setSearchQuery} />
         <Box flex={1} padding={theme.space[4]} height="100%">
           <CalendarHeader
             currentMonthYear={currentMonthYear}
@@ -180,7 +204,7 @@ const Calendar: React.FC = () => {
             plugins={[dayGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
             height="100%"
-            events={events}
+            events={filteredEvents}
             eventContent={renderEventContent}
             timeZone="local"
             datesSet={updateMonthYearTitle}
