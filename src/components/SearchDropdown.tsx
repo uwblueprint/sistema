@@ -121,6 +121,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
       >
         <PopoverTrigger>
           <Input
+            fontSize="14px"
             ref={inputRef}
             value={searchQuery}
             onChange={handleSearchChange}
@@ -130,6 +131,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
         </PopoverTrigger>
         <PopoverContent
           ref={popoverRef}
+          fontSize="14px"
           boxShadow="sm"
           border="1px solid"
           borderColor="gray.200"

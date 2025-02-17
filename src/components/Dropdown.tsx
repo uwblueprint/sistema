@@ -59,13 +59,14 @@ export const Dropdown: React.FC<DropdownProps> = ({
   return (
     <Menu offset={[0, 2]}>
       <Input as={MenuButton} textAlign="left">
-        <Text color={selectedOption ? 'black' : 'gray.500'}>
+        <Text fontSize="14px" color={selectedOption ? 'black' : 'gray.500'}>
           {selectedOption ? selectedOption.name : `Please select ${label}`}
         </Text>
       </Input>
       <MenuList rootProps={{ width: '100%' }} p={0}>
         {options.map((option) => (
           <MenuItem
+            fontSize="14px"
             width="100%"
             key={option.id}
             color={'gray.500'}

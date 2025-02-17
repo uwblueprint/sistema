@@ -148,7 +148,13 @@ const InputForm: React.FC<InputFormProps> = ({
   };
 
   return (
-    <Box as="form" onSubmit={handleSubmit}>
+    <Box
+      as="form"
+      onSubmit={handleSubmit}
+      sx={{
+        label: { fontSize: '14px', fontWeight: '400' },
+      }}
+    >
       <VStack sx={{ gap: '24px' }}>
         <FormControl isRequired isInvalid={!!errors.absentTeacherId}>
           <FormLabel>Teacher Absent</FormLabel>
@@ -247,9 +253,11 @@ const InputForm: React.FC<InputFormProps> = ({
           <FormLabel>Date of Absence</FormLabel>
           <Input
             name="lessonDate"
+            fontSize="14px"
             value={formData.lessonDate}
             onChange={handleChange}
             type="date"
+            color={formData.lessonDate ? 'black' : 'gray.500'}
           />
           <FormErrorMessage>{errors.lessonDate}</FormErrorMessage>
         </FormControl>
@@ -259,6 +267,7 @@ const InputForm: React.FC<InputFormProps> = ({
           <Input
             name="reasonOfAbsence"
             placeholder="Only visible to admin"
+            fontSize="14px"
             value={formData.reasonOfAbsence}
             onChange={handleChange}
           />
@@ -272,6 +281,7 @@ const InputForm: React.FC<InputFormProps> = ({
           <Textarea
             name="notes"
             placeholder="Additional relevant info..."
+            fontSize="14px"
             value={formData.notes}
             onChange={handleChange}
             minH="88px"

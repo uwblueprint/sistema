@@ -77,6 +77,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       <FormLabel>{label}</FormLabel>
       <Input
         type="file"
+        fontSize="14px"
+        color={'gray.500'}
         onChange={handleFileChange}
         accept="application/pdf"
         p={1}
