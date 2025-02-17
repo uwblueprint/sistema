@@ -146,11 +146,10 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
                   key={option.id}
                   sx={{ padding: '10px 16px' }}
                   _hover={{ bg: 'gray.100' }}
-                  color={'gray.500'}
                   cursor="pointer"
                   onClick={() => handleOptionSelect(option)}
                 >
-                  <Text>{option.name}</Text>
+                  <Text color="gray.500">{option.name}</Text>
                 </Box>
               ))
             ) : (

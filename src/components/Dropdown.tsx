@@ -79,12 +79,11 @@ export const Dropdown: React.FC<DropdownProps> = ({
             fontSize="14px"
             width="100%"
             key={option.id}
-            color={'gray.500'}
             onClick={() => handleOptionSelect(option)}
             sx={{ padding: '10px 16px' }}
           >
             <Box>
-              <Text>{option.name}</Text>
+              <Text color="gray.500">{option.name}</Text>
             </Box>
           </MenuItem>
         ))}
