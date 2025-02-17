@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Box,
   Menu,
@@ -7,6 +8,8 @@ import {
   MenuButton,
   Text,
   Input,
+  InputGroup,
+  InputRightElement,
 } from '@chakra-ui/react';
 
 export type Option = { name: string; id: number };
@@ -58,11 +61,18 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
   return (
     <Menu offset={[0, 2]}>
-      <Input as={MenuButton} textAlign="left">
-        <Text fontSize="14px" color={selectedOption ? 'black' : 'gray.500'}>
-          {selectedOption ? selectedOption.name : `Please select ${label}`}
-        </Text>
-      </Input>
+      <InputGroup>
+        <Input as={MenuButton} textAlign="left" pr="2.5rem">
+          <Text fontSize="14px" color={selectedOption ? 'black' : 'gray.500'}>
+            {selectedOption ? selectedOption.name : `Please select ${label}`}
+          </Text>
+        </Input>
+        {/* Dropdown Arrow */}
+        <InputRightElement pointerEvents="none">
+          <ChevronDownIcon />
+        </InputRightElement>
+      </InputGroup>
+
       <MenuList rootProps={{ width: '100%' }} p={0}>
         {options.map((option) => (
           <MenuItem
