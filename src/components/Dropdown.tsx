@@ -47,7 +47,7 @@ const Dropdown = ({
         _active={{ bg: 'none' }}
       >
         <Flex justify="space-between" align="center" width="100%">
-          <Text fontWeight="semibold" fontSize="14px">
+          <Text fontWeight="500" fontSize="14px">
             {title}
           </Text>
           {/* <Text fontFamily="Poppins" fontSize="14px" fontWeight="medium" color="#1B1B1B">
@@ -88,7 +88,9 @@ const Dropdown = ({
                   />
                 )}
               </Box>
-              <Text fontSize="13px">{item.name}</Text>
+              <Text fontSize="13px" fontWeight="400">
+                {item.name}
+              </Text>
             </Flex>
           ))}
         </Stack>

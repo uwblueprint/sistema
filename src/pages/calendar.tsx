@@ -7,6 +7,7 @@ import { EventInput, EventContentArg } from '@fullcalendar/core';
 import { AbsenceWithRelations } from '../../app/api/getAbsences/route';
 import Sidebar from '../components/CalendarSidebar';
 import CalendarHeader from '../components/CalendarHeader';
+import { CalendarTabs } from '../components/CalendarTabs';
 import { Global } from '@emotion/react';
 
 const Calendar: React.FC = () => {
@@ -21,6 +22,9 @@ const Calendar: React.FC = () => {
     locations: [],
   });
   const [currentMonthYear, setCurrentMonthYear] = useState('');
+  const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
+    'explore'
+  );
   const toast = useToast();
   const theme = useTheme();
 
@@ -198,6 +202,7 @@ const Calendar: React.FC = () => {
             onPrevClick={handlePrevClick}
             onNextClick={handleNextClick}
           />
+          <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
           <FullCalendar
             ref={calendarRef}
             headerToolbar={false}
