@@ -85,6 +85,7 @@ const Dropdown = ({
                     color="white"
                     w="20px"
                     h="20px"
+                    sx={{ transform: 'scale(0.8, 0.8)' }}
                   />
                 )}
               </Box>
