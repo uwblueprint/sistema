@@ -2,8 +2,20 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { Box, Flex, useToast, useTheme } from '@chakra-ui/react';
-import { EventInput, EventContentArg } from '@fullcalendar/core';
+import {
+  Box,
+  Flex,
+  useToast,
+  useTheme,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  useDisclosure,
+} from '@chakra-ui/react';
+import { EventInput, EventContentArg, EventClickArg } from '@fullcalendar/core';
 import { AbsenceWithRelations } from '../../app/api/getAbsences/absences';
 import Sidebar from '../components/CalendarSidebar';
 import CalendarHeader from '../components/CalendarHeader';
@@ -14,6 +26,8 @@ const Calendar: React.FC = () => {
   const [events, setEvents] = useState<EventInput[]>([]);
   const [currentMonthYear, setCurrentMonthYear] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const theme = useTheme();
 
@@ -132,6 +146,17 @@ const Calendar: React.FC = () => {
     return classes;
   };
 
+  const handleEventClick = (clickInfo: EventClickArg) => {
+    setSelectedEvent({
+      title: clickInfo.event.title,
+      start: clickInfo.event.start
+        ? clickInfo.event.start.toISOString()
+        : undefined,
+      location: clickInfo.event.extendedProps.location || 'Unknown location',
+    });
+    onOpen();
+  };
+
   return (
     <>
       <Global
@@ -196,7 +221,7 @@ const Calendar: React.FC = () => {
       />
 
       <Flex height="100vh">
-        <Sidebar onDateSelect={handleDateSelect} />{' '}
+        <Sidebar onDateSelect={handleDateSelect} />
         <Box flex={1} paddingY={theme.space[4]} height="100%">
           <CalendarHeader
             currentMonthYear={currentMonthYear}
@@ -216,9 +241,39 @@ const Calendar: React.FC = () => {
             datesSet={updateMonthYearTitle}
             fixedWeekCount={false}
             dayCellClassNames={({ date }) => addSquareClasses(date)}
+            eventClick={handleEventClick}
           />
         </Box>
       </Flex>
+
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <ModalOverlay />
+        <ModalContent
+          width={362}
+          sx={{ padding: '33px 31px' }}
+          borderRadius="16px"
+        >
+          <ModalHeader fontSize={22} sx={{ padding: '0 0 28px 0' }}>
+            Absence Details
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody p={0}>
+            {selectedEvent && (
+              <Box>
+                <p>
+                  <strong>Subject:</strong> {selectedEvent.title}
+                </p>
+                <p>
+                  <strong>Date:</strong> {selectedEvent.start?.toString()}
+                </p>
+                <p>
+                  <strong>Location:</strong> {selectedEvent.location}
+                </p>
+              </Box>
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
