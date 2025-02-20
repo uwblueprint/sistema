@@ -2,23 +2,12 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import {
-  Box,
-  Flex,
-  useToast,
-  useTheme,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Box, Flex, useToast, useTheme, useDisclosure } from '@chakra-ui/react';
 import { EventInput, EventContentArg, EventClickArg } from '@fullcalendar/core';
 import { AbsenceWithRelations } from '../../app/api/getAbsences/absences';
 import Sidebar from '../components/CalendarSidebar';
 import CalendarHeader from '../components/CalendarHeader';
+import AbsenceDetails from '../components/AbsenceDetails';
 import { Global } from '@emotion/react';
 
 const Calendar: React.FC = () => {
@@ -54,7 +43,14 @@ const Calendar: React.FC = () => {
     start: absenceData.lessonDate,
     allDay: true,
     display: 'auto',
+
     location: absenceData.location.name,
+    absentTeacher: `${absenceData.absentTeacher.firstName} ${absenceData.absentTeacher.lastName}`,
+    substituteTeacher: absenceData.substituteTeacher
+      ? `${absenceData.substituteTeacher.firstName} ${absenceData.substituteTeacher.lastName}`
+      : undefined,
+    lessonPlan: absenceData.lessonPlan,
+    notes: absenceData.notes,
   });
 
   const fetchAbsences = useCallback(async () => {
@@ -148,11 +144,17 @@ const Calendar: React.FC = () => {
 
   const handleEventClick = (clickInfo: EventClickArg) => {
     setSelectedEvent({
-      title: clickInfo.event.title,
+      title: clickInfo.event.title || 'Untitled Event',
       start: clickInfo.event.start
-        ? clickInfo.event.start.toISOString()
-        : undefined,
-      location: clickInfo.event.extendedProps.location || 'Unknown location',
+        ? new Date(clickInfo.event.start).toISOString().split('T')[0]
+        : 'Unknown',
+      absentTeacher: clickInfo.event.extendedProps.absentTeacher || 'Unknown',
+      substituteTeacher:
+        clickInfo.event.extendedProps.substituteTeacher || 'None',
+      location: clickInfo.event.extendedProps.location || 'Unknown',
+      classType: clickInfo.event.extendedProps.classType || 'N/A',
+      lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
+      notes: clickInfo.event.extendedProps.notes || '',
     });
     onOpen();
   };
@@ -246,34 +248,7 @@ const Calendar: React.FC = () => {
         </Box>
       </Flex>
 
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay />
-        <ModalContent
-          width={362}
-          sx={{ padding: '33px 31px' }}
-          borderRadius="16px"
-        >
-          <ModalHeader fontSize={22} sx={{ padding: '0 0 28px 0' }}>
-            Absence Details
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody p={0}>
-            {selectedEvent && (
-              <Box>
-                <p>
-                  <strong>Subject:</strong> {selectedEvent.title}
-                </p>
-                <p>
-                  <strong>Date:</strong> {selectedEvent.start?.toString()}
-                </p>
-                <p>
-                  <strong>Location:</strong> {selectedEvent.location}
-                </p>
-              </Box>
-            )}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      <AbsenceDetails isOpen={isOpen} onClose={onClose} event={selectedEvent} />
     </>
   );
 };
