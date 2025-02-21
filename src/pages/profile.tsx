@@ -4,35 +4,47 @@ import { SignOutButton } from '../components/SignOutButton';
 import { Image } from '@chakra-ui/react';
 
 interface UserData {
-  numOfAbsences: number;
   absences: Array<any>;
+}
+
+interface GlobalSettings {
+  absenceCap: number;
 }
 
 export default function Profile() {
   const { data: session, status } = useSession();
-  const [numAbsences, setNumAbsences] = useState<number | null>(null);
+  const [absenceCap, setAbsenceCap] = useState<number | null>(null);
   const [usedAbsences, setUsedAbsences] = useState<number | null>(null);
+
   useEffect(() => {
-    const fetchUserDataByEmail = async () => {
+    const fetchData = async () => {
       if (!session || !session.user || !session.user.email) return;
 
       const email = session.user.email;
       const apiUrl = `/api/users/email/${email}?shouldIncludeAbsences=true`;
+      const settingsUrl = '/api/settings';
 
       try {
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-          throw new Error(response.statusText);
+        const [userResponse, settingsResponse] = await Promise.all([
+          fetch(apiUrl),
+          fetch(settingsUrl),
+        ]);
+
+        if (!userResponse.ok || !settingsResponse.ok) {
+          throw new Error('Failed to fetch data');
         }
-        const data: UserData = await response.json();
-        setNumAbsences(data.numOfAbsences);
-        setUsedAbsences(data.absences.length);
+
+        const userData: UserData = await userResponse.json();
+        const settings: GlobalSettings = await settingsResponse.json();
+
+        setAbsenceCap(settings.absenceCap);
+        setUsedAbsences(userData.absences.length);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
-    fetchUserDataByEmail();
+    fetchData();
   }, [session]);
 
   return (
@@ -57,7 +69,7 @@ export default function Profile() {
           <hr />
           <h2>Metrics</h2>
           <p>
-            Absences: {usedAbsences} / {numAbsences}
+            Absences: {usedAbsences} / {absenceCap}
           </p>
           <hr />
         </div>

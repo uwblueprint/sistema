@@ -3,31 +3,33 @@ import { User, UserManagementTable } from '../components/UserManagementTable';
 import { Box, Spinner } from '@chakra-ui/react';
 import { Role } from '../components/UserManagementTable';
 
-export default function AnotherPage() {
+export default function ManagePage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [absenceCap, setAbsenceCap] = useState<number>(10); // Default value
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const apiUrl = `/api/users?getAbsences=true`;
-
+    const fetchData = async () => {
       try {
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-          throw new Error(response.statusText);
-        }
-        const data: User[] = await response.json();
-        setUsers(data);
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error('Error fetching users:', error.message);
-        }
+        // Fetch users
+        const usersResponse = await fetch('/api/users?getAbsences=true');
+        if (!usersResponse.ok) throw new Error('Failed to fetch users');
+        const usersData = await usersResponse.json();
+        setUsers(usersData);
+
+        // Fetch settings
+        const settingsResponse = await fetch('/api/settings');
+        if (!settingsResponse.ok) throw new Error('Failed to fetch settings');
+        const settings = await settingsResponse.json();
+        setAbsenceCap(settings.absenceCap);
+      } catch (error) {
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUsers();
+    fetchData();
   }, []);
 
   const updateUserRole = async (userId: number, newRole: Role) => {
@@ -73,6 +75,10 @@ export default function AnotherPage() {
       <Spinner />
     </Box>
   ) : (
-    <UserManagementTable users={users} updateUserRole={updateUserRole} />
+    <UserManagementTable
+      users={users}
+      updateUserRole={updateUserRole}
+      absenceCap={absenceCap}
+    />
   );
 }
