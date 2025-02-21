@@ -32,6 +32,7 @@ import { IoFilterOutline } from 'react-icons/io5';
 import { CiMail } from 'react-icons/ci';
 import { GoClock, GoPerson, GoTag } from 'react-icons/go';
 import { FiEdit2 } from 'react-icons/fi';
+import { AbsenceWithRelations } from '../../app/api/getAbsences/route';
 
 export type Role = 'TEACHER' | 'ADMIN';
 
@@ -43,6 +44,7 @@ export interface User {
   role: Role;
   status: string;
   numOfAbsences: number;
+  absences: AbsenceWithRelations[];
   subscriptions: Subscription[];
 }
 
@@ -173,7 +175,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         return a.email.localeCompare(b.email) * modifier;
 
       case 'absences':
-        return (a.numOfAbsences - b.numOfAbsences) * modifier;
+        return (a.absences.length - b.absences.length) * modifier;
 
       case 'role':
         return a.role.localeCompare(b.role) * modifier;
@@ -291,8 +293,8 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                     </HStack>
                   </Td>
                   <Td color="gray.600">{user.email}</Td>
-                  <Td color={getAbsenceColor(user.numOfAbsences)}>
-                    {user.numOfAbsences}
+                  <Td color={getAbsenceColor(user.absences.length)}>
+                    {user.absences.length}
                   </Td>
                   <Td>
                     <EditableRoleCell
