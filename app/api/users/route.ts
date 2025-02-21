@@ -1,9 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@utils/prisma';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const users = await prisma.user.findMany();
+    const searchParams = request.nextUrl.searchParams;
+    const getAbsences = searchParams.get('getAbsences') === 'true';
+
+    const users = await prisma.user.findMany({
+      include: { absences: getAbsences },
+    });
+
     return NextResponse.json(users);
   } catch (error) {
     console.error('Error fetching users:', error);

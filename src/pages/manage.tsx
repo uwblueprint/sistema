@@ -9,7 +9,7 @@ export default function AnotherPage() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const apiUrl = `/api/users/`;
+      const apiUrl = `/api/users?getAbsences=true`;
 
       try {
         const response = await fetch(apiUrl);
