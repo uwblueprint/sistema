@@ -32,7 +32,7 @@ import { IoFilterOutline } from 'react-icons/io5';
 import { CiMail } from 'react-icons/ci';
 import { GoClock, GoPerson, GoTag } from 'react-icons/go';
 import { FiEdit2 } from 'react-icons/fi';
-import { AbsenceWithRelations } from '../../app/api/getAbsences/absences';
+import { AbsenceAPI } from '@utils/types';
 
 export type Role = 'TEACHER' | 'ADMIN';
 
@@ -43,8 +43,7 @@ export interface User {
   email: string;
   role: Role;
   status: string;
-  numOfAbsences: number;
-  absences: AbsenceWithRelations[];
+  absences: AbsenceAPI[];
   subscriptions: Subscription[];
 }
 
@@ -128,21 +127,24 @@ type SortField = 'name' | 'email' | 'absences' | 'role';
 
 type SortDirection = 'asc' | 'desc';
 
-type UserManagementTableProps = {
+interface UserManagementTableProps {
   users: User[];
-  updateUserRole: (userId: number, newRole: string) => void;
-};
+  updateUserRole: (userId: number, newRole: Role) => void;
+  absenceCap: number;
+}
 
 export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   users,
   updateUserRole,
+  absenceCap,
 }) => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
-  const getAbsenceColor = (absences: number) => {
-    if (absences <= 5) return 'green.500';
-    if (absences <= 8) return 'orange.500';
+  const getAbsenceColor = (absences: number, cap: number) => {
+    const ratio = absences / cap;
+    if (ratio <= 0.5) return 'green.500';
+    if (ratio <= 0.8) return 'orange.500';
     return 'red.500';
   };
 
@@ -293,14 +295,19 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                     </HStack>
                   </Td>
                   <Td color="gray.600">{user.email}</Td>
-                  <Td color={getAbsenceColor(user.absences.length)}>
-                    {user.absences.length}
+                  <Td
+                    color={getAbsenceColor(
+                      user.absences?.length || 0,
+                      absenceCap
+                    )}
+                  >
+                    {user.absences?.length || 0}
                   </Td>
                   <Td>
                     <EditableRoleCell
                       role={user.role}
                       onRoleChange={(newRole) =>
-                        updateUserRole(user.id, newRole)
+                        updateUserRole(user.id, newRole as Role)
                       }
                     />
                   </Td>

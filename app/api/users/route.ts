@@ -4,6 +4,7 @@ import { prisma } from '@utils/prisma';
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const getMailingLists = searchParams.get('getMailingLists') === 'true';
+  const getAbsences = searchParams.get('getAbsences') === 'true';
 
   try {
     const users = await prisma.user.findMany({
@@ -15,12 +16,15 @@ export async function GET(request: NextRequest) {
                   select: {
                     name: true,
                     abbreviation: true,
-                    colorGroupId: true,
+                    colorGroup: {
+                      select: { colorCodes: true },
+                    },
                   },
                 },
               },
             }
           : false,
+        absences: getAbsences,
       },
     });
 

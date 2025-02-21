@@ -1,36 +1,35 @@
 import { useEffect, useState } from 'react';
-import {
-  UserManagementTable,
-  User,
-  Role,
-} from '../components/UserManagementTable';
+import { UserManagementTable, User } from '../components/UserManagementTable';
 import { Box, Spinner } from '@chakra-ui/react';
+import { Role } from '../components/UserManagementTable';
 
 export default function ManagePage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [absenceCap, setAbsenceCap] = useState<number>(10); // Default value
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const apiUrl = `/api/users?getMailingLists=true`;
-
+    const fetchData = async () => {
       try {
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-          throw new Error(response.statusText);
-        }
-        const users: User[] = await response.json();
-        setUsers(users);
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error('Error fetching users:', error.message);
-        }
+        // Fetch users
+        const usersResponse = await fetch('/api/users?getAbsences=true');
+        if (!usersResponse.ok) throw new Error('Failed to fetch users');
+        const usersData = await usersResponse.json();
+        setUsers(usersData);
+
+        // Fetch settings
+        const settingsResponse = await fetch('/api/settings');
+        if (!settingsResponse.ok) throw new Error('Failed to fetch settings');
+        const settings = await settingsResponse.json();
+        setAbsenceCap(settings.absenceCap);
+      } catch (error) {
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUsers();
+    fetchData();
   }, []);
 
   const updateUserRole = async (userId: number, newRole: Role) => {
@@ -76,6 +75,10 @@ export default function ManagePage() {
       <Spinner />
     </Box>
   ) : (
-    <UserManagementTable users={users} updateUserRole={updateUserRole} />
+    <UserManagementTable
+      users={users}
+      updateUserRole={updateUserRole}
+      absenceCap={absenceCap}
+    />
   );
 }
