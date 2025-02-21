@@ -32,7 +32,7 @@ import { IoFilterOutline } from 'react-icons/io5';
 import { CiMail } from 'react-icons/ci';
 import { GoClock, GoPerson, GoTag } from 'react-icons/go';
 import { FiEdit2 } from 'react-icons/fi';
-import { AbsenceWithRelations } from '../../app/api/getAbsences/route';
+import { AbsenceWithRelations } from '../../app/api/getAbsences/absences';
 
 export type Role = 'TEACHER' | 'ADMIN';
 
