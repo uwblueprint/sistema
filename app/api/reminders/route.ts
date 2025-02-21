@@ -1,13 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@utils/prisma';
+import { sendEmail } from '@utils/sendEmail';
 
-// Configuration constants
-const UPLOAD_LINK = 'https://sistema-prod.vercel.app/calendar';
-const ADMIN_EMAIL = 'admin@sistema.ca';
-const EMAIL_API_ENDPOINT = 'http://localhost:3000/api/sendEmail';
+const UPLOAD_LINK = `${process.env.PROD_URL!}/calendar`;
 
-// Function to calculate business days
-function addBusinessDays(date: Date, days: number): Date {
+function addBusinessDays(startDate: Date, days: number): Date {
+  const date = new Date(startDate);
   let count = 0;
   while (count < days) {
     date.setDate(date.getDate() + 1);
@@ -25,87 +23,130 @@ function getUTCDateWithoutTime(baseDate: Date, daysToAdd: number): Date {
   );
 }
 
-async function sendReminders(daysBefore: number, isUrgent: boolean) {
-  const today = new Date();
-  const targetDate = getUTCDateWithoutTime(today, daysBefore);
-  const nextDay = new Date(targetDate.getTime() + 86400000);
+async function getAdminEmails() {
+  try {
+    const adminUsers = await prisma.user.findMany({
+      where: { role: 'ADMIN' },
+      select: { email: true },
+    });
+    return adminUsers.map((user) => user.email);
+  } catch (error) {
+    console.error('Error fetching admin emails:', error);
+    return [];
+  }
+}
 
-  // Get all absences matching the criteria
-  const users = await prisma.user.findMany({
-    where: {
-      absences: {
-        some: {
-          lessonDate: { gte: targetDate, lt: nextDay },
-          lessonPlan: null,
+async function getUsersWithPendingLessonPlans(targetDate: Date, nextDay: Date) {
+  try {
+    return await prisma.user.findMany({
+      where: {
+        absences: {
+          some: {
+            lessonDate: { gte: targetDate, lt: nextDay },
+            lessonPlan: null,
+          },
         },
       },
-    },
-    include: {
-      absences: {
-        where: {
-          lessonDate: { gte: targetDate, lt: nextDay },
-          lessonPlan: null,
-        },
-        include: {
-          location: { select: { name: true } },
-          subject: { select: { name: true } },
+      include: {
+        absences: {
+          where: {
+            lessonDate: { gte: targetDate, lt: nextDay },
+            lessonPlan: null,
+          },
+          include: {
+            location: { select: { name: true } },
+            subject: { select: { name: true } },
+          },
         },
       },
-    },
-  });
+    });
+  } catch (error) {
+    console.error('Error fetching users with pending lesson plans:', error);
+    return [];
+  }
+}
 
-  // Format date for display
+function createEmailBody(user: any, absence: any, isUrgent: boolean): string {
   const dateFormatter = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
-  // Process all absences across users
+  const formattedDate = dateFormatter.format(absence.lessonDate);
+
+  return isUrgent
+    ? `
+      <html>
+        <body>
+          <p>Hello ${user.firstName},</p>
+          <p>Your planned absence from ${absence.subject.name} at ${absence.location.name} 
+          is in 2 business days, and we have not received your lesson plan.</p>
+          <p><strong><span style="color: red;">Please upload the lesson plan today.</span></strong></p>
+          <p><strong>Click the link below to upload:</strong><br/><a href="${UPLOAD_LINK}" target="_blank">Tacet Calendar</a></p>
+          <p>Sistema Toronto</p>
+        </body>
+      </html>
+    `
+    : `
+      <html>
+        <body>
+          <p>Hello ${user.firstName},</p>
+          <p>Please upload your lesson plan for your upcoming absence on ${formattedDate}.</p>
+          <p><strong>Click the link below to upload:</strong><br/><a href="${UPLOAD_LINK}" target="_blank">Tacet Calendar</a></p>
+          <p>Sistema Toronto</p>
+        </body>
+      </html>
+    `;
+}
+
+async function sendReminders(
+  daysBefore: number,
+  isUrgent: boolean
+): Promise<number> {
+  const today = new Date();
+  const targetDate = getUTCDateWithoutTime(today, daysBefore);
+  const nextDay = new Date(targetDate.getTime() + 86400000);
+
+  const users = await getUsersWithPendingLessonPlans(targetDate, nextDay);
+
+  if (users.length === 0) {
+    console.log('No users found with absences to send reminders.');
+    return 0;
+  }
+
+  const adminEmails = await getAdminEmails();
+
   const emailPromises = users.flatMap((user) =>
     user.absences.map(async (absence) => {
-      const formattedDate = dateFormatter.format(absence.lessonDate);
-
+      const emailBody = createEmailBody(user, absence, isUrgent);
       const emailContent = {
         to: user.email,
-        cc: isUrgent ? ADMIN_EMAIL : undefined,
+        cc: isUrgent ? adminEmails : undefined,
         subject: isUrgent
           ? `URGENT - Sistema Toronto Tacet - submit your lesson plan ASAP`
           : `Sistema Toronto Tacet - reminder to upload lesson plan`,
-        text: isUrgent
-          ? `Hello ${user.firstName},\n\n` +
-            `Your planned absence from ${absence.subject.name} at ${absence.location.name} ` +
-            `is in 2 days and we have not received your lesson plan.\n\n` +
-            `Please upload the lesson plan today.\n\n` +
-            `Click the link below to upload:\n${UPLOAD_LINK}\n\n` +
-            `Sistema Toronto`
-          : `Hello ${user.firstName},\n\n` +
-            `Please upload your lesson plan for your upcoming absence on ${formattedDate}.\n\n` +
-            `Click the link below to upload:\n${UPLOAD_LINK}\n\n` +
-            `Sistema Toronto`,
+        html: emailBody,
       };
 
-      const response = await fetch(EMAIL_API_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(emailContent),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error(`Failed to send email to ${user.email}:`, errorData);
-        throw new Error(`Email failed: ${user.email}`);
-      }
+      const result = await sendEmail(emailContent);
+      return result.success;
     })
   );
 
-  await Promise.all(emailPromises);
-  return emailPromises.length;
+  const results = await Promise.allSettled(emailPromises);
+  const successfulEmails = results.filter(
+    (r) => r.status === 'fulfilled' && r.value === true
+  ).length;
+
+  return successfulEmails;
 }
 
 export async function GET() {
   try {
-    const sevenDayCount = await sendReminders(7, false);
-    const twoDayCount = await sendReminders(2, true);
+    const [sevenDayCount, twoDayCount] = await Promise.all([
+      sendReminders(7, false),
+      sendReminders(2, true),
+    ]);
 
     return NextResponse.json({
       message: `Sent ${sevenDayCount + twoDayCount} reminders successfully`,
