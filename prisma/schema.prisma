@@ -24,16 +24,15 @@ model Absence {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  authId        String    @unique
-  email         String    @unique
-  firstName     String
-  lastName      String
-  role          Role      @default(TEACHER)
-  status        Status    @default(INVITED)
-  numOfAbsences Int       @default(10)
-  absences      Absence[] @relation("absentTeacher")
-  substitutes   Absence[] @relation("substituteTeacher")
+  id          Int       @id @default(autoincrement())
+  authId      String    @unique
+  email       String    @unique
+  firstName   String
+  lastName    String
+  role        Role      @default(TEACHER)
+  status      Status    @default(INVITED)
+  absences    Absence[] @relation("absentTeacher")
+  substitutes Absence[] @relation("substituteTeacher")
 }
 
 model Location {
@@ -63,6 +62,11 @@ model ColorGroup {
   name       String
   colorCodes String[]
   Subject    Subject[]
+}
+
+model GlobalSettings {
+  id         Int @id @default(autoincrement())
+  absenceCap Int @default(10)
 }
 
 enum Role {

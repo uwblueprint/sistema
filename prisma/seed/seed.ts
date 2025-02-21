@@ -163,6 +163,12 @@ const main = async () => {
     })
   );
 
+  await seed.globalSettings((createMany) =>
+    createMany(1, () => ({
+      absenceCap: 10,
+    }))
+  );
+
   console.log('Database seeded successfully!');
 
   process.exit();
