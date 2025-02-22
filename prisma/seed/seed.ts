@@ -149,6 +149,15 @@ const main = async () => {
         lessonPlan: faker.internet.url(),
         reasonOfAbsence: faker.lorem.sentence(),
         notes: maybeNotes ?? null,
+        roomNumber: faker.helpers.arrayElement([
+          '101',
+          '202',
+          '303',
+          '404',
+          'B1',
+          'A5',
+          'C12',
+        ]),
       };
     })
   );
@@ -161,6 +170,12 @@ const main = async () => {
         emails: [faker.internet.email(), faker.internet.email()],
       };
     })
+  );
+
+  await seed.globalSettings((createMany) =>
+    createMany(1, () => ({
+      absenceCap: 10,
+    }))
   );
 
   console.log('Database seeded successfully!');

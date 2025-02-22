@@ -1,10 +1,13 @@
 import { extendTheme } from '@chakra-ui/react';
+import '@fontsource/inter';
+import '@fontsource/poppins';
 
 const fonts = {
   heading: `'Poppins', sans-serif`,
-  body: `'Poppins', sans-serif`,
-  mono: `'Menlo', monospace`,
+  body: `'Inter', sans-serif`,
+  mono: `'Inter', monospace`,
 };
+
 const breakpoints = {
   sm: '40em',
   md: '52em',
@@ -152,25 +155,73 @@ const theme = extendTheme({
         },
       },
     },
+    Heading: {
+      baseStyle: {
+        color: 'black',
+      },
+      sizes: {
+        h1: {
+          fontWeight: 500,
+          fontSize: '28px',
+          lineHeight: '42px',
+        },
+        h2: {
+          fontWeight: 500,
+          fontSize: '22px',
+          lineHeight: '33px',
+        },
+        h3: {
+          fontWeight: 600,
+          fontSize: '16px',
+          lineHeight: '24px',
+        },
+        h4: {
+          fontWeight: 500,
+          fontSize: '14px',
+          lineHeight: '21px',
+        },
+      },
+    },
     Text: {
       baseStyle: {
         color: 'black',
       },
       variants: {
-        header: {
-          color: 'black',
+        semibold: {
+          fontWeight: 600,
+          fontSize: '13px',
+          lineHeight: '15.73px',
         },
         subtitle: {
-          color: 'neutralGray.500',
+          fontWeight: 400,
+          fontSize: '13px',
+          lineHeight: '15.73px',
         },
-        inactive: {
-          color: 'neutralGray.400',
+        caption: {
+          fontWeight: 400,
+          fontSize: '12px',
+          lineHeight: '14.52px',
         },
-      },
-    },
-    Heading: {
-      baseStyle: {
-        color: 'black',
+        body: {
+          fontWeight: 400,
+          fontSize: '11px',
+          lineHeight: '13.31px',
+        },
+        label: {
+          fontWeight: 500,
+          fontSize: '12px',
+          lineHeight: '18px',
+        },
+        cellBody: {
+          fontWeight: 400,
+          fontSize: '15px',
+          lineHeight: '18.15px',
+        },
+        cellBold: {
+          fontWeight: 600,
+          fontSize: '15px',
+          lineHeight: '18.15px',
+        },
       },
     },
   },

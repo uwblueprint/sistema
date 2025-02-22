@@ -187,17 +187,7 @@ npx prisma db seed
 
 The local database seeds automatically locally when `docker compose up --build` is run. Only run the commands below to seed the production database:
 
-In the schema.prisma, set the db datasource as follows (where
-`VERCEL_POSTGRES_PRISMA_URL` and `VERCEL_POSTGRES_URL_NON_POOLING` are Vercel
-environment variables):
-
-```prisma
-datasource db {
-  provider = "postgresql"
-  url = env("VERCEL_POSTGRES_PRISMA_URL")
-  directUrl = env("VERCEL_POSTGRES_URL_NON_POOLING")
-}
-```
+In your .env file, set the `DATABASE_URL` variable to the prod url from Vercel.
 
 Then, run the following commands:
 

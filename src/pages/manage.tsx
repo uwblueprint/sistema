@@ -6,7 +6,6 @@ interface User {
   email: string;
   role: string;
   status: string;
-  numOfAbsences: string;
 }
 
 export default function AnotherPage() {
