@@ -31,6 +31,8 @@ const Calendar: React.FC = () => {
   const [currentMonthYear, setCurrentMonthYear] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [absenceToEdit, setAbsenceToEdit] = useState<EventInput | null>(null);
   const toast = useToast();
   const theme = useTheme();
   const {
@@ -196,7 +198,7 @@ const Calendar: React.FC = () => {
     return classes;
   };
 
-  const handleEventClick = (clickInfo: EventClickArg) => {
+  const handleAbsenceClick = (clickInfo: EventClickArg) => {
     setSelectedEvent({
       title: clickInfo.event.title || 'Untitled Event',
       start: clickInfo.event.start
@@ -212,6 +214,14 @@ const Calendar: React.FC = () => {
     });
 
     onAbsenceDetailsOpen();
+  };
+
+  const handleEditAbsence = (absence: EventInput) => {
+    // TO-DO
+  };
+
+  const handleDeleteAbsence = (absence: EventInput) => {
+    // TO-DO
   };
 
   const handleDeclareAbsenceClick = () => {
@@ -311,7 +321,7 @@ const Calendar: React.FC = () => {
             datesSet={updateMonthYearTitle}
             fixedWeekCount={false}
             dayCellClassNames={({ date }) => addSquareClasses(date)}
-            eventClick={handleEventClick}
+            eventClick={handleAbsenceClick}
             dateClick={handleDateClick}
           />
         </Box>
@@ -321,6 +331,8 @@ const Calendar: React.FC = () => {
         isOpen={isAbsenceDetailsOpen}
         onClose={onAbsenceDetailsClose}
         event={selectedEvent}
+        onEdit={handleEditAbsence}
+        onDelete={handleDeleteAbsence}
       />
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>

@@ -8,16 +8,47 @@ import {
   Text,
   Link,
   Button,
+  IconButton,
+  Box,
 } from '@chakra-ui/react';
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 
-const ViewAbsence = ({ isOpen, onClose, event }) => {
+const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
   if (!event) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{event.title || 'Absence Details'}</ModalHeader>
+        <ModalHeader position="relative">
+          {event.title || 'Absence Details'}
+
+          <Box position="absolute" top="3px" right="45px">
+            <IconButton
+              aria-label="Edit Absence"
+              icon={<FiEdit2 />}
+              size="md"
+              variant="ghost"
+              color="gray.600"
+              onClick={() => {
+                onClose();
+                onEdit(event);
+              }}
+            />
+
+            <IconButton
+              aria-label="Delete Absence"
+              icon={<FiTrash2 />}
+              size="md"
+              variant="ghost"
+              color="gray.600"
+              onClick={() => {
+                onClose();
+                onDelete(event);
+              }}
+            />
+          </Box>
+        </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Text>
@@ -56,4 +87,4 @@ const ViewAbsence = ({ isOpen, onClose, event }) => {
   );
 };
 
-export default ViewAbsence;
+export default AbsenceDetails;
