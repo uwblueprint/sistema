@@ -2,12 +2,27 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { Box, Flex, useToast, useTheme, useDisclosure } from '@chakra-ui/react';
 import { EventInput, EventContentArg, EventClickArg } from '@fullcalendar/core';
 import { AbsenceWithRelations } from '../../app/api/getAbsences/absences';
 import Sidebar from '../components/CalendarSidebar';
 import CalendarHeader from '../components/CalendarHeader';
 import AbsenceDetails from '../components/AbsenceDetails';
+import {
+  Box,
+  Flex,
+  useToast,
+  useTheme,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+} from '@chakra-ui/react';
+import InputForm from '../components/InputForm';
+import { Absence } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { Global } from '@emotion/react';
 
 const Calendar: React.FC = () => {
@@ -53,6 +68,29 @@ const Calendar: React.FC = () => {
     notes: absenceData.notes,
   });
 
+  const handleAddAbsence = async (
+    absence: Prisma.AbsenceCreateManyInput
+  ): Promise<Absence | null> => {
+    try {
+      const res = await fetch('/api/addAbsence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(absence),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to add absence: ${res.statusText}`);
+      }
+
+      const addedAbsence = await res.json();
+      await fetchAbsences();
+      return addedAbsence;
+    } catch (error) {
+      console.error('Error adding absence:', error);
+      return null;
+    }
+  };
+
   const fetchAbsences = useCallback(async () => {
     try {
       const res = await fetch('/api/getAbsences/');
@@ -91,9 +129,15 @@ const Calendar: React.FC = () => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       const date = calendarApi.getDate();
+      console.log(date);
       setCurrentMonthYear(formatMonthYear(date));
     }
   }, []);
+
+  const handleDateClick = (arg: { date: Date }) => {
+    setSelectedDate(arg.date);
+    onOpen();
+  };
 
   const handleTodayClick = useCallback(() => {
     if (calendarRef.current) {
@@ -157,6 +201,16 @@ const Calendar: React.FC = () => {
       notes: clickInfo.event.extendedProps.notes || '',
     });
     onOpen();
+  };
+
+  const handleDeclareAbsenceClick = () => {
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      const today = calendarApi.getDate();
+      console.log(today);
+      setSelectedDate(today);
+      onOpen();
+    }
   };
 
   return (
@@ -223,8 +277,11 @@ const Calendar: React.FC = () => {
       />
 
       <Flex height="100vh">
-        <Sidebar onDateSelect={handleDateSelect} />
-        <Box flex={1} paddingY={theme.space[4]} height="100%">
+        <Sidebar
+          onDeclareAbsenceClick={handleDeclareAbsenceClick}
+          onDateSelect={handleDateSelect}
+        />
+        <Box flex={1} padding={theme.space[4]} height="100%">
           <CalendarHeader
             currentMonthYear={currentMonthYear}
             onTodayClick={handleTodayClick}
@@ -244,11 +301,33 @@ const Calendar: React.FC = () => {
             fixedWeekCount={false}
             dayCellClassNames={({ date }) => addSquareClasses(date)}
             eventClick={handleEventClick}
+            dateClick={handleDateClick}
           />
         </Box>
       </Flex>
 
       <AbsenceDetails isOpen={isOpen} onClose={onClose} event={selectedEvent} />
+
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <ModalOverlay />
+        <ModalContent
+          width={362}
+          sx={{ padding: '33px 31px' }}
+          borderRadius="16px"
+        >
+          <ModalHeader fontSize={22} sx={{ padding: '0 0 28px 0' }}>
+            Declare Absence
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody p={0}>
+            <InputForm
+              onClose={onClose}
+              onAddAbsence={handleAddAbsence}
+              initialDate={selectedDate!!}
+            />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
