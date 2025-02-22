@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import AbsenceStatusTag from './AbsenceStatusTag';
+import LessonPlanView from './LessonPlanView';
 
 const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
   if (!event) return null;
@@ -62,21 +63,16 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
             <strong>Date:</strong> {event.start || 'Unknown'}
           </Text>
           <Text>
-            <strong>Absent Teacher:</strong> {event.absentTeacher}
+            <strong>Absent Teacher:</strong> {event.absentTeacherFullName}
           </Text>
 
           <Text mt={3}>
             <strong>Lesson Plan:</strong>
           </Text>
-          {event.lessonPlan && (
-            <Button
-              as={Link}
-              href={event.lessonPlan} // assuming this is a URL to the file
-              isExternal
-            >
-              Download
-            </Button>
-          )}
+          <LessonPlanView
+            lessonPlan={event.lessonPlan}
+            absentTeacherFirstName={event.absentTeacherFirstName}
+          />
 
           <Text mt={3}>
             <strong>Reason of Absence:</strong>
