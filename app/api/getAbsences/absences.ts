@@ -5,6 +5,7 @@ export interface AbsenceWithRelations {
   lessonPlan: string | null;
   reasonOfAbsence: string;
   notes: string | null;
+  roomNumber: string | null;
   absentTeacher: {
     firstName: string;
     lastName: string;
@@ -32,15 +33,10 @@ export const getAbsencesFromDatabase = async (): Promise<
     const absences: AbsenceWithRelations[] = await prisma.absence.findMany({
       select: {
         lessonDate: true,
-        subject: {
-          select: {
-            name: true,
-            abbreviation: true,
-          },
-        },
         lessonPlan: true,
         reasonOfAbsence: true,
         notes: true,
+        roomNumber: true,
         absentTeacher: {
           select: {
             firstName: true,
@@ -56,6 +52,12 @@ export const getAbsencesFromDatabase = async (): Promise<
           },
         },
         location: {
+          select: {
+            name: true,
+            abbreviation: true,
+          },
+        },
+        subject: {
           select: {
             name: true,
             abbreviation: true,

@@ -11,6 +11,7 @@ export const convertAbsenceToICSEvent = (
     : '';
   const lessonString = absence.lessonPlan || 'Lesson Plan Not Submitted';
   const notesLine = absence.notes ? `\nNotes: ${absence.notes}` : '';
+  const roomString = absence.roomNumber ? `\nRoom: ${absence.roomNumber}` : '';
 
   const startDate = new Date(absence.lessonDate);
   const endDate = new Date(absence.lessonDate);
@@ -24,7 +25,7 @@ export const convertAbsenceToICSEvent = (
     ],
     end: [endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate()],
     title: `${absence.subject.name}: ${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName[0]}${substituteTeacherString}`,
-    description: `Subject: ${absence.subject.name}\nLesson Plan: ${lessonString}${notesLine}`,
+    description: `Subject: ${absence.subject.name}\nLesson Plan: ${lessonString}${notesLine}${roomString}`,
     location: absence.location.name,
     calName: CALENDAR_NAME,
   };

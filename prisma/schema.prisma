@@ -13,6 +13,7 @@ model Absence {
   lessonPlan          String?
   reasonOfAbsence     String
   notes               String?
+  roomNumber          String?
   absentTeacherId     Int
   substituteTeacherId Int?
   locationId          Int
