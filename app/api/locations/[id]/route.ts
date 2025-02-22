@@ -3,8 +3,9 @@ import { prisma } from '@utils/prisma';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params;
   try {
     const id = parseInt(params.id);
     const data = await request.json();
@@ -30,8 +31,9 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params;
   try {
     const id = parseInt(params.id);
     await prisma.location.delete({
