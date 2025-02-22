@@ -31,9 +31,19 @@ const Calendar: React.FC = () => {
   const [currentMonthYear, setCurrentMonthYear] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const theme = useTheme();
+  const {
+    isOpen: isAbsenceDetailsOpen,
+    onOpen: onAbsenceDetailsOpen,
+    onClose: onAbsenceDetailsClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isInputFormOpen,
+    onOpen: onInputFormOpen,
+    onClose: onInputFormClose,
+  } = useDisclosure();
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => (
@@ -136,7 +146,7 @@ const Calendar: React.FC = () => {
 
   const handleDateClick = (arg: { date: Date }) => {
     setSelectedDate(arg.date);
-    onOpen();
+    onInputFormOpen();
   };
 
   const handleTodayClick = useCallback(() => {
@@ -200,7 +210,8 @@ const Calendar: React.FC = () => {
       lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
       notes: clickInfo.event.extendedProps.notes || '',
     });
-    onOpen();
+
+    onAbsenceDetailsOpen();
   };
 
   const handleDeclareAbsenceClick = () => {
@@ -209,7 +220,7 @@ const Calendar: React.FC = () => {
       const today = calendarApi.getDate();
       console.log(today);
       setSelectedDate(today);
-      onOpen();
+      onInputFormOpen();
     }
   };
 
@@ -306,9 +317,13 @@ const Calendar: React.FC = () => {
         </Box>
       </Flex>
 
-      <AbsenceDetails isOpen={isOpen} onClose={onClose} event={selectedEvent} />
+      <AbsenceDetails
+        isOpen={isAbsenceDetailsOpen}
+        onClose={onAbsenceDetailsClose}
+        event={selectedEvent}
+      />
 
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>
         <ModalOverlay />
         <ModalContent
           width={362}
@@ -321,7 +336,7 @@ const Calendar: React.FC = () => {
           <ModalCloseButton />
           <ModalBody p={0}>
             <InputForm
-              onClose={onClose}
+              onClose={onInputFormClose}
               onAddAbsence={handleAddAbsence}
               initialDate={selectedDate!!}
             />
