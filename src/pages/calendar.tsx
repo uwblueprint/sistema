@@ -77,6 +77,7 @@ const Calendar: React.FC = () => {
       ? `${absenceData.substituteTeacher.firstName} ${absenceData.substituteTeacher.lastName}`
       : undefined,
     lessonPlan: absenceData.lessonPlan,
+    reasonOfAbsence: absenceData.reasonOfAbsence,
     notes: absenceData.notes,
   });
 
@@ -204,12 +205,13 @@ const Calendar: React.FC = () => {
       start: clickInfo.event.start
         ? new Date(clickInfo.event.start).toISOString().split('T')[0]
         : 'Unknown',
-      absentTeacher: clickInfo.event.extendedProps.absentTeacher || 'Unknown',
+      absentTeacher: clickInfo.event.extendedProps.absentTeacher || 'N/A',
       substituteTeacher:
-        clickInfo.event.extendedProps.substituteTeacher || 'None',
-      location: clickInfo.event.extendedProps.location || 'Unknown',
+        clickInfo.event.extendedProps.substituteTeacher || undefined,
+      location: clickInfo.event.extendedProps.location || 'N/A',
       classType: clickInfo.event.extendedProps.classType || 'N/A',
       lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
+      reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || 'N/A',
       notes: clickInfo.event.extendedProps.notes || '',
     });
 

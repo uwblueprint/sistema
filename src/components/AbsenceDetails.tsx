@@ -12,6 +12,7 @@ import {
   Box,
 } from '@chakra-ui/react';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
+import AbsenceStatusTag from './AbsenceStatusTag';
 
 const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
   if (!event) return null;
@@ -21,7 +22,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader position="relative">
-          {event.title || 'Absence Details'}
+          <AbsenceStatusTag substituteTeacher={event.substituteTeacher} />
 
           <Box position="absolute" top="3px" right="45px">
             <IconButton
@@ -51,35 +52,44 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Text>
-            <strong>Date:</strong> {event.start || 'Unknown'}
+          <Text fontSize="2xl" fontWeight="bold" mt={3} mb={3}>
+            <strong> {event.title || 'Absence Details'}</strong>
           </Text>
           <Text>
             <strong>Location:</strong> {event.location}
           </Text>
           <Text>
-            <strong>Absent Teacher:</strong> {event.absentTeacher}
+            <strong>Date:</strong> {event.start || 'Unknown'}
           </Text>
           <Text>
-            <strong>Substitute Teacher:</strong> {event.substituteTeacher}
+            <strong>Absent Teacher:</strong> {event.absentTeacher}
           </Text>
 
-          {event.notes && (
-            <Text mt={3}>
-              <strong>Notes:</strong> {event.notes}
-            </Text>
-          )}
-
+          <Text mt={3}>
+            <strong>Lesson Plan:</strong>
+          </Text>
           {event.lessonPlan && (
             <Button
               as={Link}
               href={event.lessonPlan} // assuming this is a URL to the file
               isExternal
-              colorScheme="blue"
-              mt={3}
             >
-              Download Lesson Plan
+              Download
             </Button>
+          )}
+
+          <Text mt={3}>
+            <strong>Reason of Absence:</strong>
+          </Text>
+          <Text>{event.reasonOfAbsence}</Text>
+
+          {event.notes && (
+            <>
+              <Text mt={3} fontWeight="bold">
+                Notes:
+              </Text>
+              <Text>{event.notes}</Text>
+            </>
           )}
         </ModalBody>
       </ModalContent>
