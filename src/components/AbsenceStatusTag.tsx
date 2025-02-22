@@ -1,19 +1,25 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
+import { FiCheckCircle } from 'react-icons/fi';
+import { FiClock } from 'react-icons/fi';
 
 const AbsenceStatusTag = ({ substituteTeacher }) => {
   return (
     <Box
-      position="absolute"
-      top="10px"
-      left="23px"
-      px={3}
-      py={1}
-      fontSize="sm"
-      borderRadius="md"
-      color="white"
-      bg={substituteTeacher ? 'green.500' : 'yellow.400'}
+      sx={{ padding: '5px 12px 5px 10px' }}
+      fontSize="12px"
+      borderRadius="5px"
+      color={substituteTeacher ? '#2D4F12' : '#9B520E'}
+      bg={substituteTeacher ? '#D8F5C1' : '#FEEED5'}
     >
-      {substituteTeacher ? `Filled by ${substituteTeacher}` : 'Unfilled'}
+      <Flex gap="7px">
+        {substituteTeacher ? (
+          <FiCheckCircle size="20px" />
+        ) : (
+          <FiClock size="20px" />
+        )}
+
+        {substituteTeacher ? `Filled by ${substituteTeacher}` : 'Unfilled'}
+      </Flex>
     </Box>
   );
 };

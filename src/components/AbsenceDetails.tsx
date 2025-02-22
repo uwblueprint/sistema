@@ -6,10 +6,10 @@ import {
   ModalCloseButton,
   ModalBody,
   Text,
-  Link,
-  Button,
   IconButton,
   Box,
+  VStack,
+  Flex,
 } from '@chakra-ui/react';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import AbsenceStatusTag from './AbsenceStatusTag';
@@ -21,72 +21,95 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
-      <ModalContent>
-        <ModalHeader position="relative">
-          <AbsenceStatusTag substituteTeacher={event.substituteTeacher} />
+      <ModalContent width="362px" borderRadius="15px" padding="30px">
+        <ModalHeader p="0">
+          <Flex justify="space-between" align="center">
+            <AbsenceStatusTag substituteTeacher={event.substituteTeacher} />
 
-          <Box position="absolute" top="3px" right="45px">
-            <IconButton
-              aria-label="Edit Absence"
-              icon={<FiEdit2 />}
-              size="md"
-              variant="ghost"
-              color="gray.600"
-              onClick={() => {
-                onClose();
-                onEdit(event);
-              }}
-            />
+            <Flex>
+              <IconButton
+                aria-label="Edit Absence"
+                icon={<FiEdit2 />}
+                size="sm"
+                variant="ghost"
+                color="#656565"
+                onClick={() => {
+                  onClose();
+                  onEdit(event);
+                }}
+              />
 
-            <IconButton
-              aria-label="Delete Absence"
-              icon={<FiTrash2 />}
-              size="md"
-              variant="ghost"
-              color="gray.600"
-              onClick={() => {
-                onClose();
-                onDelete(event);
-              }}
-            />
-          </Box>
+              <IconButton
+                aria-label="Delete Absence"
+                icon={<FiTrash2 />}
+                size="sm"
+                variant="ghost"
+                color="#656565"
+                onClick={() => {
+                  onClose();
+                  onDelete(event);
+                }}
+              />
+
+              <ModalCloseButton color="#2D3748" position="static" />
+            </Flex>
+          </Flex>
         </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Text fontSize="2xl" fontWeight="bold" mt={3} mb={3}>
-            <strong> {event.title || 'Absence Details'}</strong>
-          </Text>
-          <Text>
-            <strong>Location:</strong> {event.location}
-          </Text>
-          <Text>
-            <strong>Date:</strong> {event.start || 'Unknown'}
-          </Text>
-          <Text>
-            <strong>Absent Teacher:</strong> {event.absentTeacherFullName}
-          </Text>
 
-          <Text mt={3}>
-            <strong>Lesson Plan:</strong>
-          </Text>
-          <LessonPlanView
-            lessonPlan={event.lessonPlan}
-            absentTeacherFirstName={event.absentTeacherFirstName}
-          />
+        <ModalBody sx={{ padding: '20px 0 0 0' }}>
+          <VStack spacing="18px" align="stretch">
+            <Text fontSize="22px" fontWeight="500">
+              {' '}
+              {event.title}{' '}
+            </Text>
 
-          <Text mt={3}>
-            <strong>Reason of Absence:</strong>
-          </Text>
-          <Text>{event.reasonOfAbsence}</Text>
+            <Text fontSize="13px" color="#373636">
+              {' '}
+              {event.location}{' '}
+            </Text>
+            <Text fontSize="13px" color="#373636">
+              {' '}
+              {event.start || 'Unknown'}{' '}
+            </Text>
+            <Text fontSize="13px" color="#373636">
+              {' '}
+              {event.absentTeacherFullName}{' '}
+            </Text>
+            <Text fontSize="13px" color="#373636">
+              {' '}
+              Room (to-do){' '}
+            </Text>
 
-          {event.notes && (
-            <>
-              <Text mt={3} fontWeight="bold">
-                Notes:
+            <Box>
+              <Text fontSize="14px" fontWeight="500">
+                Lesson Plan
               </Text>
-              <Text>{event.notes}</Text>
-            </>
-          )}
+              <LessonPlanView
+                lessonPlan={event.lessonPlan}
+                absentTeacherFirstName={event.absentTeacherFirstName}
+              />
+            </Box>
+
+            <Box>
+              <Text fontSize="14px" fontWeight="500">
+                Reason of Absence
+              </Text>
+              <Text fontSize="12px" sx={{ padding: '15px 15px 8px 15px' }}>
+                {event.reasonOfAbsence}
+              </Text>
+            </Box>
+
+            {event.notes && (
+              <Box>
+                <Text fontSize="14px" fontWeight="500">
+                  Notes
+                </Text>
+                <Text fontSize="12px" sx={{ padding: '15px 15px 8px 15px' }}>
+                  {event.notes}
+                </Text>
+              </Box>
+            )}
+          </VStack>
         </ModalBody>
       </ModalContent>
     </Modal>
