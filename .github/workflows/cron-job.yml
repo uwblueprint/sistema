@@ -1,0 +1,15 @@
+name: Send Email reminders for missing lessons
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs every day at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  call-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call API
+        run: |
+          date # Add date logging
+          curl -X GET "https://sistema-prod.vercel.app/api/reminders"
