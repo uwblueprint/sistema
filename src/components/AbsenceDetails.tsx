@@ -11,7 +11,7 @@ import {
   VStack,
   Flex,
 } from '@chakra-ui/react';
-import { FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
 
@@ -63,18 +63,32 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
               {event.title}{' '}
             </Text>
 
+            <Flex gap="13px">
+              <FiMapPin size="20px" color="#0468C1" />
+              <Text fontSize="13px" color="#373636">
+                {' '}
+                {event.location}{' '}
+              </Text>
+            </Flex>
+
             <Text fontSize="13px" color="#373636">
-              {' '}
-              {event.location}{' '}
+              {event.start
+                ? new Date(event.start).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric',
+                  })
+                : 'N/A'}
             </Text>
-            <Text fontSize="13px" color="#373636">
-              {' '}
-              {event.start || 'Unknown'}{' '}
-            </Text>
-            <Text fontSize="13px" color="#373636">
-              {' '}
-              {event.absentTeacherFullName}{' '}
-            </Text>
+
+            <Flex gap="13px">
+              <FiUser size="20px" color="#0468C1" />
+              <Text fontSize="13px" color="#373636">
+                {' '}
+                {event.absentTeacherFullName}{' '}
+              </Text>
+            </Flex>
+
             <Text fontSize="13px" color="#373636">
               {' '}
               Room (to-do){' '}
