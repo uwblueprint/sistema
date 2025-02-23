@@ -76,7 +76,7 @@ export default function ExportAbsencesPage() {
         _hover={{ bg: 'blue.600' }}
         _active={{ transform: 'scale(0.95)' }}
       >
-        Export Absences
+        Export
       </Button>
       {error && (
         <Text color="red.500" mt={4} fontSize="sm">

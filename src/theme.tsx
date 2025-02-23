@@ -130,6 +130,10 @@ const theme = extendTheme({
         bg: 'buttonBackground',
         color: 'primaryBlue.300',
         borderRadius: '7px',
+        fontFamily: 'heading',
+        fontWeight: 600,
+        fontSize: '16px',
+        lineHeight: '24px',
         _active: {
           bg: 'primaryBlue.400',
         },
