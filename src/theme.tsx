@@ -165,22 +165,22 @@ const theme = extendTheme({
       },
       sizes: {
         h1: {
-          fontWeight: 500,
+          fontWeight: 600,
           fontSize: '28px',
           lineHeight: '42px',
         },
         h2: {
-          fontWeight: 500,
+          fontWeight: 600,
           fontSize: '22px',
           lineHeight: '33px',
         },
         h3: {
-          fontWeight: 600,
+          fontWeight: 700,
           fontSize: '16px',
           lineHeight: '24px',
         },
         h4: {
-          fontWeight: 500,
+          fontWeight: 700,
           fontSize: '14px',
           lineHeight: '21px',
         },

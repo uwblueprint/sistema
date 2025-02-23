@@ -158,11 +158,9 @@ export default function MiniCalendar({
               size="sm"
               variant="ghost"
               pointerEvents="none"
-              fontSize="sm"
-              fontWeight="normal"
               bg="transparent"
             >
-              {day}
+              <Text variant="subtitle">{day}</Text>
             </Button>
           ))}
         </Grid>
@@ -186,8 +184,6 @@ export default function MiniCalendar({
                 size="sm"
                 w="100%"
                 variant="ghost"
-                fontSize="xs"
-                fontWeight="normal"
                 borderRadius="50%"
                 bg={
                   isToday(date)
@@ -196,12 +192,16 @@ export default function MiniCalendar({
                       ? selectedBgColor
                       : 'transparent'
                 }
-                color="neutralGray.500"
                 _hover={{
                   bg: isToday(date) ? todayBgColor : 'neutralGray.100',
                 }}
               >
-                {lastDateOfPrevMonth - firstDayOfMonth + index + 1}
+                <Text
+                  variant="subtitle"
+                  color={isToday(date) ? todayColor : 'neutralGray.500'}
+                >
+                  {lastDateOfPrevMonth - firstDayOfMonth + index + 1}
+                </Text>
               </Button>
             );
           })}
@@ -226,21 +226,23 @@ export default function MiniCalendar({
                       ? selectedBgColor
                       : 'transparent'
                 }
-                color={
-                  isToday(date)
-                    ? todayColor
-                    : isSelected(date)
-                      ? 'primaryBlue.300'
-                      : 'inherit'
-                }
-                fontSize="xs"
-                fontWeight="normal"
                 borderRadius="50%"
                 _hover={{
                   bg: isToday(date) ? todayBgColor : 'neutralGray.100',
                 }}
               >
-                {index + 1}
+                <Text
+                  variant="subtitle"
+                  color={
+                    isToday(date)
+                      ? todayColor
+                      : isSelected(date)
+                        ? 'primaryBlue.300'
+                        : 'inherit'
+                  }
+                >
+                  {index + 1}
+                </Text>
               </Button>
             );
           })}
@@ -260,8 +262,6 @@ export default function MiniCalendar({
                 w="100%"
                 size="sm"
                 variant="ghost"
-                fontSize="xs"
-                fontWeight="normal"
                 borderRadius="50%"
                 bg={
                   isToday(date)
@@ -270,12 +270,16 @@ export default function MiniCalendar({
                       ? selectedBgColor
                       : 'transparent'
                 }
-                color="neutralGray.500"
                 _hover={{
                   bg: isToday(date) ? todayBgColor : 'neutralGray.100',
                 }}
               >
-                {index + 1}
+                <Text
+                  variant="subtitle"
+                  color={isToday(date) ? todayColor : 'neutralGray.500'}
+                >
+                  {index + 1}
+                </Text>
               </Button>
             );
           })}

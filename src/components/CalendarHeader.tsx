@@ -50,7 +50,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
         />
       </HStack>
 
-      <Heading fontSize="2xl" textAlign="center" marginX={theme.space[6]}>
+      <Heading size={'h1'} textAlign="center" marginX={theme.space[6]}>
         {currentMonthYear}
       </Heading>
     </Flex>

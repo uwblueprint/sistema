@@ -13,7 +13,6 @@ export function SignInButton(): JSX.Element {
       width="275px"
       height="45px"
       color="text"
-      fontWeight="bold"
       leftIcon={<FcGoogle fontSize="18px" />}
       onClick={() => signIn('google', { callbackUrl: `/calendar` })}
     >
