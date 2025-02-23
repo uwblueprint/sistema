@@ -8,7 +8,7 @@ import {
   VStack,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
+import { IoChevronUp, IoChevronDown } from 'react-icons/io5';
 
 interface CalendarProps {
   initialDate?: Date;
@@ -105,40 +105,41 @@ export default function MiniCalendar({
           width="100%"
           justifyContent="space-between"
           alignItems="center"
-          ml="2"
+          pl="10px"
         >
           <Text fontSize="sm" fontWeight="bold" textAlign="left">
             {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </Text>
-
           <HStack spacing={0}>
             <Button
               onClick={handlePrevMonth}
               size="sm"
               variant="ghost"
               aria-label="Previous month"
-              borderRadius="full"
+              borderRadius="md"
               p={0}
               bg="transparent"
               _hover={{
                 bg: 'neutralGray.100',
+                borderRadius: 'lg',
               }}
             >
-              <ChevronUpIcon boxSize={8} />
+              <IoChevronUp size={24} />
             </Button>
             <Button
               onClick={handleNextMonth}
               size="sm"
               variant="ghost"
               aria-label="Next month"
-              borderRadius="full"
+              borderRadius="md"
               p={0}
               bg="transparent"
               _hover={{
                 bg: 'neutralGray.100',
+                borderRadius: 'lg',
               }}
             >
-              <ChevronDownIcon boxSize={8} />
+              <IoChevronDown size={24} />
             </Button>
           </HStack>
         </HStack>
