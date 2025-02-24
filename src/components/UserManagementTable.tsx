@@ -1,66 +1,43 @@
-import React, { useState } from 'react';
+import { CheckIcon, CloseIcon } from '@chakra-ui/icons';
+import { IoChevronDownOutline, IoChevronUpOutline } from 'react-icons/io5';
+
 import {
+  Avatar,
   Box,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
+  Button,
+  Divider,
+  Heading,
+  HStack,
+  Icon,
   Input,
   InputGroup,
   InputLeftElement,
-  Button,
+  Select,
+  Table,
   Tag,
-  Avatar,
-  Heading,
-  HStack,
+  TagLabel,
+  ButtonGroup,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
   Wrap,
   WrapItem,
-  Icon,
-  Text,
-  Select,
 } from '@chakra-ui/react';
+import { Role, UserAPI } from '@utils/types';
+import React, { useState } from 'react';
 import {
-  CheckIcon,
-  CloseIcon,
-  SearchIcon,
-  TriangleDownIcon,
-  TriangleUpIcon,
-} from '@chakra-ui/icons';
-import { IoFilterOutline } from 'react-icons/io5';
-import { CiMail } from 'react-icons/ci';
-import { GoClock, GoPerson, GoTag } from 'react-icons/go';
-import { FiEdit2 } from 'react-icons/fi';
-import { AbsenceWithRelations } from '@utils/types';
-
-export type Role = 'TEACHER' | 'ADMIN';
-
-export interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: Role;
-  status: string;
-  absences: AbsenceWithRelations[];
-  subscriptions: Subscription[];
-}
-
-type Subscription =
-  | 'Music & Movement'
-  | 'Choir'
-  | 'Strings'
-  | 'Percussion'
-  | 'Trumpets/Clarinets';
-
-const subscriptionColors: Record<Subscription, string> = {
-  'Music & Movement': 'cyan',
-  Choir: 'orange',
-  Strings: 'pink',
-  Percussion: 'purple',
-  'Trumpets/Clarinets': 'red',
-};
+  FiClock,
+  FiEdit2,
+  FiLock,
+  FiMail,
+  FiSearch,
+  FiTag,
+  FiUser,
+} from 'react-icons/fi';
+import { IoClose, IoCheckmark, IoFilterOutline } from 'react-icons/io5';
 
 type EditableRoleCellProps = {
   role: string;
@@ -86,18 +63,50 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
   };
 
   return isEditing ? (
-    <Box display="inline-flex" alignItems="center">
-      <Select value={newRole} onChange={handleRoleChange} mr={2}>
+    <Box
+      position="relative"
+      display="inline-flex"
+      alignItems="center"
+      width="100px"
+      height="40px"
+    >
+      <Select
+        value={newRole}
+        onChange={handleRoleChange}
+        width="100px"
+        height="40px"
+      >
         <option value="TEACHER">Teacher</option>
         <option value="ADMIN">Admin</option>
       </Select>
+
       {newRole !== role && (
-        <Button variant="outline" onClick={handleConfirmClick}>
-          <CheckIcon />
+        <Button
+          variant="outline"
+          onClick={handleConfirmClick}
+          position="absolute"
+          right={'-70px'}
+          size="sm"
+          width="32px"
+          height="32px"
+          borderRadius="md"
+          p={0}
+        >
+          <IoCheckmark size={20} />
         </Button>
       )}
-      <Button variant="outline" onClick={() => setIsEditing(false)}>
-        <CloseIcon />
+      <Button
+        variant="outline"
+        onClick={() => setIsEditing(false)}
+        position="absolute"
+        right={'-35px'}
+        size="sm"
+        width="32px"
+        height="32px"
+        borderRadius="md"
+        p={0}
+      >
+        <IoClose size={20} />
       </Button>
     </Box>
   ) : (
@@ -106,17 +115,20 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
       alignItems="center"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      bg={isHovered ? 'gray.100' : 'transparent'}
+      bg={isHovered ? 'primaryBlue.50' : 'transparent'}
       p={2}
       borderRadius="md"
+      minWidth="100px"
+      height="40px"
     >
-      {role === 'TEACHER' ? 'Teacher' : 'Admin'}
+      <Text variant="cellBody" height="100%" display="flex" alignItems="center">
+        {role === 'TEACHER' ? 'Teacher' : 'Admin'}
+      </Text>
       <Icon
         as={FiEdit2}
         onClick={handleEditClick}
         cursor="pointer"
         ml={2}
-        marginLeft={3}
         visibility={isHovered ? 'visible' : 'hidden'}
       />
     </Box>
@@ -128,7 +140,7 @@ type SortField = 'name' | 'email' | 'absences' | 'role';
 type SortDirection = 'asc' | 'desc';
 
 interface UserManagementTableProps {
-  users: User[];
+  users: UserAPI[];
   updateUserRole: (userId: number, newRole: Role) => void;
   absenceCap: number;
 }
@@ -143,15 +155,10 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
 
   const getAbsenceColor = (absences: number, cap: number) => {
     const ratio = absences / cap;
-    if (ratio <= 0.5) return 'green.500';
-    if (ratio <= 0.8) return 'orange.500';
-    return 'red.500';
+    if (ratio <= 0.5) return 'positiveGreen.200';
+    if (ratio <= 0.8) return 'warningOrange.200';
+    return 'errorRed.200';
   };
-
-  // set subscriptions to a temp thing for now
-  users.forEach((user) => {
-    user.subscriptions = ['Music & Movement', 'Choir', 'Strings'];
-  });
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -186,151 +193,201 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         return 0;
     }
   });
-
   const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) {
-      return <Icon as={TriangleDownIcon} boxSize={2} color="gray.400" />;
-    }
+    const isActive = sortField === field;
+
     return (
-      <Icon
-        as={sortDirection === 'asc' ? TriangleUpIcon : TriangleDownIcon}
-        boxSize={2}
-        color="gray.600"
-      />
+      <Box display="flex" flexDirection="column" alignItems="center">
+        <Icon
+          as={IoChevronUpOutline}
+          boxSize={4}
+          color={
+            isActive && sortDirection === 'asc'
+              ? 'primaryBlue.300'
+              : 'text.subtitle'
+          }
+          mb="-3px"
+        />
+        <Icon
+          as={IoChevronDownOutline}
+          boxSize={4}
+          color={
+            isActive && sortDirection === 'desc'
+              ? 'primaryBlue.300'
+              : 'text.subtitle'
+          }
+          mt="-3px"
+        />
+      </Box>
+    );
+  };
+
+  const SortableHeader = ({
+    field,
+    label,
+    icon,
+  }: {
+    field: SortField;
+    label: string;
+    icon: any;
+  }) => {
+    const isActive = sortField === field;
+    const color = isActive ? 'primaryBlue.300' : 'text.subtitle';
+
+    return (
+      <Th onClick={() => handleSort(field)} cursor="pointer">
+        <HStack spacing={2}>
+          <Icon as={icon} boxSize={4} color={color} />
+          <Heading size="h4" color={color} textTransform="none">
+            {label}
+          </Heading>
+          <SortIcon field={field} />
+        </HStack>
+      </Th>
     );
   };
 
   return (
-    <Box shadow="sm" borderRadius="lg" bg="white" w="full">
-      <Box p={6}>
-        <HStack justify="space-between" mb={6}>
-          <Heading size="lg">User Management</Heading>
-          <HStack spacing={4}>
-            <InputGroup maxW="xs" margin={0}>
-              <InputLeftElement pointerEvents="none">
-                <SearchIcon color="gray.400" />
-              </InputLeftElement>
-              <Input
-                placeholder="Search..."
-                _placeholder={{ color: 'gray.400' }}
-                paddingRight={0}
-                onFocus={(e) => {
-                  e.target.placeholder = 'Search...';
-                  e.target.style.width = '200px';
-                  e.target.style.flex = '1';
-                }}
-                onBlur={(e) => {
-                  if (e.target.value === '') {
-                    e.target.placeholder = '';
-                    e.target.style.width = '0px';
-                    e.target.style.flex = '0';
-                  }
-                }}
-                transition="width 0.3s ease"
-                width="0px"
-                margin={0}
-              />
-            </InputGroup>
-            <Button
-              variant="outline"
-              leftIcon={<Icon as={IoFilterOutline} />}
-              width="100px"
-              flexGrow={0}
-              flexShrink={0}
-            >
-              Filter
-            </Button>
-          </HStack>
-        </HStack>
+    <Box
+      shadow="sm"
+      borderRadius="lg"
+      bg="white"
+      w="full"
+      border="1px solid"
+      borderColor="neutralGray.300"
+    >
+      <HStack justify="space-between" mx={5} my={3}>
+        <Heading fontSize={'22px'} lineHeight="33px" fontWeight={700}>
+          User Management
+        </Heading>
+        <HStack spacing={4}>
+          <InputGroup maxW="xs" margin={0}>
+            <InputLeftElement pointerEvents="none">
+              <Icon as={FiSearch} color="neutralGray.600" boxSize={6} />
+            </InputLeftElement>
+            <Input
+              paddingRight={0}
+              color="black"
+              onFocus={(e) => {
+                e.target.style.width = '270px';
+                e.target.style.flex = '1';
+              }}
+              onBlur={(e) => {
+                if (e.target.value === '') {
+                  e.target.style.width = '0px';
+                  e.target.style.flex = '0';
+                }
+              }}
+              transition="width 0.3s ease"
+              width="0px"
+              margin={0}
+            />
+          </InputGroup>
 
-        <Box overflowX="auto">
-          <Table variant="simple">
-            <Thead>
-              <Tr>
-                <Th onClick={() => handleSort('name')} cursor="pointer">
-                  <HStack spacing={1}>
-                    <Text>Name</Text>
-                    <SortIcon field="name" />
+          <Button
+            variant="outline"
+            leftIcon={<Icon as={IoFilterOutline} />}
+            width="100px"
+            flexGrow={0}
+            flexShrink={0}
+          >
+            Filter
+          </Button>
+        </HStack>
+      </HStack>
+      <Divider />
+      <Box overflowX="auto" maxHeight="40vh">
+        <Table variant="simple">
+          <Thead
+            position="sticky"
+            top={0}
+            zIndex={1}
+            bg="white"
+            boxShadow="0 1px 1px rgba(227, 227, 227, 1)"
+          >
+            <Tr borderColor={'red'}>
+              <SortableHeader field="name" label="Name" icon={FiUser} />
+              <SortableHeader field="email" label="Email" icon={FiMail} />
+              <SortableHeader field="absences" label="Abs." icon={FiClock} />
+              <SortableHeader field="role" label="Role" icon={FiLock} />
+              <Th>
+                <HStack spacing={2}>
+                  <Icon as={FiTag} boxSize={4} color="text.subtitle" />
+                  <Heading size="h4" color="text.subtitle" textTransform="none">
+                    Email Subscriptions
+                  </Heading>
+                </HStack>
+              </Th>
+            </Tr>
+          </Thead>
+
+          <Tbody>
+            {sortedUsers.map((user, index) => (
+              <Tr
+                key={index}
+                sx={{
+                  ':last-child td': { borderBottom: 'none' },
+                  // ':first-child td': { borderTop: 'none' },
+                }}
+              >
+                <Td>
+                  <HStack spacing={3}>
+                    <Avatar
+                      size="sm"
+                      name={`${user.firstName} ${user.lastName}`}
+                    />
+                    <Text variant="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
                   </HStack>
-                </Th>
-                <Th onClick={() => handleSort('email')} cursor="pointer">
-                  <HStack spacing={1}>
-                    <Icon as={CiMail} boxSize={4} color="gray.500" />
-                    <Text>Email</Text>
-                    <SortIcon field="email" />
-                  </HStack>
-                </Th>
-                <Th onClick={() => handleSort('absences')} cursor="pointer">
-                  <HStack spacing={1}>
-                    <Icon as={GoClock} boxSize={4} color="gray.500" />
-                    <Text>Abs.</Text>
-                    <SortIcon field="absences" />
-                  </HStack>
-                </Th>
-                <Th onClick={() => handleSort('role')} cursor="pointer">
-                  <HStack spacing={1}>
-                    <Icon as={GoPerson} boxSize={3} color="gray.500" />
-                    <Text>Role</Text>
-                    <SortIcon field="role" />
-                  </HStack>
-                </Th>
-                <Th>
-                  <HStack spacing={1}>
-                    <Icon as={GoTag} boxSize={4} color="gray.500" />
-                    <Text>Email Subscriptions</Text>
-                  </HStack>
-                </Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {sortedUsers.map((user, index) => (
-                <Tr key={index}>
-                  <Td>
-                    <HStack spacing={3}>
-                      <Avatar
-                        size="sm"
-                        name={`${user.firstName} ${user.lastName}`}
-                      />
-                      <Box>{`${user.firstName} ${user.lastName}`}</Box>
-                    </HStack>
-                  </Td>
-                  <Td color="gray.600">{user.email}</Td>
-                  <Td
+                </Td>
+                <Td color="gray.600">
+                  <Text variant="cellBody">{user.email}</Text>
+                </Td>
+                <Td>
+                  <Text
+                    variant="cellBold"
                     color={getAbsenceColor(
                       user.absences?.length || 0,
                       absenceCap
                     )}
                   >
                     {user.absences?.length || 0}
-                  </Td>
-                  <Td>
-                    <EditableRoleCell
-                      role={user.role}
-                      onRoleChange={(newRole) =>
-                        updateUserRole(user.id, newRole as Role)
-                      }
-                    />
-                  </Td>
-                  <Td>
-                    <Wrap spacing={2}>
-                      {user.subscriptions.map((sub, subIndex) => (
-                        <WrapItem key={subIndex}>
-                          <Tag
-                            size="md"
-                            variant="subtle"
-                            colorScheme={subscriptionColors[sub]}
+                  </Text>
+                </Td>
+                <Td>
+                  <EditableRoleCell
+                    role={user.role}
+                    onRoleChange={(newRole) =>
+                      updateUserRole(user.id, newRole as Role)
+                    }
+                  />
+                </Td>
+                <Td>
+                  <Wrap spacing={2}>
+                    {user.mailingLists?.map((mailingList, index) => (
+                      <WrapItem key={index}>
+                        <Tag
+                          size="md"
+                          variant="subtle"
+                          key={index}
+                          color={mailingList.subject.colorGroup.colorCodes[0]}
+                          bg={mailingList.subject.colorGroup.colorCodes[3]}
+                        >
+                          <TagLabel
+                            fontWeight="600"
+                            fontSize="12px"
+                            lineHeight="18px"
                           >
-                            {sub}
-                          </Tag>
-                        </WrapItem>
-                      ))}
-                    </Wrap>
-                  </Td>
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        </Box>
+                            {mailingList.subject.name}
+                          </TagLabel>
+                        </Tag>
+                      </WrapItem>
+                    ))}
+                  </Wrap>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
       </Box>
     </Box>
   );

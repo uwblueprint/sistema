@@ -30,7 +30,7 @@ const main = async () => {
 
   const subjects = [
     { name: 'Strings', abbreviation: 'STR', colorGroupId: 3 },
-    { name: 'Choir', abbreviation: 'CHO', colorGroupId: 6 },
+    { name: 'Choir', abbreviation: 'CHO', colorGroupId: 2 },
     {
       name: 'Music and Movement',
       abbreviation: 'M&M',
