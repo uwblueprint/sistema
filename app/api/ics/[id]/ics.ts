@@ -1,5 +1,5 @@
 import { EventAttributes, createEvents } from 'ics';
-import { AbsenceWithRelations } from '../../getAbsences/absences';
+import { AbsenceWithRelations } from '@utils/types';
 
 const CALENDAR_NAME: string = 'Sistema Absences';
 

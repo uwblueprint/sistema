@@ -1,28 +1,21 @@
 import { useEffect, useState } from 'react';
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-  status: string;
-}
+import { User, Role } from '../../utils/types';
 
-export default function AnotherPage() {
+export default function ManagePage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const apiUrl = `/api/users/`;
+      const apiUrl = `/api/users?getMailingLists=true`;
 
       try {
         const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error(response.statusText);
         }
-        const data: User[] = await response.json();
-        setUsers(data);
+        const users: User[] = await response.json();
+        setUsers(users);
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error('Error fetching users:', error.message);
@@ -35,8 +28,8 @@ export default function AnotherPage() {
     fetchUsers();
   }, []);
 
-  const updateUserRole = async (userId: number, newRole: string) => {
-    const confirmed = window.confirm('Confirm change role to ' + newRole);
+  const updateUserRole = async (userId: number, newRole: Role) => {
+    const confirmed = window.confirm(`Confirm change role to ${newRole}`);
     if (!confirmed) return;
 
     const apiUrl = `/api/users/${userId}`;
@@ -80,6 +73,7 @@ export default function AnotherPage() {
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Email Subscriptions</th>
             </tr>
           </thead>
           <tbody>
@@ -92,11 +86,21 @@ export default function AnotherPage() {
                 <td>
                   <select
                     value={user.role}
-                    onChange={(e) => updateUserRole(user.id, e.target.value)}
+                    onChange={(e) =>
+                      updateUserRole(user.id, e.target.value as Role)
+                    }
                   >
-                    <option value="TEACHER">Teacher</option>
-                    <option value="ADMIN">Admin</option>
+                    {Object.values(Role).map((role) => (
+                      <option key={role} value={role}>
+                        {role.charAt(0) + role.slice(1).toLowerCase()}
+                      </option>
+                    ))}
                   </select>
+                </td>
+                <td>
+                  {user.mailingLists
+                    ?.map((mailingList) => mailingList.mailingList.name)
+                    .join(', ')}
                 </td>
               </tr>
             ))}
