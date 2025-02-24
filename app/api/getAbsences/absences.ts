@@ -1,13 +1,10 @@
 import { prisma } from '@utils/prisma';
-import { AbsenceWithRelations } from '@utils/types';
+import { AbsenceAPI } from '@utils/types';
 
-export const getAbsencesFromDatabase = async (): Promise<
-  AbsenceWithRelations[]
-> => {
+export const getAbsencesFromDatabase = async (): Promise<AbsenceAPI[]> => {
   try {
     const absences = await prisma.absence.findMany({
       select: {
-        id: true,
         lessonDate: true,
         lessonPlan: true,
         reasonOfAbsence: true,
@@ -17,20 +14,17 @@ export const getAbsencesFromDatabase = async (): Promise<
           select: {
             firstName: true,
             lastName: true,
-            email: true,
           },
         },
         substituteTeacher: {
           select: {
             firstName: true,
             lastName: true,
-            email: true,
           },
         },
         location: {
           select: {
             name: true,
-            abbreviation: true,
           },
         },
         subject: {
@@ -39,7 +33,6 @@ export const getAbsencesFromDatabase = async (): Promise<
             abbreviation: true,
             colorGroup: {
               select: {
-                name: true,
                 colorCodes: true,
               },
             },

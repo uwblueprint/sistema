@@ -2,7 +2,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { SignOutButton } from '../components/SignOutButton';
 import { Image } from '@chakra-ui/react';
-import { User, GlobalSettings } from '@utils/types';
+import { UserAPI, GlobalSettings } from '@utils/types';
 
 export default function Profile() {
   const { data: session, status } = useSession();
@@ -27,7 +27,7 @@ export default function Profile() {
           throw new Error('Failed to fetch data');
         }
 
-        const userData: User = await userResponse.json();
+        const userData: UserAPI = await userResponse.json();
         const settings: GlobalSettings = await settingsResponse.json();
 
         setAbsenceCap(settings.absenceCap);

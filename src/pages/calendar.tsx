@@ -1,13 +1,13 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import FullCalendar from '@fullcalendar/react';
+import { Box, Flex, useTheme, useToast } from '@chakra-ui/react';
+import { Global } from '@emotion/react';
+import { EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { Box, Flex, useToast, useTheme } from '@chakra-ui/react';
-import { EventInput, EventContentArg } from '@fullcalendar/core';
-import { AbsenceWithRelations } from '@utils/types';
-import Sidebar from '../components/CalendarSidebar';
+import FullCalendar from '@fullcalendar/react';
+import { AbsenceAPI } from '@utils/types';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import CalendarHeader from '../components/CalendarHeader';
-import { Global } from '@emotion/react';
+import Sidebar from '../components/CalendarSidebar';
 
 const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
@@ -33,9 +33,7 @@ const Calendar: React.FC = () => {
     []
   );
 
-  const convertAbsenceToEvent = (
-    absenceData: AbsenceWithRelations
-  ): EventInput => ({
+  const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
     title: absenceData.subject.name,
     start: absenceData.lessonDate,
     allDay: true,

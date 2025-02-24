@@ -25,16 +25,17 @@ model Absence {
 }
 
 model User {
-  id           Int                   @id @default(autoincrement())
-  authId       String                @unique
-  email        String                @unique
+  id           Int           @id @default(autoincrement())
+  authId       String        @unique
+  email        String        @unique
   firstName    String
   lastName     String
-  role         Role                  @default(TEACHER)
-  status       Status                @default(INVITED)
-  absences     Absence[]             @relation("absentTeacher")
-  substitutes  Absence[]             @relation("substituteTeacher")
-  mailingLists UsersOnMailingLists[]
+  role         Role          @default(TEACHER)
+  status       Status        @default(INVITED)
+  absences     Absence[]     @relation("absentTeacher")
+  substitutes  Absence[]     @relation("substituteTeacher")
+  subjects     Subject[]     @relation("MailingLists")
+  mailingLists MailingList[]
 }
 
 model Location {
@@ -45,28 +46,24 @@ model Location {
 }
 
 model MailingList {
-  id     Int                   @id @default(autoincrement())
-  name   String
-  emails String[]
-  users  UsersOnMailingLists[]
-}
+  userId    Int
+  subjectId Int
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
-model UsersOnMailingLists {
-  user          User        @relation(fields: [userId], references: [id])
-  userId        Int
-  mailingList   MailingList @relation(fields: [mailingListId], references: [id])
-  mailingListId Int
-
-  @@id([userId, mailingListId])
+  @@id([userId, subjectId])
+  @@map("MailingList")
 }
 
 model Subject {
-  id           Int        @id @default(autoincrement())
+  id           Int           @id @default(autoincrement())
   name         String
   abbreviation String
   Absence      Absence[]
   colorGroupId Int
-  colorGroup   ColorGroup @relation(fields: [colorGroupId], references: [id])
+  colorGroup   ColorGroup    @relation(fields: [colorGroupId], references: [id])
+  users        User[]        @relation("MailingLists")
+  userSubjects MailingList[]
 }
 
 model ColorGroup {

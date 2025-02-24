@@ -1,10 +1,10 @@
+import { AbsenceAPI } from '@utils/types';
 import { EventAttributes, createEvents } from 'ics';
-import { AbsenceWithRelations } from '@utils/types';
 
 const CALENDAR_NAME: string = 'Sistema Absences';
 
 export const convertAbsenceToICSEvent = (
-  absence: AbsenceWithRelations
+  absence: AbsenceAPI
 ): EventAttributes => {
   const substituteTeacherString = absence.substituteTeacher
     ? `(${absence.substituteTeacher.firstName} ${absence.substituteTeacher.lastName[0]})`

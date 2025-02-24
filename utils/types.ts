@@ -1,42 +1,37 @@
 export interface Absence {
   id: number;
   lessonDate: Date;
-  lessonPlan?: string | null;
+  lessonPlan?: string;
   reasonOfAbsence: string;
-  notes?: string | null;
-  roomNumber?: string | null;
+  notes?: string;
+  roomNumber?: string;
   absentTeacherId: number;
-  substituteTeacherId?: number | null;
+  substituteTeacherId?: number;
   locationId: number;
   subjectId: number;
 }
 
-export interface AbsenceWithRelations {
-  id: number;
+export interface AbsenceAPI {
   lessonDate: Date;
-  lessonPlan: string | null;
+  lessonPlan?: string | null;
   reasonOfAbsence: string;
-  notes: string | null;
-  roomNumber: string | null;
+  notes?: string | null;
+  roomNumber?: string | null;
   absentTeacher: {
     firstName: string;
     lastName: string;
-    email: string;
   };
   substituteTeacher?: {
     firstName: string;
     lastName: string;
-    email: string;
   } | null;
   location: {
     name: string;
-    abbreviation: string;
   };
   subject: {
     name: string;
     abbreviation: string;
     colorGroup: {
-      name: string;
       colorCodes: string[];
     };
   };
@@ -50,23 +45,29 @@ export interface User {
   lastName: string;
   role: Role;
   status: Status;
-  absences?: Absence[];
-  substitutes?: Absence[];
-  mailingLists?: UsersOnMailingLists[];
 }
 
-export interface MailingList {
+export interface UserAPI {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: Role;
+  absences: { id: number }[];
+  mailingLists: { subject: { name: string; colorGroupId: number } }[];
+}
+
+export interface Location {
   id: number;
   name: string;
-  emails: string[];
-  users?: UsersOnMailingLists[];
+  abbreviation: string;
 }
 
-export interface UsersOnMailingLists {
-  user: User;
+export interface MailingListWithRelations {
   userId: number;
-  mailingList: MailingList;
-  mailingListId: number;
+  subjectId: number;
+  user: User;
+  subject: Subject;
 }
 
 export interface Subject {
@@ -74,19 +75,19 @@ export interface Subject {
   name: string;
   abbreviation: string;
   colorGroupId: number;
-  colorGroup: ColorGroup;
+}
+
+export interface SubjectWithRelations {
+  id: number;
+  name: string;
+  abbreviation: string;
+  colorGroupId: number;
 }
 
 export interface ColorGroup {
   id: number;
   name: string;
   colorCodes: string[];
-}
-
-export interface Location {
-  id: number;
-  name: string;
-  abbreviation: string;
 }
 
 export interface GlobalSettings {

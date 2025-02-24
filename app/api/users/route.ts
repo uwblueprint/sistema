@@ -11,9 +11,11 @@ export async function GET(request: NextRequest) {
         mailingLists: getMailingLists
           ? {
               include: {
-                mailingList: {
+                subject: {
                   select: {
                     name: true,
+                    abbreviation: true,
+                    colorGroupId: true,
                   },
                 },
               },
@@ -21,6 +23,7 @@ export async function GET(request: NextRequest) {
           : false,
       },
     });
+
     return NextResponse.json(users);
   } catch (error) {
     console.error('Error fetching users:', error);

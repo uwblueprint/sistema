@@ -1,10 +1,10 @@
-import { AbsenceWithRelations } from '@utils/types';
+import { AbsenceAPI } from '@utils/types';
 import { NextResponse } from 'next/server';
 import { getAbsencesFromDatabase } from './absences';
 
 export async function GET() {
   try {
-    const absences: AbsenceWithRelations[] = await getAbsencesFromDatabase();
+    const absences: AbsenceAPI[] = await getAbsencesFromDatabase();
 
     if (!absences.length) {
       return NextResponse.json({ events: [] }, { status: 200 });

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { User, Role } from '../../utils/types';
+import { Role, UserAPI } from '../../utils/types';
 
 export default function ManagePage() {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserAPI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export default function ManagePage() {
         if (!response.ok) {
           throw new Error(response.statusText);
         }
-        const users: User[] = await response.json();
+        const users: UserAPI[] = await response.json();
         setUsers(users);
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -99,7 +99,7 @@ export default function ManagePage() {
                 </td>
                 <td>
                   {user.mailingLists
-                    ?.map((mailingList) => mailingList.mailingList.name)
+                    ?.map((mailingList) => mailingList.subject.name)
                     .join(', ')}
                 </td>
               </tr>
