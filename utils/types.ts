@@ -54,7 +54,14 @@ export interface UserAPI {
   lastName: string;
   role: Role;
   absences: { id: number }[];
-  mailingLists: { subject: { name: string; colorGroupId: number } }[];
+  mailingLists: {
+    subject: {
+      name: string;
+      colorGroup: {
+        colorCodes: string[];
+      };
+    };
+  }[];
 }
 
 export interface Location {
