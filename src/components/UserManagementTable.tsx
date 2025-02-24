@@ -16,6 +16,7 @@ import {
   Table,
   Tag,
   TagLabel,
+  ButtonGroup,
   Tbody,
   Td,
   Text,
@@ -36,7 +37,7 @@ import {
   FiTag,
   FiUser,
 } from 'react-icons/fi';
-import { IoFilterOutline } from 'react-icons/io5';
+import { IoClose, IoCheckmark, IoFilterOutline } from 'react-icons/io5';
 
 type EditableRoleCellProps = {
   role: string;
@@ -62,18 +63,50 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
   };
 
   return isEditing ? (
-    <Box display="inline-flex" alignItems="center">
-      <Select value={newRole} onChange={handleRoleChange} mr={2}>
+    <Box
+      position="relative"
+      display="inline-flex"
+      alignItems="center"
+      width="100px"
+      height="40px"
+    >
+      <Select
+        value={newRole}
+        onChange={handleRoleChange}
+        width="100px"
+        height="40px"
+      >
         <option value="TEACHER">Teacher</option>
         <option value="ADMIN">Admin</option>
       </Select>
+
       {newRole !== role && (
-        <Button variant="outline" onClick={handleConfirmClick}>
-          <CheckIcon />
+        <Button
+          variant="outline"
+          onClick={handleConfirmClick}
+          position="absolute"
+          right={'-70px'}
+          size="sm"
+          width="32px"
+          height="32px"
+          borderRadius="md"
+          p={0}
+        >
+          <IoCheckmark size={20} />
         </Button>
       )}
-      <Button variant="outline" onClick={() => setIsEditing(false)}>
-        <CloseIcon />
+      <Button
+        variant="outline"
+        onClick={() => setIsEditing(false)}
+        position="absolute"
+        right={'-35px'}
+        size="sm"
+        width="32px"
+        height="32px"
+        borderRadius="md"
+        p={0}
+      >
+        <IoClose size={20} />
       </Button>
     </Box>
   ) : (
@@ -82,17 +115,20 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
       alignItems="center"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      bg={isHovered ? 'gray.100' : 'transparent'}
+      bg={isHovered ? 'primaryBlue.50' : 'transparent'}
       p={2}
       borderRadius="md"
+      minWidth="100px"
+      height="40px"
     >
-      <Text variant="cellBody">{role === 'TEACHER' ? 'Teacher' : 'Admin'}</Text>{' '}
+      <Text variant="cellBody" height="100%" display="flex" alignItems="center">
+        {role === 'TEACHER' ? 'Teacher' : 'Admin'}
+      </Text>
       <Icon
         as={FiEdit2}
         onClick={handleEditClick}
         cursor="pointer"
         ml={2}
-        marginLeft={3}
         visibility={isHovered ? 'visible' : 'hidden'}
       />
     </Box>
