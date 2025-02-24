@@ -106,21 +106,27 @@ const theme = extendTheme({
       200: '#BF3232',
       300: '#900A0A',
     },
+    text: {
+      header: '#1B1B1B',
+      body: '#373636',
+      subtitle: '#838383',
+      inactiveButtonText: '#ACACAC',
+    },
   },
   styles: {
     global: {
       'html, body': {
         backgroundColor: 'white',
-        color: 'neutralGray.900',
+        color: 'text.body',
       },
       h1: {
-        color: 'neutralGray.900',
+        color: 'text.header',
       },
       h2: {
-        color: 'neutralGray.800',
+        color: 'text.header',
       },
       p: {
-        color: 'neutralGray.700',
+        color: 'text.body',
       },
     },
   },
@@ -139,7 +145,7 @@ const theme = extendTheme({
         },
         _disabled: {
           bg: 'neutralGray.200',
-          color: 'neutralGray.400',
+          color: 'text.inactiveButtonText',
         },
       },
       variants: {
@@ -152,7 +158,7 @@ const theme = extendTheme({
         },
         outline: {
           borderColor: 'neutralGray.300',
-          color: 'black',
+          color: 'text.header',
           _hover: {
             bg: 'primaryBlue.50',
           },
@@ -161,7 +167,7 @@ const theme = extendTheme({
     },
     Heading: {
       baseStyle: {
-        color: '#1B1B1B',
+        color: 'text.header',
       },
       sizes: {
         h1: {
@@ -188,7 +194,7 @@ const theme = extendTheme({
     },
     Text: {
       baseStyle: {
-        color: '#373636',
+        color: 'text.body',
       },
       variants: {
         semibold: {
@@ -200,6 +206,7 @@ const theme = extendTheme({
           fontWeight: 400,
           fontSize: '13px',
           lineHeight: '15.73px',
+          color: 'text.subtitle',
         },
         caption: {
           fontWeight: 400,

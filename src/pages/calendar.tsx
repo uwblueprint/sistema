@@ -142,7 +142,7 @@ const Calendar: React.FC = () => {
           .fc th {
             text-transform: uppercase;
             font-size: ${theme.fontSizes.sm};
-            font-weight: ${theme.fontWeights.normal};
+            font-weight: ${theme.fontWeights[600]};
           }
           .fc-day-today {
             background-color: inherit !important;
@@ -151,7 +151,7 @@ const Calendar: React.FC = () => {
             margin-left: 6px;
             margin-top: 6px;
             font-size: ${theme.fontSizes.xs};
-            font-weight: ${theme.fontWeights.normal};
+            font-weight: ${theme.fontWeights[400]};
             width: 25px;
             height: 25px;
             display: flex;
