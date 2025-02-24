@@ -1,8 +1,8 @@
-import { DownloadIcon } from '@chakra-ui/icons';
-import { Box, Button, Text } from '@chakra-ui/react';
+import { Button, Text, Box } from '@chakra-ui/react';
+import { FiDownload } from 'react-icons/fi';
 import { useState } from 'react';
 
-export default function ExportAbsencesPage() {
+const ExportAbsencesButton = () => {
   const [error, setError] = useState<string | null>(null);
 
   const convertToCSV = (data: any[]) => {
@@ -69,20 +69,19 @@ export default function ExportAbsencesPage() {
   return (
     <Box>
       <Button
-        leftIcon={<DownloadIcon />}
-        colorScheme="blue"
+        leftIcon={<FiDownload size={18} />}
         variant="solid"
         onClick={handleDownload}
-        _hover={{ bg: 'blue.600' }}
-        _active={{ transform: 'scale(0.95)' }}
       >
         Export
       </Button>
       {error && (
-        <Text color="red.500" mt={4} fontSize="sm">
+        <Text color="red.500" mt={2} fontSize="sm">
           {error}
         </Text>
       )}
     </Box>
   );
-}
+};
+
+export default ExportAbsencesButton;
