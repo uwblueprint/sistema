@@ -14,13 +14,12 @@ import {
 } from '@chakra-ui/icons';
 import ProfileMenu from './ProfileMenu';
 
-// Example interface for userData; adjust fields as needed.
 interface UserData {
   name: string;
   email: string;
   image?: string;
-  usedAbsences: number; // e.g. 4
-  numOfAbsences: number; // e.g. 10
+  usedAbsences: number;
+  numOfAbsences: number;
 }
 
 interface CalendarHeaderProps {
@@ -47,33 +46,34 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
       justifyContent="space-between"
     >
       {/* Left side: Prev/Today/Next buttons */}
-      <ButtonGroup isAttached variant="outline">
-        <IconButton
-          colorScheme="blue"
-          onClick={onPrevClick}
-          icon={<ArrowBackIcon />}
-          aria-label="Previous"
-        />
-        <Button
-          onClick={onTodayClick}
-          variant="outline"
-          colorScheme="blue"
-          leftIcon={<CalendarIcon />}
-        >
-          Today
-        </Button>
-        <IconButton
-          colorScheme="blue"
-          onClick={onNextClick}
-          icon={<ArrowForwardIcon />}
-          aria-label="Next"
-        />
-      </ButtonGroup>
-
+      <Flex>
+        <ButtonGroup isAttached variant="outline">
+          <IconButton
+            colorScheme="blue"
+            onClick={onPrevClick}
+            icon={<ArrowBackIcon />}
+            aria-label="Previous"
+          />
+          <Button
+            onClick={onTodayClick}
+            variant="outline"
+            colorScheme="blue"
+            leftIcon={<CalendarIcon />}
+          >
+            Today
+          </Button>
+          <IconButton
+            colorScheme="blue"
+            onClick={onNextClick}
+            icon={<ArrowForwardIcon />}
+            aria-label="Next"
+          />
+        </ButtonGroup>
+        <Heading fontSize="2xl" textAlign="center" marginLeft={theme.space[4]}>
+          {currentMonthYear}
+        </Heading>
+      </Flex>
       {/* Center: month-year heading */}
-      <Heading fontSize="2xl" textAlign="center">
-        {currentMonthYear}
-      </Heading>
 
       {/* Right side: the new ProfileMenu component */}
       <ProfileMenu userData={userData} />

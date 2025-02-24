@@ -43,7 +43,6 @@ const Calendar: React.FC = () => {
             `/api/users/email/${session.user.email}?shouldIncludeAbsences=true`
           );
           const data = await res.json();
-          // data.numOfAbsences plus data.absences?.length is the usage
           const usedAbsences = data.absences?.length ?? 0;
           const newUserData = {
             name: session.user.name ?? '',
