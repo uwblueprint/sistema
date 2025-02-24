@@ -160,7 +160,7 @@ const theme = extendTheme({
           borderColor: 'neutralGray.300',
           color: 'text.header',
           _hover: {
-            bg: 'primaryBlue.50',
+            bg: 'neutralGray.100',
           },
         },
       },

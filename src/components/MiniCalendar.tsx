@@ -116,7 +116,6 @@ export default function MiniCalendar({
               size="sm"
               variant="ghost"
               aria-label="Previous month"
-              borderRadius="md"
               p={0}
               bg="transparent"
               _hover={{
@@ -131,7 +130,6 @@ export default function MiniCalendar({
               size="sm"
               variant="ghost"
               aria-label="Next month"
-              borderRadius="md"
               p={0}
               bg="transparent"
               _hover={{
