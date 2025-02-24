@@ -1,18 +1,20 @@
-import { useEffect, useState } from 'react';
-import { UserManagementTable, User } from '../components/UserManagementTable';
 import { Box, Spinner } from '@chakra-ui/react';
-import { Role } from '../components/UserManagementTable';
+import { Role, UserAPI } from '@utils/types';
+import { useEffect, useState } from 'react';
+import { UserManagementTable } from './UserManagementTable';
 
-export default function ManagePage() {
-  const [users, setUsers] = useState<User[]>([]);
+const UserManagementSection = () => {
+  const [users, setUsers] = useState<UserAPI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [absenceCap, setAbsenceCap] = useState<number>(10); // Default value
+  const [absenceCap, setAbsenceCap] = useState<number>(10);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch users
-        const usersResponse = await fetch('/api/users?getAbsences=true');
+        const usersResponse = await fetch(
+          '/api/users?getAbsences=true&getMailingLists=true'
+        );
         if (!usersResponse.ok) throw new Error('Failed to fetch users');
         const usersData = await usersResponse.json();
         setUsers(usersData);
@@ -81,4 +83,6 @@ export default function ManagePage() {
       absenceCap={absenceCap}
     />
   );
-}
+};
+
+export default UserManagementSection;
