@@ -161,7 +161,7 @@ const theme = extendTheme({
     },
     Heading: {
       baseStyle: {
-        color: 'black',
+        color: '#1B1B1B',
       },
       sizes: {
         h1: {
@@ -188,7 +188,7 @@ const theme = extendTheme({
     },
     Text: {
       baseStyle: {
-        color: 'black',
+        color: '#373636',
       },
       variants: {
         semibold: {
