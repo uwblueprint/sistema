@@ -29,10 +29,15 @@ const main = async () => {
   ];
 
   const subjects = [
-    { name: 'Strings', abbreviation: 'STR', colorGroup: 'Coral' },
-    { name: 'Music and Movement', abbreviation: 'M&M', colorGroup: 'Orange' },
-    { name: 'Choir', abbreviation: 'CHO', colorGroup: 'Purple' },
-    { name: 'Percussion', abbreviation: 'PER', colorGroup: 'Turquoise' },
+    { name: 'Strings', abbreviation: 'STR', colorGroup: 'Purple' },
+    { name: 'Choir', abbreviation: 'CHO', colorGroup: 'Yellow' },
+    {
+      name: 'Music and Movement',
+      abbreviation: 'M&M',
+      colorGroup: 'Turquoise',
+    },
+    { name: 'Percussion', abbreviation: 'PER', colorGroup: 'Blue' },
+    { name: 'Trumpet/Clarinet', abbreviation: 'T&C', colorGroup: 'Coral' },
   ];
 
   const numUsers = 5;
@@ -69,18 +74,6 @@ const main = async () => {
       }))
     );
   }
-
-  const subjects = [
-    { name: 'Strings', abbreviation: 'STR', colorGroup: 'Purple' },
-    { name: 'Choir', abbreviation: 'CHO', colorGroup: 'Yellow' },
-    {
-      name: 'Music and Movement',
-      abbreviation: 'M&M',
-      colorGroup: 'Turquoise',
-    },
-    { name: 'Percussion', abbreviation: 'PER', colorGroup: 'Blue' },
-    { name: 'Trumpet/Clarinet', abbreviation: 'T&C', colorGroup: 'Coral' },
-  ];
 
   const colorGroups = [
     {
@@ -180,8 +173,8 @@ const main = async () => {
   let mailingListToUserMap = {};
 
   for (const mailingListId of mailingListIds) {
-    const numUsers = faker.number.int({ min: 0, max: numUsers });
-    const randomUserIds = faker.helpers.arrayElements(userIds, numUsers);
+    const randomNumUsers = faker.number.int({ min: 0, max: numUsers });
+    const randomUserIds = faker.helpers.arrayElements(userIds, randomNumUsers);
     mailingListToUserMap[mailingListId] = randomUserIds;
   }
 

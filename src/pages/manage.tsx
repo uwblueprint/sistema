@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { User } from '../types/types';
+import { User, Role } from '../../utils/types';
 
 export default function ManagePage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -28,8 +28,8 @@ export default function ManagePage() {
     fetchUsers();
   }, []);
 
-  const updateUserRole = async (userId: number, newRole: string) => {
-    const confirmed = window.confirm('Confirm change role to ' + newRole);
+  const updateUserRole = async (userId: number, newRole: Role) => {
+    const confirmed = window.confirm(`Confirm change role to ${newRole}`);
     if (!confirmed) return;
 
     const apiUrl = `/api/users/${userId}`;
@@ -86,10 +86,15 @@ export default function ManagePage() {
                 <td>
                   <select
                     value={user.role}
-                    onChange={(e) => updateUserRole(user.id, e.target.value)}
+                    onChange={(e) =>
+                      updateUserRole(user.id, e.target.value as Role)
+                    }
                   >
-                    <option value="TEACHER">Teacher</option>
-                    <option value="ADMIN">Admin</option>
+                    {Object.values(Role).map((role) => (
+                      <option key={role} value={role}>
+                        {role.charAt(0) + role.slice(1).toLowerCase()}
+                      </option>
+                    ))}
                   </select>
                 </td>
                 <td>

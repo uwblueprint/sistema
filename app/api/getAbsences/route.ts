@@ -1,5 +1,6 @@
+import { AbsenceWithRelations } from '@utils/types';
 import { NextResponse } from 'next/server';
-import { AbsenceWithRelations, getAbsencesFromDatabase } from './absences';
+import { getAbsencesFromDatabase } from './absences';
 
 export async function GET() {
   try {

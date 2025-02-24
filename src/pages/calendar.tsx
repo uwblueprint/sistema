@@ -4,7 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { Box, Flex, useToast, useTheme } from '@chakra-ui/react';
 import { EventInput, EventContentArg } from '@fullcalendar/core';
-import { AbsenceWithRelations } from '../../app/api/getAbsences/absences';
+import { AbsenceWithRelations } from '@utils/types';
 import Sidebar from '../components/CalendarSidebar';
 import CalendarHeader from '../components/CalendarHeader';
 import { Global } from '@emotion/react';
