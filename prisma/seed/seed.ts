@@ -30,7 +30,7 @@ const main = async () => {
   ];
 
   const numUsers = 20;
-  const numAbsences = 50;
+  const numAbsences = 100;
   const numSubjects = subjects.length;
   const userIds = Array.from({ length: numUsers }, (_, i) => i + 1);
   const subjectIds = Array.from({ length: numSubjects }, (_, i) => i + 1);
