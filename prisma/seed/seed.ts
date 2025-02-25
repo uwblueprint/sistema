@@ -15,18 +15,7 @@ const main = async () => {
     ADMIN = 'ADMIN',
   }
 
-  enum StatusEnum {
-    ACTIVE = 'ACTIVE',
-    INVITED = 'INVITED',
-    DEACTIVATED = 'DEACTIVATED',
-  }
-
   const roles = [RoleEnum.TEACHER, RoleEnum.ADMIN];
-  const statuses = [
-    StatusEnum.ACTIVE,
-    StatusEnum.INVITED,
-    StatusEnum.DEACTIVATED,
-  ];
 
   const subjects = [
     { name: 'Strings', abbreviation: 'STR', colorGroupId: 3 },
@@ -53,7 +42,6 @@ const main = async () => {
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
       role: faker.helpers.arrayElement(roles),
-      status: faker.helpers.arrayElement(statuses),
     }))
   );
 

@@ -31,7 +31,6 @@ model User {
   firstName    String
   lastName     String
   role         Role          @default(TEACHER)
-  status       Status        @default(INVITED)
   absences     Absence[]     @relation("absentTeacher")
   substitutes  Absence[]     @relation("substituteTeacher")
   subjects     Subject[]     @relation("MailingLists")
@@ -81,10 +80,4 @@ model GlobalSettings {
 enum Role {
   TEACHER
   ADMIN
-}
-
-enum Status {
-  ACTIVE
-  INVITED
-  DEACTIVATED
 }

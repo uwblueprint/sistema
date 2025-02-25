@@ -44,7 +44,6 @@ export interface User {
   firstName: string;
   lastName: string;
   role: Role;
-  status: Status;
 }
 
 export interface UserAPI {
@@ -105,10 +104,4 @@ export interface GlobalSettings {
 export enum Role {
   TEACHER = 'TEACHER',
   ADMIN = 'ADMIN',
-}
-
-export enum Status {
-  ACTIVE = 'ACTIVE',
-  INVITED = 'INVITED',
-  DEACTIVATED = 'DEACTIVATED',
 }
