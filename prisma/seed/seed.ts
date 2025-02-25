@@ -21,12 +21,12 @@ const main = async () => {
     { name: 'Strings', abbreviation: 'STR', colorGroupId: 3 },
     { name: 'Choir', abbreviation: 'CHO', colorGroupId: 2 },
     {
-      name: 'Music and Movement',
+      name: 'Music & Movement',
       abbreviation: 'M&M',
       colorGroupId: 4,
     },
     { name: 'Percussion', abbreviation: 'PER', colorGroupId: 7 },
-    { name: 'Trumpet/Clarinet', abbreviation: 'T&C', colorGroupId: 1 },
+    { name: 'Trumpet/Clarinets', abbreviation: 'T&C', colorGroupId: 1 },
   ];
 
   const numUsers = 20;
