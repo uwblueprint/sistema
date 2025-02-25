@@ -265,17 +265,23 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
     field,
     label,
     icon,
+    centered = false,
   }: {
     field: SortField;
     label: string;
     icon: any;
+    centered?: boolean;
   }) => {
     const isActive = sortField === field;
     const color = isActive ? 'primaryBlue.300' : 'text.subtitle';
 
     return (
-      <Th onClick={() => handleSort(field)} cursor="pointer">
-        <HStack spacing={2}>
+      <Th
+        onClick={() => handleSort(field)}
+        cursor="pointer"
+        textAlign={centered ? 'center' : 'left'}
+      >
+        <HStack spacing={2} justifyContent={centered ? 'center' : 'flex-start'}>
           <Icon as={icon} boxSize={4} color={color} />
           <Heading size="h4" color={color} textTransform="none">
             {label}
@@ -347,7 +353,12 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
             <Tr borderColor={'red'}>
               <SortableHeader field="name" label="Name" icon={FiUser} />
               <SortableHeader field="email" label="Email" icon={FiMail} />
-              <SortableHeader field="absences" label="Abs." icon={FiClock} />
+              <SortableHeader
+                field="absences"
+                label="Abs."
+                icon={FiClock}
+                centered
+              />
               <SortableHeader field="role" label="Role" icon={FiLock} />
               <Th>
                 <HStack spacing={2}>
