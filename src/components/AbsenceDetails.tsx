@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -12,6 +13,7 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
+import { Calendar, Buildings } from 'iconsax-react';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
 
@@ -71,15 +73,18 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
               </Text>
             </Flex>
 
-            <Text fontSize="13px" color="#373636">
-              {event.start
-                ? new Date(event.start).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric',
-                  })
-                : 'N/A'}
-            </Text>
+            <Flex gap="13px">
+              <Calendar size="20px" color="#0468C1" />
+              <Text fontSize="13px" color="#373636">
+                {event.start
+                  ? new Date(event.start).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      month: 'long',
+                      day: 'numeric',
+                    })
+                  : 'N/A'}
+              </Text>
+            </Flex>
 
             <Flex gap="13px">
               <FiUser size="20px" color="#0468C1" />
@@ -89,10 +94,13 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
               </Text>
             </Flex>
 
-            <Text fontSize="13px" color="#373636">
-              {' '}
-              Room (to-do){' '}
-            </Text>
+            <Flex gap="13px">
+              <Buildings size="20px" color="#0468C1" />
+              <Text fontSize="13px" color="#373636">
+                {' '}
+                Room (to-do){' '}
+              </Text>
+            </Flex>
 
             <Box>
               <Text fontSize="14px" fontWeight="500">
