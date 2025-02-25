@@ -56,8 +56,16 @@ const ExportAbsencesButton = () => {
       const blob = new Blob([csvData], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
+
+      const now = new Date();
+      const timestamp = now
+        .toISOString()
+        .replace(/T/, '_')
+        .replace(/:/g, '-')
+        .split('.')[0];
+
       link.href = url;
-      link.download = 'absences.csv';
+      link.download = `absences_${timestamp}.csv`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (err) {
