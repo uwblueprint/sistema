@@ -1,4 +1,3 @@
-import { CheckIcon, CloseIcon } from '@chakra-ui/icons';
 import { IoChevronDownOutline, IoChevronUpOutline } from 'react-icons/io5';
 
 import {
@@ -12,23 +11,25 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  Select,
   Table,
   Tag,
   TagLabel,
-  ButtonGroup,
   Tbody,
   Td,
   Text,
   Th,
   Thead,
   Tr,
+  useTheme,
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
+
 import { Role, UserAPI } from '@utils/types';
 import React, { useState } from 'react';
 import {
+  FiChevronDown,
+  FiChevronUp,
   FiClock,
   FiEdit2,
   FiLock,
@@ -37,7 +38,7 @@ import {
   FiTag,
   FiUser,
 } from 'react-icons/fi';
-import { IoClose, IoCheckmark, IoFilterOutline } from 'react-icons/io5';
+import { IoCheckmark, IoCloseOutline, IoFilterOutline } from 'react-icons/io5';
 
 type EditableRoleCellProps = {
   role: string;
@@ -45,16 +46,25 @@ type EditableRoleCellProps = {
 };
 
 const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
-  const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [newRole, setNewRole] = useState(role);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleEditClick = () => {
     setIsEditing(true);
+    setIsDropdownOpen(false);
+    setIsHovered(false);
   };
 
-  const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setNewRole(event.target.value);
+  const toggleDropdown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDropdownOpen((prev) => !prev);
+  };
+
+  const handleRoleChange = (selectedRole: string) => {
+    setNewRole(selectedRole);
+    setIsDropdownOpen(false);
   };
 
   const handleConfirmClick = () => {
@@ -62,75 +72,104 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
     setIsEditing(false);
   };
 
-  return isEditing ? (
+  const handleCancelClick = () => {
+    setNewRole(role);
+    setIsEditing(false);
+    setIsHovered(false);
+    setIsDropdownOpen(false);
+  };
+  const oppositeRole = newRole === 'TEACHER' ? 'ADMIN' : 'TEACHER';
+  const theme = useTheme();
+
+  return (
     <Box
       position="relative"
       display="inline-flex"
       alignItems="center"
-      width="100px"
-      height="40px"
+      onMouseEnter={() => !isEditing && setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <Select
-        value={newRole}
-        onChange={handleRoleChange}
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        cursor="pointer"
+        onClick={handleEditClick}
+        bg={isEditing ? 'primaryBlue.50' : 'transparent'}
+        p={2}
+        borderRadius="md"
         width="100px"
-        height="40px"
       >
-        <option value="TEACHER">Teacher</option>
-        <option value="ADMIN">Admin</option>
-      </Select>
+        <Text variant="cellBody" flexGrow={1}>
+          {newRole === 'TEACHER' ? 'Teacher' : 'Admin'}
+        </Text>
 
-      {newRole !== role && (
+        <Box display="flex" alignItems="center">
+          {isEditing ? (
+            <Icon
+              as={isDropdownOpen ? FiChevronUp : FiChevronDown}
+              color="neutralGray.600"
+              onClick={toggleDropdown}
+            />
+          ) : (
+            isHovered && <Icon as={FiEdit2} color="neutralGray.600" />
+          )}
+        </Box>
+      </Box>
+      {isDropdownOpen && (
+        <Box
+          position="absolute"
+          top="38px"
+          left="0"
+          bg="white"
+          border="1px solid"
+          borderColor="neutralGray.300"
+          borderRadius="md"
+          shadow="md"
+          zIndex="10"
+          width="100px"
+        >
+          <Box
+            p={2}
+            cursor="pointer"
+            borderRadius="md"
+            _hover={{ bg: 'primaryBlue.50' }}
+            onClick={() => handleRoleChange(oppositeRole)}
+          >
+            <Text variant="cellBody" flexGrow={1}>
+              {oppositeRole === 'TEACHER' ? 'Teacher' : 'Admin'}
+            </Text>
+          </Box>
+        </Box>
+      )}
+
+      {isEditing && newRole !== role && (
         <Button
           variant="outline"
           onClick={handleConfirmClick}
           position="absolute"
           right={'-70px'}
           size="sm"
-          width="32px"
-          height="32px"
           borderRadius="md"
           p={0}
         >
-          <IoCheckmark size={20} />
+          <IoCheckmark size={20} color={theme.colors.neutralGray[600]} />
         </Button>
       )}
-      <Button
-        variant="outline"
-        onClick={() => setIsEditing(false)}
-        position="absolute"
-        right={'-35px'}
-        size="sm"
-        width="32px"
-        height="32px"
-        borderRadius="md"
-        p={0}
-      >
-        <IoClose size={20} />
-      </Button>
-    </Box>
-  ) : (
-    <Box
-      display="inline-flex"
-      alignItems="center"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      bg={isHovered ? 'primaryBlue.50' : 'transparent'}
-      p={2}
-      borderRadius="md"
-      minWidth="100px"
-      height="40px"
-    >
-      <Text variant="cellBody" height="100%" display="flex" alignItems="center">
-        {role === 'TEACHER' ? 'Teacher' : 'Admin'}
-      </Text>
-      <Icon
-        as={FiEdit2}
-        onClick={handleEditClick}
-        cursor="pointer"
-        ml={2}
-        visibility={isHovered ? 'visible' : 'hidden'}
-      />
+
+      {isEditing && (
+        <Button
+          variant="outline"
+          onClick={handleCancelClick}
+          position="absolute"
+          right={'-35px'}
+          size="sm"
+          borderRadius="md"
+          p={0}
+        >
+          <IoCloseOutline size={20} color={theme.colors.neutralGray[600]} />
+        </Button>
+      )}
     </Box>
   );
 };
@@ -286,7 +325,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
 
           <Button
             variant="outline"
-            leftIcon={<Icon as={IoFilterOutline} />}
+            leftIcon={<Icon as={IoFilterOutline} color={'neutralGray.600'} />}
             width="100px"
             flexGrow={0}
             flexShrink={0}
@@ -327,7 +366,6 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                 key={index}
                 sx={{
                   ':last-child td': { borderBottom: 'none' },
-                  // ':first-child td': { borderTop: 'none' },
                 }}
               >
                 <Td>
@@ -342,7 +380,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                 <Td color="gray.600">
                   <Text variant="cellBody">{user.email}</Text>
                 </Td>
-                <Td>
+                <Td textAlign="center">
                   <Text
                     variant="cellBold"
                     color={getAbsenceColor(
@@ -366,18 +404,21 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                     {user.mailingLists?.map((mailingList, index) => (
                       <WrapItem key={index}>
                         <Tag
-                          size="md"
+                          size="lg"
                           variant="subtle"
                           key={index}
-                          color={mailingList.subject.colorGroup.colorCodes[0]}
                           bg={mailingList.subject.colorGroup.colorCodes[3]}
                         >
-                          <TagLabel
-                            fontWeight="600"
-                            fontSize="12px"
-                            lineHeight="18px"
-                          >
-                            {mailingList.subject.name}
+                          <TagLabel>
+                            <Text
+                              color={
+                                mailingList.subject.colorGroup.colorCodes[0]
+                              }
+                              fontWeight="600"
+                              variant={'label'}
+                            >
+                              {mailingList.subject.name}
+                            </Text>
                           </TagLabel>
                         </Tag>
                       </WrapItem>
