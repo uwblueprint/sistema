@@ -25,7 +25,7 @@ const main = async () => {
       abbreviation: 'M&M',
       colorGroupId: 4,
     },
-    { name: 'Percussion', abbreviation: 'PER', colorGroupId: 5 },
+    { name: 'Percussion', abbreviation: 'PER', colorGroupId: 7 },
     { name: 'Trumpet/Clarinet', abbreviation: 'T&C', colorGroupId: 1 },
   ];
 
