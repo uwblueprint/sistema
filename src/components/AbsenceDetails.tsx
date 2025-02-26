@@ -113,20 +113,28 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
             </Box>
 
             <Box>
-              <Text fontSize="14px" fontWeight="500">
+              <Text fontSize="14px" fontWeight="500" mb="9px">
                 Reason of Absence
               </Text>
-              <Text fontSize="12px" sx={{ padding: '15px 15px 8px 15px' }}>
+              <Text
+                fontSize="12px"
+                sx={{ padding: '15px 15px 33px 15px', borderRadius: '10px' }}
+                background="#F7F7F7"
+              >
                 {event.reasonOfAbsence}
               </Text>
             </Box>
 
             {event.notes && (
               <Box>
-                <Text fontSize="14px" fontWeight="500">
+                <Text fontSize="14px" fontWeight="500" mb="9px">
                   Notes
                 </Text>
-                <Text fontSize="12px" sx={{ padding: '15px 15px 8px 15px' }}>
+                <Text
+                  fontSize="12px"
+                  sx={{ padding: '15px 15px 33px 15px', borderRadius: '10px' }}
+                  background="#F7F7F7"
+                >
                   {event.notes}
                 </Text>
               </Box>

@@ -2,8 +2,8 @@ import { Button, Link, Text, Flex, Image } from '@chakra-ui/react';
 
 const LessonPlanView = ({ lessonPlan, absentTeacherFirstName }) => {
   return lessonPlan ? (
-    <Button as={Link} href={lessonPlan} isExternal mt={3}>
-      To-do: Download Lesson Plan
+    <Button as={Link} href={lessonPlan} isExternal>
+      Download Lesson Plan (to-do)
     </Button>
   ) : (
     <Flex
