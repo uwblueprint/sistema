@@ -103,7 +103,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
             </Flex>
 
             <Box>
-              <Text fontSize="14px" fontWeight="500">
+              <Text fontSize="14px" fontWeight="500" mb="9px">
                 Lesson Plan
               </Text>
               <LessonPlanView
