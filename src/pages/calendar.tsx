@@ -7,7 +7,9 @@ import { EventInput, EventContentArg } from '@fullcalendar/core';
 import { AbsenceWithRelations } from '../../app/api/getAbsences/route';
 import Sidebar from '../components/CalendarSidebar';
 import CalendarHeader from '../components/CalendarHeader';
+import { CalendarTabs } from '../components/CalendarTabs';
 import { Global } from '@emotion/react';
+import { useSession } from 'next-auth/react';
 
 const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
@@ -21,8 +23,13 @@ const Calendar: React.FC = () => {
     locations: [],
   });
   const [currentMonthYear, setCurrentMonthYear] = useState('');
+  const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
+    'explore'
+  );
+  const { data: session } = useSession();
   const toast = useToast();
   const theme = useTheme();
+  const userEmail = session?.user?.email;
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => (
@@ -48,6 +55,8 @@ const Calendar: React.FC = () => {
     allDay: true,
     display: 'auto',
     location: absenceData.location.name,
+    absentTeacherEmail: absenceData.absentTeacher.email,
+    substituteTeacher: absenceData.substituteTeacher,
   });
 
   const fetchAbsences = useCallback(async () => {
@@ -128,18 +137,32 @@ const Calendar: React.FC = () => {
   useEffect(() => {
     const { titles, locations } = searchQuery;
 
-    const filtered = events.filter((event) => {
+    let filtered = events.filter((event) => {
       const titleMatch = titles.some((title) =>
         event.title?.toLowerCase().includes(title.toLowerCase())
       );
       const locationMatch = locations.some((location) =>
         event.location?.toLowerCase().includes(location.toLowerCase())
       );
+
       return titleMatch && locationMatch;
     });
 
+    if (activeTab === 'explore') {
+      filtered = filtered.filter(
+        (event) =>
+          event.absentTeacherEmail !== userEmail && !event.substituteTeacher
+      );
+    } else if (activeTab === 'declared') {
+      filtered = filtered.filter(
+        (event) =>
+          event.absentTeacherEmail === userEmail ||
+          event.substituteTeacher?.email === userEmail
+      );
+    }
+
     setFilteredEvents(filtered);
-  }, [searchQuery, events]);
+  }, [searchQuery, events, activeTab, userEmail]);
 
   return (
     <>
@@ -198,6 +221,7 @@ const Calendar: React.FC = () => {
             onPrevClick={handlePrevClick}
             onNextClick={handleNextClick}
           />
+          <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
           <FullCalendar
             ref={calendarRef}
             headerToolbar={false}
