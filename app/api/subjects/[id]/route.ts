@@ -9,7 +9,7 @@ export async function PATCH(
   try {
     const id = parseInt(params.id);
     const data = await request.json();
-    const { name, abbreviation, colorGroupId } = data;
+    const { name, abbreviation, colorGroupId, archived } = data;
 
     const subject = await prisma.subject.update({
       where: { id },
@@ -17,6 +17,7 @@ export async function PATCH(
         name,
         abbreviation,
         colorGroupId,
+        archived,
       },
       include: {
         colorGroup: true,
@@ -40,6 +41,23 @@ export async function DELETE(
   const params = await props.params;
   try {
     const id = parseInt(params.id);
+
+    // Check if the subject is used in any absences
+    const absenceUsingSubject = await prisma.absence.findFirst({
+      where: { subjectId: id },
+      select: { id: true }, // Only select the ID field for efficiency
+    });
+
+    if (absenceUsingSubject) {
+      return NextResponse.json(
+        {
+          error:
+            'Cannot delete subject because it is used in existing absences',
+        },
+        { status: 409 } // Conflict seems like the best status code for this
+      );
+    }
+
     await prisma.subject.delete({
       where: { id },
     });

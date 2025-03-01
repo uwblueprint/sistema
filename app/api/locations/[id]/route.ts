@@ -9,13 +9,14 @@ export async function PATCH(
   try {
     const id = parseInt(params.id);
     const data = await request.json();
-    const { name, abbreviation } = data;
+    const { name, abbreviation, archived } = data;
 
     const location = await prisma.location.update({
       where: { id },
       data: {
         name,
         abbreviation,
+        archived,
       },
     });
 
@@ -36,6 +37,23 @@ export async function DELETE(
   const params = await props.params;
   try {
     const id = parseInt(params.id);
+
+    // Check if the location is used in any absences
+    const absenceUsingLocation = await prisma.absence.findFirst({
+      where: { locationId: id },
+      select: { id: true }, // Only select the ID field for efficiency
+    });
+
+    if (absenceUsingLocation) {
+      return NextResponse.json(
+        {
+          error:
+            'Cannot delete location because it is used in existing absences',
+        },
+        { status: 409 } // Conflict seems like the best status code for this
+      );
+    }
+
     await prisma.location.delete({
       where: { id },
     });
