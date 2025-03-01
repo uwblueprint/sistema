@@ -1,10 +1,13 @@
 import { extendTheme } from '@chakra-ui/react';
+import '@fontsource/inter';
+import '@fontsource/poppins';
 
 const fonts = {
   heading: `'Poppins', sans-serif`,
-  body: `'Poppins', sans-serif`,
-  mono: `'Menlo', monospace`,
+  body: `'Inter', sans-serif`,
+  mono: `'Inter', monospace`,
 };
+
 const breakpoints = {
   sm: '40em',
   md: '52em',
@@ -103,21 +106,27 @@ const theme = extendTheme({
       200: '#BF3232',
       300: '#900A0A',
     },
+    text: {
+      header: '#1B1B1B',
+      body: '#373636',
+      subtitle: '#838383',
+      inactiveButtonText: '#ACACAC',
+    },
   },
   styles: {
     global: {
       'html, body': {
         backgroundColor: 'white',
-        color: 'neutralGray.900',
+        color: 'text.body',
       },
       h1: {
-        color: 'neutralGray.900',
+        color: 'text.header',
       },
       h2: {
-        color: 'neutralGray.800',
+        color: 'text.header',
       },
       p: {
-        color: 'neutralGray.700',
+        color: 'text.body',
       },
     },
   },
@@ -127,12 +136,16 @@ const theme = extendTheme({
         bg: 'buttonBackground',
         color: 'primaryBlue.300',
         borderRadius: '7px',
+        fontFamily: 'heading',
+        fontWeight: 600,
+        fontSize: '16px',
+        lineHeight: '24px',
         _active: {
           bg: 'primaryBlue.400',
         },
         _disabled: {
           bg: 'neutralGray.200',
-          color: 'neutralGray.400',
+          color: 'text.inactiveButtonText',
         },
       },
       variants: {
@@ -145,32 +158,81 @@ const theme = extendTheme({
         },
         outline: {
           borderColor: 'neutralGray.300',
-          color: 'black',
+          color: 'text.header',
           _hover: {
-            bg: 'primaryBlue.50',
+            bg: 'neutralGray.100',
           },
-        },
-      },
-    },
-    Text: {
-      baseStyle: {
-        color: 'black',
-      },
-      variants: {
-        header: {
-          color: 'black',
-        },
-        subtitle: {
-          color: 'neutralGray.500',
-        },
-        inactive: {
-          color: 'neutralGray.400',
         },
       },
     },
     Heading: {
       baseStyle: {
-        color: 'black',
+        color: 'text.header',
+      },
+      sizes: {
+        h1: {
+          fontWeight: 600,
+          fontSize: '28px',
+          lineHeight: '42px',
+        },
+        h2: {
+          fontWeight: 600,
+          fontSize: '22px',
+          lineHeight: '33px',
+        },
+        h3: {
+          fontWeight: 700,
+          fontSize: '16px',
+          lineHeight: '24px',
+        },
+        h4: {
+          fontWeight: 700,
+          fontSize: '14px',
+          lineHeight: '21px',
+        },
+      },
+    },
+    Text: {
+      baseStyle: {
+        color: 'text.body',
+      },
+      variants: {
+        semibold: {
+          fontWeight: 600,
+          fontSize: '13px',
+          lineHeight: '15.73px',
+        },
+        subtitle: {
+          fontWeight: 400,
+          fontSize: '13px',
+          lineHeight: '15.73px',
+          color: 'text.subtitle',
+        },
+        caption: {
+          fontWeight: 400,
+          fontSize: '12px',
+          lineHeight: '14.52px',
+        },
+        body: {
+          fontWeight: 400,
+          fontSize: '11px',
+          lineHeight: '13.31px',
+        },
+        label: {
+          fontWeight: 500,
+          fontSize: '12px',
+          lineHeight: '18px',
+        },
+        cellBody: {
+          fontWeight: 400,
+          fontSize: '15px',
+          lineHeight: '18.15px',
+        },
+        cellBold: {
+          fontWeight: 600,
+          fontSize: '15px',
+          lineHeight: '18.15px',
+        },
       },
     },
   },

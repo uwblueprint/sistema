@@ -144,6 +144,16 @@ To stop the database:
 docker compose down
 ```
 
+## **Accessing the Docker Container**
+
+To access the running Next.js container (`sistema-nextjs-1`), run:
+
+```bash
+docker exec -it sistema-nextjs-1 sh
+```
+
+This will open an interactive shell inside the container.
+
 ## Accessing Database
 
 ```bash
@@ -187,17 +197,7 @@ npx prisma db seed
 
 The local database seeds automatically locally when `docker compose up --build` is run. Only run the commands below to seed the production database:
 
-In the schema.prisma, set the db datasource as follows (where
-`VERCEL_POSTGRES_PRISMA_URL` and `VERCEL_POSTGRES_URL_NON_POOLING` are Vercel
-environment variables):
-
-```prisma
-datasource db {
-  provider = "postgresql"
-  url = env("VERCEL_POSTGRES_PRISMA_URL")
-  directUrl = env("VERCEL_POSTGRES_URL_NON_POOLING")
-}
-```
+In your .env file, set the `DATABASE_URL` variable to the prod url from Vercel.
 
 Then, run the following commands:
 

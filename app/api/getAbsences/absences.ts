@@ -1,68 +1,43 @@
 import { prisma } from '@utils/prisma';
+import { AbsenceAPI } from '@utils/types';
 
-export interface AbsenceWithRelations {
-  lessonDate: Date;
-  lessonPlan: string | null;
-  reasonOfAbsence: string;
-  notes: string | null;
-  absentTeacherId: number;
-  substituteTeacherId: number | null;
-  absentTeacher: {
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
-  substituteTeacher: {
-    firstName: string;
-    lastName: string;
-    email: string;
-  } | null;
-  location: {
-    name: string;
-    abbreviation: string;
-  };
-  subject: {
-    name: string;
-    abbreviation: string;
-  };
-}
-
-export const getAbsencesFromDatabase = async (): Promise<
-  AbsenceWithRelations[]
-> => {
+export const getAbsencesFromDatabase = async (): Promise<AbsenceAPI[]> => {
   try {
-    const absences: AbsenceWithRelations[] = await prisma.absence.findMany({
+    const absences = await prisma.absence.findMany({
       select: {
         lessonDate: true,
-        subject: {
-          select: {
-            name: true,
-            abbreviation: true,
-          },
-        },
         lessonPlan: true,
         reasonOfAbsence: true,
         notes: true,
         absentTeacherId: true,
         substituteTeacherId: true,
+        roomNumber: true,
         absentTeacher: {
           select: {
             firstName: true,
             lastName: true,
-            email: true,
           },
         },
         substituteTeacher: {
           select: {
             firstName: true,
             lastName: true,
-            email: true,
           },
         },
         location: {
           select: {
             name: true,
+          },
+        },
+        subject: {
+          select: {
+            name: true,
             abbreviation: true,
+            colorGroup: {
+              select: {
+                colorCodes: true,
+              },
+            },
           },
         },
       },

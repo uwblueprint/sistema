@@ -13,8 +13,7 @@ async function getRandomUser() {
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const shouldIncludeAbsences =
-    searchParams.get('shouldIncludeAbsences') === 'true';
+  const getAbsences = searchParams.get('getAbsences') === 'true';
   const realEmail = searchParams.get('email');
 
   try {
@@ -29,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     const user = await prisma.user.findUniqueOrThrow({
       where: { email },
-      include: { absences: shouldIncludeAbsences },
+      include: { absences: getAbsences },
     });
 
     return NextResponse.json(user);

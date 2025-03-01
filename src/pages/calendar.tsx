@@ -1,28 +1,27 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
 import {
   Box,
   Flex,
-  useToast,
-  useTheme,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
   ModalBody,
   ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
   useDisclosure,
+  useTheme,
+  useToast,
 } from '@chakra-ui/react';
-import { EventInput, EventContentArg } from '@fullcalendar/core';
-import { AbsenceWithRelations } from '../../app/api/getAbsences/absences';
-import Sidebar from '../components/CalendarSidebar';
-import CalendarHeader from '../components/CalendarHeader';
-import InputForm from '../components/InputForm';
-import { Absence } from '@prisma/client';
-import { Prisma } from '@prisma/client';
 import { Global } from '@emotion/react';
+import { EventContentArg, EventInput } from '@fullcalendar/core';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import FullCalendar from '@fullcalendar/react';
+import { Absence, Prisma } from '@prisma/client';
+import { AbsenceAPI } from '@utils/types';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import CalendarHeader from '../components/CalendarHeader';
+import Sidebar from '../components/CalendarSidebar';
+import InputForm from '../components/InputForm';
 
 const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
@@ -49,9 +48,7 @@ const Calendar: React.FC = () => {
     []
   );
 
-  const convertAbsenceToEvent = (
-    absenceData: AbsenceWithRelations
-  ): EventInput => ({
+  const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
     title: absenceData.subject.name,
     start: absenceData.lessonDate,
     allDay: true,
@@ -197,7 +194,7 @@ const Calendar: React.FC = () => {
           .fc th {
             text-transform: uppercase;
             font-size: ${theme.fontSizes.sm};
-            font-weight: ${theme.fontWeights.normal};
+            font-weight: ${theme.fontWeights[600]};
           }
           .fc-day-today {
             background-color: inherit !important;
@@ -206,7 +203,7 @@ const Calendar: React.FC = () => {
             margin-left: 6px;
             margin-top: 6px;
             font-size: ${theme.fontSizes.xs};
-            font-weight: ${theme.fontWeights.normal};
+            font-weight: ${theme.fontWeights[400]};
             width: 25px;
             height: 25px;
             display: flex;

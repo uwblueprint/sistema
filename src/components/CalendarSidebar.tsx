@@ -30,7 +30,6 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         paddingX="40px"
         variant="outline"
         borderColor={theme.colors.neutralGray[300]}
-        color="black"
         size="lg"
         onClick={onDeclareAbsenceClick}
         leftIcon={<AddIcon color="blue.500" />}

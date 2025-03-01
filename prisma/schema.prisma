@@ -13,6 +13,7 @@ model Absence {
   lessonPlan          String?
   reasonOfAbsence     String
   notes               String?
+  roomNumber          String?
   absentTeacherId     Int
   substituteTeacherId Int?
   locationId          Int
@@ -24,16 +25,16 @@ model Absence {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  authId        String    @unique
-  email         String    @unique
-  firstName     String
-  lastName      String
-  role          Role      @default(TEACHER)
-  status        Status    @default(INVITED)
-  numOfAbsences Int       @default(10)
-  absences      Absence[] @relation("absentTeacher")
-  substitutes   Absence[] @relation("substituteTeacher")
+  id           Int           @id @default(autoincrement())
+  authId       String        @unique
+  email        String        @unique
+  firstName    String
+  lastName     String
+  role         Role          @default(TEACHER)
+  absences     Absence[]     @relation("absentTeacher")
+  substitutes  Absence[]     @relation("substituteTeacher")
+  subjects     Subject[]     @relation("MailingLists")
+  mailingLists MailingList[]
 }
 
 model Location {
@@ -44,18 +45,24 @@ model Location {
 }
 
 model MailingList {
-  id     Int      @id @default(autoincrement())
-  name   String
-  emails String[]
+  userId    Int
+  subjectId Int
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@id([userId, subjectId])
+  @@map("MailingList")
 }
 
 model Subject {
-  id           Int        @id @default(autoincrement())
+  id           Int           @id @default(autoincrement())
   name         String
   abbreviation String
   Absence      Absence[]
   colorGroupId Int
-  colorGroup   ColorGroup @relation(fields: [colorGroupId], references: [id])
+  colorGroup   ColorGroup    @relation(fields: [colorGroupId], references: [id])
+  users        User[]        @relation("MailingLists")
+  userSubjects MailingList[]
 }
 
 model ColorGroup {
@@ -65,13 +72,12 @@ model ColorGroup {
   Subject    Subject[]
 }
 
+model GlobalSettings {
+  id         Int @id @default(autoincrement())
+  absenceCap Int @default(10)
+}
+
 enum Role {
   TEACHER
   ADMIN
-}
-
-enum Status {
-  ACTIVE
-  INVITED
-  DEACTIVATED
 }
