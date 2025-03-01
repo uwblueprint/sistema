@@ -5,6 +5,8 @@ export interface AbsenceWithRelations {
   lessonPlan: string | null;
   reasonOfAbsence: string;
   notes: string | null;
+  absentTeacherId: number;
+  substituteTeacherId: number | null;
   absentTeacher: {
     firstName: string;
     lastName: string;
@@ -41,6 +43,8 @@ export const getAbsencesFromDatabase = async (): Promise<
         lessonPlan: true,
         reasonOfAbsence: true,
         notes: true,
+        absentTeacherId: true,
+        substituteTeacherId: true,
         absentTeacher: {
           select: {
             firstName: true,
