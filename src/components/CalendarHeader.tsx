@@ -1,7 +1,7 @@
 import {
   Button,
   Flex,
-  Heading,
+  Text,
   HStack,
   IconButton,
   Spacer,
@@ -53,7 +53,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             variant="outline"
           />
         </HStack>
-        <Heading size={'h1'}>{currentMonthYear}</Heading>
+        <Text textStyle={'h1'}>{currentMonthYear}</Text>
       </HStack>
       <Spacer />
       <Button
