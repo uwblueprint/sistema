@@ -25,16 +25,17 @@ model Absence {
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
-  authId       String        @unique
-  email        String        @unique
-  firstName    String
-  lastName     String
-  role         Role          @default(TEACHER)
-  absences     Absence[]     @relation("absentTeacher")
-  substitutes  Absence[]     @relation("substituteTeacher")
-  subjects     Subject[]     @relation("MailingLists")
-  mailingLists MailingList[]
+  id             Int           @id @default(autoincrement())
+  authId         String        @unique
+  email          String        @unique
+  firstName      String
+  lastName       String
+  profilePicture String?
+  role           Role          @default(TEACHER)
+  absences       Absence[]     @relation("absentTeacher")
+  substitutes    Absence[]     @relation("substituteTeacher")
+  subjects       Subject[]     @relation("MailingLists")
+  mailingLists   MailingList[]
 }
 
 model Location {

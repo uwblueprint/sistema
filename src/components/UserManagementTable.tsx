@@ -384,6 +384,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                     <Avatar
                       size="sm"
                       name={`${user.firstName} ${user.lastName}`}
+                      src={user.profilePicture || undefined}
                     />
                     <Text variant="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
                   </HStack>

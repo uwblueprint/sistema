@@ -41,6 +41,7 @@ const main = async () => {
       email: faker.internet.email(),
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
+      profilePicture: `https://robohash.org/${faker.string.uuid()}?set=set5`,
       role: faker.helpers.arrayElement(roles),
     }))
   );

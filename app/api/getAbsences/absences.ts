@@ -16,12 +16,14 @@ export const getAbsencesFromDatabase = async (): Promise<AbsenceAPI[]> => {
           select: {
             firstName: true,
             lastName: true,
+            profilePicture: true,
           },
         },
         substituteTeacher: {
           select: {
             firstName: true,
             lastName: true,
+            profilePicture: true,
           },
         },
         location: {
