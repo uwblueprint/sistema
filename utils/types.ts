@@ -17,6 +17,8 @@ export interface AbsenceAPI {
   reasonOfAbsence: string;
   notes?: string | null;
   roomNumber?: string | null;
+  absentTeacherId: number;
+  substituteTeacherId: number | null;
   absentTeacher: {
     firstName: string;
     lastName: string;
