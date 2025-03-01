@@ -5,13 +5,14 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
+  Heading,
   VStack,
   useToast,
   Textarea,
 } from '@chakra-ui/react';
 import { Absence, Prisma } from '@prisma/client';
 import { useState } from 'react';
-import { FileUpload } from './upload';
+import { FileUpload } from './FileUpload';
 import { Dropdown } from './Dropdown';
 import { SearchDropdown } from './SearchDropdown';
 
@@ -157,7 +158,9 @@ const InputForm: React.FC<InputFormProps> = ({
     >
       <VStack sx={{ gap: '24px' }}>
         <FormControl isRequired isInvalid={!!errors.absentTeacherId}>
-          <FormLabel>Teacher Absent</FormLabel>
+          <FormLabel sx={{ display: 'flex' }}>
+            <Heading size="h4">Teacher Absent</Heading>
+          </FormLabel>
           <SearchDropdown
             label="Teacher"
             type="user"
@@ -181,7 +184,9 @@ const InputForm: React.FC<InputFormProps> = ({
         </FormControl>
 
         <FormControl>
-          <FormLabel>Substitute Teacher</FormLabel>
+          <FormLabel sx={{ display: 'flex' }}>
+            <Heading size="h4">Substitute Teacher</Heading>
+          </FormLabel>
           <SearchDropdown
             label="Teacher"
             type="user"
@@ -204,7 +209,9 @@ const InputForm: React.FC<InputFormProps> = ({
         </FormControl>
 
         <FormControl isRequired isInvalid={!!errors.subjectId}>
-          <FormLabel>Class Type</FormLabel>
+          <FormLabel sx={{ display: 'flex' }}>
+            <Heading size="h4">Class Type</Heading>
+          </FormLabel>
           <Dropdown
             label="class type"
             type="subject"
@@ -227,7 +234,9 @@ const InputForm: React.FC<InputFormProps> = ({
         </FormControl>
 
         <FormControl isRequired isInvalid={!!errors.locationId}>
-          <FormLabel>Location</FormLabel>
+          <FormLabel sx={{ display: 'flex' }}>
+            <Heading size="h4">Location</Heading>
+          </FormLabel>
           <Dropdown
             label="class location"
             type="location"
@@ -250,7 +259,9 @@ const InputForm: React.FC<InputFormProps> = ({
         </FormControl>
 
         <FormControl isRequired isInvalid={!!errors.lessonDate}>
-          <FormLabel>Date of Absence</FormLabel>
+          <FormLabel sx={{ display: 'flex' }}>
+            <Heading size="h4">Date of Absence</Heading>
+          </FormLabel>
           <Input
             name="lessonDate"
             fontSize="14px"
@@ -263,7 +274,9 @@ const InputForm: React.FC<InputFormProps> = ({
         </FormControl>
 
         <FormControl isRequired isInvalid={!!errors.reasonOfAbsence}>
-          <FormLabel>Reason of Absence</FormLabel>
+          <FormLabel sx={{ display: 'flex' }}>
+            <Heading size="h4">Reason of Absence</Heading>
+          </FormLabel>
           <Input
             name="reasonOfAbsence"
             placeholder="Only visible to admin"
@@ -277,7 +290,9 @@ const InputForm: React.FC<InputFormProps> = ({
         <FileUpload onFileUpload={handleFileUpload} />
 
         <FormControl>
-          <FormLabel>Notes</FormLabel>
+          <FormLabel sx={{ display: 'flex' }}>
+            <Heading size="h4">Notes</Heading>
+          </FormLabel>
           <Textarea
             name="notes"
             placeholder="Additional relevant info..."

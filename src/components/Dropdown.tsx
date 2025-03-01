@@ -50,13 +50,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
   }, [fetchData]);
 
   const handleOptionSelect = (option: Option) => {
-    if (selectedOption && selectedOption.id === option.id) {
-      setSelectedOption(null); // Unselect if clicking the same option
-      onChange(null);
-    } else {
-      setSelectedOption(option);
-      onChange(option);
-    }
+    setSelectedOption(option);
+    onChange(option);
   };
 
   return (

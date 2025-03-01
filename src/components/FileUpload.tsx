@@ -6,6 +6,7 @@ import {
   Text,
   useToast,
   Progress,
+  Heading,
 } from '@chakra-ui/react';
 
 interface FileUploadProps {
@@ -74,7 +75,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
   return (
     <FormControl>
-      <FormLabel>{label}</FormLabel>
+      <FormLabel sx={{ display: 'flex' }}>
+        <Heading size="h4">{label}</Heading>
+      </FormLabel>
       <Input
         type="file"
         onChange={handleFileChange}

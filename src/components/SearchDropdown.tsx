@@ -78,16 +78,9 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   }, [fetchData]);
 
   const handleOptionSelect = (option: Option) => {
-    if (selectedOption && selectedOption.id === option.id) {
-      setSelectedOption(null);
-      setSearchQuery('');
-      onChange(null);
-    } else {
-      setSelectedOption(option);
-      setSearchQuery(option.name);
-      onChange(option);
-      console.log('Selected Option:', option);
-    }
+    setSelectedOption(option);
+    setSearchQuery(option.name);
+    onChange(option);
     inputRef.current?.focus();
     onClose();
   };
