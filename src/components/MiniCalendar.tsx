@@ -158,7 +158,7 @@ export default function MiniCalendar({
               pointerEvents="none"
               bg="transparent"
             >
-              <Text variant="subtitle">{day}</Text>
+              <Text textStyle="subtitle">{day}</Text>
             </Button>
           ))}
         </Grid>
@@ -195,7 +195,7 @@ export default function MiniCalendar({
                 }}
               >
                 <Text
-                  variant="subtitle"
+                  textStyle="subtitle"
                   color={isToday(date) ? todayColor : 'neutralGray.500'}
                 >
                   {lastDateOfPrevMonth - firstDayOfMonth + index + 1}
@@ -230,7 +230,7 @@ export default function MiniCalendar({
                 }}
               >
                 <Text
-                  variant="subtitle"
+                  textStyle="subtitle"
                   color={
                     isToday(date)
                       ? todayColor
@@ -273,7 +273,7 @@ export default function MiniCalendar({
                 }}
               >
                 <Text
-                  variant="subtitle"
+                  textStyle="subtitle"
                   color={isToday(date) ? todayColor : 'neutralGray.500'}
                 >
                   {index + 1}
