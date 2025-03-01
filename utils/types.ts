@@ -51,6 +51,7 @@ export interface UserAPI {
   email: string;
   firstName: string;
   lastName: string;
+  profilePicture?: string;
   role: Role;
   absences: { id: number }[];
   mailingLists: {
