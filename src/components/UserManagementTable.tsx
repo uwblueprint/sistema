@@ -24,8 +24,9 @@ import {
   WrapItem,
 } from '@chakra-ui/react';
 
-import { Role, UserAPI } from '@utils/types';
-import React, { useState } from 'react';
+import { Role } from '@utils/types';
+import { UserAPI, Subject } from '../types/apiTypes';
+import React, { useState, useEffect } from 'react';
 import {
   FiChevronDown,
   FiChevronUp,
@@ -38,6 +39,7 @@ import {
   FiUser,
 } from 'react-icons/fi';
 import { IoCheckmark, IoCloseOutline, IoFilterOutline } from 'react-icons/io5';
+import EditableSubscriptionsCell from './EditableSubscriptionsCell';
 
 type EditableRoleCellProps = {
   role: string;
@@ -180,16 +182,38 @@ type SortDirection = 'asc' | 'desc';
 interface UserManagementTableProps {
   users: UserAPI[];
   updateUserRole: (userId: number, newRole: Role) => void;
+  updateUserSubscriptions: (userId: number, subjectIds: number[]) => void;
   absenceCap: number;
 }
 
 export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   users,
   updateUserRole,
+  updateUserSubscriptions,
   absenceCap,
 }) => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
+
+  useEffect(() => {
+    // Fetch all available subjects
+    const fetchSubjects = async () => {
+      try {
+        const response = await fetch('/api/subjects');
+        if (response.ok) {
+          const data = await response.json();
+          setAllSubjects(data);
+        } else {
+          console.error('Failed to fetch subjects');
+        }
+      } catch (error) {
+        console.error('Error fetching subjects:', error);
+      }
+    };
+
+    fetchSubjects();
+  }, []);
 
   const getAbsenceColor = (absences: number, cap: number) => {
     const ratio = absences / cap;
@@ -415,30 +439,13 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                   />
                 </Td>
                 <Td>
-                  <Wrap spacing={2}>
-                    {user.mailingLists?.map((mailingList, index) => (
-                      <WrapItem key={index}>
-                        <Tag
-                          size="lg"
-                          variant="subtle"
-                          key={index}
-                          bg={mailingList.subject.colorGroup.colorCodes[3]}
-                        >
-                          <TagLabel>
-                            <Text
-                              color={
-                                mailingList.subject.colorGroup.colorCodes[0]
-                              }
-                              fontWeight="600"
-                              textStyle="label"
-                            >
-                              {mailingList.subject.name}
-                            </Text>
-                          </TagLabel>
-                        </Tag>
-                      </WrapItem>
-                    ))}
-                  </Wrap>
+                  <EditableSubscriptionsCell
+                    mailingLists={user.mailingLists as any}
+                    allSubjects={allSubjects}
+                    onSubscriptionsChange={(subjectIds) =>
+                      updateUserSubscriptions(user.id, subjectIds)
+                    }
+                  />
                 </Td>
               </Tr>
             ))}
