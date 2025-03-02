@@ -337,7 +337,11 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                           : 'white'
                       }
                     >
-                      <Text fontSize="12px" textStyle="cellBody">
+                      <Text
+                        fontSize="12px"
+                        textStyle="label"
+                        fontFamily="label"
+                      >
                         Greater than
                       </Text>
                     </Box>
@@ -352,7 +356,11 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                           : 'white'
                       }
                     >
-                      <Text fontSize="12px" textStyle="cellBody">
+                      <Text
+                        fontSize="12px"
+                        textStyle="label"
+                        fontFamily="label"
+                      >
                         Less than
                       </Text>
                     </Box>
@@ -367,7 +375,11 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                           : 'white'
                       }
                     >
-                      <Text fontSize="12px" textStyle="cellBody">
+                      <Text
+                        fontSize="12px"
+                        textStyle="label"
+                        fontFamily="label"
+                      >
                         Equal to
                       </Text>
                     </Box>
