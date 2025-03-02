@@ -5,7 +5,6 @@ import {
   Box,
   Button,
   Divider,
-  Heading,
   HStack,
   Icon,
   Input,
@@ -100,7 +99,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
         borderRadius="md"
         width="100px"
       >
-        <Text variant="cellBody" flexGrow={1}>
+        <Text textStyle="cellBody" flexGrow={1}>
           {newRole === 'TEACHER' ? 'Teacher' : 'Admin'}
         </Text>
 
@@ -136,7 +135,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
             _hover={{ bg: 'primaryBlue.50' }}
             onClick={() => handleRoleChange(oppositeRole)}
           >
-            <Text variant="cellBody" flexGrow={1}>
+            <Text textStyle="cellBody" flexGrow={1}>
               {oppositeRole === 'TEACHER' ? 'Teacher' : 'Admin'}
             </Text>
           </Box>
@@ -283,9 +282,9 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       >
         <HStack spacing={2} justifyContent={centered ? 'center' : 'flex-start'}>
           <Icon as={icon} boxSize={4} color={color} />
-          <Heading size="h4" color={color} textTransform="none">
+          <Text textStyle="h4" color={color} textTransform="none">
             {label}
-          </Heading>
+          </Text>
           <SortIcon field={field} />
         </HStack>
       </Th>
@@ -302,9 +301,9 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       borderColor="neutralGray.300"
     >
       <HStack justify="space-between" mx={5} my={3}>
-        <Heading fontSize={'22px'} lineHeight="33px" fontWeight={700}>
+        <Text fontSize={'22px'} lineHeight="33px" fontWeight={700}>
           User Management
-        </Heading>
+        </Text>
         <HStack spacing={4}>
           <InputGroup maxW="xs" margin={0}>
             <InputLeftElement pointerEvents="none">
@@ -363,9 +362,13 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
               <Th>
                 <HStack spacing={2}>
                   <Icon as={FiTag} boxSize={4} color="text.subtitle" />
-                  <Heading size="h4" color="text.subtitle" textTransform="none">
+                  <Text
+                    textStyle="h4"
+                    color="text.subtitle"
+                    textTransform="none"
+                  >
                     Email Subscriptions
-                  </Heading>
+                  </Text>
                 </HStack>
               </Th>
             </Tr>
@@ -384,16 +387,17 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                     <Avatar
                       size="sm"
                       name={`${user.firstName} ${user.lastName}`}
+                      src={user.profilePicture || undefined}
                     />
-                    <Text variant="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
+                    <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
                   </HStack>
                 </Td>
                 <Td color="gray.600">
-                  <Text variant="cellBody">{user.email}</Text>
+                  <Text textStyle="cellBody">{user.email}</Text>
                 </Td>
                 <Td textAlign="center">
                   <Text
-                    variant="cellBold"
+                    textStyle="cellBold"
                     color={getAbsenceColor(
                       user.absences?.length || 0,
                       absenceCap
@@ -426,7 +430,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                                 mailingList.subject.colorGroup.colorCodes[0]
                               }
                               fontWeight="600"
-                              variant={'label'}
+                              textStyle="label"
                             >
                               {mailingList.subject.name}
                             </Text>

@@ -1,4 +1,4 @@
-import { Flex, Heading, IconButton, useTheme, Spacer } from '@chakra-ui/react';
+import { Flex, Text, IconButton, useTheme, Spacer } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { IoChevronBack } from 'react-icons/io5';
 import ExportAbsencesButton from './ExportAbsencesButton';
@@ -23,9 +23,9 @@ const DashboardHeader = () => {
         onClick={() => router.push('/calendar')}
       />
 
-      <Heading size="h1" flex="1" marginLeft={theme.space[3]}>
+      <Text textStyle="h1" flex="1" marginLeft={theme.space[3]}>
         Admin Dashboard
-      </Heading>
+      </Text>
 
       <Spacer />
       <ExportAbsencesButton />
