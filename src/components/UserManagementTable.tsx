@@ -36,6 +36,15 @@ import {
 } from 'react-icons/fi';
 import EditableRoleCell from './EditableRoleCell';
 import FilterPopup from './FilterPopup';
+import EditableSubscriptionsCell from './EditableSubscriptionsCell';
+
+interface Subject {
+  id: number;
+  name: string;
+  colorGroup?: {
+    colorCodes: string[];
+  };
+}
 
 type SortField = 'name' | 'email' | 'absences' | 'role';
 
@@ -44,12 +53,14 @@ type SortDirection = 'asc' | 'desc';
 interface UserManagementTableProps {
   users: UserAPI[];
   updateUserRole: (userId: number, newRole: Role) => void;
+  updateUserSubscriptions: (userId: number, subjectIds: number[]) => void;
   absenceCap: number;
 }
 
 export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   users,
   updateUserRole,
+  updateUserSubscriptions,
   absenceCap,
 }) => {
   const [sortField, setSortField] = useState<SortField>('name');
@@ -63,6 +74,26 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [tagColors, setTagColors] = useState<Record<string, string[]>>({});
+  const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
+
+  useEffect(() => {
+    // Fetch all available subjects
+    const fetchSubjects = async () => {
+      try {
+        const response = await fetch('/api/subjects');
+        if (response.ok) {
+          const data = await response.json();
+          setAllSubjects(data);
+        } else {
+          console.error('Failed to fetch subjects');
+        }
+      } catch (error) {
+        console.error('Error fetching subjects:', error);
+      }
+    };
+
+    fetchSubjects();
+  }, []);
 
   // Extract unique tags and their colors from users' mailing lists
   useEffect(() => {
@@ -259,76 +290,59 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           </Thead>
 
           <Tbody>
-            {sortedUsers.length > 0
-              ? sortedUsers.map((user, index) => (
-                  <Tr
-                    key={index}
-                    sx={{
-                      ':last-child td': { borderBottom: 'none' },
-                    }}
-                  >
-                    <Td py="6px">
-                      <HStack spacing={5}>
-                        <Avatar
-                          size="sm"
-                          name={`${user.firstName} ${user.lastName}`}
-                          src={user.profilePicture || undefined}
-                        />
-                        <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
-                      </HStack>
-                    </Td>
-                    <Td color="gray.600">
-                      <Text textStyle="cellBody">{user.email}</Text>
-                    </Td>
-                    <Td textAlign="center" py="6px">
-                      <Text
-                        textStyle="cellBold"
-                        color={getAbsenceColor(
-                          user.absences?.length || 0,
-                          absenceCap
-                        )}
-                      >
-                        {user.absences?.length || 0}
-                      </Text>
-                    </Td>
-                    <Td py="6px">
-                      <EditableRoleCell
-                        key={`role-cell-${user.id}`}
-                        role={user.role}
-                        onRoleChange={(newRole) =>
-                          updateUserRole(user.id, newRole as Role)
-                        }
-                      />
-                    </Td>
-                    <Td py="6px">
-                      <Wrap spacing={2}>
-                        {user.mailingLists?.map((mailingList, index) => (
-                          <WrapItem key={index}>
-                            <Tag
-                              height="28px"
-                              variant="subtle"
-                              bg={mailingList.subject.colorGroup.colorCodes[3]}
-                            >
-                              <TagLabel>
-                                <Text
-                                  color={
-                                    mailingList.subject.colorGroup.colorCodes[0]
-                                  }
-                                  textStyle="label"
-                                  whiteSpace="nowrap"
-                                  overflow="hidden"
-                                >
-                                  {mailingList.subject.name}
-                                </Text>
-                              </TagLabel>
-                            </Tag>
-                          </WrapItem>
-                        ))}
-                      </Wrap>
-                    </Td>
-                  </Tr>
-                ))
-              : null}
+            {sortedUsers.length > 0 ? (
+              sortedUsers.map((user, index) => (
+                <Tr
+                  key={index}
+                  sx={{
+                    ':last-child td': { borderBottom: 'none' },
+                  }}
+                >
+                  <Td>
+                    <HStack spacing={3}>
+                      <Avatar size="sm" name={user.name} />
+                      <Text>{user.name}</Text>
+                    </HStack>
+                  </Td>
+                  <Td>{user.email}</Td>
+                  <Td textAlign="center">
+                    <Tag
+                      size="sm"
+                      variant="subtle"
+                      colorScheme={getAbsenceColor(
+                        user.absences?.length || 0,
+                        absenceCap
+                      )}
+                    >
+                      {user.absences?.length || 0}
+                    </Tag>
+                  </Td>
+                  <Td>
+                    <EditableRoleCell
+                      role={user.role}
+                      onRoleChange={(newRole) =>
+                        updateUserRole(user.id, newRole as Role)
+                      }
+                    />
+                  </Td>
+                  <Td>
+                    <EditableSubscriptionsCell
+                      mailingLists={user.mailingLists}
+                      allSubjects={allSubjects}
+                      onSubscriptionsChange={(subjectIds) =>
+                        updateUserSubscriptions(user.id, subjectIds)
+                      }
+                    />
+                  </Td>
+                </Tr>
+              ))
+            ) : (
+              <Tr>
+                <Td colSpan={5} textAlign="center">
+                  No users found
+                </Td>
+              </Tr>
+            )}
           </Tbody>
         </Table>
       </Box>
