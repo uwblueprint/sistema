@@ -119,11 +119,6 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
     });
   };
 
-  // When reset is clicked, also notify parent
-  const handleResetAndApply = () => {
-    handleReset();
-  };
-
   const getOperatorLabel = (operator: ComparisonOperator): string => {
     switch (operator) {
       case 'greater_than':
@@ -208,7 +203,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={handleResetAndApply}
+            onClick={handleReset}
             leftIcon={<Icon as={BiRevision} transform="scaleX(-1)" />}
           >
             <Text textStyle="label" fontFamily="label">

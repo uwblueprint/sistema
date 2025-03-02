@@ -230,7 +230,6 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   };
 
   const handleSort = (field: SortField) => {
-    console.log('sortField', sortField);
     if (sortField === field) {
       // If clicking the same field, toggle direction
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
