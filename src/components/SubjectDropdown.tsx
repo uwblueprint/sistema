@@ -1,6 +1,4 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { SubjectAPI } from '@utils/types';
 import Dropdown, { DropdownItem } from './Dropdown';
 
@@ -48,7 +46,7 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
 
   useEffect(() => {
     setFilter(selectedSubjectsIds);
-  }, [setFilter, selectedSubjectsIds]);
+  }, [selectedSubjectsIds, setFilter]);
 
   const toggleSubject = (subjectId: number) => {
     let newSelection: number[];

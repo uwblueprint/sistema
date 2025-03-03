@@ -1,6 +1,6 @@
+import React, { useCallback } from 'react';
 import { AddIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, useTheme } from '@chakra-ui/react';
-import React from 'react';
 import { SistemaLogoColour } from '../components/SistemaLogoColour';
 import LocationDropdown from './LocationDropdown';
 import MiniCalendar from './MiniCalendar';
@@ -19,19 +19,25 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
 }) => {
   const theme = useTheme();
 
-  const setSubjectIdFilter = (subjectIds: number[]) => {
-    setSearchQuery((prev) => ({
-      ...prev,
-      subjectIds: subjectIds,
-    }));
-  };
+  const setSubjectIdFilter = useCallback(
+    (subjectIds: number[]) => {
+      setSearchQuery((prev) => ({
+        ...prev,
+        subjectIds,
+      }));
+    },
+    [setSearchQuery]
+  );
 
-  const setLocationIdFilter = (locationIds: number[]) => {
-    setSearchQuery((prev) => ({
-      ...prev,
-      locationIds: locationIds,
-    }));
-  };
+  const setLocationIdFilter = useCallback(
+    (locationIds: number[]) => {
+      setSearchQuery((prev) => ({
+        ...prev,
+        locationIds,
+      }));
+    },
+    [setSearchQuery]
+  );
 
   return (
     <Flex

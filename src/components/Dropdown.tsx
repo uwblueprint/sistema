@@ -62,7 +62,6 @@ const Dropdown = ({
                 onClick={() => toggleItem(item.id)}
               >
                 <Box
-                  position="relative"
                   width="20px"
                   height="20px"
                   mr={2}
