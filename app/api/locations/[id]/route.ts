@@ -26,11 +26,14 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(params.id, 10);
+    if (isNaN(id)) {
+      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+    }
 
     // Check if the location is used in any absences
     const absenceUsingLocation = await prisma.absence.findFirst({
@@ -44,13 +47,11 @@ export async function DELETE(
           error:
             'Cannot delete location because it is used in existing absences',
         },
-        { status: 409 } // Conflict seems like the best status code for this
+        { status: 409 }
       );
     }
 
-    await prisma.location.delete({
-      where: { id },
-    });
+    await prisma.location.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting location:', error);
