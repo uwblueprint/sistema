@@ -1,17 +1,13 @@
-import React from 'react';
 import {
-  ButtonGroup,
   Button,
-  IconButton,
   Flex,
-  Heading,
+  Text,
+  HStack,
+  IconButton,
+  Spacer,
   useTheme,
 } from '@chakra-ui/react';
-import {
-  ArrowBackIcon,
-  ArrowForwardIcon,
-  CalendarIcon,
-} from '@chakra-ui/icons';
+
 import ProfileMenu from './ProfileMenu';
 
 interface UserData {
@@ -21,6 +17,8 @@ interface UserData {
   usedAbsences: number;
   numOfAbsences: number;
 }
+import { useRouter } from 'next/navigation';
+import { IoChevronBack, IoChevronForward, IoStatsChart } from 'react-icons/io5';
 
 interface CalendarHeaderProps {
   currentMonthYear: string;
@@ -38,45 +36,49 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   userData,
 }) => {
   const theme = useTheme();
+  const router = useRouter();
 
   return (
-    <Flex
-      marginBottom={theme.space[4]}
-      alignItems="center"
-      justifyContent="space-between"
-    >
-      {/* Left side: Prev/Today/Next buttons */}
-      <Flex>
-        <ButtonGroup isAttached variant="outline">
+    <Flex marginBottom={theme.space[4]} alignItems="center" width="100%">
+      <HStack spacing={3}>
+        <HStack spacing={1}>
           <IconButton
-            colorScheme="blue"
             onClick={onPrevClick}
-            icon={<ArrowBackIcon />}
+            icon={
+              <IoChevronBack size={24} color={theme.colors.neutralGray[600]} />
+            }
             aria-label="Previous"
-          />
-          <Button
-            onClick={onTodayClick}
             variant="outline"
-            colorScheme="blue"
-            leftIcon={<CalendarIcon />}
-          >
+          />
+          <Button onClick={onTodayClick} variant="outline" paddingX="20px">
             Today
           </Button>
           <IconButton
-            colorScheme="blue"
             onClick={onNextClick}
-            icon={<ArrowForwardIcon />}
+            icon={
+              <IoChevronForward
+                size={24}
+                color={theme.colors.neutralGray[600]}
+              />
+            }
             aria-label="Next"
+            variant="outline"
           />
-        </ButtonGroup>
-        <Heading fontSize="2xl" textAlign="center" marginLeft={theme.space[4]}>
-          {currentMonthYear}
-        </Heading>
-      </Flex>
-      {/* Center: month-year heading */}
-
-      {/* Right side: the new ProfileMenu component */}
+        </HStack>
+        <Text textStyle={'h1'}>{currentMonthYear}</Text>
+      </HStack>
       <ProfileMenu userData={userData} />
+      <Spacer />
+      <Button
+        mx={3}
+        leftIcon={
+          <IoStatsChart size={20} color={theme.colors.primaryBlue[300]} />
+        }
+        variant="outline"
+        onClick={() => router.push('/dashboard')}
+      >
+        Admin Dashboard
+      </Button>
     </Flex>
   );
 };

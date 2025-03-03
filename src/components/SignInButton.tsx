@@ -8,12 +8,11 @@ export function SignInButton(): JSX.Element {
   return (
     <Button
       variant="outline"
-      borderColor="blue.400"
+      borderColor="primaryBlue.300"
       colorScheme="gray"
       width="275px"
       height="45px"
       color="text"
-      fontWeight="bold"
       leftIcon={<FcGoogle fontSize="18px" />}
       onClick={() => signIn('google', { callbackUrl: `/calendar` })}
     >
