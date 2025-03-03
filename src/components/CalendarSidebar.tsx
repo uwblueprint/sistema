@@ -19,14 +19,14 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
 }) => {
   const theme = useTheme();
 
-  const handleSubjectFilter = (subjectIds: number[]) => {
+  const setSubjectIdFilter = (subjectIds: number[]) => {
     setSearchQuery((prev) => ({
       ...prev,
       subjectIds: subjectIds,
     }));
   };
 
-  const handleLocationFilter = (locationIds: number[]) => {
+  const setLocationIdFilter = (locationIds: number[]) => {
     setSearchQuery((prev) => ({
       ...prev,
       locationIds: locationIds,
@@ -44,7 +44,6 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       <Box width="150px">
         <SistemaLogoColour />
       </Box>
-
       <Button
         paddingX="40px"
         variant="outline"
@@ -55,8 +54,8 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         Declare Absence
       </Button>
       <MiniCalendar initialDate={new Date()} onDateSelect={onDateSelect} />
-      <SubjectDropdown setFilter={handleSubjectFilter} />
-      <LocationDropdown setFilter={handleLocationFilter} />
+      <SubjectDropdown setFilter={setSubjectIdFilter} />
+      <LocationDropdown setFilter={setLocationIdFilter} />
     </Flex>
   );
 };

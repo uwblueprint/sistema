@@ -96,6 +96,7 @@ export interface SubjectAPI {
     colorCodes: string[];
   };
 }
+
 export interface ColorGroup {
   id: number;
   name: string;
