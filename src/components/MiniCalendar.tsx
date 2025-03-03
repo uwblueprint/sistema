@@ -1,13 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Grid,
-  Text,
-  HStack,
-  VStack,
-  useColorModeValue,
-} from '@chakra-ui/react';
+import { Box, Button, Grid, Text, HStack, VStack } from '@chakra-ui/react';
 import { IoChevronUp, IoChevronDown } from 'react-icons/io5';
 
 interface CalendarProps {
@@ -23,13 +15,10 @@ export default function MiniCalendar({
 
   const [currentMonth, setCurrentMonth] = useState(new Date(initialDate));
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const bgColor = useColorModeValue('white', 'neutralGray.800');
-  const todayBgColor = useColorModeValue('primaryBlue.300', 'primaryBlue.200');
-  const todayColor = useColorModeValue('white', 'neutralGray.800');
-  const selectedBgColor = useColorModeValue(
-    'primaryBlue.50',
-    'primaryBlue.600'
-  );
+  const bgColor = 'white';
+  const todayBgColor = 'primaryBlue.300';
+  const todayColor = 'white';
+  const selectedBgColor = 'primaryBlue.50';
 
   useEffect(() => {
     setMounted(true);

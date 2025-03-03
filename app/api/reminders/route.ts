@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@utils/prisma';
 import { sendEmail } from '@utils/sendEmail';
 
-const UPLOAD_LINK = `${process.env.PROD_URL!}/calendar`;
+const UPLOAD_LINK = `${process.env.NEXT_PUBLIC_PROD_URL!}/calendar`;
 
 function addBusinessDays(startDate: Date, days: number): Date {
   const date = new Date(startDate);
