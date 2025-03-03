@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { SubjectWithColorGroup } from '../../app/api/filter/subjects/route';
+import { SubjectAPI } from '@utils/types';
 import Dropdown, { DropdownItem } from './Dropdown';
 
 interface SubjectDropdownProps {
@@ -29,7 +29,7 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
         const data = await response.json();
         if (data.subjects) {
           const fetchedSubjects: SubjectItem[] = data.subjects.map(
-            (subject: SubjectWithColorGroup) => ({
+            (subject: SubjectAPI) => ({
               id: subject.id,
               name: subject.name,
               color: subject.colorGroup.colorCodes[1],

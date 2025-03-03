@@ -86,13 +86,16 @@ export interface Subject {
   colorGroupId: number;
 }
 
-export interface SubjectWithRelations {
+export interface SubjectAPI {
   id: number;
   name: string;
   abbreviation: string;
   colorGroupId: number;
+  colorGroup: {
+    name: string;
+    colorCodes: string[];
+  };
 }
-
 export interface ColorGroup {
   id: number;
   name: string;
