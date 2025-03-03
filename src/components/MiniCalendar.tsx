@@ -96,7 +96,7 @@ export default function MiniCalendar({
           alignItems="center"
           pl="10px"
         >
-          <Text fontSize="sm" fontWeight="bold" textAlign="left">
+          <Text textStyle="h4" textAlign="left">
             {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </Text>
           <HStack spacing={0}>
@@ -147,7 +147,9 @@ export default function MiniCalendar({
               pointerEvents="none"
               bg="transparent"
             >
-              <Text textStyle="subtitle">{day}</Text>
+              <Text textStyle="subtitle" color="text.body">
+                {day}
+              </Text>
             </Button>
           ))}
         </Grid>
