@@ -3,8 +3,9 @@ import { prisma } from '@utils/prisma';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params;
   try {
     const id = parseInt(params.id);
     const data = await request.json();
@@ -26,9 +27,10 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  props: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params;
   try {
     const id = parseInt(params.id, 10);
     if (isNaN(id)) {
@@ -38,7 +40,7 @@ export async function DELETE(
     // Check if the location is used in any absences
     const absenceUsingLocation = await prisma.absence.findFirst({
       where: { locationId: id },
-      select: { id: true }, // Only select the ID field for efficiency
+      select: { id: true },
     });
 
     if (absenceUsingLocation) {
