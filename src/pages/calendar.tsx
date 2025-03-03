@@ -5,20 +5,19 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { AbsenceAPI } from '@utils/types';
+import useUserData from '@utils/useUserData';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import CalendarHeader from '../components/CalendarHeader';
-import { useSession } from 'next-auth/react';
 import Sidebar from '../components/CalendarSidebar';
 
 const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
-  const { data: session } = useSession();
   const [events, setEvents] = useState<EventInput[]>([]);
   const [currentMonthYear, setCurrentMonthYear] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const toast = useToast();
   const theme = useTheme();
-  const [userData, setUserData] = useState<any>(null);
+  const userData = useUserData();
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => (
@@ -35,31 +34,6 @@ const Calendar: React.FC = () => {
     ),
     []
   );
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (session?.user?.email) {
-        try {
-          const res = await fetch(
-            `/api/users/email/${session.user.email}?shouldIncludeAbsences=true`
-          );
-          const data = await res.json();
-          const usedAbsences = data.absences?.length ?? 0;
-          const newUserData = {
-            name: session.user.name ?? '',
-            email: session.user.email,
-            image: session.user.image,
-            numOfAbsences: data.numOfAbsences,
-            usedAbsences: usedAbsences,
-          };
-          setUserData(newUserData);
-        } catch (err) {
-          console.error('Could not fetch user data:', err);
-        }
-      }
-    };
-    fetchUserData();
-  }, [session]);
 
   const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
     title: absenceData.subject.name,

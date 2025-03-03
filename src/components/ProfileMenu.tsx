@@ -1,89 +1,99 @@
-import React from 'react';
 import {
+  Avatar,
+  Box,
+  Button,
+  Flex,
   Menu,
   MenuButton,
-  IconButton,
   MenuList,
   Text,
-  Avatar,
-  Button,
-  useColorModeValue,
+  useTheme,
+  useToast,
 } from '@chakra-ui/react';
+import { NEXT_PUBLIC_PROD_URL } from '@utils/config';
+import { getAbsenceColor } from '@utils/getAbsenceColor';
+import { UserData } from '@utils/types';
 import { signOut } from 'next-auth/react';
-
-// Helper to color-code the "X/Y Absences Taken"
-const getAbsenceColor = (usedAbsences: number) => {
-  if (usedAbsences <= 6) return 'green.500';
-  if (usedAbsences <= 8) return 'yellow.500';
-  return 'red.500';
-};
-
-interface UserData {
-  name: string;
-  email: string;
-  image?: string;
-  usedAbsences: number;
-  numOfAbsences: number;
-}
+import React from 'react';
+import { IoLinkOutline } from 'react-icons/io5';
 
 interface ProfileMenuProps {
   userData?: UserData;
+  absenceCap;
 }
 
-const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData }) => {
+const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
   const absenceColor = userData
-    ? getAbsenceColor(userData.usedAbsences)
-    : 'gray.500';
+    ? getAbsenceColor(userData.usedAbsences, absenceCap)
+    : getAbsenceColor(0, absenceCap);
+  const theme = useTheme();
+  const toast = useToast();
+
+  const handleCopyICal = async () => {
+    const iCalURL = `${NEXT_PUBLIC_PROD_URL}/api/ics/calendar.ics`;
+    try {
+      await navigator.clipboard.writeText(iCalURL);
+      toast({
+        title: 'Copied!',
+        description: 'iCal URL has been copied to your clipboard.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
+  };
 
   return (
     <Menu>
-      <MenuButton
-        as={IconButton}
-        icon={
-          <Avatar
-            name={userData?.name ?? 'User'}
-            src={userData?.image}
-            size="sm"
-          />
-        }
-        variant="ghost"
-        aria-label="Open profile menu"
-        _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }}
-      />
-      <MenuList
-        minW="280px"
-        p="2rem"
-        textAlign="center"
-        boxShadow="lg"
-        borderRadius="md"
-      >
-        <Text fontSize="2xl" fontWeight="semibold" mb={1}>
-          Hi, {userData?.name}!
-        </Text>
-        <Text fontSize="sm" color="gray.500" mb={3}>
-          {userData?.email}
-        </Text>
+      <MenuButton as="button" aria-label="Open profile menu">
         <Avatar
-          name={userData?.name ?? 'User'}
+          name={userData?.name ?? ''}
           src={userData?.image}
-          size="xl"
-          mx="auto"
+          width="40px"
+          height="40px"
+        />
+      </MenuButton>
+      <MenuList width="280px" p={4} textAlign="center" boxShadow="lg">
+        <Avatar
+          name={userData?.name ?? ''}
+          src={userData?.image}
+          width="80px"
+          height="80px"
           mb={3}
         />
-        <Text fontSize="md" mb={4}>
-          <Text as="span" fontWeight="bold" color={absenceColor}>
-            {userData?.usedAbsences}/{userData?.numOfAbsences}
-          </Text>{' '}
-          Absences Taken
+        <Text textStyle="h3">Hi, {userData?.name}!</Text>
+        <Text textStyle="caption" color="text.subtitle" mb={4}>
+          {userData?.email}
         </Text>
+        <Box bg="neutralGray.50" p={3} textAlign="center" mb={3}>
+          <Flex justify="center" align="center" gap={2} wrap="wrap">
+            <Text textStyle="h4" color={absenceColor}>
+              {userData?.usedAbsences}/{absenceCap}
+            </Text>
+            <Text textStyle="h4">Absences Taken</Text>
+          </Flex>
+        </Box>
+        <Flex
+          alignItems="center"
+          gap={2}
+          justifyContent="center"
+          mb={4}
+          cursor="pointer"
+          onClick={handleCopyICal}
+        >
+          <Text textStyle="caption" color="text.subtitle">
+            Sistema iCal
+          </Text>
+
+          <IoLinkOutline size={16} color={theme.colors.neutralGray[600]} />
+        </Flex>
         <Button
           onClick={() => signOut()}
           variant="outline"
-          borderColor="gray.300"
-          borderRadius="md"
           size="md"
-          width="100%"
-          _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }}
+          width="100px"
         >
           Log Out
         </Button>

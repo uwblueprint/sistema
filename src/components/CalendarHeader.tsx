@@ -1,24 +1,19 @@
 import {
+  Box,
   Button,
   Flex,
-  Text,
   HStack,
   IconButton,
   Spacer,
+  Text,
   useTheme,
 } from '@chakra-ui/react';
 
-import ProfileMenu from './ProfileMenu';
-
-interface UserData {
-  name: string;
-  email: string;
-  image?: string;
-  usedAbsences: number;
-  numOfAbsences: number;
-}
+import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { IoChevronBack, IoChevronForward, IoStatsChart } from 'react-icons/io5';
+import ProfileMenu from './ProfileMenu';
 
 interface CalendarHeaderProps {
   currentMonthYear: string;
@@ -37,11 +32,27 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
 }) => {
   const theme = useTheme();
   const router = useRouter();
+  const [absenceCap, setAbsenceCap] = useState<number>(10);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch('/api/settings');
+        if (!response.ok) throw new Error('Failed to fetch settings');
+        const data = await response.json();
+        setAbsenceCap(data.absenceCap);
+      } catch (error) {
+        console.error('Error fetching settings:', error);
+      }
+    };
+
+    fetchSettings();
+  }, []);
 
   return (
     <Flex marginBottom={theme.space[4]} alignItems="center" width="100%">
-      <HStack spacing={3}>
-        <HStack spacing={1}>
+      <HStack spacing={theme.space[4]}>
+        <HStack spacing={theme.space[0]}>
           <IconButton
             onClick={onPrevClick}
             icon={
@@ -65,20 +76,21 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             variant="outline"
           />
         </HStack>
-        <Text textStyle={'h1'}>{currentMonthYear}</Text>
+        <Text textStyle="h1">{currentMonthYear}</Text>
       </HStack>
-      <ProfileMenu userData={userData} />
       <Spacer />
-      <Button
-        mx={3}
-        leftIcon={
-          <IoStatsChart size={20} color={theme.colors.primaryBlue[300]} />
-        }
-        variant="outline"
-        onClick={() => router.push('/dashboard')}
-      >
-        Admin Dashboard
-      </Button>
+      <HStack spacing={theme.space[4]} mr={theme.space[4]}>
+        <Button
+          leftIcon={
+            <IoStatsChart size={20} color={theme.colors.primaryBlue[300]} />
+          }
+          variant="outline"
+          onClick={() => router.push('/dashboard')}
+        >
+          Admin Dashboard
+        </Button>
+        <ProfileMenu userData={userData} absenceCap={absenceCap} />
+      </HStack>
     </Flex>
   );
 };

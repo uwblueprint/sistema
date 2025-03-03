@@ -106,3 +106,11 @@ export enum Role {
   TEACHER = 'TEACHER',
   ADMIN = 'ADMIN',
 }
+
+export interface UserData {
+  name: string;
+  email: string;
+  image?: string;
+  usedAbsences: number;
+  numOfAbsences: number;
+}
