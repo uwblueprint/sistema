@@ -26,9 +26,11 @@ export interface AbsenceAPI {
     lastName: string;
   } | null;
   location: {
+    id: number;
     name: string;
   };
   subject: {
+    id: number;
     name: string;
     abbreviation: string;
     colorGroup: {

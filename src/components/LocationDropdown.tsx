@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { Location } from '../../app/api/filter/locations/route';
+import type { Location } from '@utils/types';
 import Dropdown, { DropdownItem } from './Dropdown';
-
+import { useTheme } from '@chakra-ui/react';
 interface LocationDropdownProps {
-  setFilter: (locations: string[]) => void;
+  setFilter: (location: number[]) => void;
 }
 
 interface LocationItem extends Location {
@@ -15,7 +15,8 @@ interface LocationItem extends Location {
 export default function LocationDropdown({ setFilter }: LocationDropdownProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [locations, setLocations] = useState<LocationItem[]>([]);
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [selectedLocationIds, setSelectedLocationIds] = useState<number[]>([]);
+  const theme = useTheme();
 
   useEffect(() => {
     async function fetchLocations() {
@@ -26,12 +27,14 @@ export default function LocationDropdown({ setFilter }: LocationDropdownProps) {
         }
         const data = await response.json();
         if (data.locations) {
-          const fetched = data.locations.map((loc: Location) => ({
-            ...loc,
-            color: '#0468C1',
+          const fetchedLocations = data.locations.map((location: Location) => ({
+            ...location,
+            color: `${theme.colors.primaryBlue[300]}`,
           }));
-          setLocations(fetched);
-          setSelectedLocations(fetched.map((location) => location.name));
+          setLocations(fetchedLocations);
+          setSelectedLocationIds(
+            fetchedLocations.map((location) => location.id)
+          );
         }
       } catch (error) {
         console.error('Error fetching locations:', error);
@@ -39,20 +42,20 @@ export default function LocationDropdown({ setFilter }: LocationDropdownProps) {
     }
 
     fetchLocations();
-  }, []);
+  }, [theme.colors.primaryBlue]);
 
   useEffect(() => {
-    setFilter(selectedLocations);
-  }, [setFilter, selectedLocations]);
+    setFilter(selectedLocationIds);
+  }, [setFilter, selectedLocationIds]);
 
-  const toggleLocation = (location: string) => {
-    let newSelection: string[];
-    if (selectedLocations.includes(location)) {
-      newSelection = selectedLocations.filter((s) => s !== location);
+  const toggleLocation = (locationId: number) => {
+    let newSelection: number[];
+    if (selectedLocationIds.includes(locationId)) {
+      newSelection = selectedLocationIds.filter((s) => s !== locationId);
     } else {
-      newSelection = [...selectedLocations, location];
+      newSelection = [...selectedLocationIds, locationId];
     }
-    setSelectedLocations(newSelection);
+    setSelectedLocationIds(newSelection);
     setFilter(newSelection);
   };
 
@@ -60,16 +63,17 @@ export default function LocationDropdown({ setFilter }: LocationDropdownProps) {
     setIsOpen((prev) => !prev);
   };
 
-  const dropdownItems: DropdownItem[] = locations.map((loc) => ({
-    name: loc.name,
-    color: loc.color,
+  const dropdownItems: DropdownItem[] = locations.map((location) => ({
+    id: location.id,
+    name: location.name,
+    color: location.color,
   }));
 
   return (
     <Dropdown
       title="Location"
       items={dropdownItems}
-      selectedItems={selectedLocations}
+      selectedItems={selectedLocationIds}
       isOpen={isOpen}
       toggleOpen={toggleOpen}
       toggleItem={toggleLocation}

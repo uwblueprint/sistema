@@ -5,7 +5,7 @@ import { SubjectWithColorGroup } from '../../app/api/filter/subjects/route';
 import Dropdown, { DropdownItem } from './Dropdown';
 
 interface SubjectDropdownProps {
-  setFilter: (subjects: string[]) => void;
+  setFilter: (subjects: number[]) => void;
 }
 
 interface SubjectItem {
@@ -16,8 +16,8 @@ interface SubjectItem {
 
 export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
   const [isOpen, setIsOpen] = useState(true);
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [subjects, setSubjects] = useState<SubjectItem[]>([]);
+  const [selectedSubjectsIds, setSelectedSubjectsIds] = useState<number[]>([]);
 
   useEffect(() => {
     async function fetchSubjects() {
@@ -29,16 +29,14 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
         const data = await response.json();
         if (data.subjects) {
           const fetchedSubjects: SubjectItem[] = data.subjects.map(
-            (subj: SubjectWithColorGroup) => ({
-              id: subj.id,
-              name: subj.name,
-              color: subj.colorGroup?.colorCodes?.[1] || 'blue.700',
+            (subject: SubjectWithColorGroup) => ({
+              id: subject.id,
+              name: subject.name,
+              color: subject.colorGroup.colorCodes[1],
             })
           );
           setSubjects(fetchedSubjects);
-
-          // Optionally select all subjects by default
-          setSelectedSubjects(fetchedSubjects.map((s) => s.name));
+          setSelectedSubjectsIds(fetchedSubjects.map((subject) => subject.id));
         }
       } catch (error) {
         console.error('Error fetching subjects:', error);
@@ -49,17 +47,17 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
   }, []);
 
   useEffect(() => {
-    setFilter(selectedSubjects);
-  }, [setFilter, selectedSubjects]);
+    setFilter(selectedSubjectsIds);
+  }, [setFilter, selectedSubjectsIds]);
 
-  const toggleSubject = (subject: string) => {
-    let newSelection: string[];
-    if (selectedSubjects.includes(subject)) {
-      newSelection = selectedSubjects.filter((s) => s !== subject);
+  const toggleSubject = (subjectId: number) => {
+    let newSelection: number[];
+    if (selectedSubjectsIds.includes(subjectId)) {
+      newSelection = selectedSubjectsIds.filter((s) => s !== subjectId);
     } else {
-      newSelection = [...selectedSubjects, subject];
+      newSelection = [...selectedSubjectsIds, subjectId];
     }
-    setSelectedSubjects(newSelection);
+    setSelectedSubjectsIds(newSelection);
     setFilter(newSelection);
   };
 
@@ -68,6 +66,7 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
   };
 
   const dropdownItems: DropdownItem[] = subjects.map((subject) => ({
+    id: subject.id,
     name: subject.name,
     color: subject.color,
   }));
@@ -76,7 +75,7 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
     <Dropdown
       title="Subject"
       items={dropdownItems}
-      selectedItems={selectedSubjects}
+      selectedItems={selectedSubjectsIds}
       isOpen={isOpen}
       toggleOpen={toggleOpen}
       toggleItem={toggleSubject}

@@ -15,11 +15,11 @@ const Calendar: React.FC = () => {
   const [events, setEvents] = useState<EventInput[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
   const [searchQuery, setSearchQuery] = useState<{
-    titles: string[];
-    locations: string[];
+    subjectIds: number[];
+    locationIds: number[];
   }>({
-    titles: [],
-    locations: [],
+    subjectIds: [],
+    locationIds: [],
   });
   const [currentMonthYear, setCurrentMonthYear] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -49,6 +49,8 @@ const Calendar: React.FC = () => {
     allDay: true,
     display: 'auto',
     location: absenceData.location.name,
+    subjectId: absenceData.subject.id,
+    locationId: absenceData.location.id,
   });
 
   const fetchAbsences = useCallback(async () => {
@@ -141,16 +143,12 @@ const Calendar: React.FC = () => {
   };
 
   useEffect(() => {
-    const { titles, locations } = searchQuery;
+    const { subjectIds, locationIds } = searchQuery;
 
     const filtered = events.filter((event) => {
-      const titleMatch = titles.some((title) =>
-        event.title?.toLowerCase().includes(title.toLowerCase())
-      );
-      const locationMatch = locations.some((location) =>
-        event.location?.toLowerCase().includes(location.toLowerCase())
-      );
-      return titleMatch && locationMatch;
+      const subjectIdMatch = subjectIds.includes(event.subjectId);
+      const locationIdMatch = locationIds.includes(event.locationId);
+      return subjectIdMatch && locationIdMatch;
     });
 
     setFilteredEvents(filtered);

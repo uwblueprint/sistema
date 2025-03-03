@@ -12,6 +12,7 @@ import { CheckIcon } from '@chakra-ui/icons';
 import React from 'react';
 
 export interface DropdownItem {
+  id: number;
   name: string;
   color: string;
 }
@@ -19,10 +20,10 @@ export interface DropdownItem {
 export interface DropdownProps {
   title: string;
   items: DropdownItem[];
-  selectedItems: string[];
+  selectedItems: number[];
   isOpen: boolean;
   toggleOpen: () => void;
-  toggleItem: (name: string) => void;
+  toggleItem: (id: number) => void;
 }
 
 const Dropdown = ({
@@ -51,26 +52,22 @@ const Dropdown = ({
                 key={item.name}
                 align="center"
                 cursor="pointer"
-                onClick={() => toggleItem(item.name)}
+                onClick={() => toggleItem(item.id)}
               >
-                <Box position="relative" width="20px" height="20px" mr={2}>
-                  <Box
-                    position="absolute"
-                    inset={0}
-                    bg={
-                      selectedItems.includes(item.name) ? item.color : 'white'
-                    }
-                    border={`2px solid ${item.color}`}
-                    borderRadius="2px"
-                  />
-                  {selectedItems.includes(item.name) && (
-                    <CheckIcon
-                      position="absolute"
-                      color="white"
-                      w="20px"
-                      h="20px"
-                      sx={{ transform: 'scale(0.8, 0.8)' }}
-                    />
+                <Box
+                  position="relative"
+                  width="20px"
+                  height="20px"
+                  mr={2}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  borderRadius="2px"
+                  bg={selectedItems.includes(item.id) ? item.color : 'white'}
+                  border={`2px solid ${item.color}`}
+                >
+                  {selectedItems.includes(item.id) && (
+                    <Icon as={CheckIcon} color="white" w="14px" h="14px" />
                   )}
                 </Box>
                 <Text textStyle="subtitle" color="text.body">

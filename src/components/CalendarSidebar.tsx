@@ -8,7 +8,7 @@ import SubjectDropdown from './SubjectDropdown';
 
 interface CalendarSidebarProps {
   setSearchQuery: React.Dispatch<
-    React.SetStateAction<{ titles: string[]; locations: string[] }>
+    React.SetStateAction<{ subjectIds: number[]; locationIds: number[] }>
   >;
   onDateSelect: (date: Date) => void;
 }
@@ -19,17 +19,17 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
 }) => {
   const theme = useTheme();
 
-  const handleSubjectFilter = (subjects: string[]) => {
+  const handleSubjectFilter = (subjectIds: number[]) => {
     setSearchQuery((prev) => ({
       ...prev,
-      titles: subjects,
+      subjectIds: subjectIds,
     }));
   };
 
-  const handleLocationFilter = (locations: string[]) => {
+  const handleLocationFilter = (locationIds: number[]) => {
     setSearchQuery((prev) => ({
       ...prev,
-      locations: locations,
+      locationIds: locationIds,
     }));
   };
 
@@ -50,7 +50,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         variant="outline"
         borderColor={theme.colors.neutralGray[300]}
         size="lg"
-        leftIcon={<AddIcon color="blue.500" />}
+        leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
       >
         Declare Absence
       </Button>
