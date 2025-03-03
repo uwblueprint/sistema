@@ -25,15 +25,17 @@ model Absence {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
-  authId      String    @unique
-  email       String    @unique
-  firstName   String
-  lastName    String
-  role        Role      @default(TEACHER)
-  status      Status    @default(INVITED)
-  absences    Absence[] @relation("absentTeacher")
-  substitutes Absence[] @relation("substituteTeacher")
+  id             Int           @id @default(autoincrement())
+  authId         String        @unique
+  email          String        @unique
+  firstName      String
+  lastName       String
+  profilePicture String?
+  role           Role          @default(TEACHER)
+  absences       Absence[]     @relation("absentTeacher")
+  substitutes    Absence[]     @relation("substituteTeacher")
+  subjects       Subject[]     @relation("MailingLists")
+  mailingLists   MailingList[]
 }
 
 model Location {
@@ -45,19 +47,25 @@ model Location {
 }
 
 model MailingList {
-  id     Int      @id @default(autoincrement())
-  name   String
-  emails String[]
+  userId    Int
+  subjectId Int
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@id([userId, subjectId])
+  @@map("MailingList")
 }
 
 model Subject {
-  id           Int        @id @default(autoincrement())
+  id           Int           @id @default(autoincrement())
   name         String
   abbreviation String
   archived     Boolean    @default(false)
   Absence      Absence[]
   colorGroupId Int
-  colorGroup   ColorGroup @relation(fields: [colorGroupId], references: [id])
+  colorGroup   ColorGroup    @relation(fields: [colorGroupId], references: [id])
+  users        User[]        @relation("MailingLists")
+  userSubjects MailingList[]
 }
 
 model ColorGroup {
@@ -75,10 +83,4 @@ model GlobalSettings {
 enum Role {
   TEACHER
   ADMIN
-}
-
-enum Status {
-  ACTIVE
-  INVITED
-  DEACTIVATED
 }

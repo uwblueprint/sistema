@@ -1,13 +1,14 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import FullCalendar from '@fullcalendar/react';
+import { Box, Flex, useTheme, useToast } from '@chakra-ui/react';
+import { Global } from '@emotion/react';
+import { EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { Box, Flex, useToast, useTheme } from '@chakra-ui/react';
-import { EventInput, EventContentArg } from '@fullcalendar/core';
-import { AbsenceWithRelations } from '../../app/api/getAbsences/absences';
-import Sidebar from '../components/CalendarSidebar';
+import FullCalendar from '@fullcalendar/react';
+import { AbsenceAPI } from '@utils/types';
+import useUserData from '@utils/useUserData';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import CalendarHeader from '../components/CalendarHeader';
-import { Global } from '@emotion/react';
+import Sidebar from '../components/CalendarSidebar';
 
 const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
@@ -16,6 +17,7 @@ const Calendar: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const toast = useToast();
   const theme = useTheme();
+  const userData = useUserData();
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => (
@@ -33,9 +35,7 @@ const Calendar: React.FC = () => {
     []
   );
 
-  const convertAbsenceToEvent = (
-    absenceData: AbsenceWithRelations
-  ): EventInput => ({
+  const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
     title: absenceData.subject.name,
     start: absenceData.lessonDate,
     allDay: true,
@@ -142,7 +142,7 @@ const Calendar: React.FC = () => {
           .fc th {
             text-transform: uppercase;
             font-size: ${theme.fontSizes.sm};
-            font-weight: ${theme.fontWeights.normal};
+            font-weight: ${theme.fontWeights[600]};
           }
           .fc-day-today {
             background-color: inherit !important;
@@ -151,7 +151,7 @@ const Calendar: React.FC = () => {
             margin-left: 6px;
             margin-top: 6px;
             font-size: ${theme.fontSizes.xs};
-            font-weight: ${theme.fontWeights.normal};
+            font-weight: ${theme.fontWeights[400]};
             width: 25px;
             height: 25px;
             display: flex;
@@ -195,28 +195,38 @@ const Calendar: React.FC = () => {
         `}
       />
 
-      <Flex height="100vh">
-        <Sidebar onDateSelect={handleDateSelect} />{' '}
-        <Box flex={1} paddingY={theme.space[4]} height="100%">
+      <Flex height="100vh" overflow="hidden">
+        <Sidebar onDateSelect={handleDateSelect} />
+        <Box
+          flex={1}
+          paddingTop={theme.space[4]}
+          height="100%"
+          display="flex"
+          flexDirection="column"
+        >
           <CalendarHeader
             currentMonthYear={currentMonthYear}
             onTodayClick={handleTodayClick}
             onPrevClick={handlePrevClick}
             onNextClick={handleNextClick}
+            userData={userData}
           />
-          <FullCalendar
-            ref={calendarRef}
-            headerToolbar={false}
-            plugins={[dayGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            height="100%"
-            events={events}
-            eventContent={renderEventContent}
-            timeZone="local"
-            datesSet={updateMonthYearTitle}
-            fixedWeekCount={false}
-            dayCellClassNames={({ date }) => addSquareClasses(date)}
-          />
+
+          <Box flex={1} overflow="hidden" paddingRight={theme.space[2]}>
+            <FullCalendar
+              ref={calendarRef}
+              headerToolbar={false}
+              plugins={[dayGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              height="100%"
+              events={events}
+              eventContent={renderEventContent}
+              timeZone="local"
+              datesSet={updateMonthYearTitle}
+              fixedWeekCount={false}
+              dayCellClassNames={({ date }) => addSquareClasses(date)}
+            />
+          </Box>
         </Box>
       </Flex>
     </>

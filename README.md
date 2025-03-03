@@ -144,6 +144,16 @@ To stop the database:
 docker compose down
 ```
 
+## **Accessing the Docker Container**
+
+To access the running Next.js container (`sistema-nextjs-1`), run:
+
+```bash
+docker exec -it sistema-nextjs-1 sh
+```
+
+This will open an interactive shell inside the container.
+
 ## Accessing Database
 
 ```bash

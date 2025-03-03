@@ -50,11 +50,11 @@ export async function PATCH(
   }
 
   try {
-    const { email, firstName, lastName, role, status } = await request.json();
+    const { email, firstName, lastName, role } = await request.json();
 
     const updatedUser = await prisma.user.update({
       where: { id: validatedId },
-      data: { email, firstName, lastName, role, status },
+      data: { email, firstName, lastName, role },
     });
 
     return NextResponse.json(updatedUser);
