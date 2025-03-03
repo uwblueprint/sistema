@@ -219,7 +219,7 @@ const Calendar: React.FC = () => {
               plugins={[dayGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
               height="100%"
-              events={filteredEvents}
+              events={events}
               eventContent={renderEventContent}
               timeZone="local"
               datesSet={updateMonthYearTitle}
