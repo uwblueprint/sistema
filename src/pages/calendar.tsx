@@ -212,7 +212,7 @@ const Calendar: React.FC = () => {
             userData={userData}
           />
 
-          <Box flex={1} overflow="hidden" paddingRight={theme.space[4]}>
+          <Box flex={1} overflow="hidden" paddingRight={theme.space[2]}>
             <FullCalendar
               ref={calendarRef}
               headerToolbar={false}
