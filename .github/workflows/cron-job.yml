@@ -8,8 +8,11 @@ on:
 jobs:
   call-api:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_PROD_URL: ${{ secrets.NEXT_PUBLIC_PROD_URL }}
     steps:
       - name: Log current time
         run: date -u # Logs the current UTC time
+
       - name: Call reminders API
-        run: curl -X GET "https://sistema-prod.vercel.app/api/reminders"
+        run: curl -X GET "$NEXT_PUBLIC_PROD_URL/api/reminders"

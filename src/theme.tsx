@@ -109,60 +109,76 @@ const textStyles = {
     fontSize: '28px',
     lineHeight: '42px',
     color: 'text.header',
+    fontFamily: 'heading',
   },
   h2: {
     fontWeight: 600,
     fontSize: '22px',
     lineHeight: '33px',
     color: 'text.header',
+    fontFamily: 'heading',
   },
   h3: {
     fontWeight: 700,
     fontSize: '16px',
     lineHeight: '24px',
     color: 'text.header',
+    fontFamily: 'heading',
   },
   h4: {
     fontWeight: 600,
     fontSize: '14px',
     lineHeight: '21px',
     color: 'text.header',
+    fontFamily: 'heading',
   },
   subtitle: {
     fontWeight: 400,
     fontSize: '13px',
     lineHeight: '15.73px',
     color: 'text.subtitle',
+    fontFamily: 'body',
   },
   caption: {
     fontWeight: 400,
     fontSize: '12px',
     lineHeight: '14.52px',
     color: 'text.body',
+    fontFamily: 'body',
   },
   body: {
     fontWeight: 400,
     fontSize: '11px',
     lineHeight: '13.31px',
     color: 'text.body',
+    fontFamily: 'body',
   },
   label: {
     fontWeight: 500,
     fontSize: '12px',
     lineHeight: '18px',
     color: 'text.header',
+    fontFamily: 'heading',
+  },
+  button: {
+    fontWeight: 600,
+    fontSize: '16px',
+    lineHeight: '24px',
+    fontFamily: 'heading',
   },
   cellBody: {
     fontWeight: 400,
     fontSize: '15px',
     lineHeight: '18.15px',
     color: 'text.body',
+    fontFamily: 'body',
   },
   cellBold: {
     fontWeight: 600,
     fontSize: '15px',
     lineHeight: '18.15px',
     color: 'text.header',
+    fontFamily: 'heading',
   },
 };
 
@@ -173,6 +189,10 @@ const theme = extendTheme({
   components: {
     Button: {
       baseStyle: {
+        fontFamily: 'heading',
+        fontSize: '16px',
+        lineHeight: '24px',
+        fontWeight: 600,
         bg: 'buttonBackground',
         color: 'primaryBlue.300',
         borderRadius: '7px',
