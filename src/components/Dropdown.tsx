@@ -36,7 +36,14 @@ const Dropdown = ({
 }: DropdownProps) => {
   return (
     <Box width="100%">
-      <Button onClick={toggleOpen} width="100%" variant="ghost" px={1}>
+      <Button
+        onClick={toggleOpen}
+        width="100%"
+        variant="ghost"
+        px={1}
+        py={0}
+        height="32px"
+      >
         <Flex justify="space-between" align="center" width="100%">
           <Text fontWeight="semibold" fontSize="14px">
             {title}
