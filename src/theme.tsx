@@ -196,11 +196,14 @@ const theme = extendTheme({
         bg: 'buttonBackground',
         color: 'primaryBlue.300',
         borderRadius: '7px',
+        _hover: {
+          bg: 'primaryBlue.500',
+        },
         _active: {
-          bg: 'primaryBlue.400',
+          bg: 'primaryBlue.600',
         },
         _disabled: {
-          bg: 'neutralGray.200',
+          bg: 'neutralGray.100',
           color: 'text.inactiveButtonText',
         },
       },
@@ -217,6 +220,18 @@ const theme = extendTheme({
           color: 'text.header',
           _hover: {
             bg: 'neutralGray.100',
+          },
+          _active: {
+            bg: 'neutralGray.300',
+          },
+        },
+        ghost: {
+          bg: 'transparent',
+          _hover: {
+            bg: 'neutralGray.100',
+          },
+          _active: {
+            bg: 'neutralGray.300',
           },
         },
       },

@@ -15,7 +15,7 @@ interface SubjectItem {
 }
 
 export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [subjects, setSubjects] = useState<SubjectItem[]>([]);
 

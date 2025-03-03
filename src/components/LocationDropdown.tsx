@@ -13,7 +13,7 @@ interface LocationItem extends Location {
 }
 
 export default function LocationDropdown({ setFilter }: LocationDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [locations, setLocations] = useState<LocationItem[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
