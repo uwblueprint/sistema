@@ -1,4 +1,4 @@
-import { Box, Flex, Text, useTheme, useToast } from '@chakra-ui/react';
+import { Box, Flex, useTheme, useToast } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import { EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -76,21 +76,6 @@ const Calendar: React.FC = () => {
   useEffect(() => {
     fetchAbsences();
   }, [fetchAbsences]);
-
-  const renderDayCellContent = (date: Date) => {
-    const day = date.getDate();
-    const month =
-      day === 1
-        ? `${new Intl.DateTimeFormat('en-US', { month: 'long' }).format(date)} `
-        : '';
-
-    return (
-      <Text whiteSpace="nowrap">
-        {month}
-        {day}
-      </Text>
-    );
-  };
 
   const formatMonthYear = (date: Date): string => {
     const options: Intl.DateTimeFormatOptions = {
@@ -194,6 +179,8 @@ const Calendar: React.FC = () => {
             width: 25px;
             height: 25px;
             display: flex;
+            align-items: center;
+            justify-content: center;
           }
           .fc-day-today .fc-daygrid-day-number {
             background-color: ${theme.colors.primaryBlue[300]};
@@ -202,6 +189,8 @@ const Calendar: React.FC = () => {
             width: 25px;
             height: 25px;
             display: flex;
+            align-items: center;
+            justify-content: center;
           }
           .fc-weekend {
             background-color: rgba(0, 0, 0, 0.05) !important;
@@ -263,7 +252,6 @@ const Calendar: React.FC = () => {
               datesSet={updateMonthYearTitle}
               fixedWeekCount={false}
               dayCellClassNames={({ date }) => addSquareClasses(date)}
-              dayCellContent={({ date }) => renderDayCellContent(date)}
             />
           </Box>
         </Box>
