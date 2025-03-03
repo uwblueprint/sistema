@@ -195,9 +195,15 @@ const Calendar: React.FC = () => {
         `}
       />
 
-      <Flex height="100vh">
-        <Sidebar onDateSelect={handleDateSelect} />{' '}
-        <Box flex={1} paddingY={theme.space[4]} height="100%">
+      <Flex height="100vh" overflow="hidden">
+        <Sidebar onDateSelect={handleDateSelect} />
+        <Box
+          flex={1}
+          paddingTop={theme.space[4]}
+          height="100%"
+          display="flex"
+          flexDirection="column"
+        >
           <CalendarHeader
             currentMonthYear={currentMonthYear}
             onTodayClick={handleTodayClick}
@@ -205,19 +211,22 @@ const Calendar: React.FC = () => {
             onNextClick={handleNextClick}
             userData={userData}
           />
-          <FullCalendar
-            ref={calendarRef}
-            headerToolbar={false}
-            plugins={[dayGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            height="100%"
-            events={events}
-            eventContent={renderEventContent}
-            timeZone="local"
-            datesSet={updateMonthYearTitle}
-            fixedWeekCount={false}
-            dayCellClassNames={({ date }) => addSquareClasses(date)}
-          />
+
+          <Box flex={1} overflow="hidden" paddingRight={theme.space[4]}>
+            <FullCalendar
+              ref={calendarRef}
+              headerToolbar={false}
+              plugins={[dayGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              height="100%"
+              events={filteredEvents}
+              eventContent={renderEventContent}
+              timeZone="local"
+              datesSet={updateMonthYearTitle}
+              fixedWeekCount={false}
+              dayCellClassNames={({ date }) => addSquareClasses(date)}
+            />
+          </Box>
         </Box>
       </Flex>
     </>
