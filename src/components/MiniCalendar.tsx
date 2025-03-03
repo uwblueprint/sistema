@@ -94,7 +94,7 @@ export default function MiniCalendar({
           width="100%"
           justifyContent="space-between"
           alignItems="center"
-          pl="10px"
+          pl={1}
         >
           <Text textStyle="h4" textAlign="left">
             {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
@@ -106,11 +106,6 @@ export default function MiniCalendar({
               variant="ghost"
               aria-label="Previous month"
               p={0}
-              bg="transparent"
-              _hover={{
-                bg: 'neutralGray.100',
-                borderRadius: 'lg',
-              }}
             >
               <IoChevronUp size={24} />
             </Button>
@@ -120,11 +115,6 @@ export default function MiniCalendar({
               variant="ghost"
               aria-label="Next month"
               p={0}
-              bg="transparent"
-              _hover={{
-                bg: 'neutralGray.100',
-                borderRadius: 'lg',
-              }}
             >
               <IoChevronDown size={24} />
             </Button>

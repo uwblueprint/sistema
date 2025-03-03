@@ -13,6 +13,14 @@ import Sidebar from '../components/CalendarSidebar';
 const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const [events, setEvents] = useState<EventInput[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
+  const [searchQuery, setSearchQuery] = useState<{
+    subjectIds: number[];
+    locationIds: number[];
+  }>({
+    subjectIds: [],
+    locationIds: [],
+  });
   const [currentMonthYear, setCurrentMonthYear] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const toast = useToast();
@@ -41,6 +49,8 @@ const Calendar: React.FC = () => {
     allDay: true,
     display: 'auto',
     location: absenceData.location.name,
+    subjectId: absenceData.subject.id,
+    locationId: absenceData.location.id,
   });
 
   const fetchAbsences = useCallback(async () => {
@@ -132,6 +142,18 @@ const Calendar: React.FC = () => {
     return classes;
   };
 
+  useEffect(() => {
+    const { subjectIds, locationIds } = searchQuery;
+
+    const filtered = events.filter((event) => {
+      const subjectIdMatch = subjectIds.includes(event.subjectId);
+      const locationIdMatch = locationIds.includes(event.locationId);
+      return subjectIdMatch && locationIdMatch;
+    });
+
+    setFilteredEvents(filtered);
+  }, [searchQuery, events]);
+
   return (
     <>
       <Global
@@ -195,8 +217,11 @@ const Calendar: React.FC = () => {
         `}
       />
 
-      <Flex height="100vh" overflow="hidden">
-        <Sidebar onDateSelect={handleDateSelect} />
+      <Flex height="100vh">
+        <Sidebar
+          setSearchQuery={setSearchQuery}
+          onDateSelect={handleDateSelect}
+        />
         <Box
           flex={1}
           paddingTop={theme.space[4]}
@@ -219,7 +244,7 @@ const Calendar: React.FC = () => {
               plugins={[dayGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
               height="100%"
-              events={events}
+              events={filteredEvents}
               eventContent={renderEventContent}
               timeZone="local"
               datesSet={updateMonthYearTitle}
