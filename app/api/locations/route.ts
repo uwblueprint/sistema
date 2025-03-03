@@ -16,16 +16,18 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
-    const { name, abbreviation } = data;
+    const { name, abbreviation } = (await request.json()) ?? {};
+
+    if (!name || !abbreviation) {
+      return NextResponse.json(
+        { error: 'name and abbreviation are required' },
+        { status: 400 }
+      );
+    }
 
     const location = await prisma.location.create({
-      data: {
-        name,
-        abbreviation,
-      },
+      data: { name, abbreviation },
     });
-
     return NextResponse.json(location);
   } catch (error) {
     console.error('Error creating location:', error);

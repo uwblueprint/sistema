@@ -20,8 +20,13 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
-    const { name, abbreviation, colorGroupId } = data;
+    const { name, abbreviation, colorGroupId } = await request.json();
+    if (!name || !abbreviation || !colorGroupId) {
+      return NextResponse.json(
+        { error: 'name, abbreviation, and colorGroupId are required' },
+        { status: 400 }
+      );
+    }
 
     const subject = await prisma.subject.create({
       data: {
