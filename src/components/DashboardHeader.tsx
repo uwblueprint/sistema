@@ -5,14 +5,16 @@ import {
   Spacer,
   Text,
   useTheme,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { IoChevronBack } from 'react-icons/io5';
+import { IoChevronBack, IoSettingsOutline } from 'react-icons/io5';
 import ExportAbsencesButton from './ExportAbsencesButton';
 import ProfileMenu from './ProfileMenu';
 import YearDropdown from './YearDropdown';
+import SystemOptionsModal from './SystemOptionsModal';
 
 interface DashboardHeaderProps {
   userData?: UserData;
@@ -32,6 +34,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const theme = useTheme();
   const router = useRouter();
   const [absenceCap, setAbsenceCap] = useState<number>(10);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -86,9 +89,26 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           />
         )}
 
+        <IconButton
+          aria-label="System Options"
+          icon={
+            <IoSettingsOutline
+              size={24}
+              color={theme.colors.primaryBlue[300]}
+            />
+          }
+          variant="outline"
+          onClick={onOpen}
+        />
         <ExportAbsencesButton />
         <ProfileMenu userData={userData} absenceCap={absenceCap} />
       </HStack>
+
+      <SystemOptionsModal
+        isOpen={isOpen}
+        onClose={onClose}
+        absenceCap={absenceCap}
+      />
     </Flex>
   );
 };
