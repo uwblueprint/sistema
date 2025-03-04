@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react';
 import { AddIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, useTheme } from '@chakra-ui/react';
-import { SistemaLogoColour } from '../components/SistemaLogoColour';
+import React, { useCallback } from 'react';
+import { TacetLogo } from '../components/SistemaLogoColour';
 import LocationDropdown from './LocationDropdown';
 import MiniCalendar from './MiniCalendar';
 import SubjectDropdown from './SubjectDropdown';
@@ -48,7 +48,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       alignItems="center"
     >
       <Box width="150px">
-        <SistemaLogoColour />
+        <TacetLogo />
       </Box>
       <Button
         paddingX="40px"
