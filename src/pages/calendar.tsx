@@ -272,13 +272,10 @@ const Calendar: React.FC = () => {
 
       <Flex height="100vh">
         <Sidebar
+          setSearchQuery={setSearchQuery}
           onDeclareAbsenceClick={handleDeclareAbsenceClick}
           onDateSelect={handleDateSelect}
         />
-        {/* <Box flex={1} padding={theme.space[4]} height="100%">
-          setSearchQuery={setSearchQuery}
-          onDateSelect={handleDateSelect}
-        /> */}
         <Box
           flex={1}
           paddingTop={theme.space[4]}
