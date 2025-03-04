@@ -5,16 +5,20 @@ import { IoChevronUp, IoChevronDown } from 'react-icons/io5';
 interface CalendarProps {
   initialDate?: Date;
   onDateSelect?: (date: Date) => void;
+  selectDate?: Date | null;
 }
 
 export default function MiniCalendar({
   initialDate = new Date(),
   onDateSelect,
+  selectDate: externalSelectedDate,
 }: CalendarProps) {
   const [mounted, setMounted] = useState(false);
 
   const [currentMonth, setCurrentMonth] = useState(new Date(initialDate));
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    externalSelectedDate || null
+  );
   const bgColor = 'white';
   const todayBgColor = 'primaryBlue.300';
   const todayColor = 'white';
@@ -23,6 +27,25 @@ export default function MiniCalendar({
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (externalSelectedDate) {
+      setSelectedDate(externalSelectedDate);
+
+      if (
+        externalSelectedDate.getMonth() !== currentMonth.getMonth() ||
+        externalSelectedDate.getFullYear() !== currentMonth.getFullYear()
+      ) {
+        setCurrentMonth(
+          new Date(
+            externalSelectedDate.getFullYear(),
+            externalSelectedDate.getMonth(),
+            1
+          )
+        );
+      }
+    }
+  }, [externalSelectedDate]);
 
   if (!mounted) return null;
 

@@ -99,6 +99,9 @@ const Calendar: React.FC = () => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       calendarApi.today();
+      //ToDO: must handle going back in time to today
+      const today = new Date();
+      setSelectedDate(today);
       updateMonthYearTitle();
     }
   }, [updateMonthYearTitle]);
@@ -221,6 +224,7 @@ const Calendar: React.FC = () => {
         <Sidebar
           setSearchQuery={setSearchQuery}
           onDateSelect={handleDateSelect}
+          selectDate={selectedDate}
         />
         <Box
           flex={1}
