@@ -18,6 +18,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { Absence, Prisma } from '@prisma/client';
 import { AbsenceAPI } from '@utils/types';
+import useUserData from '@utils/useUserData';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import CalendarHeader from '../components/CalendarHeader';
 import Sidebar from '../components/CalendarSidebar';
@@ -26,11 +27,20 @@ import InputForm from '../components/InputForm';
 const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const [events, setEvents] = useState<EventInput[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
+  const [searchQuery, setSearchQuery] = useState<{
+    subjectIds: number[];
+    locationIds: number[];
+  }>({
+    subjectIds: [],
+    locationIds: [],
+  });
   const [currentMonthYear, setCurrentMonthYear] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const toast = useToast();
   const theme = useTheme();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const userData = useUserData();
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => (
@@ -54,6 +64,8 @@ const Calendar: React.FC = () => {
     allDay: true,
     display: 'auto',
     location: absenceData.location.name,
+    subjectId: absenceData.subject.id,
+    locationId: absenceData.location.id,
   });
 
   const handleAddAbsence = async (
@@ -183,6 +195,17 @@ const Calendar: React.FC = () => {
       onOpen();
     }
   };
+  useEffect(() => {
+    const { subjectIds, locationIds } = searchQuery;
+
+    const filtered = events.filter((event) => {
+      const subjectIdMatch = subjectIds.includes(event.subjectId);
+      const locationIdMatch = locationIds.includes(event.locationId);
+      return subjectIdMatch && locationIdMatch;
+    });
+
+    setFilteredEvents(filtered);
+  }, [searchQuery, events]);
 
   return (
     <>
@@ -252,27 +275,41 @@ const Calendar: React.FC = () => {
           onDeclareAbsenceClick={handleDeclareAbsenceClick}
           onDateSelect={handleDateSelect}
         />
-        <Box flex={1} padding={theme.space[4]} height="100%">
+        {/* <Box flex={1} padding={theme.space[4]} height="100%">
+          setSearchQuery={setSearchQuery}
+          onDateSelect={handleDateSelect}
+        /> */}
+        <Box
+          flex={1}
+          paddingTop={theme.space[4]}
+          height="100%"
+          display="flex"
+          flexDirection="column"
+        >
           <CalendarHeader
             currentMonthYear={currentMonthYear}
             onTodayClick={handleTodayClick}
             onPrevClick={handlePrevClick}
             onNextClick={handleNextClick}
+            userData={userData}
           />
-          <FullCalendar
-            ref={calendarRef}
-            headerToolbar={false}
-            plugins={[dayGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            height="100%"
-            events={events}
-            eventContent={renderEventContent}
-            timeZone="local"
-            datesSet={updateMonthYearTitle}
-            fixedWeekCount={false}
-            dayCellClassNames={({ date }) => addSquareClasses(date)}
-            dateClick={handleDateClick}
-          />
+
+          <Box flex={1} overflow="hidden" paddingRight={theme.space[2]}>
+            <FullCalendar
+              ref={calendarRef}
+              headerToolbar={false}
+              plugins={[dayGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              height="100%"
+              events={filteredEvents}
+              eventContent={renderEventContent}
+              timeZone="local"
+              datesSet={updateMonthYearTitle}
+              fixedWeekCount={false}
+              dayCellClassNames={({ date }) => addSquareClasses(date)}
+              dateClick={handleDateClick}
+            />
+          </Box>
         </Box>
       </Flex>
 
