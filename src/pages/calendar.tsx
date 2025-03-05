@@ -4,7 +4,7 @@ import { EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
-import { AbsenceAPI } from '@utils/types';
+import { AbsenceAPI, mapColorCodes } from '@utils/types';
 import useUserData from '@utils/useUserData';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import CalendarHeader from '../components/CalendarHeader';
@@ -51,6 +51,7 @@ const Calendar: React.FC = () => {
     location: absenceData.location.name,
     subjectId: absenceData.subject.id,
     locationId: absenceData.location.id,
+    colors: mapColorCodes(absenceData.subject.colorGroup.colorCodes),
   });
 
   const fetchAbsences = useCallback(async () => {
