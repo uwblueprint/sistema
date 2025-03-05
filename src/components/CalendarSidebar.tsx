@@ -1,13 +1,43 @@
-import React from 'react';
-import { Flex, Box, Button, Text, useTheme } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
-import { SistemaLogoColour } from '../components/SistemaLogoColour';
+import { Box, Button, Flex, useTheme } from '@chakra-ui/react';
+import React, { useCallback } from 'react';
+import { TacetLogo } from '../components/SistemaLogoColour';
+import LocationDropdown from './LocationDropdown';
 import MiniCalendar from './MiniCalendar';
+import SubjectDropdown from './SubjectDropdown';
 
-const CalendarSidebar: React.FC<{ onDateSelect: (date: Date) => void }> = ({
+interface CalendarSidebarProps {
+  setSearchQuery: React.Dispatch<
+    React.SetStateAction<{ subjectIds: number[]; locationIds: number[] }>
+  >;
+  onDateSelect: (date: Date) => void;
+}
+
+const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
+  setSearchQuery,
   onDateSelect,
 }) => {
   const theme = useTheme();
+
+  const setSubjectIdFilter = useCallback(
+    (subjectIds: number[]) => {
+      setSearchQuery((prev) => ({
+        ...prev,
+        subjectIds,
+      }));
+    },
+    [setSearchQuery]
+  );
+
+  const setLocationIdFilter = useCallback(
+    (locationIds: number[]) => {
+      setSearchQuery((prev) => ({
+        ...prev,
+        locationIds,
+      }));
+    },
+    [setSearchQuery]
+  );
 
   return (
     <Flex
@@ -18,18 +48,20 @@ const CalendarSidebar: React.FC<{ onDateSelect: (date: Date) => void }> = ({
       alignItems="center"
     >
       <Box width="150px">
-        <SistemaLogoColour />
+        <TacetLogo />
       </Box>
       <Button
         paddingX="40px"
         variant="outline"
         borderColor={theme.colors.neutralGray[300]}
         size="lg"
-        leftIcon={<AddIcon color="blue.500" />}
+        leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
       >
         Declare Absence
       </Button>
       <MiniCalendar initialDate={new Date()} onDateSelect={onDateSelect} />
+      <SubjectDropdown setFilter={setSubjectIdFilter} />
+      <LocationDropdown setFilter={setLocationIdFilter} />
     </Flex>
   );
 };

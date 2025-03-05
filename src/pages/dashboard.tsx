@@ -4,11 +4,14 @@ import UserManagementSection from '../components/UserManagementSection';
 import TotalAbsencesModal from '../components/TotalAbsencesModal';
 import MonthlyAbsencesModal from '../components/MonthlyAbsencesModal';
 import { HStack } from '@chakra-ui/react';
+import useUserData from '@utils/useUserData';
 
 export default function DashboardPage() {
+  const userData = useUserData();
+
   return (
     <Box>
-      <DashboardHeader />
+      <DashboardHeader userData={userData} />
       <Box px={8} pt={3} pb={8} justifyContent="center">
         <HStack height="216px" mb="10px">
           <TotalAbsencesModal
