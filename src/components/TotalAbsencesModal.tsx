@@ -17,16 +17,16 @@ interface TotalAbsencesProps {
   width: string;
   filled: number;
   total: number;
-  startDate: string;
-  endDate: string;
+  startYear: string;
+  endYear: string;
 }
 
 export default function TotalAbsencesModal({
   width,
   filled = 150,
   total = 200,
-  startDate = 'Sept 2024',
-  endDate = 'Aug 2025',
+  startYear,
+  endYear,
 }: TotalAbsencesProps) {
   const percentage = (filled / total) * 100;
 
@@ -87,7 +87,7 @@ export default function TotalAbsencesModal({
               fontWeight="400"
               color={dateColor}
             >
-              {startDate} - {endDate}
+              Sept {startYear} - Aug {endYear}
             </Text>
           </Box>
 
