@@ -1,13 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Grid,
-  Text,
-  HStack,
-  VStack,
-  useColorModeValue,
-} from '@chakra-ui/react';
+import { Box, Button, Grid, Text, HStack, VStack } from '@chakra-ui/react';
 import { IoChevronUp, IoChevronDown } from 'react-icons/io5';
 
 interface CalendarProps {
@@ -27,13 +19,10 @@ export default function MiniCalendar({
   const [selectedDate, setSelectedDate] = useState<Date | null>(
     externalSelectedDate || null
   );
-  const bgColor = useColorModeValue('white', 'neutralGray.800');
-  const todayBgColor = useColorModeValue('primaryBlue.300', 'primaryBlue.200');
-  const todayColor = useColorModeValue('white', 'neutralGray.800');
-  const selectedBgColor = useColorModeValue(
-    'primaryBlue.50',
-    'primaryBlue.600'
-  );
+  const bgColor = 'white';
+  const todayBgColor = 'primaryBlue.300';
+  const todayColor = 'white';
+  const selectedBgColor = 'primaryBlue.50';
 
   useEffect(() => {
     setMounted(true);
@@ -128,9 +117,9 @@ export default function MiniCalendar({
           width="100%"
           justifyContent="space-between"
           alignItems="center"
-          pl="10px"
+          pl={1}
         >
-          <Text fontSize="sm" fontWeight="bold" textAlign="left">
+          <Text textStyle="h4" textAlign="left">
             {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </Text>
           <HStack spacing={0}>
@@ -140,11 +129,6 @@ export default function MiniCalendar({
               variant="ghost"
               aria-label="Previous month"
               p={0}
-              bg="transparent"
-              _hover={{
-                bg: 'neutralGray.100',
-                borderRadius: 'lg',
-              }}
             >
               <IoChevronUp size={24} />
             </Button>
@@ -154,11 +138,6 @@ export default function MiniCalendar({
               variant="ghost"
               aria-label="Next month"
               p={0}
-              bg="transparent"
-              _hover={{
-                bg: 'neutralGray.100',
-                borderRadius: 'lg',
-              }}
             >
               <IoChevronDown size={24} />
             </Button>
@@ -181,7 +160,9 @@ export default function MiniCalendar({
               pointerEvents="none"
               bg="transparent"
             >
-              <Text textStyle="subtitle">{day}</Text>
+              <Text textStyle="subtitle" color="text.body">
+                {day}
+              </Text>
             </Button>
           ))}
         </Grid>

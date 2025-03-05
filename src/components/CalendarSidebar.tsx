@@ -1,21 +1,45 @@
-import React from 'react';
-import { Flex, Box, Button, Text, useTheme } from '@chakra-ui/react';
+import React, { useCallback } from 'react';
 import { AddIcon } from '@chakra-ui/icons';
+import { Box, Button, Flex, useTheme } from '@chakra-ui/react';
 import { SistemaLogoColour } from '../components/SistemaLogoColour';
+import LocationDropdown from './LocationDropdown';
 import MiniCalendar from './MiniCalendar';
+import SubjectDropdown from './SubjectDropdown';
 
 interface CalendarSidebarProps {
+  setSearchQuery;
   onDateSelect: (date: Date) => void;
   onDeclareAbsenceClick: () => void;
   selectDate: Date | null;
 }
 
 const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
+  setSearchQuery,
   onDateSelect,
   onDeclareAbsenceClick,
   selectDate,
 }) => {
   const theme = useTheme();
+
+  const setSubjectIdFilter = useCallback(
+    (subjectIds: number[]) => {
+      setSearchQuery((prev) => ({
+        ...prev,
+        subjectIds,
+      }));
+    },
+    [setSearchQuery]
+  );
+
+  const setLocationIdFilter = useCallback(
+    (locationIds: number[]) => {
+      setSearchQuery((prev) => ({
+        ...prev,
+        locationIds,
+      }));
+    },
+    [setSearchQuery]
+  );
 
   return (
     <Flex
@@ -34,7 +58,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         borderColor={theme.colors.neutralGray[300]}
         size="lg"
         onClick={onDeclareAbsenceClick}
-        leftIcon={<AddIcon color="blue.500" />}
+        leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
       >
         Declare Absence
       </Button>
@@ -43,6 +67,8 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         onDateSelect={onDateSelect}
         selectDate={selectDate}
       />
+      <SubjectDropdown setFilter={setSubjectIdFilter} />
+      <LocationDropdown setFilter={setLocationIdFilter} />
     </Flex>
   );
 };

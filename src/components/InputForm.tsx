@@ -13,7 +13,7 @@ import {
 import { Absence, Prisma } from '@prisma/client';
 import { useState } from 'react';
 import { FileUpload } from './FileUpload';
-import { Dropdown } from './Dropdown';
+import { InputDropdown } from './InputDropdown';
 import { SearchDropdown } from './SearchDropdown';
 
 interface InputFormProps {
@@ -212,7 +212,7 @@ const InputForm: React.FC<InputFormProps> = ({
           <FormLabel sx={{ display: 'flex' }}>
             <Heading size="h4">Class Type</Heading>
           </FormLabel>
-          <Dropdown
+          <InputDropdown
             label="class type"
             type="subject"
             onChange={(value) => {
@@ -237,7 +237,7 @@ const InputForm: React.FC<InputFormProps> = ({
           <FormLabel sx={{ display: 'flex' }}>
             <Heading size="h4">Location</Heading>
           </FormLabel>
-          <Dropdown
+          <InputDropdown
             label="class location"
             type="location"
             onChange={(value) => {
