@@ -100,6 +100,7 @@ export interface Location {
   name: string;
   archived: boolean;
   abbreviation: string;
+  archived: boolean;
 }
 
 export interface MailingListWithRelations {
@@ -121,6 +122,7 @@ export interface SubjectAPI {
   id: number;
   name: string;
   abbreviation: string;
+  archived: boolean;
   colorGroupId: number;
   archived: boolean;
   colorGroup: {
