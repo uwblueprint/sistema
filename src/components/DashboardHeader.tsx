@@ -69,7 +69,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userData }) => {
           icon={
             <IoSettingsOutline
               size={24}
-              color={theme.colors.primaryBlue[300]}
+              color={theme.colors.neutralGray[600]}
             />
           }
           variant="outline"

@@ -41,11 +41,13 @@ import {
   IoBookOutline,
   IoCheckmark,
   IoCloseOutline,
+  IoSettingsOutline,
 } from 'react-icons/io5';
 import { FiType } from 'react-icons/fi';
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import { Subject, SubjectAPI, Location } from '@utils/types';
 import React from 'react';
+import { LuInfo } from 'react-icons/lu';
 
 interface SystemOptionsModalProps {
   isOpen: boolean;
@@ -605,6 +607,10 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         <ModalContent maxHeight="80vh" height="auto">
           <ModalHeader>
             <HStack>
+              <IoSettingsOutline
+                size={20}
+                color={theme.colors.neutralGray[600]}
+              />
               <Box>
                 <Text>System Options</Text>
               </Box>
@@ -632,7 +638,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                       <Box
                         as="span"
                         ml={1}
-                        color="gray.500"
+                        color="primaryBlue.300"
                         cursor="help"
                         position="relative"
                         _hover={{
@@ -641,7 +647,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                           },
                         }}
                       >
-                        <Box as="span">ⓘ</Box>
+                        <LuInfo />
                         <Box
                           display="none"
                           position="absolute"
@@ -667,7 +673,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                       <Box
                         as="span"
                         ml={1}
-                        color="gray.500"
+                        color="primaryBlue.300"
                         cursor="help"
                         position="relative"
                         _hover={{
@@ -676,7 +682,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                           },
                         }}
                       >
-                        <Box as="span">ⓘ</Box>
+                        <LuInfo />
                         <Box
                           display="none"
                           position="absolute"
@@ -1014,7 +1020,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                   {/* Add Button */}
                   <HStack
                     p={3}
-                    justify="center"
+                    justify="flex-start"
                     borderTopWidth={subjects.length > 0 ? '1px' : '0'}
                     bg="gray.50"
                   >
@@ -1046,7 +1052,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                       <Box
                         as="span"
                         ml={1}
-                        color="gray.500"
+                        color="primaryBlue.300"
                         cursor="help"
                         position="relative"
                         _hover={{
@@ -1055,7 +1061,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                           },
                         }}
                       >
-                        <Box as="span">ⓘ</Box>
+                        <LuInfo />
                         <Box
                           display="none"
                           position="absolute"
@@ -1081,7 +1087,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                       <Box
                         as="span"
                         ml={1}
-                        color="gray.500"
+                        color="primaryBlue.300"
                         cursor="help"
                         position="relative"
                         _hover={{
@@ -1090,7 +1096,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                           },
                         }}
                       >
-                        <Box as="span">ⓘ</Box>
+                        <LuInfo />
                         <Box
                           display="none"
                           position="absolute"
@@ -1313,7 +1319,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                   {/* Add Button */}
                   <HStack
                     p={3}
-                    justify="center"
+                    justify="flex-start"
                     borderTopWidth={locations.length > 0 ? '1px' : '0'}
                     bg="gray.50"
                   >
