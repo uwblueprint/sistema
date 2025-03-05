@@ -29,7 +29,15 @@ const Calendar: React.FC = () => {
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => (
-      <Box>
+      <Box
+        sx={{
+          padding: (theme) => `${theme.space[2]} ${theme.space[3]}`,
+          margin: (theme) => `${theme.space[2]} 0`,
+          borderRadius: (theme) => `${theme.radii.md}`,
+          backgroundColor: eventInfo.event.extendedProps.colors.light,
+          textColor: eventInfo.event.extendedProps.colors.text,
+        }}
+      >
         <Box className="fc-event-title-container">
           <Box className="fc-event-title fc-sticky">
             {eventInfo.event.title}
@@ -195,9 +203,8 @@ const Calendar: React.FC = () => {
             background-color: rgba(0, 0, 0, 0.05) !important;
           }
           .fc-event {
-            padding: ${theme.space[2]} ${theme.space[3]};
-            margin: ${theme.space[2]} 0;
-            border-radius: ${theme.radii.md};
+            border: 0px;
+            background-color: transparent;
           }
           .fc-event-title {
             overflow: hidden;
