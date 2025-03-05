@@ -12,12 +12,19 @@ import { useEffect, useState } from 'react';
 import { IoChevronBack } from 'react-icons/io5';
 import ExportAbsencesButton from './ExportAbsencesButton';
 import ProfileMenu from './ProfileMenu';
+import { YearSelector } from './YearSelector';
 
 interface DashboardHeaderProps {
   userData?: UserData;
+  selectedYearRange: string;
+  setSelectedYearRange: (yearRange: string) => void;
 }
 
-const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userData }) => {
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({
+  userData,
+  selectedYearRange,
+  setSelectedYearRange,
+}) => {
   const theme = useTheme();
   const router = useRouter();
   const [absenceCap, setAbsenceCap] = useState<number>(10);
@@ -61,6 +68,10 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userData }) => {
       </HStack>
       <Spacer />
       <HStack spacing={theme.space[4]}>
+        <YearSelector
+          selectedRange={selectedYearRange}
+          onChange={setSelectedYearRange}
+        />
         <ExportAbsencesButton />
         <ProfileMenu userData={userData} absenceCap={absenceCap} />
       </HStack>
