@@ -602,9 +602,21 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} size="md">
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="md"
+        scrollBehavior="outside"
+        isCentered={false}
+      >
         <ModalOverlay />
-        <ModalContent maxHeight="80vh" height="auto">
+        <ModalContent
+          minHeight={['90vh', '95vh', '100vh']}
+          maxHeight="none"
+          maxWidth="md"
+          position="relative"
+          overflow="visible"
+        >
           <ModalHeader>
             <HStack>
               <IoSettingsOutline
@@ -617,11 +629,13 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
             </HStack>
           </ModalHeader>
           <ModalBody
-            overflowY="auto"
-            maxHeight="calc(80vh - 130px)"
             padding={4}
+            flex="1"
+            position="relative"
+            width="100%"
+            overflow="visible"
           >
-            <VStack align="stretch" spacing={6}>
+            <VStack align="stretch" spacing={6} width="100%">
               {/* Subjects Section */}
               <Box>
                 <Box borderWidth="1px" borderRadius="md" overflow="hidden">
@@ -854,8 +868,8 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                               <Text>{subject.abbreviation}</Text>
                               <Box
                                 className="menu-button"
-                                display="none"
-                                _groupHover={{ display: 'block' }}
+                                opacity="0"
+                                _groupHover={{ opacity: '1' }}
                               >
                                 <Menu>
                                   <MenuButton
@@ -1203,8 +1217,8 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                               <Text>{location.abbreviation}</Text>
                               <Box
                                 className="menu-button"
-                                display="none"
-                                _groupHover={{ display: 'block' }}
+                                opacity="0"
+                                _groupHover={{ opacity: '1' }}
                               >
                                 <Menu>
                                   <MenuButton
