@@ -29,6 +29,7 @@ import {
   Circle,
   useToast,
   Heading,
+  useTheme,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import {
@@ -37,9 +38,14 @@ import {
   IoTrashOutline,
   IoArchiveOutline,
   IoCreateOutline,
+  IoBookOutline,
+  IoCheckmark,
+  IoCloseOutline,
 } from 'react-icons/io5';
-import ConfirmationDialog from './ConfirmationDialog';
+import { FiType } from 'react-icons/fi';
+import ConfirmationDialog from '../components/ConfirmationDialog';
 import { Subject, SubjectAPI, Location } from '@utils/types';
+import React from 'react';
 
 interface SystemOptionsModalProps {
   isOpen: boolean;
@@ -57,13 +63,9 @@ interface Change {
   displayText: string;
 }
 
-// Need to extend these types to include archived property
-interface SubjectAPIWithArchived extends SubjectAPI {
-  archived?: boolean;
-}
-
-interface LocationWithArchived extends Location {
-  archived?: boolean;
+interface ChangeResult {
+  success: boolean;
+  message: string;
 }
 
 const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
@@ -71,37 +73,58 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   onClose,
   absenceCap,
 }) => {
-  const [subjects, setSubjects] = useState<SubjectAPIWithArchived[]>([]);
-  const [locations, setLocations] = useState<LocationWithArchived[]>([]);
+  const COLOR_CODE_INDEX = 1;
+
+  const [subjects, setSubjects] = useState<SubjectAPI[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
   const [allowedAbsences, setAllowedAbsences] = useState<number>(absenceCap);
   const [pendingChanges, setPendingChanges] = useState<Change[]>([]);
-  const [newSubject, setNewSubject] = useState({
+  const [newSubject, setNewSubject] = useState<SubjectAPI>({
+    id: 0,
     name: '',
     abbreviation: '',
-    colorGroup: 'Strings',
+    colorGroup: {
+      // TODO: Add color group to the database
+      name: 'Strings',
+      colorCodes: ['#f44336', '#ff9800', '#ffeb3b'],
+    },
+    colorGroupId: 1,
+    archived: false,
   });
-  const [newLocation, setNewLocation] = useState({
+  const [editingSubject, setEditingSubject] = useState<SubjectAPI | null>(null);
+  const [newLocation, setNewLocation] = useState<Location>({
+    id: 0,
     name: '',
     abbreviation: '',
+    archived: false,
   });
+  const [editingLocation, setEditingLocation] = useState<{
+    id: number | null;
+    name: string;
+    abbreviation: string;
+  } | null>(null);
   const [isAddingSubject, setIsAddingSubject] = useState(false);
   const [isAddingLocation, setIsAddingLocation] = useState(false);
-  const [selectedColorGroup, setSelectedColorGroup] = useState<string>('');
+  const [colorPickerOpen, setColorPickerOpen] = useState<number | null>(null);
   const confirmationDialog = useDisclosure();
   const toast = useToast();
+  const theme = useTheme();
+  const [colorGroups, setColorGroups] = useState<
+    {
+      id: number;
+      name: string;
+      colorCodes: string[];
+    }[]
+  >([]);
 
-  // Color groups based on the screenshots
-  const colorGroups = [
-    { name: 'Strings', colors: ['#f44336', '#ff9800', '#ffeb3b'] },
-    { name: 'Choir', colors: ['#4caf50', '#8bc34a', '#cddc39'] },
-    { name: 'MMM', colors: ['#2196f3', '#03a9f4', '#00bcd4'] },
-    { name: 'Percussion', colors: ['#9c27b0', '#673ab7', '#3f51b5'] },
-  ];
+  // Create a ref to detect clicks outside the editing row
+  const editingRowRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       fetchSubjects();
       fetchLocations();
+      fetchColorGroups();
     }
   }, [isOpen]);
 
@@ -141,6 +164,94 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     }
   };
 
+  const fetchColorGroups = async () => {
+    try {
+      const response = await fetch('/api/colorGroups');
+      if (!response.ok) throw new Error('Failed to fetch color groups');
+      const data = await response.json();
+      setColorGroups(data);
+    } catch (error) {
+      console.error('Error fetching color groups:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load color groups',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  // Handle clicks outside the editing row
+  React.useEffect(() => {
+    // Only add the event listener if we're in edit mode
+    if (!editingSubject && !editingLocation) return;
+
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        editingRowRef.current &&
+        !editingRowRef.current.contains(event.target as Node)
+      ) {
+        // Save the current editing state to local variables
+        const currentEditingSubject = editingSubject;
+        const currentEditingLocation = editingLocation;
+
+        // Reset the editing state first to prevent infinite loops
+        if (currentEditingSubject) {
+          setEditingSubject(null);
+          setColorPickerOpen(null);
+
+          // Then apply the changes
+          if (
+            currentEditingSubject.name &&
+            currentEditingSubject.abbreviation
+          ) {
+            const colorGroupId = currentEditingSubject.colorGroupId;
+            if (colorGroupId) {
+              handleAddChange({
+                type: 'update',
+                entity: 'subject',
+                id: currentEditingSubject.id!,
+                data: {
+                  name: currentEditingSubject.name,
+                  abbreviation: currentEditingSubject.abbreviation,
+                  colorGroupId: colorGroupId,
+                },
+                displayText: `Updated Subject "${currentEditingSubject.name}"`,
+              });
+            }
+          }
+        } else if (currentEditingLocation) {
+          setEditingLocation(null);
+
+          // Then apply the changes
+          if (
+            currentEditingLocation.name &&
+            currentEditingLocation.abbreviation
+          ) {
+            handleAddChange({
+              type: 'update',
+              entity: 'location',
+              id: currentEditingLocation.id!,
+              data: {
+                name: currentEditingLocation.name,
+                abbreviation: currentEditingLocation.abbreviation,
+              },
+              displayText: `Updated Location "${currentEditingLocation.name}"`,
+            });
+          }
+        }
+      }
+    }
+
+    // Add event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      // Remove event listener on cleanup
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [editingSubject, editingLocation, colorGroups]);
+
   const handleAddChange = (change: Change) => {
     // Remove any existing changes for the same entity and ID
     const filteredChanges = pendingChanges.filter(
@@ -150,7 +261,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     setPendingChanges([...filteredChanges, change]);
   };
 
-  const handleArchiveSubject = (subject: SubjectAPIWithArchived) => {
+  const handleArchiveSubject = (subject: SubjectAPI) => {
     handleAddChange({
       type: subject.archived ? 'unarchive' : 'archive',
       entity: 'subject',
@@ -160,7 +271,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     });
   };
 
-  const handleDeleteSubject = (subject: SubjectAPIWithArchived) => {
+  const handleDeleteSubject = (subject: SubjectAPI) => {
     handleAddChange({
       type: 'delete',
       entity: 'subject',
@@ -169,7 +280,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     });
   };
 
-  const handleArchiveLocation = (location: LocationWithArchived) => {
+  const handleArchiveLocation = (location: Location) => {
     handleAddChange({
       type: location.archived ? 'unarchive' : 'archive',
       entity: 'location',
@@ -179,7 +290,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     });
   };
 
-  const handleDeleteLocation = (location: LocationWithArchived) => {
+  const handleDeleteLocation = (location: Location) => {
     handleAddChange({
       type: 'delete',
       entity: 'location',
@@ -200,14 +311,83 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     }
   };
 
+  const handleEditSubject = (subject: SubjectAPI) => {
+    setEditingSubject(subject);
+  };
+
+  const handleSaveEditedSubject = () => {
+    if (!editingSubject || !editingSubject.name || !editingSubject.abbreviation)
+      return;
+
+    // Store the current editing state
+    const currentEditingSubject = { ...editingSubject };
+
+    // Reset the editing state first
+    setEditingSubject(null);
+    setColorPickerOpen(null);
+
+    // Find colorGroupId based on name
+    const colorGroupId = currentEditingSubject.colorGroupId;
+    if (!colorGroupId) return;
+
+    // Update the local subjects array to immediately reflect changes in UI
+    setSubjects(
+      subjects.map((subject) =>
+        subject.id === currentEditingSubject.id
+          ? {
+              ...subject,
+              name: currentEditingSubject.name,
+              abbreviation: currentEditingSubject.abbreviation,
+              colorGroupId: colorGroupId,
+              colorGroup: currentEditingSubject.colorGroup,
+            }
+          : subject
+      )
+    );
+
+    handleAddChange({
+      type: 'update',
+      entity: 'subject',
+      id: currentEditingSubject.id!,
+      data: {
+        name: currentEditingSubject.name,
+        abbreviation: currentEditingSubject.abbreviation,
+        colorGroupId: colorGroupId,
+      },
+      displayText: `Updated Subject "${currentEditingSubject.name}"`,
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingSubject(null);
+    setEditingLocation(null);
+    setIsAddingSubject(false);
+    setIsAddingLocation(false);
+    setColorPickerOpen(null);
+  };
+
   const handleAddSubject = () => {
     if (!newSubject.name || !newSubject.abbreviation) return;
 
     // Find colorGroupId based on name
-    const colorGroup = colorGroups.find(
-      (cg) => cg.name === newSubject.colorGroup
-    );
-    if (!colorGroup) return;
+    const colorGroupId = newSubject.colorGroupId;
+    if (!colorGroupId) return;
+
+    // Create a temporary ID for the new subject (negative to avoid conflicts)
+    const tempId = -Date.now();
+
+    // Create the new subject object
+    const newSubjectObj: SubjectAPI = {
+      id: tempId,
+      name: newSubject.name,
+      abbreviation: newSubject.abbreviation,
+      colorGroup: colorGroups[colorGroupId - 1],
+      colorGroupId: colorGroupId,
+      archived: false,
+    };
+
+    // Add to the subjects array
+    setSubjects([...subjects, newSubjectObj]);
 
     handleAddChange({
       type: 'add',
@@ -215,17 +395,44 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       data: {
         name: newSubject.name,
         abbreviation: newSubject.abbreviation,
-        colorGroupId: colorGroups.indexOf(colorGroup) + 1, // Assuming IDs start at 1
+        colorGroupId: colorGroupId,
       },
       displayText: `Added Subject "${newSubject.name}"`,
     });
 
+    // Reset form and close it
+    setNewSubject({
+      id: 0,
+      name: '',
+      abbreviation: '',
+      colorGroup: {
+        // TODO make a default color group
+        name: 'Strings',
+        colorCodes: ['#f44336', '#ff9800', '#ffeb3b'],
+      },
+      colorGroupId: 1,
+      archived: false,
+    });
     setIsAddingSubject(false);
-    setNewSubject({ name: '', abbreviation: '', colorGroup: 'Strings' });
+    setColorPickerOpen(null);
   };
 
   const handleAddLocation = () => {
     if (!newLocation.name || !newLocation.abbreviation) return;
+
+    // Create a temporary ID for the new location (negative to avoid conflicts)
+    const tempId = -Date.now();
+
+    // Create the new location object
+    const newLocationObj: Location = {
+      id: tempId,
+      name: newLocation.name,
+      abbreviation: newLocation.abbreviation,
+      archived: false,
+    };
+
+    // Add to the locations array
+    setLocations([...locations, newLocationObj]);
 
     handleAddChange({
       type: 'add',
@@ -238,11 +445,59 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     });
 
     setIsAddingLocation(false);
-    setNewLocation({ name: '', abbreviation: '' });
+    setNewLocation({
+      id: 0,
+      name: '',
+      abbreviation: '',
+      archived: false,
+    });
+  };
+
+  const handleEditLocation = (location: Location) => {
+    setEditingLocation(location);
+  };
+
+  const handleSaveEditedLocation = () => {
+    if (
+      !editingLocation ||
+      !editingLocation.name ||
+      !editingLocation.abbreviation
+    )
+      return;
+
+    // Store the current editing state
+    const currentEditingLocation = { ...editingLocation };
+
+    // Reset the editing state first
+    setEditingLocation(null);
+
+    // Update the local locations array to immediately reflect changes in UI
+    setLocations(
+      locations.map((location) =>
+        location.id === currentEditingLocation.id
+          ? {
+              ...location,
+              name: currentEditingLocation.name,
+              abbreviation: currentEditingLocation.abbreviation,
+            }
+          : location
+      )
+    );
+
+    handleAddChange({
+      type: 'update',
+      entity: 'location',
+      id: currentEditingLocation.id!,
+      data: {
+        name: currentEditingLocation.name,
+        abbreviation: currentEditingLocation.abbreviation,
+      },
+      displayText: `Updated Location "${currentEditingLocation.name}"`,
+    });
   };
 
   const applyChanges = async () => {
-    const results = [];
+    const results: ChangeResult[] = [];
     let hasErrors = false;
 
     for (const change of pendingChanges) {
@@ -347,7 +602,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     <>
       <Modal isOpen={isOpen} onClose={onClose} size="md">
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent maxHeight="80vh" height="auto">
           <ModalHeader>
             <HStack>
               <Box>
@@ -355,74 +610,352 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
               </Box>
             </HStack>
           </ModalHeader>
-          <ModalBody maxHeight="70vh" overflowY="auto">
+          <ModalBody
+            overflowY="auto"
+            maxHeight="calc(80vh - 130px)"
+            padding={4}
+          >
             <VStack align="stretch" spacing={6}>
               {/* Subjects Section */}
               <Box>
-                <Heading size="sm" mb={3} color="gray.600">
-                  Subjects & Defaults
-                </Heading>
-                <VStack align="stretch" spacing={3}>
-                  {subjects.map((subject) => (
-                    <HStack
-                      key={subject.id}
-                      spacing={4}
-                      justify="space-between"
-                    >
-                      <HStack>
-                        <Circle
-                          size="20px"
-                          bg={subject.colorGroup.colorCodes[0]}
-                        />
-                        <Text>
-                          {subject.name} & {subject.abbreviation}
-                        </Text>
-                      </HStack>
-                      <Menu>
-                        <MenuButton
-                          as={IconButton}
-                          aria-label="Options"
-                          icon={<IoEllipsisHorizontal />}
-                          variant="ghost"
-                          size="sm"
-                        />
-                        <MenuList>
-                          <MenuItem
-                            icon={<IoCreateOutline />}
-                            onClick={() => {
-                              /* Edit functionality */
-                            }}
-                          >
-                            Edit
-                          </MenuItem>
-                          <MenuItem
-                            icon={<IoArchiveOutline />}
-                            onClick={() => handleArchiveSubject(subject)}
-                          >
-                            {subject.archived ? 'Unarchive' : 'Archive'}
-                          </MenuItem>
-                          <MenuItem
-                            icon={<IoTrashOutline />}
-                            onClick={() => handleDeleteSubject(subject)}
-                            color="red.500"
-                          >
-                            Delete
-                          </MenuItem>
-                        </MenuList>
-                      </Menu>
+                <Box borderWidth="1px" borderRadius="md" overflow="hidden">
+                  {/* Table Header */}
+                  <HStack
+                    p={3}
+                    bg="gray.50"
+                    borderBottomWidth="1px"
+                    justify="space-between"
+                  >
+                    <HStack spacing={1}>
+                      <IoBookOutline />
+                      <Text fontWeight="medium">Subject</Text>
+                      <Box
+                        as="span"
+                        ml={1}
+                        color="gray.500"
+                        cursor="help"
+                        position="relative"
+                        _hover={{
+                          '& > div': {
+                            display: 'block',
+                          },
+                        }}
+                      >
+                        <Box as="span">ⓘ</Box>
+                        <Box
+                          display="none"
+                          position="absolute"
+                          bg="gray.700"
+                          color="white"
+                          p={2}
+                          borderRadius="md"
+                          fontSize="sm"
+                          zIndex={10}
+                          top="100%"
+                          left="50%"
+                          transform="translateX(-50%)"
+                          width="150px"
+                          textAlign="center"
+                        >
+                          The full subject name
+                        </Box>
+                      </Box>
                     </HStack>
+                    <HStack spacing={1}>
+                      <FiType />
+                      <Text fontWeight="medium">Display</Text>
+                      <Box
+                        as="span"
+                        ml={1}
+                        color="gray.500"
+                        cursor="help"
+                        position="relative"
+                        _hover={{
+                          '& > div': {
+                            display: 'block',
+                          },
+                        }}
+                      >
+                        <Box as="span">ⓘ</Box>
+                        <Box
+                          display="none"
+                          position="absolute"
+                          bg="gray.700"
+                          color="white"
+                          p={2}
+                          borderRadius="md"
+                          fontSize="sm"
+                          zIndex={10}
+                          top="100%"
+                          right="0"
+                          width="200px"
+                          textAlign="center"
+                        >
+                          The abbreviated subject name
+                        </Box>
+                      </Box>
+                    </HStack>
+                  </HStack>
+
+                  {/* Table Rows */}
+                  {subjects.map((subject) => (
+                    <Box key={subject.id} role="group">
+                      <HStack
+                        p={3}
+                        spacing={4}
+                        justify="space-between"
+                        borderBottomWidth="1px"
+                        _last={{ borderBottomWidth: 0 }}
+                        ref={
+                          editingSubject?.id === subject.id
+                            ? editingRowRef
+                            : undefined
+                        }
+                      >
+                        {editingSubject && editingSubject.id === subject.id ? (
+                          // Editing mode
+                          <>
+                            <HStack flex="1">
+                              <Box position="relative">
+                                <Circle
+                                  size="24px"
+                                  bg={
+                                    subject.colorGroup.colorCodes[
+                                      COLOR_CODE_INDEX
+                                    ]
+                                  }
+                                  cursor="pointer"
+                                  onClick={() => setColorPickerOpen(subject.id)}
+                                />
+                                {colorPickerOpen === subject.id && (
+                                  <Box
+                                    position="absolute"
+                                    top="100%"
+                                    left="0"
+                                    zIndex={10}
+                                    bg="white"
+                                    borderWidth="1px"
+                                    borderRadius="md"
+                                    boxShadow="md"
+                                    p={2}
+                                    width="150px"
+                                  >
+                                    <VStack align="stretch" spacing={2}>
+                                      {colorGroups.map((group) => (
+                                        <HStack
+                                          key={group.name}
+                                          p={1}
+                                          borderRadius="md"
+                                          cursor="pointer"
+                                          _hover={{ bg: 'gray.100' }}
+                                          onClick={() => {
+                                            setEditingSubject({
+                                              ...editingSubject,
+                                              colorGroup: group,
+                                            });
+                                            setColorPickerOpen(null);
+                                          }}
+                                        >
+                                          <Circle
+                                            size="20px"
+                                            bg={
+                                              group.colorCodes[COLOR_CODE_INDEX]
+                                            }
+                                          />
+                                          <Text fontSize="sm">
+                                            {group.name}
+                                          </Text>
+                                        </HStack>
+                                      ))}
+                                    </VStack>
+                                  </Box>
+                                )}
+                              </Box>
+                              <Input
+                                value={editingSubject.name}
+                                onChange={(e) =>
+                                  setEditingSubject({
+                                    ...editingSubject,
+                                    name: e.target.value,
+                                  })
+                                }
+                                size="sm"
+                              />
+                            </HStack>
+                            <HStack
+                              justify="space-between"
+                              flex="1"
+                              maxW="200px"
+                            >
+                              <Input
+                                value={editingSubject.abbreviation}
+                                onChange={(e) =>
+                                  setEditingSubject({
+                                    ...editingSubject,
+                                    abbreviation: e.target.value,
+                                  })
+                                }
+                                size="sm"
+                                maxW="80px"
+                              />
+                              <HStack>
+                                <Button
+                                  variant="outline"
+                                  onClick={handleSaveEditedSubject}
+                                  size="sm"
+                                  borderRadius="md"
+                                  p={0}
+                                >
+                                  <IoCheckmark
+                                    size={20}
+                                    color={theme.colors.gray[600]}
+                                  />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  onClick={handleCancelEdit}
+                                  size="sm"
+                                  borderRadius="md"
+                                  p={0}
+                                >
+                                  <IoCloseOutline
+                                    size={20}
+                                    color={theme.colors.gray[600]}
+                                  />
+                                </Button>
+                              </HStack>
+                            </HStack>
+                          </>
+                        ) : (
+                          // Display mode
+                          <>
+                            <HStack>
+                              <Circle
+                                size="24px"
+                                bg={
+                                  subject.colorGroup.colorCodes[
+                                    COLOR_CODE_INDEX
+                                  ]
+                                }
+                              />
+                              <Text>{subject.name}</Text>
+                            </HStack>
+                            <HStack
+                              justify="space-between"
+                              flex="1"
+                              maxW="120px"
+                            >
+                              <Text>{subject.abbreviation}</Text>
+                              <Box
+                                className="menu-button"
+                                display="none"
+                                _groupHover={{ display: 'block' }}
+                              >
+                                <Menu>
+                                  <MenuButton
+                                    as={IconButton}
+                                    aria-label="Options"
+                                    icon={<IoEllipsisHorizontal />}
+                                    variant="ghost"
+                                    size="sm"
+                                  />
+                                  <MenuList>
+                                    <MenuItem
+                                      icon={<IoCreateOutline />}
+                                      onClick={() => handleEditSubject(subject)}
+                                    >
+                                      Edit
+                                    </MenuItem>
+                                    <MenuItem
+                                      icon={<IoArchiveOutline />}
+                                      onClick={() =>
+                                        handleArchiveSubject(subject)
+                                      }
+                                    >
+                                      {subject.archived
+                                        ? 'Unarchive'
+                                        : 'Archive'}
+                                    </MenuItem>
+                                    <MenuItem
+                                      icon={<IoTrashOutline />}
+                                      onClick={() =>
+                                        handleDeleteSubject(subject)
+                                      }
+                                      color="red.500"
+                                    >
+                                      Delete
+                                    </MenuItem>
+                                  </MenuList>
+                                </Menu>
+                              </Box>
+                            </HStack>
+                          </>
+                        )}
+                      </HStack>
+                    </Box>
                   ))}
 
+                  {/* Add New Subject Row */}
                   {isAddingSubject ? (
-                    <VStack
-                      align="stretch"
-                      spacing={3}
+                    <HStack
                       p={3}
-                      borderWidth="1px"
-                      borderRadius="md"
+                      spacing={4}
+                      justify="space-between"
+                      borderBottomWidth="1px"
+                      ref={editingRowRef}
                     >
-                      <FormControl>
-                        <FormLabel>Name</FormLabel>
+                      <HStack flex="1">
+                        <Box position="relative">
+                          <Circle
+                            size="24px"
+                            bg={
+                              colorGroups.find(
+                                (cg) => cg.name === newSubject.colorGroup.name
+                              )?.colorCodes[COLOR_CODE_INDEX] || '#CBD5E0'
+                            }
+                            cursor="pointer"
+                            onClick={() => setColorPickerOpen(-1)}
+                          />
+                          {colorPickerOpen === -1 && (
+                            <Box
+                              position="absolute"
+                              top="100%"
+                              left="0"
+                              zIndex={10}
+                              bg="white"
+                              borderWidth="1px"
+                              borderRadius="md"
+                              boxShadow="md"
+                              p={2}
+                              width="150px"
+                            >
+                              <VStack align="stretch" spacing={2}>
+                                {colorGroups.map((group) => (
+                                  <HStack
+                                    key={group.name}
+                                    p={1}
+                                    borderRadius="md"
+                                    cursor="pointer"
+                                    _hover={{ bg: 'gray.100' }}
+                                    onClick={() => {
+                                      setNewSubject({
+                                        ...newSubject,
+                                        colorGroup: group,
+                                      });
+                                      setColorPickerOpen(null);
+                                    }}
+                                  >
+                                    <Circle
+                                      size="20px"
+                                      bg={group.colorCodes[COLOR_CODE_INDEX]}
+                                    />
+                                    <Text fontSize="sm">{group.name}</Text>
+                                  </HStack>
+                                ))}
+                              </VStack>
+                            </Box>
+                          )}
+                        </Box>
                         <Input
                           value={newSubject.name}
                           onChange={(e) =>
@@ -432,10 +965,10 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                             })
                           }
                           placeholder="Subject name"
+                          size="sm"
                         />
-                      </FormControl>
-                      <FormControl>
-                        <FormLabel>Abbreviation</FormLabel>
+                      </HStack>
+                      <HStack justify="space-between" flex="1" maxW="200px">
                         <Input
                           value={newSubject.abbreviation}
                           onChange={(e) =>
@@ -444,74 +977,360 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                               abbreviation: e.target.value,
                             })
                           }
-                          placeholder="Abbreviation"
+                          placeholder="Abbr."
+                          size="sm"
+                          maxW="80px"
                         />
-                      </FormControl>
-                      <FormControl>
-                        <FormLabel>Color Group</FormLabel>
-                        <Menu>
-                          <MenuButton
-                            as={Button}
-                            rightIcon={<IoEllipsisHorizontal />}
+                        <HStack>
+                          <Button
+                            variant="outline"
+                            onClick={handleAddSubject}
+                            size="sm"
+                            borderRadius="md"
+                            p={0}
                           >
-                            {newSubject.colorGroup}
-                          </MenuButton>
-                          <MenuList>
-                            {colorGroups.map((group) => (
-                              <MenuItem
-                                key={group.name}
-                                onClick={() =>
-                                  setNewSubject({
-                                    ...newSubject,
-                                    colorGroup: group.name,
-                                  })
-                                }
-                              >
-                                <HStack>
-                                  <Circle size="20px" bg={group.colors[0]} />
-                                  <Text>{group.name}</Text>
-                                </HStack>
-                              </MenuItem>
-                            ))}
-                          </MenuList>
-                        </Menu>
-                      </FormControl>
-                      <HStack justify="flex-end">
-                        <Button
-                          size="sm"
-                          onClick={() => setIsAddingSubject(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          colorScheme="blue"
-                          onClick={handleAddSubject}
-                        >
-                          Add
-                        </Button>
+                            <IoCheckmark
+                              size={20}
+                              color={theme.colors.gray[600]}
+                            />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={handleCancelEdit}
+                            size="sm"
+                            borderRadius="md"
+                            p={0}
+                          >
+                            <IoCloseOutline
+                              size={20}
+                              color={theme.colors.gray[600]}
+                            />
+                          </Button>
+                        </HStack>
                       </HStack>
-                    </VStack>
-                  ) : (
+                    </HStack>
+                  ) : null}
+
+                  {/* Add Button */}
+                  <HStack
+                    p={3}
+                    justify="center"
+                    borderTopWidth={subjects.length > 0 ? '1px' : '0'}
+                    bg="gray.50"
+                  >
                     <Button
                       leftIcon={<IoAdd />}
+                      size="sm"
                       variant="ghost"
-                      justifyContent="flex-start"
                       onClick={() => setIsAddingSubject(true)}
                     >
                       Add
                     </Button>
-                  )}
-                </VStack>
+                  </HStack>
+                </Box>
               </Box>
 
-              <Divider />
+              {/* Locations Section */}
+              <Box>
+                <Box borderWidth="1px" borderRadius="md" overflow="hidden">
+                  {/* Table Header */}
+                  <HStack
+                    p={3}
+                    bg="gray.50"
+                    borderBottomWidth="1px"
+                    justify="space-between"
+                  >
+                    <HStack spacing={1}>
+                      <IoBookOutline />
+                      <Text fontWeight="medium">Location</Text>
+                      <Box
+                        as="span"
+                        ml={1}
+                        color="gray.500"
+                        cursor="help"
+                        position="relative"
+                        _hover={{
+                          '& > div': {
+                            display: 'block',
+                          },
+                        }}
+                      >
+                        <Box as="span">ⓘ</Box>
+                        <Box
+                          display="none"
+                          position="absolute"
+                          bg="gray.700"
+                          color="white"
+                          p={2}
+                          borderRadius="md"
+                          fontSize="sm"
+                          zIndex={10}
+                          top="100%"
+                          left="50%"
+                          transform="translateX(-50%)"
+                          width="150px"
+                          textAlign="center"
+                        >
+                          The full location name
+                        </Box>
+                      </Box>
+                    </HStack>
+                    <HStack spacing={1}>
+                      <FiType />
+                      <Text fontWeight="medium">Display</Text>
+                      <Box
+                        as="span"
+                        ml={1}
+                        color="gray.500"
+                        cursor="help"
+                        position="relative"
+                        _hover={{
+                          '& > div': {
+                            display: 'block',
+                          },
+                        }}
+                      >
+                        <Box as="span">ⓘ</Box>
+                        <Box
+                          display="none"
+                          position="absolute"
+                          bg="gray.700"
+                          color="white"
+                          p={2}
+                          borderRadius="md"
+                          fontSize="sm"
+                          zIndex={10}
+                          top="100%"
+                          right="0"
+                          width="200px"
+                          textAlign="center"
+                        >
+                          The abbreviated location name
+                        </Box>
+                      </Box>
+                    </HStack>
+                  </HStack>
+
+                  {/* Table Rows */}
+                  {locations.map((location) => (
+                    <Box key={location.id} role="group">
+                      <HStack
+                        p={3}
+                        spacing={4}
+                        justify="space-between"
+                        borderBottomWidth="1px"
+                        _last={{ borderBottomWidth: 0 }}
+                        ref={
+                          editingLocation?.id === location.id
+                            ? editingRowRef
+                            : undefined
+                        }
+                      >
+                        {editingLocation &&
+                        editingLocation.id === location.id ? (
+                          // Editing mode
+                          <>
+                            <Input
+                              value={editingLocation.name}
+                              onChange={(e) =>
+                                setEditingLocation({
+                                  ...editingLocation,
+                                  name: e.target.value,
+                                })
+                              }
+                              size="sm"
+                              flex="1"
+                            />
+                            <HStack
+                              justify="space-between"
+                              flex="1"
+                              maxW="200px"
+                            >
+                              <Input
+                                value={editingLocation.abbreviation}
+                                onChange={(e) =>
+                                  setEditingLocation({
+                                    ...editingLocation,
+                                    abbreviation: e.target.value,
+                                  })
+                                }
+                                size="sm"
+                                maxW="80px"
+                              />
+                              <HStack>
+                                <Button
+                                  variant="outline"
+                                  onClick={handleSaveEditedLocation}
+                                  size="sm"
+                                  borderRadius="md"
+                                  p={0}
+                                >
+                                  <IoCheckmark
+                                    size={20}
+                                    color={theme.colors.gray[600]}
+                                  />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  onClick={handleCancelEdit}
+                                  size="sm"
+                                  borderRadius="md"
+                                  p={0}
+                                >
+                                  <IoCloseOutline
+                                    size={20}
+                                    color={theme.colors.gray[600]}
+                                  />
+                                </Button>
+                              </HStack>
+                            </HStack>
+                          </>
+                        ) : (
+                          // Display mode
+                          <>
+                            <Text>{location.name}</Text>
+                            <HStack
+                              justify="space-between"
+                              flex="1"
+                              maxW="120px"
+                            >
+                              <Text>{location.abbreviation}</Text>
+                              <Box
+                                className="menu-button"
+                                display="none"
+                                _groupHover={{ display: 'block' }}
+                              >
+                                <Menu>
+                                  <MenuButton
+                                    as={IconButton}
+                                    aria-label="Options"
+                                    icon={<IoEllipsisHorizontal />}
+                                    variant="ghost"
+                                    size="sm"
+                                  />
+                                  <MenuList>
+                                    <MenuItem
+                                      icon={<IoCreateOutline />}
+                                      onClick={() =>
+                                        handleEditLocation(location)
+                                      }
+                                    >
+                                      Edit
+                                    </MenuItem>
+                                    <MenuItem
+                                      icon={<IoArchiveOutline />}
+                                      onClick={() =>
+                                        handleArchiveLocation(location)
+                                      }
+                                    >
+                                      {location.archived
+                                        ? 'Unarchive'
+                                        : 'Archive'}
+                                    </MenuItem>
+                                    <MenuItem
+                                      icon={<IoTrashOutline />}
+                                      onClick={() =>
+                                        handleDeleteLocation(location)
+                                      }
+                                      color="red.500"
+                                    >
+                                      Delete
+                                    </MenuItem>
+                                  </MenuList>
+                                </Menu>
+                              </Box>
+                            </HStack>
+                          </>
+                        )}
+                      </HStack>
+                    </Box>
+                  ))}
+
+                  {/* Add New Location Row */}
+                  {isAddingLocation ? (
+                    <HStack
+                      p={3}
+                      spacing={4}
+                      justify="space-between"
+                      borderBottomWidth="1px"
+                      ref={editingRowRef}
+                    >
+                      <Input
+                        value={newLocation.name}
+                        onChange={(e) =>
+                          setNewLocation({
+                            ...newLocation,
+                            name: e.target.value,
+                          })
+                        }
+                        placeholder="Location name"
+                        size="sm"
+                        flex="1"
+                      />
+                      <HStack justify="space-between" flex="1" maxW="200px">
+                        <Input
+                          value={newLocation.abbreviation}
+                          onChange={(e) =>
+                            setNewLocation({
+                              ...newLocation,
+                              abbreviation: e.target.value,
+                            })
+                          }
+                          placeholder="Abbr."
+                          size="sm"
+                          maxW="80px"
+                        />
+                        <HStack>
+                          <Button
+                            variant="outline"
+                            onClick={handleAddLocation}
+                            size="sm"
+                            borderRadius="md"
+                            p={0}
+                          >
+                            <IoCheckmark
+                              size={20}
+                              color={theme.colors.gray[600]}
+                            />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={handleCancelEdit}
+                            size="sm"
+                            borderRadius="md"
+                            p={0}
+                          >
+                            <IoCloseOutline
+                              size={20}
+                              color={theme.colors.gray[600]}
+                            />
+                          </Button>
+                        </HStack>
+                      </HStack>
+                    </HStack>
+                  ) : null}
+
+                  {/* Add Button */}
+                  <HStack
+                    p={3}
+                    justify="center"
+                    borderTopWidth={locations.length > 0 ? '1px' : '0'}
+                    bg="gray.50"
+                  >
+                    <Button
+                      leftIcon={<IoAdd />}
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setIsAddingLocation(true)}
+                    >
+                      Add
+                    </Button>
+                  </HStack>
+                </Box>
+              </Box>
 
               {/* Settings Section */}
               <Box>
-                <Heading size="sm" mb={3} color="gray.600">
-                  Strings
-                </Heading>
                 <VStack align="stretch" spacing={3}>
                   <FormControl>
                     <FormLabel>Allowed Absences</FormLabel>
@@ -528,119 +1347,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                       </NumberInputStepper>
                     </NumberInput>
                   </FormControl>
-                </VStack>
-              </Box>
-
-              <Divider />
-
-              {/* Locations Section */}
-              <Box>
-                <Heading size="sm" mb={3} color="gray.600">
-                  TBC
-                </Heading>
-                <VStack align="stretch" spacing={3}>
-                  {locations.map((location) => (
-                    <HStack
-                      key={location.id}
-                      spacing={4}
-                      justify="space-between"
-                    >
-                      <Text>{location.name}</Text>
-                      <Menu>
-                        <MenuButton
-                          as={IconButton}
-                          aria-label="Options"
-                          icon={<IoEllipsisHorizontal />}
-                          variant="ghost"
-                          size="sm"
-                        />
-                        <MenuList>
-                          <MenuItem
-                            icon={<IoCreateOutline />}
-                            onClick={() => {
-                              /* Edit functionality */
-                            }}
-                          >
-                            Edit
-                          </MenuItem>
-                          <MenuItem
-                            icon={<IoArchiveOutline />}
-                            onClick={() => handleArchiveLocation(location)}
-                          >
-                            {location.archived ? 'Unarchive' : 'Archive'}
-                          </MenuItem>
-                          <MenuItem
-                            icon={<IoTrashOutline />}
-                            onClick={() => handleDeleteLocation(location)}
-                            color="red.500"
-                          >
-                            Delete
-                          </MenuItem>
-                        </MenuList>
-                      </Menu>
-                    </HStack>
-                  ))}
-
-                  {isAddingLocation ? (
-                    <VStack
-                      align="stretch"
-                      spacing={3}
-                      p={3}
-                      borderWidth="1px"
-                      borderRadius="md"
-                    >
-                      <FormControl>
-                        <FormLabel>Name</FormLabel>
-                        <Input
-                          value={newLocation.name}
-                          onChange={(e) =>
-                            setNewLocation({
-                              ...newLocation,
-                              name: e.target.value,
-                            })
-                          }
-                          placeholder="Location name"
-                        />
-                      </FormControl>
-                      <FormControl>
-                        <FormLabel>Abbreviation</FormLabel>
-                        <Input
-                          value={newLocation.abbreviation}
-                          onChange={(e) =>
-                            setNewLocation({
-                              ...newLocation,
-                              abbreviation: e.target.value,
-                            })
-                          }
-                          placeholder="Abbreviation"
-                        />
-                      </FormControl>
-                      <HStack justify="flex-end">
-                        <Button
-                          size="sm"
-                          onClick={() => setIsAddingLocation(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          colorScheme="blue"
-                          onClick={handleAddLocation}
-                        >
-                          Add
-                        </Button>
-                      </HStack>
-                    </VStack>
-                  ) : (
-                    <Button
-                      leftIcon={<IoAdd />}
-                      variant="ghost"
-                      justifyContent="flex-start"
-                      onClick={() => setIsAddingLocation(true)}
-                    >
-                      Add
-                    </Button>
-                  )}
                 </VStack>
               </Box>
             </VStack>
@@ -661,7 +1367,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         onClose={confirmationDialog.onClose}
         onConfirm={applyChanges}
         title="You are making the following changes"
-        changes={pendingChanges.map((change) => change.displayText)}
+        message={pendingChanges.map((change) => change.displayText).join('\n')}
       />
     </>
   );
