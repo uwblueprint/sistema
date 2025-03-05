@@ -25,10 +25,10 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
       <ModalOverlay />
       <ModalContent width="362px" borderRadius="15px" padding="30px">
         <ModalHeader p="0">
-          <Flex justify="space-between" align="center">
+          <Flex justify="space-between" align="center" position="relative">
             <AbsenceStatusTag substituteTeacher={event.substituteTeacher} />
 
-            <Flex>
+            <Flex position="absolute" right="0">
               <IconButton
                 aria-label="Edit Absence"
                 icon={<FiEdit2 />}

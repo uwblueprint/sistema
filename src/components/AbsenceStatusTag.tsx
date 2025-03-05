@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Box, Flex, Text, Tooltip } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 import { FiCheckCircle, FiClock } from 'react-icons/fi';
 
 const AbsenceStatusTag = ({
@@ -9,6 +9,7 @@ const AbsenceStatusTag = ({
 }) => {
   const textRef = useRef<HTMLDivElement | null>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const checkOverflow = () => {
     if (textRef.current) {
@@ -26,54 +27,49 @@ const AbsenceStatusTag = ({
 
   return (
     <Box
-      sx={{ padding: '5px 12px 5px 10px' }}
-      fontSize="12px"
-      borderRadius="5px"
-      color={substituteTeacher ? '#2D4F12' : '#9B520E'}
-      bg={substituteTeacher ? '#D8F5C1' : '#FEEED5'}
-      maxWidth="200px"
+      maxWidth={isHovered ? 'fit-content' : '200px'}
+      transition="max-width 0.3s ease-in-out"
+      zIndex={isHovered ? 10 : 'auto'} // overlay on top of buttons
+      display="flex"
+      alignItems="center"
+      sx={{
+        padding: '5px 12px 5px 10px',
+        fontSize: '12px',
+        borderRadius: '5px',
+        color: substituteTeacher ? '#2D4F12' : '#9B520E',
+        bg: substituteTeacher ? '#D8F5C1' : '#FEEED5',
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <Tooltip
-        isDisabled={!substituteTeacher}
-        label={`Filled by ${substituteTeacher}`}
-        placement="top"
-        sx={{
-          bg: 'white',
-          color: '#0468C1',
-          fontSize: '12px',
-          borderRadius: '8px',
-          padding: '8px',
-          boxShadow: 'lg',
-        }}
-      >
-        <Flex gap="7px" align="center">
-          {substituteTeacher ? (
-            <FiCheckCircle size="20px" />
-          ) : (
-            <FiClock size="20px" />
-          )}
+      <Flex gap="7px" align="center">
+        {substituteTeacher ? (
+          <FiCheckCircle size="16px" />
+        ) : (
+          <FiClock size="16px" />
+        )}
 
-          <Box
-            ref={textRef}
-            position="relative"
-            fontWeight="500"
-            fontSize="inherit"
-            maxWidth="150px"
-            whiteSpace="nowrap"
-            overflow="hidden"
-            sx={{
-              maskImage: isOverflowing
-                ? 'linear-gradient(to right, black 80%, transparent)'
+        <Box
+          ref={textRef}
+          fontWeight="500"
+          fontSize="12px"
+          whiteSpace="nowrap"
+          overflow="hidden"
+          maxWidth={isHovered ? 'none' : '150px'}
+          sx={{
+            maskImage:
+              isOverflowing && !isHovered
+                ? 'linear-gradient(to right, black 90%, transparent)'
                 : 'none',
-              WebkitMaskImage: isOverflowing
-                ? 'linear-gradient(to right, black 80%, transparent)'
+            WebkitMaskImage:
+              isOverflowing && !isHovered
+                ? 'linear-gradient(to right, black 90%, transparent)'
                 : 'none',
-            }}
-          >
-            {substituteTeacher ? `Filled by ${substituteTeacher}` : 'Unfilled'}
-          </Box>
-        </Flex>
-      </Tooltip>
+          }}
+        >
+          {substituteTeacher ? `Filled by ${substituteTeacher}` : 'Unfilled'}
+        </Box>
+      </Flex>
     </Box>
   );
 };
