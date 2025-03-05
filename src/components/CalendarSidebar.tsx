@@ -7,11 +7,13 @@ import MiniCalendar from './MiniCalendar';
 interface CalendarSidebarProps {
   onDateSelect: (date: Date) => void;
   onDeclareAbsenceClick: () => void;
+  selectDate: Date | null;
 }
 
 const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   onDateSelect,
   onDeclareAbsenceClick,
+  selectDate,
 }) => {
   const theme = useTheme();
 
@@ -36,7 +38,11 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       >
         Declare Absence
       </Button>
-      <MiniCalendar initialDate={new Date()} onDateSelect={onDateSelect} />
+      <MiniCalendar
+        initialDate={new Date()}
+        onDateSelect={onDateSelect}
+        selectDate={selectDate}
+      />
     </Flex>
   );
 };

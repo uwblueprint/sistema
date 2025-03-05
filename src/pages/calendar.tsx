@@ -131,6 +131,8 @@ const Calendar: React.FC = () => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       calendarApi.today();
+      const today = new Date();
+      setSelectedDate(today);
       updateMonthYearTitle();
     }
   }, [updateMonthYearTitle]);
@@ -167,7 +169,18 @@ const Calendar: React.FC = () => {
     const day = date.getDay();
     let classes = day === 0 || day === 6 ? 'fc-weekend' : '';
 
-    if (selectedDate && date.toDateString() === selectedDate.toDateString()) {
+    const today = new Date();
+    const isToday = date.toDateString() === today.toDateString();
+
+    if (isToday) {
+      classes += ' fc-today';
+    }
+
+    if (
+      selectedDate &&
+      date.toDateString() === selectedDate.toDateString() &&
+      !isToday
+    ) {
       classes += ' fc-selected-date';
     }
 
@@ -251,6 +264,7 @@ const Calendar: React.FC = () => {
         <Sidebar
           onDeclareAbsenceClick={handleDeclareAbsenceClick}
           onDateSelect={handleDateSelect}
+          selectDate={selectedDate}
         />
         <Box flex={1} padding={theme.space[4]} height="100%">
           <CalendarHeader
