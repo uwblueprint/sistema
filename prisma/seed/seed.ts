@@ -129,6 +129,7 @@ const main = async () => {
       name: subjects[curSubject.index].name,
       abbreviation: subjects[curSubject.index].abbreviation,
       colorGroupId: subjects[curSubject.index].colorGroupId,
+      archived: subjects[curSubject.index].archived,
     }))
   );
 
