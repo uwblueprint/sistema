@@ -7,15 +7,17 @@ import MiniCalendar from './MiniCalendar';
 import SubjectDropdown from './SubjectDropdown';
 
 interface CalendarSidebarProps {
-  setSearchQuery: React.Dispatch<
-    React.SetStateAction<{ subjectIds: number[]; locationIds: number[] }>
-  >;
+  setSearchQuery;
   onDateSelect: (date: Date) => void;
+  onDeclareAbsenceClick: () => void;
+  selectDate: Date | null;
 }
 
 const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   setSearchQuery,
   onDateSelect,
+  onDeclareAbsenceClick,
+  selectDate,
 }) => {
   const theme = useTheme();
 
@@ -55,11 +57,16 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         variant="outline"
         borderColor={theme.colors.neutralGray[300]}
         size="lg"
+        onClick={onDeclareAbsenceClick}
         leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
       >
         Declare Absence
       </Button>
-      <MiniCalendar initialDate={new Date()} onDateSelect={onDateSelect} />
+      <MiniCalendar
+        initialDate={new Date()}
+        onDateSelect={onDateSelect}
+        selectDate={selectDate}
+      />
       <SubjectDropdown setFilter={setSubjectIdFilter} />
       <LocationDropdown setFilter={setLocationIdFilter} />
     </Flex>
