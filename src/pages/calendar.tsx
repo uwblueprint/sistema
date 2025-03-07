@@ -8,7 +8,7 @@ import { AbsenceAPI } from '@utils/types';
 import useUserData from '@utils/useUserData';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import CalendarHeader from '../components/CalendarHeader';
-import Sidebar from '../components/CalendarSidebar';
+import CalendarSidebar from '../components/CalendarSidebar';
 
 const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
@@ -218,7 +218,7 @@ const Calendar: React.FC = () => {
       />
 
       <Flex height="100vh">
-        <Sidebar
+        <CalendarSidebar
           setSearchQuery={setSearchQuery}
           onDateSelect={handleDateSelect}
         />
