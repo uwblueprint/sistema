@@ -101,6 +101,7 @@ const colors = {
     subtitle: '#838383',
     inactiveButtonText: '#ACACAC',
   },
+  outline: '#C5C8D8',
 };
 
 const textStyles = {
@@ -233,6 +234,32 @@ const theme = extendTheme({
           _active: {
             bg: 'neutralGray.300',
           },
+        },
+      },
+    },
+    Input: {
+      baseStyle: {
+        field: {
+          border: '1px solid',
+          fontSize: '13px',
+          fontWeight: 400,
+          lineHeight: '15.73px',
+          fontFamily: 'body',
+          _placeholder: {
+            color: 'text.subtitle',
+          },
+        },
+      },
+    },
+    Textarea: {
+      baseStyle: {
+        border: '1px solid',
+        fontSize: '13px',
+        fontWeight: 400,
+        lineHeight: '15.73px',
+        fontFamily: 'body',
+        _placeholder: {
+          color: 'text.subtitle',
         },
       },
     },

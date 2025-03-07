@@ -5,7 +5,7 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
-  Heading,
+  Text,
   VStack,
   useToast,
   Textarea,
@@ -37,10 +37,11 @@ const InputForm: React.FC<InputFormProps> = ({
     substituteTeacherId: '',
     locationId: '',
     subjectId: '',
+    roomNumber: '',
     lessonDate: initialDate.toLocaleDateString('en-CA'),
     notes: '',
   });
-  const [lessonPlan, setLessonPlan] = useState('');
+  const [lessonPlan, setLessonPlan] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
@@ -64,10 +65,6 @@ const InputForm: React.FC<InputFormProps> = ({
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-
-  const handleFileUpload = (url: string) => {
-    setLessonPlan(url);
   };
 
   const handleChange = (
@@ -106,9 +103,15 @@ const InputForm: React.FC<InputFormProps> = ({
     try {
       const lessonDate = new Date(formData.lessonDate);
       lessonDate.setHours(lessonDate.getHours() + 12);
+
+      let lessonPlanUrl: string | null = null;
+      if (lessonPlan) {
+        lessonPlanUrl = await uploadFile(lessonPlan);
+      }
+
       const absenceData: Prisma.AbsenceCreateManyInput = {
         lessonDate: lessonDate,
-        lessonPlan: lessonPlan || null,
+        lessonPlan: lessonPlanUrl,
         reasonOfAbsence: formData.reasonOfAbsence,
         absentTeacherId: parseInt(formData.absentTeacherId, 10),
         substituteTeacherId: formData.substituteTeacherId
@@ -117,6 +120,7 @@ const InputForm: React.FC<InputFormProps> = ({
         locationId: parseInt(formData.locationId, 10),
         subjectId: parseInt(formData.subjectId, 10),
         notes: formData.notes,
+        roomNumber: formData.roomNumber || null,
       };
 
       const response = await onAddAbsence(absenceData);
@@ -148,6 +152,25 @@ const InputForm: React.FC<InputFormProps> = ({
     }
   };
 
+  const uploadFile = async (file: File): Promise<string | null> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('fileName', file.name);
+
+    const res = await fetch('/api/uploadFile/', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.message || 'Failed to upload file');
+    }
+
+    const data = await res.json();
+    return `https://drive.google.com/file/d/${data.fileId}/view`;
+  };
+
   return (
     <Box
       as="form"
@@ -159,7 +182,7 @@ const InputForm: React.FC<InputFormProps> = ({
       <VStack sx={{ gap: '24px' }}>
         <FormControl isRequired isInvalid={!!errors.absentTeacherId}>
           <FormLabel sx={{ display: 'flex' }}>
-            <Heading size="h4">Teacher Absent</Heading>
+            <Text textStyle="h4">Teacher Absent</Text>
           </FormLabel>
           <SearchDropdown
             label="Teacher"
@@ -185,7 +208,7 @@ const InputForm: React.FC<InputFormProps> = ({
 
         <FormControl>
           <FormLabel sx={{ display: 'flex' }}>
-            <Heading size="h4">Substitute Teacher</Heading>
+            <Text textStyle="h4">Substitute Teacher</Text>
           </FormLabel>
           <SearchDropdown
             label="Teacher"
@@ -210,10 +233,10 @@ const InputForm: React.FC<InputFormProps> = ({
 
         <FormControl isRequired isInvalid={!!errors.subjectId}>
           <FormLabel sx={{ display: 'flex' }}>
-            <Heading size="h4">Class Type</Heading>
+            <Text textStyle="h4">Subject</Text>
           </FormLabel>
           <InputDropdown
-            label="class type"
+            label="subject"
             type="subject"
             onChange={(value) => {
               // Handle selected subject
@@ -235,7 +258,7 @@ const InputForm: React.FC<InputFormProps> = ({
 
         <FormControl isRequired isInvalid={!!errors.locationId}>
           <FormLabel sx={{ display: 'flex' }}>
-            <Heading size="h4">Location</Heading>
+            <Text textStyle="h4">Location</Text>
           </FormLabel>
           <InputDropdown
             label="class location"
@@ -257,14 +280,23 @@ const InputForm: React.FC<InputFormProps> = ({
           />
           <FormErrorMessage>{errors.locationId}</FormErrorMessage>
         </FormControl>
-
+        <FormControl>
+          <FormLabel sx={{ display: 'flex' }}>
+            <Text textStyle="h4">Room Number</Text>
+          </FormLabel>
+          <Input
+            name="roomNumber"
+            placeholder="Enter room number"
+            value={formData.roomNumber}
+            onChange={handleChange}
+          />
+        </FormControl>
         <FormControl isRequired isInvalid={!!errors.lessonDate}>
           <FormLabel sx={{ display: 'flex' }}>
-            <Heading size="h4">Date of Absence</Heading>
+            <Text textStyle="h4">Date of Absence</Text>
           </FormLabel>
           <Input
             name="lessonDate"
-            fontSize="14px"
             value={formData.lessonDate}
             onChange={handleChange}
             type="date"
@@ -275,28 +307,26 @@ const InputForm: React.FC<InputFormProps> = ({
 
         <FormControl isRequired isInvalid={!!errors.reasonOfAbsence}>
           <FormLabel sx={{ display: 'flex' }}>
-            <Heading size="h4">Reason of Absence</Heading>
+            <Text textStyle="h4">Reason of Absence</Text>
           </FormLabel>
           <Input
             name="reasonOfAbsence"
             placeholder="Only visible to admin"
-            fontSize="14px"
             value={formData.reasonOfAbsence}
             onChange={handleChange}
           />
           <FormErrorMessage>{errors.reasonOfAbsence}</FormErrorMessage>
         </FormControl>
 
-        <FileUpload onFileUpload={handleFileUpload} />
+        <FileUpload lessonPlan={lessonPlan} setLessonPlan={setLessonPlan} />
 
         <FormControl>
           <FormLabel sx={{ display: 'flex' }}>
-            <Heading size="h4">Notes</Heading>
+            <Text textStyle="h4">Notes</Text>
           </FormLabel>
           <Textarea
             name="notes"
             placeholder="Additional relevant info..."
-            fontSize="14px"
             value={formData.notes}
             onChange={handleChange}
             minH="88px"
