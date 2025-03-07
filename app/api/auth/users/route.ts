@@ -4,7 +4,6 @@ import { Role } from '@utils/types';
 
 // Function to validate Sistema domain emails
 function isSystemaDomain(email: string): boolean {
-  // Update with actual Sistema domains
   return email.endsWith('@sistema.com') || email.endsWith('@sistematoronto.ca');
 }
 
@@ -15,10 +14,7 @@ export async function GET(request: NextRequest) {
     const email = searchParams.get('email');
 
     if (email) {
-      // Get specific user
-      const user = await prisma.user.findUnique({
-        where: { email },
-      });
+      const user = await prisma.user.findUnique({ where: { email } });
 
       if (!user) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -27,7 +23,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(user);
     }
 
-    // Get all users
     const users = await prisma.user.findMany();
     return NextResponse.json(users);
   } catch (error) {
@@ -45,7 +40,6 @@ export async function POST(request: NextRequest) {
     const { email, firstName, lastName, authId, profilePicture } =
       await request.json();
 
-    // Validate required fields
     if (!email || !authId) {
       return NextResponse.json(
         { error: 'Email and authId are required' },
@@ -53,7 +47,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate email domain
     if (!isSystemaDomain(email)) {
       return NextResponse.json(
         { error: 'Only Sistema domain emails are allowed' },
@@ -61,24 +54,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
+    const existingUser = await prisma.user.findUnique({ where: { email } });
 
     if (existingUser) {
-      // Return existing user
       return NextResponse.json(existingUser);
     }
 
-    // Create new user with default TEACHER role
     const newUser = await prisma.user.create({
       data: {
         authId,
         email,
         firstName: firstName || '',
         lastName: lastName || '',
-        role: Role.TEACHER, // Default role
+        role: Role.TEACHER,
       },
     });
 
@@ -105,7 +93,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // If email is changing, validate domain
     if (email) {
       const existingUser = await prisma.user.findUnique({ where: { id } });
       if (
@@ -120,7 +107,6 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    // Update user
     const updatedData: any = {};
     if (email) updatedData.email = email;
     if (firstName) updatedData.firstName = firstName;
