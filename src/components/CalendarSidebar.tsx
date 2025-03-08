@@ -46,6 +46,8 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       flexDirection="column"
       gap={theme.space[4]}
       alignItems="center"
+      height="100vh"
+      overflowY="auto"
     >
       <Box width="150px">
         <TacetLogo />
