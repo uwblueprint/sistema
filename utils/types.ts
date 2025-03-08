@@ -18,6 +18,7 @@ export interface AbsenceAPI {
   notes?: string | null;
   roomNumber?: string | null;
   absentTeacher: {
+    id: number;
     firstName: string;
     lastName: string;
   };

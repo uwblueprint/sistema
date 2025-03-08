@@ -20,10 +20,9 @@ import LessonPlanView from './LessonPlanView';
 
 const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
   const { data: session, status } = useSession();
-
   if (!event) return null;
-
-  const userId = session?.user?.id ?? null;
+  const userId = session?.user?.id ? Number(session.user.id) : undefined;
+  console.log('Absent Teacher ID:', event.absentTeacherId);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
@@ -31,8 +30,11 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
       <ModalContent width="362px" borderRadius="15px" padding="30px">
         <ModalHeader p="0">
           <Flex justify="space-between" align="center" position="relative">
-            <AbsenceStatusTag substituteTeacher={event.substituteTeacher} />
-
+            <AbsenceStatusTag
+              absentTeacherId={event.absentTeacherId}
+              userId={userId}
+              substituteTeacher={event.substituteTeacher}
+            />
             <Flex position="absolute" right="0">
               <IconButton
                 aria-label="Edit Absence"

@@ -2,11 +2,17 @@ import { useState, useEffect, useRef } from 'react';
 import { Box, Flex } from '@chakra-ui/react';
 import { FiCheckCircle, FiClock } from 'react-icons/fi';
 
+interface AbsenceStatusTagProps {
+  absentTeacherId: number;
+  userId?: number;
+  substituteTeacher?: string;
+}
+
 const AbsenceStatusTag = ({
   substituteTeacher,
-}: {
-  substituteTeacher?: string;
-}) => {
+  absentTeacherId,
+  userId,
+}: AbsenceStatusTagProps) => {
   const textRef = useRef<HTMLDivElement | null>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -25,6 +31,25 @@ const AbsenceStatusTag = ({
     return () => window.removeEventListener('resize', checkOverflow);
   }, [substituteTeacher]);
 
+  let tagText, tagColor, tagBg, tagIcon;
+
+  if (substituteTeacher) {
+    tagText = `Filled by ${substituteTeacher}`;
+    tagColor = '#2D4F12';
+    tagBg = '#D8F5C1';
+    tagIcon = <FiCheckCircle size="20px" />;
+  } else if (userId === absentTeacherId) {
+    tagText = 'Unfilled';
+    tagColor = '#9B520E';
+    tagBg = '#FEEED5';
+    tagIcon = <FiClock size="20px" />;
+  } else {
+    tagText = 'Open to fill';
+    tagColor = '#2248AF';
+    tagBg = '#E4F3FF';
+    tagIcon = <FiClock size="20px" />;
+  }
+
   return (
     <Box
       maxWidth={isHovered ? 'fit-content' : '200px'}
@@ -36,19 +61,14 @@ const AbsenceStatusTag = ({
         padding: '5px 12px 5px 10px',
         fontSize: '12px',
         borderRadius: '5px',
-        color: substituteTeacher ? '#2D4F12' : '#9B520E',
-        bg: substituteTeacher ? '#D8F5C1' : '#FEEED5',
+        color: tagColor,
+        bg: tagBg,
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <Flex gap="7px" align="center">
-        {substituteTeacher ? (
-          <FiCheckCircle size="16px" />
-        ) : (
-          <FiClock size="16px" />
-        )}
-
+        {tagIcon}
         <Box
           ref={textRef}
           fontWeight="500"
@@ -67,7 +87,7 @@ const AbsenceStatusTag = ({
                 : 'none',
           }}
         >
-          {substituteTeacher ? `Filled by ${substituteTeacher}` : 'Unfilled'}
+          {tagText}
         </Box>
       </Flex>
     </Box>

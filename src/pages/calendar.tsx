@@ -70,6 +70,7 @@ const Calendar: React.FC = () => {
     display: 'auto',
 
     location: absenceData.location.name,
+    absentTeacherId: absenceData.absentTeacher.id,
     absentTeacherFirstName: absenceData.absentTeacher.firstName,
     absentTeacherLastName: absenceData.absentTeacher.lastName,
     absentTeacherFullName: `${absenceData.absentTeacher.firstName} ${absenceData.absentTeacher.lastName}`,
@@ -205,6 +206,7 @@ const Calendar: React.FC = () => {
       start: clickInfo.event.start
         ? new Date(clickInfo.event.start).toISOString().split('T')[0]
         : 'Unknown',
+      absentTeacherId: clickInfo.event.extendedProps.absentTeacherId,
       absentTeacherFirstName:
         clickInfo.event.extendedProps.absentTeacherFirstName,
       absentTeacherLastName:
