@@ -74,6 +74,9 @@ const Calendar: React.FC = () => {
     absentTeacherFirstName: absenceData.absentTeacher.firstName,
     absentTeacherLastName: absenceData.absentTeacher.lastName,
     absentTeacherFullName: `${absenceData.absentTeacher.firstName} ${absenceData.absentTeacher.lastName}`,
+    substituteTeacherId: absenceData.substituteTeacher
+      ? absenceData.substituteTeacher.id
+      : undefined,
     substituteTeacher: absenceData.substituteTeacher
       ? `${absenceData.substituteTeacher.firstName} ${absenceData.substituteTeacher.lastName}`
       : undefined,
@@ -213,6 +216,8 @@ const Calendar: React.FC = () => {
         clickInfo.event.extendedProps.absentTeacherLastName,
       absentTeacherFullName:
         clickInfo.event.extendedProps.absentTeacherFullName || '',
+      substituteTeacherId:
+        clickInfo.event.extendedProps.substituteTeacherId || undefined,
       substituteTeacher:
         clickInfo.event.extendedProps.substituteTeacher || undefined,
       location: clickInfo.event.extendedProps.location || '',

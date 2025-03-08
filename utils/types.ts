@@ -23,6 +23,7 @@ export interface AbsenceAPI {
     lastName: string;
   };
   substituteTeacher?: {
+    id: number;
     firstName: string;
     lastName: string;
   } | null;

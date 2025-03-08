@@ -23,6 +23,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
   if (!event) return null;
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
   console.log('Absent Teacher ID:', event.absentTeacherId);
+  console.log('Substitute Teacher ID:', event.substituteTeacherId);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
@@ -34,6 +35,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
               absentTeacherId={event.absentTeacherId}
               userId={userId}
               substituteTeacher={event.substituteTeacher}
+              substituteTeacherId={event.substituteTeacherId}
             />
             <Flex position="absolute" right="0">
               <IconButton

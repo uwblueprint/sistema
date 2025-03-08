@@ -6,12 +6,14 @@ interface AbsenceStatusTagProps {
   absentTeacherId: number;
   userId?: number;
   substituteTeacher?: string;
+  substituteTeacherId?: number;
 }
 
 const AbsenceStatusTag = ({
-  substituteTeacher,
   absentTeacherId,
   userId,
+  substituteTeacher,
+  substituteTeacherId,
 }: AbsenceStatusTagProps) => {
   const textRef = useRef<HTMLDivElement | null>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -33,7 +35,12 @@ const AbsenceStatusTag = ({
 
   let tagText, tagColor, tagBg, tagIcon;
 
-  if (substituteTeacher) {
+  if (substituteTeacher && userId === substituteTeacherId) {
+    tagText = `Filled by Me`;
+    tagColor = '#2D4F12';
+    tagBg = '#D8F5C1';
+    tagIcon = <FiCheckCircle size="20px" />;
+  } else if (substituteTeacher) {
     tagText = `Filled by ${substituteTeacher}`;
     tagColor = '#2D4F12';
     tagBg = '#D8F5C1';
