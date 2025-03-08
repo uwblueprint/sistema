@@ -14,6 +14,7 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
+import { IoEyeOutline } from 'react-icons/io5';
 import { Calendar, Buildings } from 'iconsax-react';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
@@ -76,7 +77,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
               {' '}
               {event.title}{' '}
             </Text>
-
             <Flex gap="13px">
               <FiMapPin size="20px" color="#0468C1" />
               <Text fontSize="13px" color="#373636">
@@ -84,7 +84,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
                 {event.location}{' '}
               </Text>
             </Flex>
-
             <Flex gap="13px">
               <Calendar size="20px" color="#0468C1" />
               <Text fontSize="13px" color="#373636">
@@ -97,7 +96,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
                   : 'N/A'}
               </Text>
             </Flex>
-
             <Flex gap="13px">
               <FiUser size="20px" color="#0468C1" />
               <Text fontSize="13px" color="#373636">
@@ -105,7 +103,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
                 {event.absentTeacherFullName}{' '}
               </Text>
             </Flex>
-
             {event.roomNumber && (
               <Flex gap="13px">
                 <Buildings size="20px" color="#0468C1" />
@@ -115,7 +112,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
                 </Text>
               </Flex>
             )}
-
             <Box>
               <Text fontSize="14px" fontWeight="500" mb="9px">
                 Lesson Plan
@@ -125,7 +121,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
                 absentTeacherFirstName={event.absentTeacher.firstName}
               />
             </Box>
-
             <Box>
               <Text fontSize="14px" fontWeight="500" mb="9px">
                 Reason of Absence
@@ -138,7 +133,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
                 {event.reasonOfAbsence}
               </Text>
             </Box>
-
             {event.notes && (
               <Box>
                 <Text fontSize="14px" fontWeight="500" mb="9px">
@@ -152,6 +146,45 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
                   {event.notes}
                 </Text>
               </Box>
+            )}
+
+            {/* Visibility Tag*/}
+            {event.substituteTeacher && (
+              <Flex gap="10px" align="center" color="#373636" fontSize="12px">
+                {userId === event.absentTeacher.id ? (
+                  <>
+                    <IoEyeOutline size="14px" />
+                    <Text>
+                      {' '}
+                      Only visible to{' '}
+                      <Text as="span" fontWeight={700}>
+                        Me
+                      </Text>{' '}
+                      and{' '}
+                      <Text as="span" fontWeight={700}>
+                        {event.substituteTeacher.firstName}
+                      </Text>
+                      .
+                    </Text>
+                  </>
+                ) : userId === event.substituteTeacher.id ? (
+                  <>
+                    <IoEyeOutline size="14px" />
+                    <Text>
+                      {' '}
+                      Only visible to{' '}
+                      <Text as="span" fontWeight={700}>
+                        Me
+                      </Text>{' '}
+                      and{' '}
+                      <Text as="span" fontWeight={700}>
+                        {event.absentTeacher.firstName}
+                      </Text>
+                      .
+                    </Text>
+                  </>
+                ) : null}
+              </Flex>
             )}
           </VStack>
         </ModalBody>
