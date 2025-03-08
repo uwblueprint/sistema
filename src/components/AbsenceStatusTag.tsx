@@ -3,17 +3,25 @@ import { Box, Flex } from '@chakra-ui/react';
 import { FiCheckCircle, FiClock } from 'react-icons/fi';
 
 interface AbsenceStatusTagProps {
-  absentTeacherId: number;
+  absentTeacher: {
+    id: number;
+    firstName: string;
+    lastName: string;
+  };
   userId?: number;
-  substituteTeacher?: string;
-  substituteTeacherId?: number;
+  substituteTeacher?: {
+    id: number;
+    firstName: string;
+    lastName: string;
+  } | null;
+  substituteTeacherFullName?: string;
 }
 
 const AbsenceStatusTag = ({
-  absentTeacherId,
+  absentTeacher,
   userId,
   substituteTeacher,
-  substituteTeacherId,
+  substituteTeacherFullName,
 }: AbsenceStatusTagProps) => {
   const textRef = useRef<HTMLDivElement | null>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -31,21 +39,21 @@ const AbsenceStatusTag = ({
     checkOverflow();
     window.addEventListener('resize', checkOverflow);
     return () => window.removeEventListener('resize', checkOverflow);
-  }, [substituteTeacher]);
+  }, [substituteTeacherFullName]);
 
   let tagText, tagColor, tagBg, tagIcon;
 
-  if (substituteTeacher && userId === substituteTeacherId) {
+  if (substituteTeacher && userId === substituteTeacher.id) {
     tagText = `Filled by Me`;
     tagColor = '#2D4F12';
     tagBg = '#D8F5C1';
     tagIcon = <FiCheckCircle size="20px" />;
   } else if (substituteTeacher) {
-    tagText = `Filled by ${substituteTeacher}`;
+    tagText = `Filled by ${substituteTeacherFullName}`;
     tagColor = '#2D4F12';
     tagBg = '#D8F5C1';
     tagIcon = <FiCheckCircle size="20px" />;
-  } else if (userId === absentTeacherId) {
+  } else if (userId === absentTeacher.id) {
     tagText = 'Unfilled';
     tagColor = '#9B520E';
     tagBg = '#FEEED5';

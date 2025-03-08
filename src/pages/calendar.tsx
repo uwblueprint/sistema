@@ -70,14 +70,10 @@ const Calendar: React.FC = () => {
     display: 'auto',
 
     location: absenceData.location.name,
-    absentTeacherId: absenceData.absentTeacher.id,
-    absentTeacherFirstName: absenceData.absentTeacher.firstName,
-    absentTeacherLastName: absenceData.absentTeacher.lastName,
+    absentTeacher: absenceData.absentTeacher,
     absentTeacherFullName: `${absenceData.absentTeacher.firstName} ${absenceData.absentTeacher.lastName}`,
-    substituteTeacherId: absenceData.substituteTeacher
-      ? absenceData.substituteTeacher.id
-      : undefined,
-    substituteTeacher: absenceData.substituteTeacher
+    substituteTeacher: absenceData.substituteTeacher || undefined,
+    substituteTeacherFullName: absenceData.substituteTeacher
       ? `${absenceData.substituteTeacher.firstName} ${absenceData.substituteTeacher.lastName}`
       : undefined,
     lessonPlan: absenceData.lessonPlan,
@@ -209,17 +205,13 @@ const Calendar: React.FC = () => {
       start: clickInfo.event.start
         ? new Date(clickInfo.event.start).toISOString().split('T')[0]
         : 'Unknown',
-      absentTeacherId: clickInfo.event.extendedProps.absentTeacherId,
-      absentTeacherFirstName:
-        clickInfo.event.extendedProps.absentTeacherFirstName,
-      absentTeacherLastName:
-        clickInfo.event.extendedProps.absentTeacherLastName,
+      absentTeacher: clickInfo.event.extendedProps.absentTeacher || undefined,
       absentTeacherFullName:
         clickInfo.event.extendedProps.absentTeacherFullName || '',
-      substituteTeacherId:
-        clickInfo.event.extendedProps.substituteTeacherId || undefined,
       substituteTeacher:
         clickInfo.event.extendedProps.substituteTeacher || undefined,
+      substituteTeacherFullName:
+        clickInfo.event.extendedProps.substituteTeacherFullName || undefined,
       location: clickInfo.event.extendedProps.location || '',
       classType: clickInfo.event.extendedProps.classType || '',
       lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,

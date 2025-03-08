@@ -22,8 +22,11 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
   const { data: session, status } = useSession();
   if (!event) return null;
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
-  console.log('Absent Teacher ID:', event.absentTeacherId);
-  console.log('Substitute Teacher ID:', event.substituteTeacherId);
+  console.log('Absent Teacher ID:', event.absentTeacher.id);
+  console.log(
+    'Substitute Teacher ID:',
+    event.substituteTeacher ? event.substituteTeacher.id : 'N/A'
+  );
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
@@ -32,10 +35,10 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
         <ModalHeader p="0">
           <Flex justify="space-between" align="center" position="relative">
             <AbsenceStatusTag
-              absentTeacherId={event.absentTeacherId}
+              absentTeacher={event.absentTeacher}
               userId={userId}
               substituteTeacher={event.substituteTeacher}
-              substituteTeacherId={event.substituteTeacherId}
+              substituteTeacherFullName={event.substituteTeacherFullName}
             />
             <Flex position="absolute" right="0">
               <IconButton
@@ -119,7 +122,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
               </Text>
               <LessonPlanView
                 lessonPlan={event.lessonPlan}
-                absentTeacherFirstName={event.absentTeacherFirstName}
+                absentTeacherFirstName={event.absentTeacher.firstName}
               />
             </Box>
 
