@@ -146,6 +146,13 @@ const main = async () => {
       const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
         probability: 0.5,
       });
+      const randomSub = faker.helpers.maybe(
+        () => faker.helpers.arrayElement(userIds),
+        {
+          probability: 0.5,
+        }
+      );
+
       return {
         lessonDate: generateWeekdayFutureDate(),
         lessonPlan: faker.internet.url(),
@@ -160,6 +167,7 @@ const main = async () => {
           'A5',
           'C12',
         ]),
+        substituteTeacherId: randomSub ?? null,
       };
     })
   );
