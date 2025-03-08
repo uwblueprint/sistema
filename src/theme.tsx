@@ -4,6 +4,7 @@ import '@fontsource/poppins';
 
 const fonts = {
   heading: `'Poppins', sans-serif`,
+  label: `'Poppins', sans-serif`,
   body: `'Inter', sans-serif`,
 };
 
