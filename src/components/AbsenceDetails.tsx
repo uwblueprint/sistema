@@ -1,3 +1,4 @@
+import { useSession } from 'next-auth/react';
 import React from 'react';
 import {
   Modal,
@@ -18,7 +19,11 @@ import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
 
 const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
+  const { data: session, status } = useSession();
+
   if (!event) return null;
+
+  const userId = session?.user?.id ?? null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
