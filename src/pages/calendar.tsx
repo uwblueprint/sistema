@@ -212,13 +212,14 @@ const Calendar: React.FC = () => {
       absentTeacherLastName:
         clickInfo.event.extendedProps.absentTeacherLastName,
       absentTeacherFullName:
-        clickInfo.event.extendedProps.absentTeacherFullName || 'N/A',
+        clickInfo.event.extendedProps.absentTeacherFullName || '',
       substituteTeacher:
         clickInfo.event.extendedProps.substituteTeacher || undefined,
-      location: clickInfo.event.extendedProps.location || 'N/A',
-      classType: clickInfo.event.extendedProps.classType || 'N/A',
+      location: clickInfo.event.extendedProps.location || '',
+      classType: clickInfo.event.extendedProps.classType || '',
       lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
-      reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || 'N/A',
+      roomNumber: clickInfo.event.extendedProps.roomNumber || '',
+      reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
       notes: clickInfo.event.extendedProps.notes || '',
     });
 

@@ -101,13 +101,15 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
               </Text>
             </Flex>
 
-            <Flex gap="13px">
-              <Buildings size="20px" color="#0468C1" />
-              <Text fontSize="13px" color="#373636">
-                {' '}
-                Room (to-do){' '}
-              </Text>
-            </Flex>
+            {event.roomNumber && (
+              <Flex gap="13px">
+                <Buildings size="20px" color="#0468C1" />
+                <Text fontSize="13px" color="#373636">
+                  {' '}
+                  Room {event.roomNumber}{' '}
+                </Text>
+              </Flex>
+            )}
 
             <Box>
               <Text fontSize="14px" fontWeight="500" mb="9px">
