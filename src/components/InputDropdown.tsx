@@ -10,7 +10,7 @@ import {
   PopoverArrow,
   Text,
 } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 
 export type Option = { name: string; id: number };
@@ -29,6 +29,7 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
   const [options, setOptions] = useState<Option[]>([]);
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -60,22 +61,23 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
   return (
     <Popover
       isOpen={isOpen}
-      onOpen={() => setIsOpen(true)}
+      onOpen={() => {
+        setIsOpen(true);
+        setTimeout(() => inputRef.current?.focus(), 0);
+      }}
       onClose={() => setIsOpen(false)}
     >
       <PopoverTrigger>
         <InputGroup>
           <Input
-            isReadOnly
+            ref={inputRef}
             cursor="pointer"
             textAlign="left"
             pr="2.5rem"
+            placeholder={`Please select ${label}`}
+            value={selectedOption ? selectedOption.name : ''}
             readOnly
-            value={
-              selectedOption ? selectedOption.name : `Please select ${label}`
-            }
           />
-
           <InputRightElement pointerEvents="none">
             {isOpen ? <IoChevronUp /> : <IoChevronDown />}
           </InputRightElement>

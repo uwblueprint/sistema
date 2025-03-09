@@ -2,8 +2,8 @@ import {
   Avatar,
   Box,
   CloseButton,
-  InputGroup,
   Input,
+  InputGroup,
   InputLeftElement,
   InputRightElement,
   Popover,
@@ -38,29 +38,6 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const popoverRef = useRef<HTMLDivElement>(null);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    if (value.trim() === '') {
-      setFilteredOptions([]);
-      onClose();
-    } else {
-      let filtered = options.filter((option) =>
-        option.name.toLowerCase().includes(value.toLowerCase())
-      );
-
-      if (excludedId) {
-        filtered = filtered.filter(
-          (option) => String(option.id) !== excludedId
-        );
-      }
-
-      setFilteredOptions(filtered);
-      onOpen();
-    }
-  };
 
   const fetchData = useCallback(async () => {
     try {
@@ -85,41 +62,48 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
     fetchData();
   }, [fetchData]);
 
-  const handleOptionSelect = (option: Option) => {
-    setSearchQuery(option.name);
-    setSelectedOption(option);
-    setIsSelected(true);
-    onChange(option);
-    inputRef.current?.focus();
-    onClose();
-  };
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchQuery(value);
+      if (value.trim() === '') {
+        setFilteredOptions([]);
+        onClose();
+      } else {
+        let filtered = options.filter((option) =>
+          option.name.toLowerCase().includes(value.toLowerCase())
+        );
+        if (excludedId) {
+          filtered = filtered.filter(
+            (option) => String(option.id) !== excludedId
+          );
+        }
+        setFilteredOptions(filtered);
+        onOpen();
+      }
+    },
+    [options, excludedId, onOpen, onClose]
+  );
 
-  const handleClearSelection = () => {
+  const handleOptionSelect = useCallback(
+    (option: Option) => {
+      setSearchQuery(option.name);
+      setSelectedOption(option);
+      setIsSelected(true);
+      onChange(option);
+      setTimeout(() => inputRef.current?.focus(), 0);
+      onClose();
+    },
+    [onChange, onClose]
+  );
+
+  const handleClearSelection = useCallback(() => {
     setSearchQuery('');
-    setSelectedOption(null); // Clear selected option
+    setSelectedOption(null);
     setIsSelected(false);
     onChange(null);
     onClose();
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        popoverRef.current &&
-        !popoverRef.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
-      ) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [onClose]);
+  }, [onChange, onClose]);
 
   return (
     <Box>
@@ -170,7 +154,6 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
         )}
 
         <PopoverContent
-          ref={popoverRef}
           boxShadow="sm"
           width="300px"
           mt="-5px"

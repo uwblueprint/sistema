@@ -1,5 +1,5 @@
 import { AddIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, useTheme } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
 import React, { useCallback } from 'react';
 import { TacetLogo } from '../components/SistemaLogoColour';
 import LocationDropdown from './LocationDropdown';
@@ -52,16 +52,17 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       <Box width="150px">
         <TacetLogo />
       </Box>
-      <Button
-        paddingX="40px"
-        variant="outline"
-        borderColor={theme.colors.neutralGray[300]}
-        size="lg"
-        onClick={onDeclareAbsenceClick}
-        leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
-      >
-        Declare Absence
-      </Button>
+      <HStack>
+        <Button
+          width="240px"
+          variant="outline"
+          borderColor={theme.colors.neutralGray[300]}
+          onClick={onDeclareAbsenceClick}
+          leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
+        >
+          Declare Absence
+        </Button>
+      </HStack>
       <MiniCalendar
         initialDate={new Date()}
         onDateSelect={onDateSelect}

@@ -45,7 +45,7 @@ const Dropdown = ({
         height="32px"
       >
         <Flex justify="space-between" align="center" width="100%">
-          <Text textStyle="label">{title}</Text>
+          <Text textStyle="h4">{title}</Text>
           {isOpen ? <IoChevronUp size={24} /> : <IoChevronDown size={24} />}
         </Flex>
       </Button>

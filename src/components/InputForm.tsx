@@ -6,12 +6,14 @@ import {
   FormLabel,
   Input,
   Text,
+  Textarea,
   VStack,
   useToast,
-  Textarea,
 } from '@chakra-ui/react';
+
 import { Absence, Prisma } from '@prisma/client';
 import { useState } from 'react';
+import { DateOfAbsence } from './DateOfAbsence';
 import { FileUpload } from './FileUpload';
 import { InputDropdown } from './InputDropdown';
 import { SearchDropdown } from './SearchDropdown';
@@ -101,8 +103,8 @@ const InputForm: React.FC<InputFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      const lessonDate = new Date(formData.lessonDate);
-      lessonDate.setHours(lessonDate.getHours() + 12);
+      const [year, month, day] = formData.lessonDate.split('-').map(Number);
+      const lessonDate = new Date(year, month - 1, day);
 
       let lessonPlanUrl: string | null = null;
       if (lessonPlan) {
@@ -126,9 +128,19 @@ const InputForm: React.FC<InputFormProps> = ({
       const response = await onAddAbsence(absenceData);
 
       if (response) {
+        const options: Intl.DateTimeFormatOptions = {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric',
+        };
+        const formattedLessonDate = lessonDate.toLocaleDateString(
+          'en-US',
+          options
+        );
+
         toast({
           title: 'Success',
-          description: 'Absence has been successfully recorded.',
+          description: `You have successfully declared an absence on ${formattedLessonDate}.`,
           status: 'success',
           duration: 5000,
           isClosable: true,
@@ -169,6 +181,13 @@ const InputForm: React.FC<InputFormProps> = ({
 
     const data = await res.json();
     return `https://drive.google.com/file/d/${data.fileId}/view`;
+  };
+
+  const handleDateSelect = (date: Date) => {
+    setFormData((prev) => ({
+      ...prev,
+      lessonDate: date.toLocaleDateString('en-CA'),
+    }));
   };
 
   return (
@@ -236,15 +255,13 @@ const InputForm: React.FC<InputFormProps> = ({
             <Text textStyle="h4">Subject</Text>
           </FormLabel>
           <InputDropdown
-            label="subject"
+            label="class type"
             type="subject"
             onChange={(value) => {
-              // Handle selected subject
               setFormData((prev) => ({
                 ...prev,
                 subjectId: value ? String(value.id) : '',
               }));
-              // Clear error when user selects a value
               if (errors.subjectId) {
                 setErrors((prev) => ({
                   ...prev,
@@ -264,12 +281,10 @@ const InputForm: React.FC<InputFormProps> = ({
             label="class location"
             type="location"
             onChange={(value) => {
-              // Handle selected location
               setFormData((prev) => ({
                 ...prev,
                 locationId: value ? String(value.id) : '',
               }));
-              // Clear error when user selects a value
               if (errors.locationId) {
                 setErrors((prev) => ({
                   ...prev,
@@ -286,34 +301,27 @@ const InputForm: React.FC<InputFormProps> = ({
           </FormLabel>
           <Input
             name="roomNumber"
-            placeholder="Enter room number"
+            placeholder="e.g. 2131"
             value={formData.roomNumber}
             onChange={handleChange}
           />
         </FormControl>
-        <FormControl isRequired isInvalid={!!errors.lessonDate}>
-          <FormLabel sx={{ display: 'flex' }}>
-            <Text textStyle="h4">Date of Absence</Text>
-          </FormLabel>
-          <Input
-            name="lessonDate"
-            value={formData.lessonDate}
-            onChange={handleChange}
-            type="date"
-            color={formData.lessonDate ? 'black' : 'gray.500'}
-          />
-          <FormErrorMessage>{errors.lessonDate}</FormErrorMessage>
-        </FormControl>
+        <DateOfAbsence
+          dateValue={initialDate}
+          onDateSelect={handleDateSelect}
+          error={errors.lessonDate}
+        />
 
         <FormControl isRequired isInvalid={!!errors.reasonOfAbsence}>
           <FormLabel sx={{ display: 'flex' }}>
             <Text textStyle="h4">Reason of Absence</Text>
           </FormLabel>
-          <Input
+          <Textarea
             name="reasonOfAbsence"
             placeholder="Only visible to admin"
             value={formData.reasonOfAbsence}
             onChange={handleChange}
+            minH="88px"
           />
           <FormErrorMessage>{errors.reasonOfAbsence}</FormErrorMessage>
         </FormControl>

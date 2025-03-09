@@ -29,22 +29,24 @@ export default function MiniCalendar({
   }, []);
 
   useEffect(() => {
-    if (externalSelectedDate) {
-      setSelectedDate(externalSelectedDate);
+    if (!externalSelectedDate) return;
 
+    const parsedDate =
+      externalSelectedDate instanceof Date
+        ? externalSelectedDate
+        : new Date(externalSelectedDate);
+
+    setSelectedDate(parsedDate);
+
+    setCurrentMonth((prev) => {
       if (
-        externalSelectedDate.getMonth() !== currentMonth.getMonth() ||
-        externalSelectedDate.getFullYear() !== currentMonth.getFullYear()
+        parsedDate.getMonth() !== prev.getMonth() ||
+        parsedDate.getFullYear() !== prev.getFullYear()
       ) {
-        setCurrentMonth(
-          new Date(
-            externalSelectedDate.getFullYear(),
-            externalSelectedDate.getMonth(),
-            1
-          )
-        );
+        return new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
       }
-    }
+      return prev;
+    });
   }, [externalSelectedDate]);
 
   if (!mounted) return null;
@@ -154,7 +156,7 @@ export default function MiniCalendar({
           {days.map((day, index) => (
             <Button
               key={`day-${index}`}
-              w="100%"
+              sx={{ aspectRatio: '1' }}
               size="sm"
               variant="ghost"
               pointerEvents="none"
@@ -184,7 +186,7 @@ export default function MiniCalendar({
                 key={`prev-${index}`}
                 onClick={() => handleDateClick(date)}
                 size="sm"
-                w="100%"
+                sx={{ aspectRatio: '1' }}
                 variant="ghost"
                 borderRadius="50%"
                 bg={
@@ -220,7 +222,7 @@ export default function MiniCalendar({
                 onClick={() => handleDateClick(date)}
                 size="sm"
                 variant={isToday(date) ? 'solid' : 'ghost'}
-                w="100%"
+                sx={{ aspectRatio: '1' }}
                 bg={
                   isToday(date)
                     ? todayBgColor
@@ -261,7 +263,7 @@ export default function MiniCalendar({
               <Button
                 key={`next-${index}`}
                 onClick={() => handleDateClick(date)}
-                w="100%"
+                sx={{ aspectRatio: '1' }}
                 size="sm"
                 variant="ghost"
                 borderRadius="50%"
