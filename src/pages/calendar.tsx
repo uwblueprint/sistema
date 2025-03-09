@@ -12,7 +12,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
-import { EventContentArg, EventInput } from '@fullcalendar/core';
+import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
@@ -31,6 +31,10 @@ const Calendar: React.FC = () => {
   const toast = useToast();
   const theme = useTheme();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedAbsence, setSelectedAbsence] = useState<AbsenceAPI | null>(
+    null
+  );
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => (
@@ -49,11 +53,27 @@ const Calendar: React.FC = () => {
   );
 
   const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
+    id: String(absenceData.id),
     title: absenceData.subject.name,
     start: absenceData.lessonDate,
     allDay: true,
     display: 'auto',
     location: absenceData.location.name,
+    extendedProps: {
+      // Add other necessary properties here
+      absenceId: absenceData.id,
+      reasonOfAbsence: absenceData.reasonOfAbsence,
+      absentTeacherId: absenceData.absentTeacherId,
+      substituteTeacherId: absenceData.substituteTeacherId,
+      subject: absenceData.subject.name,
+      subjectId: absenceData.subject.id,
+      locationId: absenceData.location.id,
+      notes: absenceData.notes,
+      lessonPlan: absenceData.lessonPlan,
+      absentTeacherFirstName: absenceData.absentTeacher.firstName,
+      absentTeacherLastName: absenceData.absentTeacher.lastName,
+      substituteTeacher: absenceData.substituteTeacher,
+    },
   });
 
   const handleAddAbsence = async (
@@ -75,6 +95,37 @@ const Calendar: React.FC = () => {
       return addedAbsence;
     } catch (error) {
       console.error('Error adding absence:', error);
+      return null;
+    }
+  };
+
+  const handleEditAbsence = async (
+    absence: Prisma.AbsenceUpdateInput & { id: number }
+  ): Promise<Absence | null> => {
+    try {
+      const res = await fetch('/api/editAbsence', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(absence),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to edit absence: ${res.statusText}`);
+      }
+
+      const updatedAbsence = await res.json();
+      await fetchAbsences(); // Refresh the calendar events
+      return updatedAbsence;
+    } catch (error) {
+      console.error('Error editing absence:', error);
+      toast({
+        title: 'Failed to update absence',
+        description:
+          'There was an error updating the absence. Please try again.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
       return null;
     }
   };
@@ -124,6 +175,54 @@ const Calendar: React.FC = () => {
 
   const handleDateClick = (arg: { date: Date }) => {
     setSelectedDate(arg.date);
+    setIsEditMode(false);
+    setSelectedAbsence(null);
+    onOpen();
+  };
+
+  const handleEventClick = (clickInfo: EventClickArg) => {
+    // Extract the existing absence details from the clicked event
+    console.log(clickInfo.event);
+    const absenceId = clickInfo.event.extendedProps.absenceId;
+
+    if (!absenceId) {
+      // If there's no ID, this isn't a real absence event that can be edited
+      setIsEditMode(false);
+      setSelectedAbsence(null);
+      onOpen();
+      return;
+    }
+    const existingAbsence: AbsenceAPI = {
+      id: Number(clickInfo.event.id),
+      lessonDate: new Date(clickInfo.event.startStr),
+      subject: {
+        id: clickInfo.event.extendedProps.subjectId,
+        name: clickInfo.event.title,
+        abbreviation: '',
+        colorGroup: {
+          colorCodes: [],
+        },
+      },
+      location: {
+        id: clickInfo.event.extendedProps.locationId,
+        name: clickInfo.event.extendedProps.location,
+      },
+      reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence,
+      absentTeacherId: clickInfo.event.extendedProps.absentTeacherId,
+      substituteTeacherId: clickInfo.event.extendedProps.substituteTeacherId,
+      absentTeacher: {
+        firstName: clickInfo.event.extendedProps.absentTeacherFirstName,
+        lastName: clickInfo.event.extendedProps.absentTeacherLastName,
+      },
+      notes: clickInfo.event.extendedProps.notes,
+      lessonPlan: clickInfo.event.extendedProps.lessonPlan,
+    };
+    const hasExistingAbsenceData =
+      existingAbsence.subject.name !== '' ||
+      existingAbsence.location.name !== '';
+    console.log(existingAbsence);
+    setSelectedAbsence(existingAbsence);
+    setIsEditMode(hasExistingAbsenceData);
     onOpen();
   };
 
@@ -180,6 +279,8 @@ const Calendar: React.FC = () => {
       const today = calendarApi.getDate();
       console.log(today);
       setSelectedDate(today);
+      setIsEditMode(false);
+      setSelectedAbsence(null);
       onOpen();
     }
   };
@@ -227,6 +328,7 @@ const Calendar: React.FC = () => {
             padding: ${theme.space[2]} ${theme.space[3]};
             margin: ${theme.space[2]} 0;
             border-radius: ${theme.radii.md};
+            cursor: pointer;
           }
           .fc-event-title {
             overflow: hidden;
@@ -272,6 +374,7 @@ const Calendar: React.FC = () => {
             fixedWeekCount={false}
             dayCellClassNames={({ date }) => addSquareClasses(date)}
             dateClick={handleDateClick}
+            eventClick={handleEventClick}
           />
         </Box>
       </Flex>
@@ -284,14 +387,21 @@ const Calendar: React.FC = () => {
           borderRadius="16px"
         >
           <ModalHeader fontSize={22} sx={{ padding: '0 0 28px 0' }}>
-            Declare Absence
+            {isEditMode ? 'Edit Absence' : 'Declare Absence'}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody p={0}>
             <InputForm
-              onClose={onClose}
+              onClose={() => {
+                onClose();
+                setIsEditMode(false);
+                setSelectedAbsence(null);
+              }}
               onAddAbsence={handleAddAbsence}
-              initialDate={selectedDate!!}
+              onEditAbsence={handleEditAbsence}
+              initialDate={selectedDate || new Date()}
+              initialAbsence={selectedAbsence}
+              isEditMode={isEditMode}
             />
           </ModalBody>
         </ModalContent>

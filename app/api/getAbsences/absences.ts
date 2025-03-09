@@ -5,6 +5,7 @@ export const getAbsencesFromDatabase = async (): Promise<AbsenceAPI[]> => {
   try {
     const absences = await prisma.absence.findMany({
       select: {
+        id: true,
         lessonDate: true,
         lessonPlan: true,
         reasonOfAbsence: true,
@@ -29,10 +30,12 @@ export const getAbsencesFromDatabase = async (): Promise<AbsenceAPI[]> => {
         location: {
           select: {
             name: true,
+            id: true,
           },
         },
         subject: {
           select: {
+            id: true,
             name: true,
             abbreviation: true,
             colorGroup: {

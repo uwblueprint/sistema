@@ -11,37 +11,169 @@ import {
   Textarea,
 } from '@chakra-ui/react';
 import { Absence, Prisma } from '@prisma/client';
-import { useState } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { FileUpload } from './FileUpload';
 import { Dropdown } from './Dropdown';
 import { SearchDropdown } from './SearchDropdown';
+import { AbsenceAPI } from '@utils/types';
 
 interface InputFormProps {
   onClose?: () => void;
   onAddAbsence: (
     absence: Prisma.AbsenceCreateManyInput
   ) => Promise<Absence | null>;
+  onEditAbsence?: (
+    absence: Prisma.AbsenceUpdateInput & { id: number }
+  ) => Promise<Absence | null>;
   initialDate: Date;
+  initialAbsence?: Partial<AbsenceAPI> | null;
+  isEditMode?: boolean;
 }
 
 const InputForm: React.FC<InputFormProps> = ({
   onClose,
   onAddAbsence,
+  onEditAbsence,
   initialDate,
+  initialAbsence = null,
+  isEditMode = false,
 }) => {
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dropdownOptions, setDropdownOptions] = useState({
+    userOptions: [],
+    locationOptions: [],
+    subjectOptions: [],
+  });
   const [formData, setFormData] = useState({
-    reasonOfAbsence: '',
-    absentTeacherId: '',
-    substituteTeacherId: '',
-    locationId: '',
-    subjectId: '',
-    lessonDate: initialDate.toLocaleDateString('en-CA'),
-    notes: '',
+    id: initialAbsence?.id || 0,
+    reasonOfAbsence: initialAbsence?.reasonOfAbsence || '',
+    absentTeacherId: initialAbsence?.absentTeacherId || '',
+    substituteTeacherId: initialAbsence?.substituteTeacherId || '',
+    locationId: initialAbsence?.location?.id || '',
+    subjectId: initialAbsence?.subject?.id || '',
+    lessonDate: initialAbsence?.lessonDate
+      ? new Date(initialAbsence.lessonDate)
+      : initialDate instanceof Date && !isNaN(initialDate.getTime())
+        ? initialDate
+        : new Date(),
+    notes: initialAbsence?.notes || '',
   });
   const [lessonPlan, setLessonPlan] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const initialAbsenceRef = useRef(initialAbsence);
+
+  const memoizedAbsentTeacher = useMemo(
+    () => ({
+      id: initialAbsence?.absentTeacherId || 0,
+      name:
+        initialAbsence?.absentTeacher?.firstName +
+          ' ' +
+          initialAbsence?.absentTeacher?.lastName || '',
+    }),
+    [
+      initialAbsence?.absentTeacher?.firstName,
+      initialAbsence?.absentTeacher?.lastName,
+      initialAbsence?.absentTeacherId,
+    ]
+  );
+
+  const memoizedSubstituteTeacher = useMemo(
+    () => ({
+      id: initialAbsence?.substituteTeacherId || 0,
+      name:
+        initialAbsence?.substituteTeacher?.firstName +
+          ' ' +
+          initialAbsence?.substituteTeacher?.lastName || '',
+    }),
+    [
+      initialAbsence?.substituteTeacher?.firstName,
+      initialAbsence?.substituteTeacher?.lastName,
+      initialAbsence?.substituteTeacherId,
+    ]
+  );
+
+  const memoizedSubject = useMemo(
+    () => ({
+      id: initialAbsence?.subject?.id || 0,
+      name: initialAbsence?.subject?.name || '',
+    }),
+    [initialAbsence?.subject]
+  );
+
+  const memoizedLocation = useMemo(
+    () => ({
+      id: initialAbsence?.location?.id || 0,
+      name: initialAbsence?.location?.name || '',
+    }),
+    [initialAbsence?.location]
+  );
+
+  // Fetch dropdown data only once when component mounts
+  useEffect(() => {
+    const fetchDropdownData = async () => {
+      try {
+        // Check if we already have the data
+        if (
+          dropdownOptions.userOptions.length > 0 &&
+          dropdownOptions.locationOptions.length > 0 &&
+          dropdownOptions.subjectOptions.length > 0
+        ) {
+          return;
+        }
+
+        const res = await fetch('/api/formDropdown');
+        if (res.ok) {
+          const data = await res.json();
+          setDropdownOptions(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch dropdown data:', error);
+      }
+    };
+
+    fetchDropdownData();
+  }, [
+    dropdownOptions.userOptions.length,
+    dropdownOptions.locationOptions.length,
+    dropdownOptions.subjectOptions.length,
+  ]);
+
+  // Effect to populate form when in edit mode
+  useEffect(() => {
+    if (
+      isEditMode &&
+      initialAbsence &&
+      initialAbsence !== initialAbsenceRef.current
+    ) {
+      // Set form data in a single update to reduce re-renders
+      setFormData({
+        id: initialAbsence.id || 0,
+        reasonOfAbsence: initialAbsence.reasonOfAbsence || '',
+        absentTeacherId: initialAbsence.absentTeacherId
+          ? String(initialAbsence.absentTeacherId)
+          : '',
+        substituteTeacherId: initialAbsence.substituteTeacherId
+          ? String(initialAbsence.substituteTeacherId)
+          : '',
+        locationId: initialAbsence.location?.id
+          ? String(initialAbsence.location?.id)
+          : '',
+        subjectId: initialAbsence.subject?.id
+          ? String(initialAbsence.subject?.id)
+          : '',
+        lessonDate: initialAbsence.lessonDate
+          ? new Date(initialAbsence.lessonDate)
+          : initialDate,
+        notes: initialAbsence.notes || '',
+      });
+
+      if (initialAbsence.lessonPlan) {
+        setLessonPlan(initialAbsence.lessonPlan);
+      }
+      initialAbsenceRef.current = initialAbsence;
+    }
+  }, [isEditMode, initialAbsence, initialDate]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -61,6 +193,9 @@ const InputForm: React.FC<InputFormProps> = ({
     if (!formData.lessonDate) {
       newErrors.lessonDate = 'Date is required';
     }
+    if (isEditMode && !formData.id) {
+      newErrors.id = 'Absence ID is required for editing';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -74,10 +209,17 @@ const InputForm: React.FC<InputFormProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    if (name === 'lessonDate' && e.target.type === 'date') {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: new Date(value),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
@@ -90,55 +232,87 @@ const InputForm: React.FC<InputFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      toast({
-        title: 'Validation Error',
-        description: 'Please fill in all required fields correctly.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+    // Validate form fields
+    const formErrors = validateForm();
+    if (!formErrors) {
+      setErrors({});
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
+      setIsSubmitting(true);
       const lessonDate = new Date(formData.lessonDate);
       lessonDate.setHours(lessonDate.getHours() + 12);
-      const absenceData: Prisma.AbsenceCreateManyInput = {
-        lessonDate: lessonDate,
-        lessonPlan: lessonPlan || null,
-        reasonOfAbsence: formData.reasonOfAbsence,
-        absentTeacherId: parseInt(formData.absentTeacherId, 10),
-        substituteTeacherId: formData.substituteTeacherId
-          ? parseInt(formData.substituteTeacherId, 10)
-          : null,
-        locationId: parseInt(formData.locationId, 10),
-        subjectId: parseInt(formData.subjectId, 10),
-        notes: formData.notes,
-      };
 
-      const response = await onAddAbsence(absenceData);
+      if (isEditMode && onEditAbsence) {
+        // Handle edit mode
+        const updateData: Prisma.AbsenceUpdateInput & { id: number } = {
+          id: Number(formData.id),
+          lessonDate: lessonDate,
+          lessonPlan: lessonPlan || null,
+          reasonOfAbsence: formData.reasonOfAbsence,
+          absentTeacherId: parseInt(String(formData.absentTeacherId), 10),
+          substituteTeacherId: formData.substituteTeacherId
+            ? parseInt(String(formData.substituteTeacherId), 10)
+            : 0,
+          locationId: parseInt(String(formData.locationId), 10),
+          subjectId: parseInt(String(formData.subjectId), 10),
+          notes: formData.notes,
+        };
 
-      if (response) {
-        toast({
-          title: 'Success',
-          description: 'Absence has been successfully recorded.',
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-        });
+        const response = await onEditAbsence(updateData);
 
-        if (onClose) {
-          onClose();
+        if (response) {
+          toast({
+            title: 'Success',
+            description: 'Absence has been successfully updated.',
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+          });
+
+          if (onClose) {
+            onClose();
+          }
+        }
+      } else {
+        // Handle add mode
+        const absenceData: Prisma.AbsenceCreateManyInput = {
+          lessonDate: lessonDate,
+          lessonPlan: lessonPlan || null,
+          reasonOfAbsence: formData.reasonOfAbsence,
+          absentTeacherId: parseInt(String(formData.absentTeacherId), 10),
+          substituteTeacherId: formData.substituteTeacherId
+            ? parseInt(String(formData.substituteTeacherId), 10)
+            : null,
+          locationId: parseInt(String(formData.locationId), 10),
+          subjectId: parseInt(String(formData.subjectId), 10),
+          notes: formData.notes,
+        };
+
+        const response = await onAddAbsence(absenceData);
+
+        if (response) {
+          toast({
+            title: 'Success',
+            description: 'Absence has been successfully recorded.',
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+          });
+
+          if (onClose) {
+            onClose();
+          }
         }
       }
     } catch (error) {
       toast({
         title: 'Error',
         description:
-          error instanceof Error ? error.message : 'Failed to add absence',
+          error instanceof Error
+            ? error.message
+            : 'Failed to add/update absence',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -148,10 +322,18 @@ const InputForm: React.FC<InputFormProps> = ({
     }
   };
 
+  // Prevent form submission when pressing Enter in inputs
+  const preventDefaultFormSubmission = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
+      e.preventDefault();
+    }
+  };
+
   return (
     <Box
       as="form"
       onSubmit={handleSubmit}
+      onKeyDown={preventDefaultFormSubmission}
       sx={{
         label: { fontSize: '14px', fontWeight: '400' },
       }}
@@ -164,9 +346,9 @@ const InputForm: React.FC<InputFormProps> = ({
           <SearchDropdown
             label="Teacher"
             type="user"
-            excludedId={formData.substituteTeacherId}
+            excludedId={String(formData.substituteTeacherId)}
+            initialValue={isEditMode ? memoizedAbsentTeacher : undefined}
             onChange={(value) => {
-              // Handle selected subject
               setFormData((prev) => ({
                 ...prev,
                 absentTeacherId: value ? String(value.id) : '',
@@ -179,6 +361,7 @@ const InputForm: React.FC<InputFormProps> = ({
                 }));
               }
             }}
+            options={dropdownOptions.userOptions}
           />
           <FormErrorMessage>{errors.absentTeacherId}</FormErrorMessage>
         </FormControl>
@@ -190,9 +373,9 @@ const InputForm: React.FC<InputFormProps> = ({
           <SearchDropdown
             label="Teacher"
             type="user"
-            excludedId={formData.absentTeacherId}
+            excludedId={String(formData.absentTeacherId)}
+            initialValue={isEditMode ? memoizedSubstituteTeacher : undefined}
             onChange={(value) => {
-              // Handle selected subject
               setFormData((prev) => ({
                 ...prev,
                 substituteTeacherId: value ? String(value.id) : '',
@@ -205,6 +388,7 @@ const InputForm: React.FC<InputFormProps> = ({
                 }));
               }
             }}
+            options={dropdownOptions.userOptions}
           />
         </FormControl>
 
@@ -215,8 +399,8 @@ const InputForm: React.FC<InputFormProps> = ({
           <Dropdown
             label="class type"
             type="subject"
+            initialValue={isEditMode ? memoizedSubject : undefined}
             onChange={(value) => {
-              // Handle selected subject
               setFormData((prev) => ({
                 ...prev,
                 subjectId: value ? String(value.id) : '',
@@ -229,6 +413,7 @@ const InputForm: React.FC<InputFormProps> = ({
                 }));
               }
             }}
+            options={dropdownOptions.subjectOptions}
           />
           <FormErrorMessage>{errors.subjectId}</FormErrorMessage>
         </FormControl>
@@ -240,8 +425,8 @@ const InputForm: React.FC<InputFormProps> = ({
           <Dropdown
             label="class location"
             type="location"
+            initialValue={isEditMode ? memoizedLocation : undefined}
             onChange={(value) => {
-              // Handle selected location
               setFormData((prev) => ({
                 ...prev,
                 locationId: value ? String(value.id) : '',
@@ -254,6 +439,7 @@ const InputForm: React.FC<InputFormProps> = ({
                 }));
               }
             }}
+            options={dropdownOptions.locationOptions}
           />
           <FormErrorMessage>{errors.locationId}</FormErrorMessage>
         </FormControl>
@@ -265,7 +451,11 @@ const InputForm: React.FC<InputFormProps> = ({
           <Input
             name="lessonDate"
             fontSize="14px"
-            value={formData.lessonDate}
+            value={
+              formData.lessonDate instanceof Date
+                ? formData.lessonDate.toISOString().split('T')[0]
+                : new Date().toISOString().split('T')[0]
+            }
             onChange={handleChange}
             type="date"
             color={formData.lessonDate ? 'black' : 'gray.500'}
@@ -307,11 +497,11 @@ const InputForm: React.FC<InputFormProps> = ({
           type="submit"
           colorScheme="blue"
           isLoading={isSubmitting}
-          loadingText="Submitting"
+          loadingText={isEditMode ? 'Updating' : 'Submitting'}
           width="full"
           height="44px"
         >
-          Declare Absence
+          {isEditMode ? 'Update Absence' : 'Declare Absence'}
         </Button>
       </VStack>
     </Box>

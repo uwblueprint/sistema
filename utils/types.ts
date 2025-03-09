@@ -12,6 +12,7 @@ export interface Absence {
 }
 
 export interface AbsenceAPI {
+  id?: number;
   lessonDate: Date;
   lessonPlan?: string | null;
   reasonOfAbsence: string;
@@ -29,8 +30,10 @@ export interface AbsenceAPI {
   } | null;
   location: {
     name: string;
+    id: number;
   };
   subject: {
+    id: number;
     name: string;
     abbreviation: string;
     colorGroup: {

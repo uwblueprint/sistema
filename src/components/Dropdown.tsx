@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -18,36 +18,31 @@ interface DropdownProps {
   label: string;
   type: 'location' | 'subject';
   onChange: (value: Option | null) => void;
+  initialValue?: { id: number; name: string } | undefined;
+  options: Option[];
 }
 
 export const Dropdown: React.FC<DropdownProps> = ({
   label,
   type,
   onChange,
+  initialValue,
+  options,
 }) => {
-  const [options, setOptions] = useState<Option[]>([]);
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
 
-  const fetchData = useCallback(async () => {
-    try {
-      const res = await fetch('/api/formDropdown');
-      if (res.ok) {
-        const data = await res.json();
+  const memoizedInitialValue = useMemo(() => initialValue, [initialValue]);
 
-        if (type === 'location') {
-          setOptions(data.locationOptions);
-        } else if (type === 'subject') {
-          setOptions(data.subjectOptions);
-        }
+  useMemo(() => {
+    if (memoizedInitialValue) {
+      const matchingOption = options.find(
+        (option) => option.id === memoizedInitialValue.id
+      );
+      if (matchingOption) {
+        setSelectedOption(matchingOption);
       }
-    } catch (error) {
-      console.error(`Failed to fetch ${type} options:`, error);
     }
-  }, [type]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  }, [memoizedInitialValue, options]);
 
   const handleOptionSelect = (option: Option) => {
     setSelectedOption(option);
@@ -57,7 +52,13 @@ export const Dropdown: React.FC<DropdownProps> = ({
   return (
     <Menu offset={[0, 2]}>
       <InputGroup>
-        <Input as={MenuButton} textAlign="left" pr="2.5rem">
+        <Input
+          as={MenuButton}
+          textAlign="left"
+          pr="2.5rem"
+          type="button"
+          // onClick={(e) => e.preventDefault()}
+        >
           <Text fontSize="14px" color={selectedOption ? 'black' : 'gray.500'}>
             {selectedOption ? selectedOption.name : `Please select ${label}`}
           </Text>
@@ -74,7 +75,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
             fontSize="14px"
             width="100%"
             key={option.id}
-            onClick={() => handleOptionSelect(option)}
+            onClick={(e) => {
+              e.preventDefault();
+              handleOptionSelect(option);
+            }}
             sx={{ padding: '10px 16px' }}
           >
             <Box>

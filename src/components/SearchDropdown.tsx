@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Popover,
   PopoverTrigger,
@@ -16,16 +16,19 @@ interface SearchDropdownProps {
   label: string;
   type: 'user';
   excludedId?: string;
+  initialValue?: { id: number; name: string } | undefined;
   onChange: (value: Option | null) => void;
+  options: Option[];
 }
 
 export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   label,
   type,
   excludedId,
+  initialValue,
   onChange,
+  options,
 }) => {
-  const [options, setOptions] = useState<Option[]>([]);
   const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -57,30 +60,33 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
     }
   };
 
-  const fetchData = useCallback(async () => {
-    try {
-      const res = await fetch('/api/formDropdown');
-      if (res.ok) {
-        const data = await res.json();
-
-        if (type === 'user') {
-          setOptions(data.userOptions);
-          setFilteredOptions(data.userOptions);
-        }
-      }
-    } catch (error) {
-      console.error(`Failed to fetch ${type} options:`, error);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
     }
-  }, [type]);
+  };
 
+  // Set initial value when component mounts or when initialValue/options change
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (initialValue && initialValue.id) {
+      const matchingOption = options.find(
+        (option) => option.id === initialValue.id
+      );
+
+      if (matchingOption) {
+        setSelectedOption(matchingOption);
+        setSearchQuery(matchingOption.name);
+      }
+    }
+  }, [initialValue, options]);
 
   const handleOptionSelect = (option: Option) => {
-    setSelectedOption(option);
-    setSearchQuery(option.name);
-    onChange(option);
+    // Only update if the selection has changed
+    if (!selectedOption || selectedOption.id !== option.id) {
+      setSelectedOption(option);
+      setSearchQuery(option.name);
+      onChange(option);
+    }
     inputRef.current?.focus();
     onClose();
   };
@@ -118,6 +124,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
             ref={inputRef}
             value={searchQuery}
             onChange={handleSearchChange}
+            onKeyDown={handleKeyDown}
             placeholder={`Search for ${label}`}
             onClick={() => searchQuery.trim() && onOpen()}
           />
