@@ -70,6 +70,7 @@ export interface Location {
   id: number;
   name: string;
   abbreviation: string;
+  archived: boolean;
 }
 
 export interface MailingListWithRelations {
@@ -90,6 +91,7 @@ export interface SubjectAPI {
   id: number;
   name: string;
   abbreviation: string;
+  archived: boolean;
   colorGroupId: number;
   colorGroup: {
     name: string;
