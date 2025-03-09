@@ -17,6 +17,9 @@ export async function GET() {
           },
         },
       },
+      where: {
+        archived: false,
+      },
     });
 
     if (!subjects.length) {

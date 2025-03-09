@@ -5,6 +5,7 @@ import { TacetLogo } from '../components/SistemaLogoColour';
 import LocationDropdown from './LocationDropdown';
 import MiniCalendar from './MiniCalendar';
 import SubjectDropdown from './SubjectDropdown';
+import ArchivedDropdown from './ArchivedDropdown';
 
 interface CalendarSidebarProps {
   setSearchQuery: React.Dispatch<
@@ -39,6 +40,16 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
     [setSearchQuery]
   );
 
+  const setArchiveIdFilter = useCallback(
+    (archiveIds: number[]) => {
+      setSearchQuery((prev) => ({
+        ...prev,
+        archiveIds,
+      }));
+    },
+    [setSearchQuery]
+  );
+
   return (
     <Flex
       width="280px"
@@ -64,6 +75,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       <MiniCalendar initialDate={new Date()} onDateSelect={onDateSelect} />
       <SubjectDropdown setFilter={setSubjectIdFilter} />
       <LocationDropdown setFilter={setLocationIdFilter} />
+      <ArchivedDropdown setFilter={setArchiveIdFilter} />
     </Flex>
   );
 };

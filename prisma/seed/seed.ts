@@ -61,6 +61,7 @@ const main = async () => {
     { name: 'St Martin de Porres Catholic School', abbreviation: 'SC' },
     { name: 'Yorkwoods Public School', abbreviation: 'YW' },
     { name: 'Parkdale Junior Senior Public School', abbreviation: 'PD' },
+    { name: 'Twin Towers', abbreviation: 'TT', archived: true },
   ];
 
   for (const school of schools) {
@@ -68,6 +69,7 @@ const main = async () => {
       createMany(1, () => ({
         name: school.name,
         abbreviation: school.abbreviation,
+        archived: school.archived,
       }))
     );
   }

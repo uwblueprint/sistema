@@ -17,9 +17,11 @@ const Calendar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<{
     subjectIds: number[];
     locationIds: number[];
+    archiveIds: number[];
   }>({
     subjectIds: [],
     locationIds: [],
+    archiveIds: [],
   });
   const [currentMonthYear, setCurrentMonthYear] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -143,11 +145,13 @@ const Calendar: React.FC = () => {
   };
 
   useEffect(() => {
+    //TODO: Add Archive ids
     const { subjectIds, locationIds } = searchQuery;
 
     const filtered = events.filter((event) => {
       const subjectIdMatch = subjectIds.includes(event.subjectId);
       const locationIdMatch = locationIds.includes(event.locationId);
+      // const archiveIdMatch = archiveIds.includes(event.archiveId)
       return subjectIdMatch && locationIdMatch;
     });
 
