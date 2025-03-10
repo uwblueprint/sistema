@@ -9,6 +9,13 @@ import {
   Textarea,
   VStack,
   useToast,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from '@chakra-ui/react';
 
 import { Absence, Prisma } from '@prisma/client';
@@ -32,6 +39,7 @@ const InputForm: React.FC<InputFormProps> = ({
   initialDate,
 }) => {
   const toast = useToast();
+  const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     reasonOfAbsence: '',
@@ -77,7 +85,7 @@ const InputForm: React.FC<InputFormProps> = ({
       ...prev,
       [name]: value,
     }));
-    // Clear error when user starts typing
+
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -86,9 +94,8 @@ const InputForm: React.FC<InputFormProps> = ({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) {
       toast({
         title: 'Validation Error',
@@ -99,12 +106,15 @@ const InputForm: React.FC<InputFormProps> = ({
       });
       return;
     }
+    onOpen();
+  };
 
+  const handleConfirmSubmit = async () => {
+    closeModal();
     setIsSubmitting(true);
 
     try {
-      const [year, month, day] = formData.lessonDate.split('-').map(Number);
-      const lessonDate = new Date(year, month - 1, day);
+      const lessonDate = new Date(formData.lessonDate + 'T00:00:00');
 
       let lessonPlanUrl: string | null = null;
       if (lessonPlan) {
@@ -186,7 +196,7 @@ const InputForm: React.FC<InputFormProps> = ({
   const handleDateSelect = (date: Date) => {
     setFormData((prev) => ({
       ...prev,
-      lessonDate: date.toLocaleDateString('en-CA'),
+      lessonDate: date.toISOString().split('T')[0],
     }));
   };
 
@@ -352,6 +362,41 @@ const InputForm: React.FC<InputFormProps> = ({
           Declare Absence
         </Button>
       </VStack>
+
+      <Modal isOpen={isOpen} onClose={closeModal} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Confirm Absence</ModalHeader>
+          <ModalBody>
+            <Text>
+              Please confirm your absence on{' '}
+              <strong>
+                {new Date(formData.lessonDate + 'T00:00:00').toLocaleDateString(
+                  'en-CA',
+                  {
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric',
+                  }
+                )}
+              </strong>
+              .
+            </Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={closeModal} mr={3}>
+              Cancel
+            </Button>
+            <Button
+              colorScheme="blue"
+              onClick={handleConfirmSubmit}
+              isLoading={isSubmitting}
+            >
+              Confirm
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
