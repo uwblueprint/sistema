@@ -102,6 +102,7 @@ const colors = {
     subtitle: '#838383',
     inactiveButtonText: '#ACACAC',
   },
+  outline: '#C5C8D8',
 };
 
 const textStyles = {
@@ -110,60 +111,76 @@ const textStyles = {
     fontSize: '28px',
     lineHeight: '42px',
     color: 'text.header',
+    fontFamily: 'heading',
   },
   h2: {
     fontWeight: 600,
     fontSize: '22px',
     lineHeight: '33px',
     color: 'text.header',
+    fontFamily: 'heading',
   },
   h3: {
     fontWeight: 700,
     fontSize: '16px',
     lineHeight: '24px',
     color: 'text.header',
+    fontFamily: 'heading',
   },
   h4: {
     fontWeight: 600,
     fontSize: '14px',
     lineHeight: '21px',
     color: 'text.header',
+    fontFamily: 'heading',
   },
   subtitle: {
     fontWeight: 400,
     fontSize: '13px',
     lineHeight: '15.73px',
     color: 'text.subtitle',
+    fontFamily: 'body',
   },
   caption: {
     fontWeight: 400,
     fontSize: '12px',
     lineHeight: '14.52px',
     color: 'text.body',
+    fontFamily: 'body',
   },
   body: {
     fontWeight: 400,
     fontSize: '11px',
     lineHeight: '13.31px',
     color: 'text.body',
+    fontFamily: 'body',
   },
   label: {
     fontWeight: 500,
     fontSize: '12px',
     lineHeight: '18px',
     color: 'text.header',
+    fontFamily: 'heading',
+  },
+  button: {
+    fontWeight: 600,
+    fontSize: '16px',
+    lineHeight: '24px',
+    fontFamily: 'heading',
   },
   cellBody: {
     fontWeight: 400,
     fontSize: '15px',
     lineHeight: '18.15px',
     color: 'text.body',
+    fontFamily: 'body',
   },
   cellBold: {
     fontWeight: 600,
     fontSize: '15px',
     lineHeight: '18.15px',
     color: 'text.header',
+    fontFamily: 'heading',
   },
 };
 
@@ -174,14 +191,21 @@ const theme = extendTheme({
   components: {
     Button: {
       baseStyle: {
+        fontFamily: 'heading',
+        fontSize: '16px',
+        lineHeight: '24px',
+        fontWeight: 600,
         bg: 'buttonBackground',
         color: 'primaryBlue.300',
         borderRadius: '7px',
+        _hover: {
+          bg: 'primaryBlue.500',
+        },
         _active: {
-          bg: 'primaryBlue.400',
+          bg: 'primaryBlue.600',
         },
         _disabled: {
-          bg: 'neutralGray.200',
+          bg: 'neutralGray.100',
           color: 'text.inactiveButtonText',
         },
       },
@@ -195,11 +219,86 @@ const theme = extendTheme({
         },
         outline: {
           borderColor: 'neutralGray.300',
+          border: '1px solid',
           color: 'text.header',
           _hover: {
             bg: 'neutralGray.100',
           },
+          _active: {
+            bg: 'neutralGray.300',
+          },
         },
+        ghost: {
+          bg: 'transparent',
+          _hover: {
+            bg: 'neutralGray.100',
+          },
+          _active: {
+            bg: 'neutralGray.300',
+          },
+        },
+      },
+    },
+    Input: {
+      baseStyle: {
+        field: {
+          border: '1px solid',
+          borderColor: 'outline',
+          borderRadius: '10px',
+          fontSize: '13px',
+          fontWeight: 400,
+          lineHeight: '15.73px',
+          fontFamily: 'body',
+          _placeholder: {
+            color: 'text.subtitle',
+          },
+          _hover: {
+            borderColor: 'outline',
+          },
+          _focus: {
+            borderColor: 'primaryBlue.300',
+            boxShadow: '0 0 0 1px primaryBlue.300',
+          },
+          _active: {
+            borderColor: 'primaryBlue.300',
+            boxShadow: '0 0 0 1px primaryBlue.300',
+          },
+        },
+      },
+      sizes: {},
+      variants: {},
+      defaultProps: {
+        variant: null,
+      },
+    },
+    Textarea: {
+      baseStyle: {
+        border: '1px solid',
+        borderColor: 'outline',
+        borderRadius: '10px',
+        fontSize: '13px',
+        fontWeight: 400,
+        lineHeight: '15.73px',
+        fontFamily: 'body',
+        _placeholder: {
+          color: 'text.subtitle',
+        },
+        _hover: {
+          borderColor: 'outline',
+        },
+        _focus: {
+          borderColor: 'primaryBlue.300',
+          boxShadow: '0 0 0 1px primaryBlue.300',
+        },
+        _active: {
+          borderColor: 'primaryBlue.300',
+          boxShadow: '0 0 0 1px primaryBlue.300',
+        },
+      },
+      sizes: {},
+      variants: {},
+      defaultProps: {
+        variant: null,
       },
     },
   },

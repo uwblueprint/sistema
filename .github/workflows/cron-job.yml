@@ -11,5 +11,6 @@ jobs:
     steps:
       - name: Log current time
         run: date -u # Logs the current UTC time
+
       - name: Call reminders API
-        run: curl -X GET "https://sistema-prod.vercel.app/api/reminders"
+        run: curl -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/reminders"

@@ -24,6 +24,7 @@ import {
   WrapItem,
 } from '@chakra-ui/react';
 
+import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { Role, UserAPI } from '@utils/types';
 import React, { useState, useMemo, useEffect } from 'react';
 import {
@@ -221,13 +222,6 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
     setAvailableTags(Array.from(tags));
     setTagColors(colors);
   }, [users]);
-
-  const getAbsenceColor = (absences: number, cap: number) => {
-    const ratio = absences / cap;
-    if (ratio <= 0.5) return 'positiveGreen.200';
-    if (ratio <= 0.8) return 'warningOrange.200';
-    return 'errorRed.200';
-  };
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {

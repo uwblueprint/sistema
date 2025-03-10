@@ -9,6 +9,8 @@ export const getAbsencesFromDatabase = async (): Promise<AbsenceAPI[]> => {
         lessonPlan: true,
         reasonOfAbsence: true,
         notes: true,
+        absentTeacherId: true,
+        substituteTeacherId: true,
         roomNumber: true,
         absentTeacher: {
           select: {
@@ -26,11 +28,13 @@ export const getAbsencesFromDatabase = async (): Promise<AbsenceAPI[]> => {
         },
         location: {
           select: {
+            id: true,
             name: true,
           },
         },
         subject: {
           select: {
+            id: true,
             name: true,
             abbreviation: true,
             colorGroup: {
