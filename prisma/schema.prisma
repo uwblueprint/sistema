@@ -60,7 +60,7 @@ model Subject {
   id           Int           @id @default(autoincrement())
   name         String
   abbreviation String
-  archived     Boolean    @default(false)
+  archived     Boolean       @default(false)
   Absence      Absence[]
   colorGroupId Int
   colorGroup   ColorGroup    @relation(fields: [colorGroupId], references: [id])
