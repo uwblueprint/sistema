@@ -14,4 +14,3 @@ jobs:
 
       - name: Call reminders API
         run: curl -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/reminders"
-      
