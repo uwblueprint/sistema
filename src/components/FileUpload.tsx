@@ -2,9 +2,9 @@ import {
   Box,
   FormControl,
   FormLabel,
+  Image,
   Input,
   Text,
-  Image,
   useToast,
 } from '@chakra-ui/react';
 import { useRef, useState } from 'react';

@@ -1,3 +1,4 @@
+import { CheckIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -8,8 +9,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
-import { CheckIcon } from '@chakra-ui/icons';
-import React from 'react';
 
 export interface DropdownItem {
   id: number;

@@ -1,15 +1,15 @@
 import {
+  Box,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Input,
   Popover,
-  PopoverTrigger,
   PopoverContent,
+  PopoverTrigger,
   Text,
-  Box,
 } from '@chakra-ui/react';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import MiniCalendar from './MiniCalendar';
 
 interface DateOfAbsenceProps {

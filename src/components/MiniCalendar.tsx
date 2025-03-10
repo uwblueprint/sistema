@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Box, Button, Grid, Text, HStack, VStack } from '@chakra-ui/react';
-import { IoChevronUp, IoChevronDown } from 'react-icons/io5';
+import { Box, Button, Grid, HStack, Text, VStack } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 
 interface CalendarProps {
   initialDate?: Date;
