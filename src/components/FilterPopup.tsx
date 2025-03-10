@@ -1,33 +1,24 @@
-import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   Box,
   Button,
   Flex,
-  Text,
   HStack,
-  Input,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Tag,
-  VStack,
-  useOutsideClick,
-  useDisclosure,
   Icon,
-  Select,
   NumberInput,
   NumberInputField,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Divider,
-  TagLabel,
   Spacer,
+  Tag,
+  TagLabel,
+  Text,
+  VStack,
+  useDisclosure,
+  useOutsideClick,
 } from '@chakra-ui/react';
-import { IoFilterOutline, IoChevronDownOutline } from 'react-icons/io5';
-import { BiRevision } from 'react-icons/bi';
 import { Role } from '@utils/types';
+import React, { useMemo, useRef, useState } from 'react';
+import { BiRevision } from 'react-icons/bi';
+import { IoFilterOutline } from 'react-icons/io5';
+import OperatorMenu from './OperatorMenu';
 // Define comparison operators for numeric filters
 export type ComparisonOperator = 'greater_than' | 'less_than' | 'equal_to';
 
@@ -98,8 +89,16 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
   };
 
   const handleAbsencesValueChange = (value: string) => {
-    const numValue = value === '' ? null : parseInt(value, 10);
-    setFilters({ ...filters, absencesValue: numValue });
+    if (value === '' || value === '-') {
+      setFilters({ ...filters, absencesValue: null });
+      return;
+    }
+
+    const numValue = parseInt(value, 10);
+
+    if (!isNaN(numValue)) {
+      setFilters({ ...filters, absencesValue: numValue });
+    }
   };
 
   const handleTagToggle = (tag: string) => {
@@ -151,9 +150,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
           justifyContent="space-between"
           transition="all 0.3s ease-in-out"
         >
-          <Text textStyle="h3" fontFamily="heading">
-            Filter
-          </Text>
+          <Text textStyle="h3">Filter</Text>
           <Box
             width={activeFilterCount > 0 ? '20px' : '0px'}
             height="20px"
@@ -169,11 +166,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
             transition="all 0.3s ease-in-out"
           >
             {activeFilterCount > 0 && (
-              <Text
-                textStyle="subtitle"
-                fontFamily="body"
-                color="primaryBlue.300"
-              >
+              <Text textStyle="subtitle" color="primaryBlue.300">
                 {activeFilterCount}
               </Text>
             )}
@@ -206,9 +199,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
             onClick={handleReset}
             leftIcon={<Icon as={BiRevision} transform="scaleX(-1)" />}
           >
-            <Text textStyle="label" fontFamily="label">
-              Reset
-            </Text>
+            <Text textStyle="label">Reset</Text>
           </Button>
         </Flex>
 
@@ -241,7 +232,6 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
               <Text
                 fontSize="12px"
                 textStyle="label"
-                fontFamily="label"
                 color={filters.role === Role.TEACHER ? 'white' : 'text.body'}
               >
                 Teacher
@@ -270,7 +260,6 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
               <Text
                 fontSize="12px"
                 textStyle="label"
-                fontFamily="label"
                 color={filters.role === Role.ADMIN ? 'white' : 'text.body'}
               >
                 Admin
@@ -282,106 +271,11 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
           <Flex justify="space-between" align="center" gap={2}>
             <Text textStyle="h4">Absences</Text>
             <Spacer />
-            <Box position="relative" width="160px" ref={operatorMenuRef}>
-              <Button
-                variant="outline"
-                size="sm"
-                width="full"
-                bgColor="neutralGray.100"
-                borderWidth={0}
-                onClick={() => setOperatorMenuOpen(!operatorMenuOpen)}
-                rightIcon={
-                  <Icon
-                    as={IoChevronDownOutline}
-                    boxSize={4}
-                    color={'text.subtitle'}
-                  />
-                }
-                justifyContent="space-between"
-              >
-                <Text textStyle="cellBody" fontFamily="label" fontSize="12px">
-                  {getOperatorLabel(filters.absencesOperator || 'greater_than')}
-                </Text>
-              </Button>
-
-              {operatorMenuOpen && (
-                <Box
-                  position="absolute"
-                  top="38px"
-                  left="0"
-                  bg="white"
-                  border="1px solid"
-                  borderColor="neutralGray.300"
-                  borderRadius="md"
-                  shadow="md"
-                  zIndex="10"
-                  width="160px"
-                >
-                  <VStack align="stretch" spacing={0} divider={<Divider />}>
-                    <Box
-                      p={2}
-                      cursor="pointer"
-                      borderRadius="md"
-                      _hover={{ bg: 'primaryBlue.50' }}
-                      onClick={() =>
-                        handleAbsencesOperatorChange('greater_than')
-                      }
-                      bg={
-                        filters.absencesOperator === 'greater_than'
-                          ? 'blue.50'
-                          : 'white'
-                      }
-                    >
-                      <Text
-                        fontSize="12px"
-                        textStyle="label"
-                        fontFamily="label"
-                      >
-                        Greater than
-                      </Text>
-                    </Box>
-                    <Box
-                      p={2}
-                      cursor="pointer"
-                      _hover={{ bg: 'gray.50' }}
-                      onClick={() => handleAbsencesOperatorChange('less_than')}
-                      bg={
-                        filters.absencesOperator === 'less_than'
-                          ? 'blue.50'
-                          : 'white'
-                      }
-                    >
-                      <Text
-                        fontSize="12px"
-                        textStyle="label"
-                        fontFamily="label"
-                      >
-                        Less than
-                      </Text>
-                    </Box>
-                    <Box
-                      p={2}
-                      cursor="pointer"
-                      _hover={{ bg: 'gray.50' }}
-                      onClick={() => handleAbsencesOperatorChange('equal_to')}
-                      bg={
-                        filters.absencesOperator === 'equal_to'
-                          ? 'blue.50'
-                          : 'white'
-                      }
-                    >
-                      <Text
-                        fontSize="12px"
-                        textStyle="label"
-                        fontFamily="label"
-                      >
-                        Equal to
-                      </Text>
-                    </Box>
-                  </VStack>
-                </Box>
-              )}
-            </Box>
+            <OperatorMenu
+              selectedOperator={filters.absencesOperator || 'greater_than'}
+              onOperatorChange={handleAbsencesOperatorChange}
+              getOperatorLabel={getOperatorLabel}
+            />
 
             <NumberInput
               width="53px"
@@ -395,7 +289,6 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
               <NumberInputField
                 placeholder="e.g. 5"
                 fontSize="12px"
-                fontFamily="label"
                 fontWeight="500"
                 height="32px"
                 paddingX={2.5}
@@ -418,7 +311,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                 return (
                   <Tag
                     key={tag}
-                    size="md"
+                    height="28px"
                     variant="subtle"
                     cursor="pointer"
                     onClick={() => handleTagToggle(tag)}
@@ -430,11 +323,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                     mb={0.5}
                   >
                     <TagLabel>
-                      <Text
-                        textStyle="label"
-                        fontFamily="label"
-                        color="text.body"
-                      >
+                      <Text textStyle="label" color="text.body">
                         {tag}
                       </Text>
                     </TagLabel>

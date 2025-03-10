@@ -26,7 +26,7 @@ import {
 
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { Role, UserAPI } from '@utils/types';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   FiChevronDown,
   FiChevronUp,
@@ -38,8 +38,8 @@ import {
   FiTag,
   FiUser,
 } from 'react-icons/fi';
-import { IoCheckmark, IoCloseOutline, IoFilterOutline } from 'react-icons/io5';
-import FilterPopup, { FilterOptions, ComparisonOperator } from './FilterPopup';
+import { IoCheckmark, IoCloseOutline } from 'react-icons/io5';
+import FilterPopup, { FilterOptions } from './FilterPopup';
 
 type EditableRoleCellProps = {
   role: string;
@@ -515,7 +515,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       {user.mailingLists?.map((mailingList, index) => (
                         <WrapItem key={index}>
                           <Tag
-                            size="lg"
+                            height="28px"
                             variant="subtle"
                             key={index}
                             bg={mailingList.subject.colorGroup.colorCodes[3]}
