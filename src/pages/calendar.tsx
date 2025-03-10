@@ -129,7 +129,6 @@ const Calendar: React.FC = () => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       const date = calendarApi.getDate();
-      console.log(date);
       setCurrentMonthYear(formatMonthYear(date));
     }
   }, []);
@@ -203,7 +202,6 @@ const Calendar: React.FC = () => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       const today = calendarApi.getDate();
-      console.log(today);
       setSelectedDate(today);
       onOpen();
     }
