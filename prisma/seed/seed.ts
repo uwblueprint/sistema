@@ -50,7 +50,7 @@ const main = async () => {
         email: faker.internet.email({ firstName, lastName }),
         firstName: firstName,
         lastName: lastName,
-        profilePicture: `https://robohash.org/${faker.string.uuid()}?set=set5`,
+        profilePicture: `https://i.pravatar.cc/50?u=${faker.string.uuid()}`,
         role: faker.helpers.arrayElement(roles),
       };
     })

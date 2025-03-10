@@ -1,3 +1,4 @@
+import { CheckIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -8,8 +9,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
-import { CheckIcon } from '@chakra-ui/icons';
-import React from 'react';
 
 export interface DropdownItem {
   id: number;
@@ -45,9 +44,7 @@ const Dropdown = ({
         height="32px"
       >
         <Flex justify="space-between" align="center" width="100%">
-          <Text fontWeight="semibold" fontSize="14px">
-            {title}
-          </Text>
+          <Text textStyle="h4">{title}</Text>
           {isOpen ? <IoChevronUp size={24} /> : <IoChevronDown size={24} />}
         </Flex>
       </Button>

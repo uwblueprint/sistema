@@ -1,5 +1,5 @@
 import { AddIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, useTheme } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
 import React, { useCallback } from 'react';
 import { TacetLogo } from '../components/SistemaLogoColour';
 import LocationDropdown from './LocationDropdown';
@@ -7,15 +7,17 @@ import MiniCalendar from './MiniCalendar';
 import SubjectDropdown from './SubjectDropdown';
 
 interface CalendarSidebarProps {
-  setSearchQuery: React.Dispatch<
-    React.SetStateAction<{ subjectIds: number[]; locationIds: number[] }>
-  >;
+  setSearchQuery;
   onDateSelect: (date: Date) => void;
+  onDeclareAbsenceClick: () => void;
+  selectDate: Date | null;
 }
 
 const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   setSearchQuery,
   onDateSelect,
+  onDeclareAbsenceClick,
+  selectDate,
 }) => {
   const theme = useTheme();
 
@@ -52,16 +54,22 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       <Box width="150px">
         <TacetLogo />
       </Box>
-      <Button
-        paddingX="40px"
-        variant="outline"
-        borderColor={theme.colors.neutralGray[300]}
-        size="lg"
-        leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
-      >
-        Declare Absence
-      </Button>
-      <MiniCalendar initialDate={new Date()} onDateSelect={onDateSelect} />
+      <HStack>
+        <Button
+          width="240px"
+          variant="outline"
+          borderColor={theme.colors.neutralGray[300]}
+          onClick={onDeclareAbsenceClick}
+          leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
+        >
+          Declare Absence
+        </Button>
+      </HStack>
+      <MiniCalendar
+        initialDate={new Date()}
+        onDateSelect={onDateSelect}
+        selectDate={selectDate}
+      />
       <SubjectDropdown setFilter={setSubjectIdFilter} />
       <LocationDropdown setFilter={setLocationIdFilter} />
     </Flex>

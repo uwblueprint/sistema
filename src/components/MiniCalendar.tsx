@@ -1,20 +1,24 @@
-import { useState, useEffect } from 'react';
-import { Box, Button, Grid, Text, HStack, VStack } from '@chakra-ui/react';
-import { IoChevronUp, IoChevronDown } from 'react-icons/io5';
+import { Box, Button, Grid, HStack, Text, VStack } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 
 interface CalendarProps {
   initialDate?: Date;
   onDateSelect?: (date: Date) => void;
+  selectDate?: Date | null;
 }
 
 export default function MiniCalendar({
   initialDate = new Date(),
   onDateSelect,
+  selectDate: externalSelectedDate,
 }: CalendarProps) {
   const [mounted, setMounted] = useState(false);
 
   const [currentMonth, setCurrentMonth] = useState(new Date(initialDate));
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    externalSelectedDate || null
+  );
   const bgColor = 'white';
   const todayBgColor = 'primaryBlue.300';
   const todayColor = 'white';
@@ -23,6 +27,27 @@ export default function MiniCalendar({
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!externalSelectedDate) return;
+
+    const parsedDate =
+      externalSelectedDate instanceof Date
+        ? externalSelectedDate
+        : new Date(externalSelectedDate);
+
+    setSelectedDate(parsedDate);
+
+    setCurrentMonth((prev) => {
+      if (
+        parsedDate.getMonth() !== prev.getMonth() ||
+        parsedDate.getFullYear() !== prev.getFullYear()
+      ) {
+        return new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+      }
+      return prev;
+    });
+  }, [externalSelectedDate]);
 
   if (!mounted) return null;
 
@@ -131,7 +156,7 @@ export default function MiniCalendar({
           {days.map((day, index) => (
             <Button
               key={`day-${index}`}
-              w="100%"
+              sx={{ aspectRatio: '1' }}
               size="sm"
               variant="ghost"
               pointerEvents="none"
@@ -161,7 +186,7 @@ export default function MiniCalendar({
                 key={`prev-${index}`}
                 onClick={() => handleDateClick(date)}
                 size="sm"
-                w="100%"
+                sx={{ aspectRatio: '1' }}
                 variant="ghost"
                 borderRadius="50%"
                 bg={
@@ -197,7 +222,7 @@ export default function MiniCalendar({
                 onClick={() => handleDateClick(date)}
                 size="sm"
                 variant={isToday(date) ? 'solid' : 'ghost'}
-                w="100%"
+                sx={{ aspectRatio: '1' }}
                 bg={
                   isToday(date)
                     ? todayBgColor
@@ -238,7 +263,7 @@ export default function MiniCalendar({
               <Button
                 key={`next-${index}`}
                 onClick={() => handleDateClick(date)}
-                w="100%"
+                sx={{ aspectRatio: '1' }}
                 size="sm"
                 variant="ghost"
                 borderRadius="50%"

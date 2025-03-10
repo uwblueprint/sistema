@@ -101,6 +101,7 @@ const colors = {
     subtitle: '#838383',
     inactiveButtonText: '#ACACAC',
   },
+  outline: '#C5C8D8',
 };
 
 const textStyles = {
@@ -217,6 +218,7 @@ const theme = extendTheme({
         },
         outline: {
           borderColor: 'neutralGray.300',
+          border: '1px solid',
           color: 'text.header',
           _hover: {
             bg: 'neutralGray.100',
@@ -234,6 +236,68 @@ const theme = extendTheme({
             bg: 'neutralGray.300',
           },
         },
+      },
+    },
+    Input: {
+      baseStyle: {
+        field: {
+          border: '1px solid',
+          borderColor: 'outline',
+          borderRadius: '10px',
+          fontSize: '13px',
+          fontWeight: 400,
+          lineHeight: '15.73px',
+          fontFamily: 'body',
+          _placeholder: {
+            color: 'text.subtitle',
+          },
+          _hover: {
+            borderColor: 'outline',
+          },
+          _focus: {
+            borderColor: 'primaryBlue.300',
+            boxShadow: '0 0 0 1px primaryBlue.300',
+          },
+          _active: {
+            borderColor: 'primaryBlue.300',
+            boxShadow: '0 0 0 1px primaryBlue.300',
+          },
+        },
+      },
+      sizes: {},
+      variants: {},
+      defaultProps: {
+        variant: null,
+      },
+    },
+    Textarea: {
+      baseStyle: {
+        border: '1px solid',
+        borderColor: 'outline',
+        borderRadius: '10px',
+        fontSize: '13px',
+        fontWeight: 400,
+        lineHeight: '15.73px',
+        fontFamily: 'body',
+        _placeholder: {
+          color: 'text.subtitle',
+        },
+        _hover: {
+          borderColor: 'outline',
+        },
+        _focus: {
+          borderColor: 'primaryBlue.300',
+          boxShadow: '0 0 0 1px primaryBlue.300',
+        },
+        _active: {
+          borderColor: 'primaryBlue.300',
+          boxShadow: '0 0 0 1px primaryBlue.300',
+        },
+      },
+      sizes: {},
+      variants: {},
+      defaultProps: {
+        variant: null,
       },
     },
   },
