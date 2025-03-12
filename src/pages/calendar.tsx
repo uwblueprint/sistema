@@ -83,6 +83,7 @@ const Calendar: React.FC = () => {
       absentTeacherFirstName: absenceData.absentTeacher.firstName,
       absentTeacherLastName: absenceData.absentTeacher.lastName,
       substituteTeacher: absenceData.substituteTeacher,
+      lessonDate: absenceData.lessonDate,
     },
     subjectId: absenceData.subject.id,
     locationId: absenceData.location.id,
@@ -193,7 +194,6 @@ const Calendar: React.FC = () => {
 
   const handleEventClick = (clickInfo: EventClickArg) => {
     // Extract the existing absence details from the clicked event
-    console.log(clickInfo.event);
     const absenceId = clickInfo.event.extendedProps.absenceId;
 
     if (!absenceId) {
@@ -205,7 +205,7 @@ const Calendar: React.FC = () => {
     }
     const existingAbsence: AbsenceAPI = {
       id: Number(clickInfo.event.id),
-      lessonDate: new Date(clickInfo.event.startStr),
+      lessonDate: new Date(clickInfo.event.extendedProps.lessonDate),
       subject: {
         id: clickInfo.event.extendedProps.subjectId,
         name: clickInfo.event.title,
@@ -231,7 +231,6 @@ const Calendar: React.FC = () => {
     const hasExistingAbsenceData =
       existingAbsence.subject.name !== '' ||
       existingAbsence.location.name !== '';
-    console.log(existingAbsence);
     setSelectedAbsence(existingAbsence);
     setIsEditMode(hasExistingAbsenceData);
     onOpen();

@@ -64,7 +64,7 @@ const InputForm: React.FC<InputFormProps> = ({
     subjectId: initialAbsence?.subject?.id || '',
     roomNumber: initialAbsence?.roomNumber || '',
     lessonDate: initialAbsence?.lessonDate
-      ? new Date(initialAbsence.lessonDate)
+      ? initialAbsence.lessonDate
       : initialDate instanceof Date && !isNaN(initialDate.getTime())
         ? initialDate
         : new Date(),
@@ -178,7 +178,11 @@ const InputForm: React.FC<InputFormProps> = ({
           ? String(initialAbsence.subject?.id)
           : '',
         lessonDate: initialAbsence.lessonDate
-          ? new Date(initialAbsence.lessonDate)
+          ? new Date(
+              new Date(initialAbsence.lessonDate).getFullYear(),
+              new Date(initialAbsence.lessonDate).getMonth(),
+              new Date(initialAbsence.lessonDate).getDate()
+            )
           : initialDate,
         roomNumber: initialAbsence.roomNumber || '',
         notes: initialAbsence.notes || '',
@@ -262,7 +266,12 @@ const InputForm: React.FC<InputFormProps> = ({
 
     try {
       setIsSubmitting(true);
-      const lessonDate = formData.lessonDate;
+      const lessonDate = new Date(
+        formData.lessonDate.getFullYear(),
+        formData.lessonDate.getMonth(),
+        formData.lessonDate.getDate()
+      );
+      console.log('lessonDate', lessonDate);
       let lessonPlanUrl: string | null = null;
       if (lessonPlan) {
         lessonPlanUrl = await uploadFile(lessonPlan);
@@ -514,7 +523,7 @@ const InputForm: React.FC<InputFormProps> = ({
           />
         </FormControl>
         <DateOfAbsence
-          dateValue={initialDate}
+          dateValue={formData.lessonDate}
           onDateSelect={handleDateSelect}
           error={errors.lessonDate}
         />
