@@ -12,7 +12,6 @@ export async function PUT(req: Request) {
         { status: 400 }
       );
     }
-
     // Check for required fields
     if (
       !body.lessonDate ||
@@ -41,6 +40,7 @@ export async function PUT(req: Request) {
         substituteTeacherId: body.substituteTeacherId || null,
         locationId: body.locationId,
         subjectId: body.subjectId,
+        roomNumber: body.roomNumber || null,
       },
     });
 

@@ -262,8 +262,7 @@ const InputForm: React.FC<InputFormProps> = ({
 
     try {
       setIsSubmitting(true);
-      const lessonDate = new Date(formData.lessonDate + 'T00:00:00');
-
+      const lessonDate = formData.lessonDate;
       let lessonPlanUrl: string | null = null;
       if (lessonPlan) {
         lessonPlanUrl = await uploadFile(lessonPlan);
@@ -569,14 +568,11 @@ const InputForm: React.FC<InputFormProps> = ({
             <Text>
               Please confirm your absence on{' '}
               <strong>
-                {new Date(formData.lessonDate + 'T00:00:00').toLocaleDateString(
-                  'en-CA',
-                  {
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric',
-                  }
-                )}
+                {formData.lessonDate.toLocaleDateString('en-CA', {
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric',
+                })}
               </strong>
               .
             </Text>
