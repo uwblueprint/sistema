@@ -271,7 +271,6 @@ const InputForm: React.FC<InputFormProps> = ({
         formData.lessonDate.getMonth(),
         formData.lessonDate.getDate()
       );
-      console.log('lessonDate', lessonDate);
       let lessonPlanUrl: string | null = null;
       if (lessonPlan) {
         lessonPlanUrl = await uploadFile(lessonPlan);
