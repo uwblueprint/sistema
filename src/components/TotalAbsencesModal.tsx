@@ -7,11 +7,12 @@ import {
   Heading,
   HStack,
   Text,
-  CircularProgress,
   Divider,
   useTheme,
   Center,
 } from '@chakra-ui/react';
+
+import CircularProgress from './CircularProgress';
 
 interface TotalAbsencesProps {
   width: string;
@@ -23,8 +24,8 @@ interface TotalAbsencesProps {
 
 export default function TotalAbsencesModal({
   width,
-  filled = 150,
-  total = 200,
+  filled,
+  total,
   startYear,
   endYear,
 }: TotalAbsencesProps) {
@@ -60,16 +61,14 @@ export default function TotalAbsencesModal({
       </CardHeader>
       <Divider />
       <CardBody>
-        <HStack align="center" justify="space-between" gap="28px">
-          <Center width="120px" height="120px">
-            <CircularProgress
-              value={percentage}
-              size="110px"
-              thickness="22px"
-              color={filledColor}
-              trackColor={unfilledColor}
-            />
-          </Center>
+        <HStack align="center" justifyContent="center" gap="35px">
+          <CircularProgress
+            value={percentage}
+            size={110}
+            strokeWidth={24}
+            filledColor={filledColor}
+            unfilledColor={unfilledColor}
+          />
           <Box>
             <Text
               fontSize="42.955px"
@@ -95,8 +94,8 @@ export default function TotalAbsencesModal({
             align="flex-start"
             gap="10px"
             height="43px"
-            paddingRight="30px"
             mb="65px"
+            mr="10px"
           >
             <HStack>
               <Box

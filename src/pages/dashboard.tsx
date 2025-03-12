@@ -15,6 +15,21 @@ export default function DashboardPage() {
   );
   const [startYear, endYear] = selectedYearRange.split('-');
 
+  const monthlyData = [
+    { month: 'Sep', filled: 25, unfilled: 0 },
+    { month: 'Oct', filled: 25, unfilled: 15 },
+    { month: 'Nov', filled: 40, unfilled: 0 },
+    { month: 'Dec', filled: 22, unfilled: 0 },
+    { month: 'Jan', filled: 35, unfilled: 15 },
+    { month: 'Feb', filled: 25, unfilled: 15 },
+    { month: 'Mar', filled: 3, unfilled: 22 },
+    { month: 'Apr', filled: 40, unfilled: 0 },
+    { month: 'May', filled: 10, unfilled: 5 },
+    { month: 'Jun', filled: 20, unfilled: 20 },
+    { month: 'Jul', filled: 15, unfilled: 0 },
+    { month: 'Aug', filled: 25, unfilled: 0 },
+  ];
+
   return (
     <Box>
       <DashboardHeader
