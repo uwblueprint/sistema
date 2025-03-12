@@ -32,7 +32,7 @@ import {
   useTheme,
   Tooltip,
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   IoEllipsisHorizontal,
   IoAdd,
