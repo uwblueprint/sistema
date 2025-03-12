@@ -84,7 +84,7 @@ const ExportAbsencesButton = () => {
         Export
       </Button>
       {error && (
-        <Text color="red.500" mt={2} fontSize="sm">
+        <Text color="errorRed.200" mt={2} fontSize="sm">
           {error}
         </Text>
       )}

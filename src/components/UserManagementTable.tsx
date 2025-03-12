@@ -5,7 +5,6 @@ import {
   Box,
   Button,
   Divider,
-  Heading,
   HStack,
   Icon,
   Input,
@@ -25,8 +24,9 @@ import {
   WrapItem,
 } from '@chakra-ui/react';
 
+import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { Role, UserAPI } from '@utils/types';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   FiChevronDown,
   FiChevronUp,
@@ -38,7 +38,8 @@ import {
   FiTag,
   FiUser,
 } from 'react-icons/fi';
-import { IoCheckmark, IoCloseOutline, IoFilterOutline } from 'react-icons/io5';
+import { IoCheckmark, IoCloseOutline } from 'react-icons/io5';
+import FilterPopup, { FilterOptions } from './FilterPopup';
 
 type EditableRoleCellProps = {
   role: string;
@@ -100,7 +101,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
         borderRadius="md"
         width="100px"
       >
-        <Text variant="cellBody" flexGrow={1}>
+        <Text textStyle="cellBody" flexGrow={1}>
           {newRole === 'TEACHER' ? 'Teacher' : 'Admin'}
         </Text>
 
@@ -136,7 +137,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
             _hover={{ bg: 'primaryBlue.50' }}
             onClick={() => handleRoleChange(oppositeRole)}
           >
-            <Text variant="cellBody" flexGrow={1}>
+            <Text textStyle="cellBody" flexGrow={1}>
               {oppositeRole === 'TEACHER' ? 'Teacher' : 'Admin'}
             </Text>
           </Box>
@@ -191,13 +192,36 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
 }) => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [filters, setFilters] = useState<FilterOptions>({
+    role: null,
+    absencesOperator: 'greater_than',
+    absencesValue: null,
+    tags: null,
+  });
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [tagColors, setTagColors] = useState<Record<string, string[]>>({});
 
-  const getAbsenceColor = (absences: number, cap: number) => {
-    const ratio = absences / cap;
-    if (ratio <= 0.5) return 'positiveGreen.200';
-    if (ratio <= 0.8) return 'warningOrange.200';
-    return 'errorRed.200';
-  };
+  // Extract unique tags and their colors from users' mailing lists
+  useEffect(() => {
+    const tags = new Set<string>();
+    const colors: Record<string, string[]> = {};
+
+    users.forEach((user: UserAPI) => {
+      user.mailingLists?.forEach((list) => {
+        const tagName = list.subject.name;
+        tags.add(tagName);
+
+        // Store the color codes for each tag
+        if (!colors[tagName] && list.subject.colorGroup) {
+          colors[tagName] = list.subject.colorGroup.colorCodes;
+        }
+      });
+    });
+
+    setAvailableTags(Array.from(tags));
+    setTagColors(colors);
+  }, [users]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -210,28 +234,98 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
     }
   };
 
-  const sortedUsers = [...users].sort((a, b) => {
-    const modifier = sortDirection === 'asc' ? 1 : -1;
+  // Handle search input changes
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
 
-    switch (sortField) {
-      case 'name': // Right now this is sorting by first name
-        const nameA = `${a.firstName} ${a.lastName}`;
-        const nameB = `${b.firstName} ${b.lastName}`;
-        return nameA.localeCompare(nameB) * modifier;
+  // Handle filter changes from FilterPopup
+  const handleFilterChange = (filterOptions: FilterOptions) => {
+    setFilters((prev) => ({
+      ...prev,
+      role: filterOptions.role,
+      absencesOperator: filterOptions.absencesOperator,
+      absencesValue: filterOptions.absencesValue,
+      tags: filterOptions.tags,
+    }));
+  };
 
-      case 'email':
-        return a.email.localeCompare(b.email) * modifier;
+  // Filter users based on search term and other criteria
+  const filteredUsers = useMemo(() => {
+    return users.filter((user: UserAPI) => {
+      const { role, absencesOperator, absencesValue, tags } = filters;
 
-      case 'absences':
-        return (a.absences.length - b.absences.length) * modifier;
+      // Search term filter - only search by name
+      if (searchTerm) {
+        const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+        const searchLower = searchTerm.toLowerCase();
+        if (!fullName.includes(searchLower)) {
+          return false;
+        }
+      }
 
-      case 'role':
-        return a.role.localeCompare(b.role) * modifier;
+      // Role filter
+      if (role && user.role !== role) {
+        return false;
+      }
 
-      default:
-        return 0;
-    }
-  });
+      // Absences filter
+      if (absencesValue !== null && absencesValue !== undefined) {
+        const userAbsences = user.absences?.length || 0;
+
+        switch (absencesOperator) {
+          case 'greater_than':
+            if (userAbsences <= absencesValue) return false;
+            break;
+          case 'less_than':
+            if (userAbsences >= absencesValue) return false;
+            break;
+          case 'equal_to':
+            if (userAbsences !== absencesValue) return false;
+            break;
+        }
+      }
+
+      // Tags filter
+      if (tags && tags.length > 0) {
+        const userTags =
+          user.mailingLists?.map((list) => list.subject.name) || [];
+        // Check if user has at least one of the selected tags
+        if (!tags.some((tag) => userTags.includes(tag))) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [users, filters, searchTerm]);
+
+  // Sort the filtered users
+  const sortedUsers = useMemo(() => {
+    return [...filteredUsers].sort((a, b) => {
+      const modifier = sortDirection === 'asc' ? 1 : -1;
+
+      switch (sortField) {
+        case 'name': // Right now this is sorting by first name
+          const nameA = `${a.firstName} ${a.lastName}`;
+          const nameB = `${b.firstName} ${b.lastName}`;
+          return nameA.localeCompare(nameB) * modifier;
+
+        case 'email':
+          return a.email.localeCompare(b.email) * modifier;
+
+        case 'absences':
+          return (a.absences.length - b.absences.length) * modifier;
+
+        case 'role':
+          return a.role.localeCompare(b.role) * modifier;
+
+        default:
+          return 0;
+      }
+    });
+  }, [filteredUsers, sortField, sortDirection]);
+
   const SortIcon = ({ field }: { field: SortField }) => {
     const isActive = sortField === field;
 
@@ -283,9 +377,9 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       >
         <HStack spacing={2} justifyContent={centered ? 'center' : 'flex-start'}>
           <Icon as={icon} boxSize={4} color={color} />
-          <Heading size="h4" color={color} textTransform="none">
+          <Text textStyle="h4" color={color} textTransform="none">
             {label}
-          </Heading>
+          </Text>
           <SortIcon field={field} />
         </HStack>
       </Th>
@@ -302,9 +396,9 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       borderColor="neutralGray.300"
     >
       <HStack justify="space-between" mx={5} my={3}>
-        <Heading fontSize={'22px'} lineHeight="33px" fontWeight={700}>
+        <Text fontSize={'22px'} lineHeight="33px" fontWeight={700}>
           User Management
-        </Heading>
+        </Text>
         <HStack spacing={4}>
           <InputGroup maxW="xs" margin={0}>
             <InputLeftElement pointerEvents="none">
@@ -313,31 +407,30 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
             <Input
               paddingRight={0}
               color="black"
+              value={searchTerm}
+              onChange={handleSearchChange}
               onFocus={(e) => {
                 e.target.style.width = '270px';
                 e.target.style.flex = '1';
               }}
               onBlur={(e) => {
-                if (e.target.value === '') {
+                if (!e.target.value) {
                   e.target.style.width = '0px';
                   e.target.style.flex = '0';
                 }
               }}
               transition="width 0.3s ease"
-              width="0px"
+              width={searchTerm ? '270px' : '0px'}
               margin={0}
             />
           </InputGroup>
 
-          <Button
-            variant="outline"
-            leftIcon={<Icon as={IoFilterOutline} color={'neutralGray.600'} />}
-            width="100px"
-            flexGrow={0}
-            flexShrink={0}
-          >
-            Filter
-          </Button>
+          <FilterPopup
+            filters={filters}
+            setFilters={setFilters}
+            availableTags={availableTags}
+            tagColors={tagColors}
+          />
         </HStack>
       </HStack>
       <Divider />
@@ -363,81 +456,94 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
               <Th>
                 <HStack spacing={2}>
                   <Icon as={FiTag} boxSize={4} color="text.subtitle" />
-                  <Heading size="h4" color="text.subtitle" textTransform="none">
+                  <Text
+                    textStyle="h4"
+                    color="text.subtitle"
+                    textTransform="none"
+                  >
                     Email Subscriptions
-                  </Heading>
+                  </Text>
                 </HStack>
               </Th>
             </Tr>
           </Thead>
 
           <Tbody>
-            {sortedUsers.map((user, index) => (
-              <Tr
-                key={index}
-                sx={{
-                  ':last-child td': { borderBottom: 'none' },
-                }}
-              >
-                <Td>
-                  <HStack spacing={3}>
-                    <Avatar
-                      size="sm"
-                      name={`${user.firstName} ${user.lastName}`}
+            {sortedUsers.length > 0 ? (
+              sortedUsers.map((user, index) => (
+                <Tr
+                  key={index}
+                  sx={{
+                    ':last-child td': { borderBottom: 'none' },
+                  }}
+                >
+                  <Td>
+                    <HStack spacing={3}>
+                      <Avatar
+                        size="sm"
+                        name={`${user.firstName} ${user.lastName}`}
+                        src={user.profilePicture || undefined}
+                      />
+                      <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
+                    </HStack>
+                  </Td>
+                  <Td color="gray.600">
+                    <Text textStyle="cellBody">{user.email}</Text>
+                  </Td>
+                  <Td textAlign="center">
+                    <Text
+                      textStyle="cellBold"
+                      color={getAbsenceColor(
+                        user.absences?.length || 0,
+                        absenceCap
+                      )}
+                    >
+                      {user.absences?.length || 0}
+                    </Text>
+                  </Td>
+                  <Td>
+                    <EditableRoleCell
+                      key={`role-cell-${user.id}`}
+                      role={user.role}
+                      onRoleChange={(newRole) =>
+                        updateUserRole(user.id, newRole as Role)
+                      }
                     />
-                    <Text variant="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
-                  </HStack>
-                </Td>
-                <Td color="gray.600">
-                  <Text variant="cellBody">{user.email}</Text>
-                </Td>
-                <Td textAlign="center">
-                  <Text
-                    variant="cellBold"
-                    color={getAbsenceColor(
-                      user.absences?.length || 0,
-                      absenceCap
-                    )}
-                  >
-                    {user.absences?.length || 0}
-                  </Text>
-                </Td>
-                <Td>
-                  <EditableRoleCell
-                    role={user.role}
-                    onRoleChange={(newRole) =>
-                      updateUserRole(user.id, newRole as Role)
-                    }
-                  />
-                </Td>
-                <Td>
-                  <Wrap spacing={2}>
-                    {user.mailingLists?.map((mailingList, index) => (
-                      <WrapItem key={index}>
-                        <Tag
-                          size="lg"
-                          variant="subtle"
-                          key={index}
-                          bg={mailingList.subject.colorGroup.colorCodes[3]}
-                        >
-                          <TagLabel>
-                            <Text
-                              color={
-                                mailingList.subject.colorGroup.colorCodes[0]
-                              }
-                              fontWeight="600"
-                              variant={'label'}
-                            >
-                              {mailingList.subject.name}
-                            </Text>
-                          </TagLabel>
-                        </Tag>
-                      </WrapItem>
-                    ))}
-                  </Wrap>
+                  </Td>
+                  <Td>
+                    <Wrap spacing={2}>
+                      {user.mailingLists?.map((mailingList, index) => (
+                        <WrapItem key={index}>
+                          <Tag
+                            height="28px"
+                            variant="subtle"
+                            key={index}
+                            bg={mailingList.subject.colorGroup.colorCodes[3]}
+                          >
+                            <TagLabel>
+                              <Text
+                                color={
+                                  mailingList.subject.colorGroup.colorCodes[0]
+                                }
+                                textStyle="label"
+                              >
+                                {mailingList.subject.name}
+                              </Text>
+                            </TagLabel>
+                          </Tag>
+                        </WrapItem>
+                      ))}
+                    </Wrap>
+                  </Td>
+                </Tr>
+              ))
+            ) : (
+              <Tr>
+                <Td colSpan={5} textAlign="center" py={4}>
+                  <Text>No users match your search criteria</Text>
                 </Td>
               </Tr>
-            ))}
+            )}
           </Tbody>
         </Table>
       </Box>

@@ -1,93 +1,105 @@
-import { useState } from 'react';
 import {
+  Box,
   FormControl,
   FormLabel,
+  Image,
   Input,
   Text,
   useToast,
-  Progress,
 } from '@chakra-ui/react';
+import { useRef, useState } from 'react';
 
 interface FileUploadProps {
-  onFileUpload: (fileId: string | null) => void;
+  lessonPlan: File | null;
+  setLessonPlan: (lessonPlan: File | null) => void;
   label?: string;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
-  onFileUpload,
+  lessonPlan,
+  setLessonPlan,
   label = 'Lesson Plan',
 }) => {
-  const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-      setUploading(true);
-
-      try {
-        const fileId = await uploadFile(selectedFile);
-        onFileUpload(fileId);
-        toast({
-          title: 'Success',
-          description: 'File uploaded successfully',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-        });
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to upload file',
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
-        onFileUpload(null);
-      } finally {
-        setUploading(false);
-      }
+  const validateAndSetFile = (file: File) => {
+    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+      setLessonPlan(file);
+    } else {
+      toast({
+        title: 'Invalid File Type',
+        description: 'Please upload a valid PDF file.',
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+      });
     }
   };
 
-  const uploadFile = async (file: File): Promise<string | null> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('fileName', file.name);
-
-    const res = await fetch('/api/uploadFile/', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.message || 'Failed to upload file');
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      validateAndSetFile(file);
     }
+  };
 
-    const data = await res.json();
-    return `https://drive.google.com/file/d/${data.fileId}/view`;
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      validateAndSetFile(file);
+    }
   };
 
   return (
     <FormControl>
-      <FormLabel>{label}</FormLabel>
+      <FormLabel>
+        <Text textStyle="h4">{label}</Text>
+      </FormLabel>
+
+      <Box
+        as="label"
+        htmlFor="file-upload"
+        border="1px dashed"
+        borderColor={isDragging ? 'primaryBlue.300' : 'outline'}
+        borderRadius="10px"
+        p={5}
+        textAlign="center"
+        cursor="pointer"
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <Image src="/images/upload.svg" alt="Upload" width={10} height={10} />
+        <Text textStyle="subtitle">
+          {lessonPlan ? `Selected file: ${lessonPlan.name}` : 'Upload PDF'}
+        </Text>
+      </Box>
+
       <Input
+        id="file-upload"
+        ref={inputRef}
         type="file"
         onChange={handleFileChange}
         accept="application/pdf"
-        p={1}
-        disabled={uploading}
+        display="none"
       />
-      {uploading && <Progress size="xs" isIndeterminate mt={2} />}
-      {file && !uploading && (
-        <Text fontSize="sm" mt={1}>
-          Selected file: {file.name}
-        </Text>
-      )}
     </FormControl>
   );
 };

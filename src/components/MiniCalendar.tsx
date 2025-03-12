@@ -1,39 +1,53 @@
-import { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Grid,
-  Text,
-  HStack,
-  VStack,
-  useColorModeValue,
-} from '@chakra-ui/react';
-import { IoChevronUp, IoChevronDown } from 'react-icons/io5';
+import { Box, Button, Grid, HStack, Text, VStack } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 
 interface CalendarProps {
   initialDate?: Date;
   onDateSelect?: (date: Date) => void;
+  selectDate?: Date | null;
 }
 
 export default function MiniCalendar({
   initialDate = new Date(),
   onDateSelect,
+  selectDate: externalSelectedDate,
 }: CalendarProps) {
   const [mounted, setMounted] = useState(false);
 
   const [currentMonth, setCurrentMonth] = useState(new Date(initialDate));
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const bgColor = useColorModeValue('white', 'neutralGray.800');
-  const todayBgColor = useColorModeValue('primaryBlue.300', 'primaryBlue.200');
-  const todayColor = useColorModeValue('white', 'neutralGray.800');
-  const selectedBgColor = useColorModeValue(
-    'primaryBlue.50',
-    'primaryBlue.600'
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    externalSelectedDate || null
   );
+  const bgColor = 'white';
+  const todayBgColor = 'primaryBlue.300';
+  const todayColor = 'white';
+  const selectedBgColor = 'primaryBlue.50';
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!externalSelectedDate) return;
+
+    const parsedDate =
+      externalSelectedDate instanceof Date
+        ? externalSelectedDate
+        : new Date(externalSelectedDate);
+
+    setSelectedDate(parsedDate);
+
+    setCurrentMonth((prev) => {
+      if (
+        parsedDate.getMonth() !== prev.getMonth() ||
+        parsedDate.getFullYear() !== prev.getFullYear()
+      ) {
+        return new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+      }
+      return prev;
+    });
+  }, [externalSelectedDate]);
 
   if (!mounted) return null;
 
@@ -105,9 +119,9 @@ export default function MiniCalendar({
           width="100%"
           justifyContent="space-between"
           alignItems="center"
-          pl="10px"
+          pl={1}
         >
-          <Text fontSize="sm" fontWeight="bold" textAlign="left">
+          <Text textStyle="h4" textAlign="left">
             {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </Text>
           <HStack spacing={0}>
@@ -117,11 +131,6 @@ export default function MiniCalendar({
               variant="ghost"
               aria-label="Previous month"
               p={0}
-              bg="transparent"
-              _hover={{
-                bg: 'neutralGray.100',
-                borderRadius: 'lg',
-              }}
             >
               <IoChevronUp size={24} />
             </Button>
@@ -131,11 +140,6 @@ export default function MiniCalendar({
               variant="ghost"
               aria-label="Next month"
               p={0}
-              bg="transparent"
-              _hover={{
-                bg: 'neutralGray.100',
-                borderRadius: 'lg',
-              }}
             >
               <IoChevronDown size={24} />
             </Button>
@@ -152,13 +156,15 @@ export default function MiniCalendar({
           {days.map((day, index) => (
             <Button
               key={`day-${index}`}
-              w="100%"
+              sx={{ aspectRatio: '1' }}
               size="sm"
               variant="ghost"
               pointerEvents="none"
               bg="transparent"
             >
-              <Text variant="subtitle">{day}</Text>
+              <Text textStyle="subtitle" color="text.body">
+                {day}
+              </Text>
             </Button>
           ))}
         </Grid>
@@ -180,7 +186,7 @@ export default function MiniCalendar({
                 key={`prev-${index}`}
                 onClick={() => handleDateClick(date)}
                 size="sm"
-                w="100%"
+                sx={{ aspectRatio: '1' }}
                 variant="ghost"
                 borderRadius="50%"
                 bg={
@@ -195,7 +201,7 @@ export default function MiniCalendar({
                 }}
               >
                 <Text
-                  variant="subtitle"
+                  textStyle="subtitle"
                   color={isToday(date) ? todayColor : 'neutralGray.500'}
                 >
                   {lastDateOfPrevMonth - firstDayOfMonth + index + 1}
@@ -216,7 +222,7 @@ export default function MiniCalendar({
                 onClick={() => handleDateClick(date)}
                 size="sm"
                 variant={isToday(date) ? 'solid' : 'ghost'}
-                w="100%"
+                sx={{ aspectRatio: '1' }}
                 bg={
                   isToday(date)
                     ? todayBgColor
@@ -230,7 +236,7 @@ export default function MiniCalendar({
                 }}
               >
                 <Text
-                  variant="subtitle"
+                  textStyle="subtitle"
                   color={
                     isToday(date)
                       ? todayColor
@@ -257,7 +263,7 @@ export default function MiniCalendar({
               <Button
                 key={`next-${index}`}
                 onClick={() => handleDateClick(date)}
-                w="100%"
+                sx={{ aspectRatio: '1' }}
                 size="sm"
                 variant="ghost"
                 borderRadius="50%"
@@ -273,7 +279,7 @@ export default function MiniCalendar({
                 }}
               >
                 <Text
-                  variant="subtitle"
+                  textStyle="subtitle"
                   color={isToday(date) ? todayColor : 'neutralGray.500'}
                 >
                   {index + 1}

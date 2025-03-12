@@ -386,6 +386,20 @@
           "maxLength": null
         },
         {
+          "id": "public.Location.archived",
+          "name": "archived",
+          "columnName": "archived",
+          "type": "bool",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "name": "Absence",
           "type": "Absence",
           "isRequired": false,
@@ -526,6 +540,20 @@
           "isGenerated": false,
           "sequence": false,
           "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.Subject.archived",
+          "name": "archived",
+          "columnName": "archived",
+          "type": "bool",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
           "isId": false,
           "maxLength": null
         },
@@ -679,6 +707,20 @@
           "columnName": "lastName",
           "type": "text",
           "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.User.profilePicture",
+          "name": "profilePicture",
+          "columnName": "profilePicture",
+          "type": "text",
+          "isRequired": false,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,

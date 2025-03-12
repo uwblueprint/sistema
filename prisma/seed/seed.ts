@@ -27,6 +27,12 @@ const main = async () => {
     },
     { name: 'Percussion', abbreviation: 'PER', colorGroupId: 7 },
     { name: 'Trumpet/Clarinets', abbreviation: 'T&C', colorGroupId: 1 },
+    {
+      name: 'Harpsichord',
+      abbreviation: 'HPS',
+      colorGroupId: 5,
+      archived: true,
+    },
   ];
 
   const numUsers = 20;
@@ -36,13 +42,18 @@ const main = async () => {
   const subjectIds = Array.from({ length: numSubjects }, (_, i) => i + 1);
 
   const users = await seed.user((createMany) =>
-    createMany(numUsers, () => ({
-      authId: faker.string.uuid(),
-      email: faker.internet.email(),
-      firstName: faker.person.firstName(),
-      lastName: faker.person.lastName(),
-      role: faker.helpers.arrayElement(roles),
-    }))
+    createMany(numUsers, () => {
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      return {
+        authId: faker.string.uuid(),
+        email: faker.internet.email({ firstName, lastName }),
+        firstName: firstName,
+        lastName: lastName,
+        profilePicture: `https://i.pravatar.cc/50?u=${faker.string.uuid()}`,
+        role: faker.helpers.arrayElement(roles),
+      };
+    })
   );
 
   const schools = [
@@ -118,6 +129,7 @@ const main = async () => {
       name: subjects[curSubject.index].name,
       abbreviation: subjects[curSubject.index].abbreviation,
       colorGroupId: subjects[curSubject.index].colorGroupId,
+      archived: subjects[curSubject.index].archived,
     }))
   );
 

@@ -15,7 +15,7 @@ services:
       - DATABASE_URL=${DATABASE_URL_DOCKER}
     command: >
       sh -c "npx prisma generate &&
-              npx prisma db push &&
+              npx prisma db push --force-reset &&
               npx @snaplet/seed sync &&
               npx prisma db seed &&
               npm run dev"
