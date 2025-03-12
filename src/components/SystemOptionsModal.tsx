@@ -30,6 +30,7 @@ import {
   useToast,
   Heading,
   useTheme,
+  Tooltip,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import {
@@ -47,7 +48,7 @@ import { FiType } from 'react-icons/fi';
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import { Subject, SubjectAPI, Location } from '@utils/types';
 import React from 'react';
-import { LuInfo } from 'react-icons/lu';
+import { LuInfo, LuArchive } from 'react-icons/lu';
 
 interface SystemOptionsModalProps {
   isOpen: boolean;
@@ -81,6 +82,8 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   const [locations, setLocations] = useState<Location[]>([]);
   const [allowedAbsences, setAllowedAbsences] = useState<number>(absenceCap);
   const [pendingChanges, setPendingChanges] = useState<Change[]>([]);
+  const [subjectsInUse, setSubjectsInUse] = useState<number[]>([]);
+  const [locationsInUse, setLocationsInUse] = useState<number[]>([]);
   const [newSubject, setNewSubject] = useState<SubjectAPI>({
     id: 0,
     name: '',
@@ -127,6 +130,8 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       fetchSubjects();
       fetchLocations();
       fetchColorGroups();
+      checkSubjectsInUse();
+      checkLocationsInUse();
     }
   }, [isOpen]);
 
@@ -181,6 +186,28 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         duration: 3000,
         isClosable: true,
       });
+    }
+  };
+
+  const checkSubjectsInUse = async () => {
+    try {
+      const response = await fetch('/api/subjects/inUse');
+      if (!response.ok) throw new Error('Failed to check subjects in use');
+      const data = await response.json();
+      setSubjectsInUse(data.subjectsInUse || []);
+    } catch (error) {
+      console.error('Error checking subjects in use:', error);
+    }
+  };
+
+  const checkLocationsInUse = async () => {
+    try {
+      const response = await fetch('/api/locations/inUse');
+      if (!response.ok) throw new Error('Failed to check locations in use');
+      const data = await response.json();
+      setLocationsInUse(data.locationsInUse || []);
+    } catch (error) {
+      console.error('Error checking locations in use:', error);
     }
   };
 
@@ -618,14 +645,23 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
           overflow="visible"
         >
           <ModalHeader>
-            <HStack>
-              <IoSettingsOutline
-                size={20}
-                color={theme.colors.neutralGray[600]}
+            <HStack justifyContent="space-between" width="100%">
+              <HStack>
+                <IoSettingsOutline
+                  size={20}
+                  color={theme.colors.neutralGray[600]}
+                />
+                <Box>
+                  <Text>System Options</Text>
+                </Box>
+              </HStack>
+              <IconButton
+                aria-label="Close"
+                icon={<IoCloseOutline size={20} />}
+                variant="ghost"
+                onClick={onClose}
+                size="sm"
               />
-              <Box>
-                <Text>System Options</Text>
-              </Box>
             </HStack>
           </ModalHeader>
           <ModalBody
@@ -731,6 +767,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                             ? editingRowRef
                             : undefined
                         }
+                        bg={subject.archived ? 'neutralGray.100' : 'white'}
                       >
                         {editingSubject && editingSubject.id === subject.id ? (
                           // Editing mode
@@ -858,14 +895,36 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                                   ]
                                 }
                               />
-                              <Text>{subject.name}</Text>
+                              {subject.archived && (
+                                <LuArchive
+                                  color={theme.colors.text.inactiveButtonText}
+                                  size={16}
+                                />
+                              )}
+                              <Text
+                                color={
+                                  subject.archived
+                                    ? 'text.inactiveButtonText'
+                                    : 'inherit'
+                                }
+                              >
+                                {subject.name}
+                              </Text>
                             </HStack>
                             <HStack
                               justify="space-between"
                               flex="1"
                               maxW="120px"
                             >
-                              <Text>{subject.abbreviation}</Text>
+                              <Text
+                                color={
+                                  subject.archived
+                                    ? 'text.inactiveButtonText'
+                                    : 'inherit'
+                                }
+                              >
+                                {subject.abbreviation}
+                              </Text>
                               <Box
                                 className="menu-button"
                                 opacity="0"
@@ -896,15 +955,44 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                                         ? 'Unarchive'
                                         : 'Archive'}
                                     </MenuItem>
-                                    <MenuItem
-                                      icon={<IoTrashOutline />}
-                                      onClick={() =>
-                                        handleDeleteSubject(subject)
+                                    <Tooltip
+                                      label={
+                                        subjectsInUse.includes(subject.id)
+                                          ? 'Cannot delete subject because it is used in existing absences'
+                                          : ''
                                       }
-                                      color="red.500"
+                                      isDisabled={
+                                        !subjectsInUse.includes(subject.id)
+                                      }
                                     >
-                                      Delete
-                                    </MenuItem>
+                                      <MenuItem
+                                        icon={<IoTrashOutline />}
+                                        onClick={() =>
+                                          handleDeleteSubject(subject)
+                                        }
+                                        color="red.500"
+                                        isDisabled={subjectsInUse.includes(
+                                          subject.id
+                                        )}
+                                        bg={
+                                          subjectsInUse.includes(subject.id)
+                                            ? 'neutralGray.100'
+                                            : undefined
+                                        }
+                                        _hover={
+                                          subjectsInUse.includes(subject.id)
+                                            ? { bg: 'neutralGray.100' }
+                                            : undefined
+                                        }
+                                        cursor={
+                                          subjectsInUse.includes(subject.id)
+                                            ? 'not-allowed'
+                                            : 'pointer'
+                                        }
+                                      >
+                                        Delete
+                                      </MenuItem>
+                                    </Tooltip>
                                   </MenuList>
                                 </Menu>
                               </Box>
@@ -1145,6 +1233,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                             ? editingRowRef
                             : undefined
                         }
+                        bg={location.archived ? 'neutralGray.100' : 'white'}
                       >
                         {editingLocation &&
                         editingLocation.id === location.id ? (
@@ -1208,13 +1297,37 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                         ) : (
                           // Display mode
                           <>
-                            <Text>{location.name}</Text>
+                            <HStack>
+                              {location.archived && (
+                                <LuArchive
+                                  color={theme.colors.text.inactiveButtonText}
+                                  size={16}
+                                />
+                              )}
+                              <Text
+                                color={
+                                  location.archived
+                                    ? 'text.inactiveButtonText'
+                                    : 'inherit'
+                                }
+                              >
+                                {location.name}
+                              </Text>
+                            </HStack>
                             <HStack
                               justify="space-between"
                               flex="1"
                               maxW="120px"
                             >
-                              <Text>{location.abbreviation}</Text>
+                              <Text
+                                color={
+                                  location.archived
+                                    ? 'text.inactiveButtonText'
+                                    : 'inherit'
+                                }
+                              >
+                                {location.abbreviation}
+                              </Text>
                               <Box
                                 className="menu-button"
                                 opacity="0"
@@ -1247,15 +1360,44 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                                         ? 'Unarchive'
                                         : 'Archive'}
                                     </MenuItem>
-                                    <MenuItem
-                                      icon={<IoTrashOutline />}
-                                      onClick={() =>
-                                        handleDeleteLocation(location)
+                                    <Tooltip
+                                      label={
+                                        locationsInUse.includes(location.id)
+                                          ? 'Cannot delete location because it is used in existing absences'
+                                          : ''
                                       }
-                                      color="red.500"
+                                      isDisabled={
+                                        !locationsInUse.includes(location.id)
+                                      }
                                     >
-                                      Delete
-                                    </MenuItem>
+                                      <MenuItem
+                                        icon={<IoTrashOutline />}
+                                        onClick={() =>
+                                          handleDeleteLocation(location)
+                                        }
+                                        color="red.500"
+                                        isDisabled={locationsInUse.includes(
+                                          location.id
+                                        )}
+                                        bg={
+                                          locationsInUse.includes(location.id)
+                                            ? 'neutralGray.100'
+                                            : undefined
+                                        }
+                                        _hover={
+                                          locationsInUse.includes(location.id)
+                                            ? { bg: 'neutralGray.100' }
+                                            : undefined
+                                        }
+                                        cursor={
+                                          locationsInUse.includes(location.id)
+                                            ? 'not-allowed'
+                                            : 'pointer'
+                                        }
+                                      >
+                                        Delete
+                                      </MenuItem>
+                                    </Tooltip>
                                   </MenuList>
                                 </Menu>
                               </Box>
