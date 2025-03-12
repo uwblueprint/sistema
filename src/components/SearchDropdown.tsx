@@ -1,16 +1,21 @@
-import React, { useEffect, useState, useRef } from 'react';
 import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  VStack,
+  Avatar,
   Box,
-  Text,
+  CloseButton,
   Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Text,
   useDisclosure,
+  VStack,
 } from '@chakra-ui/react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
-export type Option = { name: string; id: number };
+export type Option = { name: string; id: number; profilePicture: string };
 
 interface SearchDropdownProps {
   label: string;
@@ -27,48 +32,41 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   excludedId,
   initialValue,
   onChange,
-  options,
 }) => {
-  const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
+  const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-
+  const [isSelected, setIsSelected] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const [options, setOptions] = useState<Option[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-  const popoverRef = useRef<HTMLDivElement>(null);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    if (value.trim() === '') {
-      setFilteredOptions([]);
-      onClose();
-    } else {
-      let filtered = options.filter((option) =>
-        option.name.toLowerCase().includes(value.toLowerCase())
-      );
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch('/api/formDropdown');
+      if (res.ok) {
+        const data = await res.json();
 
-      if (excludedId) {
-        filtered = filtered.filter(
-          (option) => String(option.id) !== excludedId
-        );
+        if (type === 'user') {
+          const sortedOptions = data.userOptions.sort((a: Option, b: Option) =>
+            a.name.localeCompare(b.name)
+          );
+          setOptions(sortedOptions);
+          setFilteredOptions(sortedOptions);
+        }
       }
-
-      setFilteredOptions(filtered);
-      onOpen();
+    } catch (error) {
+      console.error(`Failed to fetch ${type} options:`, error);
     }
-  };
+  }, [type]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-    }
-  };
-
-  // Set initial value when component mounts or when initialValue/options change
   useEffect(() => {
-    if (initialValue && initialValue.id) {
+    fetchData();
+  }, [fetchData]); // Only depend on fetchData
+
+  // Separate effect for initialValue handling
+  useEffect(() => {
+    if (initialValue && initialValue.id && options.length > 0) {
       const matchingOption = options.find(
         (option) => option.id === initialValue.id
       );
@@ -80,35 +78,48 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
     }
   }, [initialValue, options]);
 
-  const handleOptionSelect = (option: Option) => {
-    // Only update if the selection has changed
-    if (!selectedOption || selectedOption.id !== option.id) {
-      setSelectedOption(option);
-      setSearchQuery(option.name);
-      onChange(option);
-    }
-    inputRef.current?.focus();
-    onClose();
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        popoverRef.current &&
-        !popoverRef.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
-      ) {
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchQuery(value);
+      if (value.trim() === '') {
+        setFilteredOptions([]);
         onClose();
+      } else {
+        let filtered = options.filter((option) =>
+          option.name.toLowerCase().includes(value.toLowerCase())
+        );
+        if (excludedId) {
+          filtered = filtered.filter(
+            (option) => String(option.id) !== excludedId
+          );
+        }
+        setFilteredOptions(filtered);
+        onOpen();
       }
-    };
+    },
+    [options, excludedId, onOpen, onClose]
+  );
 
-    document.addEventListener('mousedown', handleClickOutside);
+  const handleOptionSelect = useCallback(
+    (option: Option) => {
+      setSearchQuery(option.name);
+      setSelectedOption(option);
+      setIsSelected(true);
+      onChange(option);
+      setTimeout(() => inputRef.current?.focus(), 0);
+      onClose();
+    },
+    [onChange, onClose]
+  );
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [onClose]);
+  const handleClearSelection = useCallback(() => {
+    setSearchQuery('');
+    setSelectedOption(null);
+    setIsSelected(false);
+    onChange(null);
+    onClose();
+  }, [onChange, onClose]);
 
   return (
     <Box>
@@ -118,43 +129,87 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
         placement="bottom-start"
         autoFocus={false}
       >
-        <PopoverTrigger>
-          <Input
-            fontSize="14px"
-            ref={inputRef}
-            value={searchQuery}
-            onChange={handleSearchChange}
-            onKeyDown={handleKeyDown}
-            placeholder={`Search for ${label}`}
-            onClick={() => searchQuery.trim() && onOpen()}
-          />
-        </PopoverTrigger>
+        {isSelected ? (
+          <InputGroup>
+            <InputLeftElement>
+              <Avatar
+                name={selectedOption?.name || searchQuery}
+                src={selectedOption?.profilePicture}
+                size="sm"
+                p="4px"
+              />
+            </InputLeftElement>
+            <Input
+              ref={inputRef}
+              value={searchQuery}
+              isReadOnly
+              cursor="default"
+              fontWeight="600"
+            />
+            <InputRightElement>
+              <CloseButton
+                onClick={handleClearSelection}
+                color="neutralGray.600"
+              />
+            </InputRightElement>
+          </InputGroup>
+        ) : (
+          <PopoverTrigger>
+            <Input
+              ref={inputRef}
+              value={searchQuery}
+              onChange={handleSearchChange}
+              onClick={() =>
+                handleSearchChange({
+                  target: { value: searchQuery },
+                } as React.ChangeEvent<HTMLInputElement>)
+              }
+              placeholder={`Search for ${label}`}
+            />
+          </PopoverTrigger>
+        )}
+
         <PopoverContent
-          ref={popoverRef}
-          fontSize="14px"
           boxShadow="sm"
-          border="1px solid"
-          borderColor="gray.200"
-          _focus={{ boxShadow: 'sm', outline: 'none' }}
-          width={inputRef.current?.offsetWidth}
+          width="300px"
           mt="-5px"
+          borderRadius="md"
         >
           <VStack align="stretch" spacing={0}>
             {filteredOptions.length > 0 ? (
-              filteredOptions.map((option) => (
+              filteredOptions.map((option, index) => (
                 <Box
                   key={option.id}
-                  sx={{ padding: '10px 16px' }}
-                  _hover={{ bg: 'gray.100' }}
+                  sx={{
+                    borderRadius:
+                      index === 0
+                        ? 'md md 0 0'
+                        : index === filteredOptions.length - 1
+                          ? '0 0 md md'
+                          : '0',
+                    bg: 'transparent',
+                    _hover: {
+                      bg: 'neutralGray.100',
+                    },
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
                   cursor="pointer"
                   onClick={() => handleOptionSelect(option)}
                 >
-                  <Text color="gray.500">{option.name}</Text>
+                  <Avatar
+                    name={option.name}
+                    src={option.profilePicture}
+                    size="sm"
+                    m="4px"
+                    p="4px"
+                  />
+                  <Text textStyle="subtitle">{option.name}</Text>
                 </Box>
               ))
             ) : (
-              <Box sx={{ padding: '10px 16px' }}>
-                <Text color="gray.500">No matches found</Text>
+              <Box p="6px" m="6px">
+                <Text textStyle="subtitle">No matches found</Text>
               </Box>
             )}
           </VStack>

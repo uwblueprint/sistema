@@ -1,5 +1,5 @@
-import { prisma } from '../../../utils/prisma';
 import { NextResponse } from 'next/server';
+import { prisma } from '../../../utils/prisma';
 
 export async function POST(req: Request) {
   try {
@@ -28,6 +28,7 @@ export async function POST(req: Request) {
         substituteTeacherId: body.substituteTeacherId || null,
         locationId: body.locationId,
         subjectId: body.subjectId,
+        roomNumber: body.roomNumber || null,
       },
     });
 

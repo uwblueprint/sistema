@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { prisma } from '@utils/prisma';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
@@ -12,7 +12,12 @@ export async function GET() {
     });
 
     const users = await prisma.user.findMany({
-      select: { id: true, firstName: true, lastName: true },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        profilePicture: true,
+      },
     });
 
     const subjectOptions = subjects.map((subject) => ({
@@ -27,6 +32,7 @@ export async function GET() {
 
     const userOptions = users.map((user) => ({
       name: `${user.firstName} ${user.lastName}`,
+      profilePicture: user.profilePicture,
       id: user.id,
     }));
 

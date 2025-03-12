@@ -29,8 +29,8 @@ export interface AbsenceAPI {
     lastName: string;
   } | null;
   location: {
-    name: string;
     id: number;
+    name: string;
   };
   subject: {
     id: number;
@@ -89,11 +89,15 @@ export interface Subject {
   colorGroupId: number;
 }
 
-export interface SubjectWithRelations {
+export interface SubjectAPI {
   id: number;
   name: string;
   abbreviation: string;
   colorGroupId: number;
+  colorGroup: {
+    name: string;
+    colorCodes: string[];
+  };
 }
 
 export interface ColorGroup {
@@ -110,4 +114,12 @@ export interface GlobalSettings {
 export enum Role {
   TEACHER = 'TEACHER',
   ADMIN = 'ADMIN',
+}
+
+export interface UserData {
+  name: string;
+  email: string;
+  image?: string;
+  usedAbsences: number;
+  numOfAbsences: number;
 }
