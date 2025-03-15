@@ -84,7 +84,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
                 {event.location}{' '}
               </Text>
             </Flex>
-            <Flex gap="13px">
+            <Flex gap="13px" mt="-8px">
               <Calendar size="20px" color="#0468C1" />
               <Text fontSize="13px" color="#373636">
                 {event.start
@@ -96,7 +96,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
                   : 'N/A'}
               </Text>
             </Flex>
-            <Flex gap="13px">
+            <Flex gap="13px" mt="-8px">
               <FiUser size="20px" color="#0468C1" />
               <Text fontSize="13px" color="#373636">
                 {' '}
@@ -104,7 +104,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
               </Text>
             </Flex>
             {event.roomNumber && (
-              <Flex gap="13px">
+              <Flex gap="13px" mt="-8px">
                 <Buildings size="20px" color="#0468C1" />
                 <Text fontSize="13px" color="#373636">
                   {' '}
@@ -149,43 +149,45 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
             )}
 
             {/* Visibility Tag*/}
-            {event.substituteTeacher && (
-              <Flex gap="10px" align="center" color="#373636" fontSize="12px">
-                {userId === event.absentTeacher.id ? (
-                  <>
-                    <IoEyeOutline size="14px" />
-                    <Text>
-                      {' '}
-                      Only visible to{' '}
-                      <Text as="span" fontWeight={700}>
-                        Me
-                      </Text>{' '}
-                      and{' '}
-                      <Text as="span" fontWeight={700}>
-                        {event.substituteTeacher.firstName}
+            {event.substituteTeacher &&
+              (userId === event.absentTeacher.id ||
+                userId === event.substituteTeacher.id) && (
+                <Flex gap="10px" align="center" color="#373636" fontSize="12px">
+                  {userId === event.absentTeacher.id ? (
+                    <>
+                      <IoEyeOutline size="14px" />
+                      <Text>
+                        {' '}
+                        Only visible to{' '}
+                        <Text as="span" fontWeight={700}>
+                          Me
+                        </Text>{' '}
+                        and{' '}
+                        <Text as="span" fontWeight={700}>
+                          {event.substituteTeacher.firstName}
+                        </Text>
+                        .
                       </Text>
-                      .
-                    </Text>
-                  </>
-                ) : userId === event.substituteTeacher.id ? (
-                  <>
-                    <IoEyeOutline size="14px" />
-                    <Text>
-                      {' '}
-                      Only visible to{' '}
-                      <Text as="span" fontWeight={700}>
-                        Me
-                      </Text>{' '}
-                      and{' '}
-                      <Text as="span" fontWeight={700}>
-                        {event.absentTeacher.firstName}
+                    </>
+                  ) : userId === event.substituteTeacher.id ? (
+                    <>
+                      <IoEyeOutline size="14px" />
+                      <Text>
+                        {' '}
+                        Only visible to{' '}
+                        <Text as="span" fontWeight={700}>
+                          Me
+                        </Text>{' '}
+                        and{' '}
+                        <Text as="span" fontWeight={700}>
+                          {event.absentTeacher.firstName}
+                        </Text>
+                        .
                       </Text>
-                      .
-                    </Text>
-                  </>
-                ) : null}
-              </Flex>
-            )}
+                    </>
+                  ) : null}
+                </Flex>
+              )}
           </VStack>
         </ModalBody>
       </ModalContent>
