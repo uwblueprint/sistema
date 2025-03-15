@@ -29,6 +29,9 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
     event.substituteTeacher ? event.substituteTeacher.id : 'N/A'
   );
 
+  const isUserAbsentTeacher = userId === event.absentTeacher.id;
+  const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
@@ -36,9 +39,8 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
         <ModalHeader p="0">
           <Flex justify="space-between" align="center" position="relative">
             <AbsenceStatusTag
-              absentTeacher={event.absentTeacher}
-              userId={userId}
-              substituteTeacher={event.substituteTeacher}
+              isUserAbsentTeacher={isUserAbsentTeacher}
+              isUserSubstituteTeacher={isUserSubstituteTeacher}
               substituteTeacherFullName={event.substituteTeacherFullName}
             />
             <Flex position="absolute" right="0">
@@ -119,6 +121,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
               <LessonPlanView
                 lessonPlan={event.lessonPlan}
                 absentTeacherFirstName={event.absentTeacher.firstName}
+                isUserAbsentTeacher={isUserAbsentTeacher}
               />
             </Box>
             <Box>
@@ -150,10 +153,9 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
 
             {/* Visibility Tag*/}
             {event.substituteTeacher &&
-              (userId === event.absentTeacher.id ||
-                userId === event.substituteTeacher.id) && (
+              (isUserAbsentTeacher || isUserSubstituteTeacher) && (
                 <Flex gap="10px" align="center" color="#373636" fontSize="12px">
-                  {userId === event.absentTeacher.id ? (
+                  {isUserAbsentTeacher ? (
                     <>
                       <IoEyeOutline size="14px" />
                       <Text>
@@ -169,7 +171,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
                         .
                       </Text>
                     </>
-                  ) : userId === event.substituteTeacher.id ? (
+                  ) : isUserSubstituteTeacher ? (
                     <>
                       <IoEyeOutline size="14px" />
                       <Text>

@@ -3,24 +3,14 @@ import { Box, Flex } from '@chakra-ui/react';
 import { FiCheckCircle, FiClock } from 'react-icons/fi';
 
 interface AbsenceStatusTagProps {
-  absentTeacher: {
-    id: number;
-    firstName: string;
-    lastName: string;
-  };
-  userId?: number;
-  substituteTeacher?: {
-    id: number;
-    firstName: string;
-    lastName: string;
-  } | null;
+  isUserAbsentTeacher: boolean;
+  isUserSubstituteTeacher: boolean;
   substituteTeacherFullName?: string;
 }
 
 const AbsenceStatusTag = ({
-  absentTeacher,
-  userId,
-  substituteTeacher,
+  isUserAbsentTeacher,
+  isUserSubstituteTeacher,
   substituteTeacherFullName,
 }: AbsenceStatusTagProps) => {
   const textRef = useRef<HTMLDivElement | null>(null);
@@ -43,17 +33,17 @@ const AbsenceStatusTag = ({
 
   let tagText, tagColor, tagBg, tagIcon;
 
-  if (substituteTeacher && userId === substituteTeacher.id) {
+  if (substituteTeacherFullName && isUserSubstituteTeacher) {
     tagText = `Filled by Me`;
     tagColor = '#2D4F12';
     tagBg = '#D8F5C1';
     tagIcon = <FiCheckCircle size="20px" />;
-  } else if (substituteTeacher) {
+  } else if (substituteTeacherFullName) {
     tagText = `Filled by ${substituteTeacherFullName}`;
     tagColor = '#2D4F12';
     tagBg = '#D8F5C1';
     tagIcon = <FiCheckCircle size="20px" />;
-  } else if (userId === absentTeacher.id) {
+  } else if (isUserAbsentTeacher) {
     tagText = 'Unfilled';
     tagColor = '#9B520E';
     tagBg = '#FEEED5';
