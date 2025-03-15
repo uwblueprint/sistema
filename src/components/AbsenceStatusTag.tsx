@@ -5,12 +5,14 @@ import { FiCheckCircle, FiClock } from 'react-icons/fi';
 interface AbsenceStatusTagProps {
   isUserAbsentTeacher: boolean;
   isUserSubstituteTeacher: boolean;
+  isUserAdmin: boolean;
   substituteTeacherFullName?: string;
 }
 
 const AbsenceStatusTag = ({
   isUserAbsentTeacher,
   isUserSubstituteTeacher,
+  isUserAdmin,
   substituteTeacherFullName,
 }: AbsenceStatusTagProps) => {
   const textRef = useRef<HTMLDivElement | null>(null);
@@ -57,9 +59,6 @@ const AbsenceStatusTag = ({
 
   return (
     <Box
-      maxWidth={isHovered ? 'fit-content' : '200px'}
-      transition="max-width 0.3s ease-in-out"
-      zIndex={isHovered ? 10 : 'auto'} // overlay on top of buttons
       display="flex"
       alignItems="center"
       sx={{
@@ -71,6 +70,7 @@ const AbsenceStatusTag = ({
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      zIndex={isHovered ? 10 : 'auto'} // overlay on top of buttons
     >
       <Flex gap="7px" align="center">
         {tagIcon}
@@ -80,7 +80,7 @@ const AbsenceStatusTag = ({
           fontSize="12px"
           whiteSpace="nowrap"
           overflow="hidden"
-          maxWidth={isHovered ? 'none' : '150px'}
+          maxWidth={isHovered ? 'none' : isUserAdmin ? '150px' : '210px'}
           sx={{
             maskImage:
               isOverflowing && !isHovered

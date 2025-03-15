@@ -22,15 +22,16 @@ import LessonPlanView from './LessonPlanView';
 const AbsenceDetails = ({ isOpen, onClose, event }) => {
   const { data: session, status } = useSession();
   if (!event) return null;
-  const userId = session?.user?.id ? Number(session.user.id) : undefined;
   console.log('Absent Teacher ID:', event.absentTeacher.id);
   console.log(
     'Substitute Teacher ID:',
     event.substituteTeacher ? event.substituteTeacher.id : 'N/A'
   );
 
+  const userId = session?.user?.id ? Number(session.user.id) : undefined;
   const isUserAbsentTeacher = userId === event.absentTeacher.id;
   const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
+  const isUserAdmin = true;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
@@ -41,24 +42,29 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
             <AbsenceStatusTag
               isUserAbsentTeacher={isUserAbsentTeacher}
               isUserSubstituteTeacher={isUserSubstituteTeacher}
+              isUserAdmin={isUserAdmin}
               substituteTeacherFullName={event.substituteTeacherFullName}
             />
             <Flex position="absolute" right="0">
-              <IconButton
-                aria-label="Edit Absence"
-                icon={<FiEdit2 />}
-                size="sm"
-                variant="ghost"
-                color="#656565"
-              />
+              {isUserAdmin && (
+                <>
+                  <IconButton
+                    aria-label="Edit Absence"
+                    icon={<FiEdit2 />}
+                    size="sm"
+                    variant="ghost"
+                    color="#656565"
+                  />
 
-              <IconButton
-                aria-label="Delete Absence"
-                icon={<FiTrash2 />}
-                size="sm"
-                variant="ghost"
-                color="#656565"
-              />
+                  <IconButton
+                    aria-label="Delete Absence"
+                    icon={<FiTrash2 />}
+                    size="sm"
+                    variant="ghost"
+                    color="#656565"
+                  />
+                </>
+              )}
 
               <ModalCloseButton color="#2D3748" position="static" />
             </Flex>
@@ -116,18 +122,20 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                 isUserAbsentTeacher={isUserAbsentTeacher}
               />
             </Box>
-            <Box>
-              <Text fontSize="14px" fontWeight="500" mb="9px">
-                Reason of Absence
-              </Text>
-              <Text
-                fontSize="12px"
-                sx={{ padding: '15px 15px 33px 15px', borderRadius: '10px' }}
-                background="#F7F7F7"
-              >
-                {event.reasonOfAbsence}
-              </Text>
-            </Box>
+            {isUserAdmin && (
+              <Box>
+                <Text fontSize="14px" fontWeight="500" mb="9px">
+                  Reason of Absence
+                </Text>
+                <Text
+                  fontSize="12px"
+                  sx={{ padding: '15px 15px 33px 15px', borderRadius: '10px' }}
+                  background="#F7F7F7"
+                >
+                  {event.reasonOfAbsence}
+                </Text>
+              </Box>
+            )}
             {(event.notes || isUserAbsentTeacher) && (
               <Box position="relative">
                 <Text fontSize="14px" fontWeight="500" mb="9px">
