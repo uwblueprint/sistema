@@ -246,14 +246,6 @@ const Calendar: React.FC = () => {
     onAbsenceDetailsOpen();
   };
 
-  const handleEditAbsence = (absence: EventInput) => {
-    // TO-DO
-  };
-
-  const handleDeleteAbsence = (absence: EventInput) => {
-    // TO-DO
-  };
-
   const handleDeclareAbsenceClick = () => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
@@ -383,8 +375,6 @@ const Calendar: React.FC = () => {
         isOpen={isAbsenceDetailsOpen}
         onClose={onAbsenceDetailsClose}
         event={selectedEvent}
-        onEdit={handleEditAbsence}
-        onDelete={handleDeleteAbsence}
       />
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>

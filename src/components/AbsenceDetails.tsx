@@ -19,7 +19,7 @@ import { Calendar, Buildings } from 'iconsax-react';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
 
-const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
+const AbsenceDetails = ({ isOpen, onClose, event }) => {
   const { data: session, status } = useSession();
   if (!event) return null;
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
@@ -50,10 +50,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
                 size="sm"
                 variant="ghost"
                 color="#656565"
-                onClick={() => {
-                  onClose();
-                  onEdit(event);
-                }}
               />
 
               <IconButton
@@ -62,10 +58,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
                 size="sm"
                 variant="ghost"
                 color="#656565"
-                onClick={() => {
-                  onClose();
-                  onDelete(event);
-                }}
               />
 
               <ModalCloseButton color="#2D3748" position="static" />
@@ -136,18 +128,35 @@ const AbsenceDetails = ({ isOpen, onClose, event, onEdit, onDelete }) => {
                 {event.reasonOfAbsence}
               </Text>
             </Box>
-            {event.notes && (
-              <Box>
+            {(event.notes || isUserAbsentTeacher) && (
+              <Box position="relative">
                 <Text fontSize="14px" fontWeight="500" mb="9px">
                   Notes
                 </Text>
-                <Text
+
+                <Box
                   fontSize="12px"
-                  sx={{ padding: '15px 15px 33px 15px', borderRadius: '10px' }}
-                  background="#F7F7F7"
+                  sx={{
+                    padding: '15px 15px 33px 15px',
+                    borderRadius: '10px',
+                    background: '#F7F7F7',
+                  }}
                 >
                   {event.notes}
-                </Text>
+                </Box>
+
+                {isUserAbsentTeacher && (
+                  <IconButton
+                    aria-label="Edit Notes"
+                    icon={<FiEdit2 />}
+                    size="sm"
+                    variant="ghost"
+                    color="#656565"
+                    position="absolute"
+                    bottom="5px"
+                    right="5px"
+                  />
+                )}
               </Box>
             )}
 
