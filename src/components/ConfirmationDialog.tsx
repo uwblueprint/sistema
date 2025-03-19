@@ -44,7 +44,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             {title}
           </AlertDialogHeader>
 
-          <AlertDialogBody>{message}</AlertDialogBody>
+          <AlertDialogBody whiteSpace="pre-line">{message}</AlertDialogBody>
 
           <AlertDialogFooter>
             <Button ref={cancelRef} onClick={onClose}>
