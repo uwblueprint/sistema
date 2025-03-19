@@ -1,7 +1,7 @@
-import NextAuth from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
 import { prisma } from '@utils/prisma';
 import { Role } from '@utils/types';
+import NextAuth from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
 
 const allowedDomain = process.env.SISTEMA_EMAIL_DOMAIN;
 

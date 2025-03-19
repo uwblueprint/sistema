@@ -19,12 +19,12 @@ import FullCalendar from '@fullcalendar/react';
 import { Absence, Prisma } from '@prisma/client';
 import { AbsenceAPI } from '@utils/types';
 import useUserData from '@utils/useUserData';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import CalendarHeader from '../components/CalendarHeader';
-import InputForm from '../components/InputForm';
-import CalendarSidebar from '../components/CalendarSidebar';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import CalendarHeader from '../components/CalendarHeader';
+import CalendarSidebar from '../components/CalendarSidebar';
+import InputForm from '../components/InputForm';
 
 const Calendar: React.FC = () => {
   const { data: session, status } = useSession();
