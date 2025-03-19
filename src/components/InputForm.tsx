@@ -24,7 +24,7 @@ import { DateOfAbsence } from './DateOfAbsence';
 import { FileUpload } from './FileUpload';
 import { InputDropdown } from './InputDropdown';
 import { SearchDropdown } from './SearchDropdown';
-import { AbsenceAPI } from '@utils/types';
+import { AbsenceAPI, AbsenceUpdate } from '@utils/types';
 
 interface InputFormProps {
   onClose?: () => void;
@@ -32,7 +32,7 @@ interface InputFormProps {
     absence: Prisma.AbsenceCreateManyInput
   ) => Promise<Absence | null>;
   onEditAbsence?: (
-    absence: Prisma.AbsenceUpdateInput & { id: number }
+    absence: AbsenceUpdate & { id: number }
   ) => Promise<Absence | null>;
   initialDate: Date;
   initialAbsence?: Partial<AbsenceAPI> | null;
@@ -277,7 +277,7 @@ const InputForm: React.FC<InputFormProps> = ({
       }
       if (isEditMode && onEditAbsence) {
         // Handle edit mode
-        const updateData: Prisma.AbsenceUpdateInput & { id: number } = {
+        const updateData: AbsenceUpdate & { id: number } = {
           id: Number(formData.id),
           lessonDate: lessonDate,
           lessonPlan: lessonPlanUrl || null,
