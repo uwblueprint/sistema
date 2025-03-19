@@ -10,7 +10,13 @@ import {
   PopoverTrigger,
   Text,
 } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from 'react';
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 
 export type Option = { name: string; id: number };
@@ -19,17 +25,31 @@ interface InputDropdownProps {
   label: string;
   type: 'location' | 'subject';
   onChange: (value: Option | null) => void;
+  initialValue?: { id: number; name: string } | undefined;
 }
 
 export const InputDropdown: React.FC<InputDropdownProps> = ({
   label,
   type,
   onChange,
+  initialValue,
 }) => {
   const [options, setOptions] = useState<Option[]>([]);
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const memoizedInitialValue = useMemo(() => initialValue, [initialValue]);
+
+  useMemo(() => {
+    if (memoizedInitialValue) {
+      const matchingOption = options.find(
+        (option) => option.id === memoizedInitialValue.id
+      );
+      if (matchingOption) {
+        setSelectedOption(matchingOption);
+      }
+    }
+  }, [memoizedInitialValue, options]);
 
   const fetchData = useCallback(async () => {
     try {

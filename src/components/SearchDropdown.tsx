@@ -13,7 +13,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 export type Option = { name: string; id: number; profilePicture: string };
 
@@ -21,22 +21,24 @@ interface SearchDropdownProps {
   label: string;
   type: 'user';
   excludedId?: string;
+  initialValue?: { id: number; name: string } | undefined;
   onChange: (value: Option | null) => void;
+  options: Option[];
 }
 
 export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   label,
   type,
   excludedId,
+  initialValue,
   onChange,
 }) => {
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
-  const [options, setOptions] = useState<Option[]>([]);
   const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSelected, setIsSelected] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const [options, setOptions] = useState<Option[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const fetchData = useCallback(async () => {
@@ -60,7 +62,21 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [fetchData]); // Only depend on fetchData
+
+  // Separate effect for initialValue handling
+  useEffect(() => {
+    if (initialValue && initialValue.id && options.length > 0) {
+      const matchingOption = options.find(
+        (option) => option.id === initialValue.id
+      );
+
+      if (matchingOption) {
+        setSelectedOption(matchingOption);
+        setSearchQuery(matchingOption.name);
+      }
+    }
+  }, [initialValue, options]);
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -12,6 +12,7 @@ export interface Absence {
 }
 
 export interface AbsenceAPI {
+  id?: number;
   lessonDate: Date;
   lessonPlan?: string | null;
   reasonOfAbsence: string;
@@ -121,4 +122,38 @@ export interface UserData {
   image?: string;
   usedAbsences: number;
   numOfAbsences: number;
+}
+
+export interface AbsenceUpdate {
+  lessonDate?: Date | string;
+  lessonPlan?: string | null;
+  reasonOfAbsence?: string;
+  notes?: string | null;
+  roomNumber?: string | null;
+  substituteTeacher?: {
+    firstName: string;
+    lastName: string;
+    id: number;
+  } | null;
+  absentTeacher?: {
+    firstName: string;
+    lastName: string;
+    id: number;
+  } | null;
+  location?: {
+    id: number;
+    name: string;
+  } | null;
+  subject?: {
+    id: number;
+    name: string;
+    abbreviation: string;
+    colorGroup: {
+      colorCodes: string[];
+    };
+  } | null;
+  absentTeacherId?: number;
+  substituteTeacherId?: number;
+  locationId?: number;
+  subjectId?: number;
 }
