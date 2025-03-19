@@ -1,65 +1,63 @@
-// This is the configuration file for next-auth (now, more generally known as auth.js) https://authjs.dev/
-// Expects the following in the .env file: AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET
-
 import NextAuth from 'next-auth';
-import Google from 'next-auth/providers/google';
+import GoogleProvider from 'next-auth/providers/google';
+import { prisma } from '@utils/prisma';
+import { Role } from '@utils/types';
+
+const allowedDomain = process.env.SISTEMA_EMAIL_DOMAIN;
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [Google],
+  providers: [GoogleProvider],
   callbacks: {
-    async signIn({ user, account, profile }) {
-      if (account?.provider === 'google') {
-        try {
-          console.log('Google user authenticated:', user.email);
+    async signIn({ user, account }) {
+      if (account?.provider !== 'google') {
+        return false;
+      }
 
-          const userData = {
-            authId: user.id,
-            email: user.email,
-            firstName: profile?.given_name || user.name?.split(' ')[0] || '',
-            lastName:
-              profile?.family_name ||
-              user.name?.split(' ').slice(1).join(' ') ||
-              '',
-            profilePicture: user.image || null,
-          };
+      if (!user.email || !user.id) {
+        throw new Error('MissingCredentials');
+      }
 
-          const apiUrl =
-            process.env.NODE_ENV === 'development'
-              ? 'http://localhost:3000/api/auth/users'
-              : `${process.env.NEXT_PUBLIC_PROD_URL}/api/auth/users`;
+      if (!user.email.endsWith(`@${allowedDomain}`)) {
+        throw new Error('InvalidEmailDomain');
+      }
 
-          const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData),
+      try {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        });
+
+        if (!existingUser) {
+          await prisma.user.create({
+            data: {
+              authId: user.id,
+              email: user.email,
+              firstName: user.name?.split(' ')[0] || '',
+              lastName: user.name?.split(' ').slice(1).join(' ') || '',
+              role: Role.TEACHER,
+              profilePicture: user.image || null,
+            },
           });
-
-          if (!response.ok) {
-            console.error(
-              'Failed to add user to database',
-              await response.json()
-            );
-            return false;
-          }
-        } catch (error) {
-          console.error('Error in signIn callback:', error);
-          return false;
         }
+      } catch (error) {
+        console.error('Database error:', error);
+        throw new Error('DatabaseError');
       }
 
       return true;
     },
-    async session({ session, token }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub;
-      }
-      return session;
-    },
+
     async jwt({ token, user }) {
-      if (user) {
-        token.sub = user.id;
+      if (user?.id) {
+        token.userId = user.id;
       }
       return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user && typeof token.userId === 'string') {
+        session.user.id = token.userId;
+      }
+      return session;
     },
   },
 });
