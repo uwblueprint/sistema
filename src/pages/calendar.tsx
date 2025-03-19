@@ -23,8 +23,19 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import CalendarHeader from '../components/CalendarHeader';
 import InputForm from '../components/InputForm';
 import CalendarSidebar from '../components/CalendarSidebar';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 const Calendar: React.FC = () => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/');
+    }
+  }, [status, router]);
+
   const calendarRef = useRef<FullCalendar>(null);
   const [events, setEvents] = useState<EventInput[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
