@@ -122,3 +122,14 @@ export interface UserData {
   usedAbsences: number;
   numOfAbsences: number;
 }
+
+export interface MonthlyAbsenceData {
+  month: string;
+  filled: number;
+  unfilled: number;
+}
+
+export interface YearlyAbsenceData {
+  yearRange: string;
+  yearlyData: MonthlyAbsenceData[];
+}

@@ -61,7 +61,7 @@ export default function TotalAbsencesModal({
       </CardHeader>
       <Divider />
       <CardBody>
-        <HStack align="center" justifyContent="center" gap="35px">
+        <HStack align="left" gap="35px">
           <CircularProgress
             value={percentage}
             size={110}
@@ -77,6 +77,7 @@ export default function TotalAbsencesModal({
               lineHeight="normal"
               fontFamily="Poppins"
               color={numColor}
+              mt="10px"
             >
               {filled}/{total}
             </Text>
@@ -90,13 +91,7 @@ export default function TotalAbsencesModal({
             </Text>
           </Box>
 
-          <VStack
-            align="flex-start"
-            gap="10px"
-            height="43px"
-            mb="65px"
-            mr="10px"
-          >
+          <VStack align="flex-start" gap="10px" height="43px" mb="65px">
             <HStack>
               <Box
                 w="16px"

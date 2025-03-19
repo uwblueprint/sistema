@@ -24,22 +24,7 @@ import {
   Cell,
   type TooltipProps,
 } from 'recharts';
-
-// Sample data
-const monthlyData = [
-  { month: 'Sep', filled: 25, unfilled: 0 },
-  { month: 'Oct', filled: 25, unfilled: 15 },
-  { month: 'Nov', filled: 40, unfilled: 0 },
-  { month: 'Dec', filled: 22, unfilled: 0 },
-  { month: 'Jan', filled: 35, unfilled: 15 },
-  { month: 'Feb', filled: 25, unfilled: 15 },
-  { month: 'Mar', filled: 3, unfilled: 22 },
-  { month: 'Apr', filled: 40, unfilled: 0 },
-  { month: 'May', filled: 10, unfilled: 5 },
-  { month: 'Jun', filled: 20, unfilled: 20 },
-  { month: 'Jul', filled: 15, unfilled: 0 },
-  { month: 'Aug', filled: 25, unfilled: 0 },
-];
+import { MonthlyAbsenceData } from '@utils/types';
 
 const CustomTooltip = ({
   active,
@@ -47,7 +32,11 @@ const CustomTooltip = ({
   coordinate,
 }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
-    const total = payload.reduce((acc, entry) => acc + (entry.value || 0), 0);
+    const filled =
+      payload.find((entry) => entry.dataKey === 'filled')?.value || 0;
+    const unfilled =
+      payload.find((entry) => entry.dataKey === 'unfilled')?.value || 0;
+    const total = filled + unfilled;
 
     return (
       <Box
@@ -75,20 +64,34 @@ const CustomTooltip = ({
           borderTop: '6px solid #0468C1',
         }}
       >
-        {total}/50
+        {filled}/{total}
       </Box>
     );
   }
   return null;
 };
 
-export default function MonthlyAbsencesModal({ width }) {
+export default function MonthlyAbsencesModal({
+  width,
+  monthlyData,
+  highestAbsencesCount,
+}: {
+  width: string | number;
+  monthlyData: MonthlyAbsenceData[];
+  highestAbsencesCount: number;
+}) {
   const theme = useTheme();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const filledColor = theme.colors.primaryBlue[300];
   const unfilledColor = theme.colors.neutralGray[200];
   const chartTextColor = theme.colors.text.subtitle;
+
+  const yAxisMax = Math.ceil(highestAbsencesCount / 10) * 10;
+  const yAxisTicks = Array.from(
+    { length: Math.floor(yAxisMax / 10) + 1 },
+    (_, i) => i * 10
+  );
 
   return (
     <Card
@@ -138,9 +141,9 @@ export default function MonthlyAbsencesModal({ width }) {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: chartTextColor, fontSize: 12 }}
-                  domain={[0, 50]}
-                  ticks={[0, 25, 50]}
-                  tickCount={3}
+                  domain={[0, yAxisMax]}
+                  ticks={yAxisTicks}
+                  tickCount={yAxisTicks.length}
                   interval={0}
                 />
                 <Tooltip

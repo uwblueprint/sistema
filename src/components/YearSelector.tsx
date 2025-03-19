@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Flex,
@@ -18,33 +18,16 @@ import { CalendarIcon } from './CalendarIcon';
 interface YearSelectorProps {
   selectedRange?: string;
   onChange?: (range: string) => void;
+  yearRanges: string[];
 }
 
 export const YearSelector: React.FC<YearSelectorProps> = ({
   selectedRange,
   onChange,
+  yearRanges,
 }) => {
   const theme = useTheme();
-  const DROPDOWN_LENGTH = 4;
-  const generateYearRanges = (dropdownLength: number) => {
-    const currentYear = new Date().getFullYear();
-    const ranges: string[] = [];
-
-    for (let i = 1; i <= dropdownLength; i++) {
-      ranges.push(`${currentYear - i} - ${currentYear - i + 1}`);
-    }
-
-    return ranges;
-  };
-
-  const yearRanges = generateYearRanges(DROPDOWN_LENGTH);
-  const [selected, setSelected] = React.useState(yearRanges[0]);
-
-  useEffect(() => {
-    if (selectedRange) {
-      setSelected(selectedRange);
-    }
-  }, [selectedRange]);
+  const [selected, setSelected] = useState(selectedRange || yearRanges[0]);
 
   const handleSelect = (range: string) => {
     setSelected(range);
