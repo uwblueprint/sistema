@@ -22,10 +22,12 @@ export interface AbsenceAPI {
   absentTeacher: {
     firstName: string;
     lastName: string;
+    email: string;
   };
   substituteTeacher?: {
     firstName: string;
     lastName: string;
+    email: string;
   } | null;
   location: {
     id: number;
