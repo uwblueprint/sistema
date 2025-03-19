@@ -32,7 +32,7 @@ import {
   useTheme,
   Tooltip,
 } from '@chakra-ui/react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   IoEllipsisHorizontal,
   IoAdd,
@@ -77,6 +77,10 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   absenceCap,
 }) => {
   const COLOR_CODE_INDEX = 1;
+
+  // Constants for character limits
+  const MAX_SUBJECT_ABBREVIATION_LENGTH = 9;
+  const MAX_LOCATION_ABBREVIATION_LENGTH = 12;
 
   const [subjects, setSubjects] = useState<SubjectAPI[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
@@ -125,7 +129,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   // Create a ref to detect clicks outside the editing row
   const editingRowRef = useRef<HTMLDivElement>(null);
 
-  const fetchSubjects = async () => {
+  const fetchSubjects = useCallback(async () => {
     try {
       const response = await fetch('/api/subjects');
       if (!response.ok) throw new Error('Failed to fetch subjects');
@@ -141,9 +145,9 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         isClosable: true,
       });
     }
-  };
+  }, [toast]);
 
-  const fetchLocations = async () => {
+  const fetchLocations = useCallback(async () => {
     try {
       const response = await fetch('/api/locations');
       if (!response.ok) throw new Error('Failed to fetch locations');
@@ -159,9 +163,9 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         isClosable: true,
       });
     }
-  };
+  }, [toast]);
 
-  const fetchColorGroups = async () => {
+  const fetchColorGroups = useCallback(async () => {
     try {
       const response = await fetch('/api/colorGroups');
       if (!response.ok) throw new Error('Failed to fetch color groups');
@@ -177,7 +181,29 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         isClosable: true,
       });
     }
-  };
+  }, [toast]);
+
+  const checkSubjectsInUse = useCallback(async () => {
+    try {
+      const response = await fetch('/api/subjects/inUse');
+      if (!response.ok) throw new Error('Failed to check subjects in use');
+      const data = await response.json();
+      setSubjectsInUse(data.subjectsInUse || []);
+    } catch (error) {
+      console.error('Error checking subjects in use:', error);
+    }
+  }, []);
+
+  const checkLocationsInUse = useCallback(async () => {
+    try {
+      const response = await fetch('/api/locations/inUse');
+      if (!response.ok) throw new Error('Failed to check locations in use');
+      const data = await response.json();
+      setLocationsInUse(data.locationsInUse || []);
+    } catch (error) {
+      console.error('Error checking locations in use:', error);
+    }
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -187,29 +213,14 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       checkSubjectsInUse();
       checkLocationsInUse();
     }
-  }, [isOpen, fetchSubjects, fetchLocations, fetchColorGroups]);
-
-  const checkSubjectsInUse = async () => {
-    try {
-      const response = await fetch('/api/subjects/inUse');
-      if (!response.ok) throw new Error('Failed to check subjects in use');
-      const data = await response.json();
-      setSubjectsInUse(data.subjectsInUse || []);
-    } catch (error) {
-      console.error('Error checking subjects in use:', error);
-    }
-  };
-
-  const checkLocationsInUse = async () => {
-    try {
-      const response = await fetch('/api/locations/inUse');
-      if (!response.ok) throw new Error('Failed to check locations in use');
-      const data = await response.json();
-      setLocationsInUse(data.locationsInUse || []);
-    } catch (error) {
-      console.error('Error checking locations in use:', error);
-    }
-  };
+  }, [
+    isOpen,
+    fetchSubjects,
+    fetchLocations,
+    fetchColorGroups,
+    checkSubjectsInUse,
+    checkLocationsInUse,
+  ]);
 
   const handleAddChange = (change: Change) => {
     // Remove any existing changes for the same entity and ID
@@ -348,6 +359,18 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     if (!editingSubject || !editingSubject.name || !editingSubject.abbreviation)
       return;
 
+    // Validate abbreviation length
+    if (editingSubject.abbreviation.length > MAX_SUBJECT_ABBREVIATION_LENGTH) {
+      toast({
+        title: 'Error',
+        description: `Subject abbreviation must be ${MAX_SUBJECT_ABBREVIATION_LENGTH} characters or less`,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     // Store the current editing state
     const currentEditingSubject = { ...editingSubject };
 
@@ -397,6 +420,18 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
 
   const handleAddSubject = () => {
     if (!newSubject.name || !newSubject.abbreviation) return;
+
+    // Validate abbreviation length
+    if (newSubject.abbreviation.length > MAX_SUBJECT_ABBREVIATION_LENGTH) {
+      toast({
+        title: 'Error',
+        description: `Subject abbreviation must be ${MAX_SUBJECT_ABBREVIATION_LENGTH} characters or less`,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
 
     // Find colorGroupId based on name
     const colorGroupId = newSubject.colorGroupId;
@@ -449,6 +484,18 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   const handleAddLocation = () => {
     if (!newLocation.name || !newLocation.abbreviation) return;
 
+    // Validate abbreviation length
+    if (newLocation.abbreviation.length > MAX_LOCATION_ABBREVIATION_LENGTH) {
+      toast({
+        title: 'Error',
+        description: `Location abbreviation must be ${MAX_LOCATION_ABBREVIATION_LENGTH} characters or less`,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     // Create a temporary ID for the new location (negative to avoid conflicts)
     const tempId = -Date.now();
 
@@ -493,6 +540,20 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       !editingLocation.abbreviation
     )
       return;
+
+    // Validate abbreviation length
+    if (
+      editingLocation.abbreviation.length > MAX_LOCATION_ABBREVIATION_LENGTH
+    ) {
+      toast({
+        title: 'Error',
+        description: `Location abbreviation must be ${MAX_LOCATION_ABBREVIATION_LENGTH} characters or less`,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
 
     // Store the current editing state
     const currentEditingLocation = { ...editingLocation };
@@ -752,6 +813,8 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                             textAlign="center"
                           >
                             The abbreviated subject name
+                            <br />
+                            (max {MAX_SUBJECT_ABBREVIATION_LENGTH} characters)
                           </Box>
                         </Box>
                       </HStack>
@@ -783,7 +846,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                                 <Circle
                                   size="24px"
                                   bg={
-                                    subject.colorGroup.colorCodes[
+                                    editingSubject.colorGroup.colorCodes[
                                       COLOR_CODE_INDEX
                                     ]
                                   }
@@ -866,6 +929,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                               }
                               size="sm"
                               maxW="60px"
+                              maxLength={MAX_SUBJECT_ABBREVIATION_LENGTH}
                             />
                             <HStack>
                               <Button
@@ -913,15 +977,45 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                                   size={16}
                                 />
                               )}
-                              <Text
-                                color={
-                                  subject.archived
-                                    ? 'text.inactiveButtonText'
-                                    : 'inherit'
-                                }
+                              <Tooltip
+                                label={subject.name}
+                                placement="top"
+                                openDelay={300}
+                                isDisabled={subject.name.length <= 20}
                               >
-                                {subject.name}
-                              </Text>
+                                <Box
+                                  position="relative"
+                                  width="100%"
+                                  maxWidth="170px"
+                                  overflow="hidden"
+                                >
+                                  <Text
+                                    color={
+                                      subject.archived
+                                        ? 'text.inactiveButtonText'
+                                        : 'inherit'
+                                    }
+                                    noOfLines={1}
+                                    overflow="hidden"
+                                    textOverflow="ellipsis"
+                                    whiteSpace="nowrap"
+                                    position="relative"
+                                    pr="30px"
+                                  >
+                                    {subject.name}
+                                  </Text>
+                                  <Box
+                                    position="absolute"
+                                    right="0"
+                                    top="0"
+                                    height="100%"
+                                    width="30px"
+                                    background={`linear-gradient(to right, transparent, ${subject.archived ? 'var(--chakra-colors-neutralGray-100)' : 'white'})`}
+                                    zIndex="1"
+                                    pointerEvents="none"
+                                  />
+                                </Box>
+                              </Tooltip>
                             </HStack>
                           </Box>
                           <Box
@@ -1111,6 +1205,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                           placeholder="Abbr."
                           size="sm"
                           maxW="60px"
+                          maxLength={MAX_SUBJECT_ABBREVIATION_LENGTH}
                         />
                         <HStack>
                           <Button
@@ -1241,6 +1336,8 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                             textAlign="center"
                           >
                             The abbreviated location name
+                            <br />
+                            (max {MAX_LOCATION_ABBREVIATION_LENGTH} characters)
                           </Box>
                         </Box>
                       </HStack>
@@ -1295,6 +1392,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                               }
                               size="sm"
                               maxW="60px"
+                              maxLength={MAX_LOCATION_ABBREVIATION_LENGTH}
                             />
                             <HStack>
                               <Button
@@ -1334,15 +1432,45 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                                   size={16}
                                 />
                               )}
-                              <Text
-                                color={
-                                  location.archived
-                                    ? 'text.inactiveButtonText'
-                                    : 'inherit'
-                                }
+                              <Tooltip
+                                label={location.name}
+                                placement="top"
+                                openDelay={300}
+                                isDisabled={location.name.length <= 20}
                               >
-                                {location.name}
-                              </Text>
+                                <Box
+                                  position="relative"
+                                  width="100%"
+                                  maxWidth="170px"
+                                  overflow="hidden"
+                                >
+                                  <Text
+                                    color={
+                                      location.archived
+                                        ? 'text.inactiveButtonText'
+                                        : 'inherit'
+                                    }
+                                    noOfLines={1}
+                                    overflow="hidden"
+                                    textOverflow="ellipsis"
+                                    whiteSpace="nowrap"
+                                    position="relative"
+                                    pr="30px"
+                                  >
+                                    {location.name}
+                                  </Text>
+                                  <Box
+                                    position="absolute"
+                                    right="0"
+                                    top="0"
+                                    height="100%"
+                                    width="30px"
+                                    background={`linear-gradient(to right, transparent, ${location.archived ? 'var(--chakra-colors-neutralGray-100)' : 'white'})`}
+                                    zIndex="1"
+                                    pointerEvents="none"
+                                  />
+                                </Box>
+                              </Tooltip>
                             </HStack>
                           </Box>
                           <Box
@@ -1476,6 +1604,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                           placeholder="Abbr."
                           size="sm"
                           maxW="60px"
+                          maxLength={MAX_LOCATION_ABBREVIATION_LENGTH}
                         />
                         <HStack>
                           <Button
