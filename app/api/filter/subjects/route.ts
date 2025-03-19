@@ -1,20 +1,10 @@
 import { prisma } from '@utils/prisma';
 import { NextResponse } from 'next/server';
-
-export interface SubjectWithColorGroup {
-  id: number;
-  name: string;
-  abbreviation: string;
-  colorGroupId: number;
-  colorGroup: {
-    name: string;
-    colorCodes: string[];
-  };
-}
+import { SubjectAPI } from '@utils/types';
 
 export async function GET() {
   try {
-    const subjects: SubjectWithColorGroup[] = await prisma.subject.findMany({
+    const subjects: SubjectAPI[] = await prisma.subject.findMany({
       select: {
         id: true,
         name: true,

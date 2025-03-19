@@ -1,9 +1,33 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@utils/prisma';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const getMailingLists = searchParams.get('getMailingLists') === 'true';
+  const getAbsences = searchParams.get('getAbsences') === 'true';
+
   try {
-    const users = await prisma.user.findMany();
+    const users = await prisma.user.findMany({
+      include: {
+        mailingLists: getMailingLists
+          ? {
+              include: {
+                subject: {
+                  select: {
+                    name: true,
+                    abbreviation: true,
+                    colorGroup: {
+                      select: { colorCodes: true },
+                    },
+                  },
+                },
+              },
+            }
+          : false,
+        absences: getAbsences,
+      },
+    });
+
     return NextResponse.json(users);
   } catch (error) {
     console.error('Error fetching users:', error);

@@ -1,23 +1,25 @@
-import React from 'react';
 import {
-  ButtonGroup,
   Button,
-  IconButton,
   Flex,
-  Heading,
+  HStack,
+  IconButton,
+  Spacer,
+  Text,
   useTheme,
 } from '@chakra-ui/react';
-import {
-  ArrowBackIcon,
-  ArrowForwardIcon,
-  CalendarIcon,
-} from '@chakra-ui/icons';
+
+import { UserData } from '@utils/types';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { IoChevronBack, IoChevronForward, IoStatsChart } from 'react-icons/io5';
+import ProfileMenu from './ProfileMenu';
 
 interface CalendarHeaderProps {
   currentMonthYear: string;
   onTodayClick: () => void;
   onPrevClick: () => void;
   onNextClick: () => void;
+  userData?: UserData;
 }
 
 const CalendarHeader: React.FC<CalendarHeaderProps> = ({
@@ -25,35 +27,69 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onTodayClick,
   onPrevClick,
   onNextClick,
+  userData,
 }) => {
   const theme = useTheme();
+  const router = useRouter();
+  const [absenceCap, setAbsenceCap] = useState<number>(10);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch('/api/settings');
+        if (!response.ok) throw new Error('Failed to fetch settings');
+        const data = await response.json();
+        setAbsenceCap(data.absenceCap);
+      } catch (error) {
+        console.error('Error fetching settings:', error);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
   return (
-    <Flex marginBottom={theme.space[4]} alignItems="center">
-      <ButtonGroup isAttached variant="outline">
-        <IconButton
-          colorScheme="blue"
-          onClick={onPrevClick}
-          icon={<ArrowBackIcon />}
-          aria-label="Previous"
-        />
+    <Flex marginBottom={theme.space[4]} alignItems="center" width="100%">
+      <HStack spacing={theme.space[4]}>
+        <HStack spacing={theme.space[0]}>
+          <IconButton
+            onClick={onPrevClick}
+            icon={
+              <IoChevronBack size={24} color={theme.colors.neutralGray[600]} />
+            }
+            aria-label="Previous"
+            variant="outline"
+          />
+          <Button onClick={onTodayClick} variant="outline" paddingX="20px">
+            Today
+          </Button>
+          <IconButton
+            onClick={onNextClick}
+            icon={
+              <IoChevronForward
+                size={24}
+                color={theme.colors.neutralGray[600]}
+              />
+            }
+            aria-label="Next"
+            variant="outline"
+          />
+        </HStack>
+        <Text textStyle="h1">{currentMonthYear}</Text>
+      </HStack>
+      <Spacer />
+      <HStack spacing={theme.space[4]} mr={theme.space[4]}>
         <Button
-          onClick={onTodayClick}
+          leftIcon={
+            <IoStatsChart size={20} color={theme.colors.primaryBlue[300]} />
+          }
           variant="outline"
-          colorScheme="blue"
-          leftIcon={<CalendarIcon />}
+          onClick={() => router.push('/dashboard')}
         >
-          Today
+          Admin Dashboard
         </Button>
-        <IconButton
-          colorScheme="blue"
-          onClick={onNextClick}
-          icon={<ArrowForwardIcon />}
-          aria-label="Next"
-        />
-      </ButtonGroup>
-      <Heading fontSize="2xl" textAlign="center" marginX={theme.space[6]}>
-        {currentMonthYear}
-      </Heading>
+        <ProfileMenu userData={userData} absenceCap={absenceCap} />
+      </HStack>
     </Flex>
   );
 };

@@ -1,7 +1,5 @@
 import { Image } from '@chakra-ui/react';
 
-export function SistemaLogoColour() {
-  return (
-    <Image src="/images/sistema_logo_colour.png" alt="Sistema Logo Colour" />
-  );
+export function TacetLogo() {
+  return <Image src="/images/tacet_logo.svg" alt="Sistema Logo Colour" />;
 }

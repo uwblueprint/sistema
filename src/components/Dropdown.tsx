@@ -1,6 +1,4 @@
-'use client';
-
-import React from 'react';
+import { CheckIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -10,9 +8,10 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { ChevronDownIcon, ChevronUpIcon, CheckIcon } from '@chakra-ui/icons';
+import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 
 export interface DropdownItem {
+  id: number;
   name: string;
   color: string;
 }
@@ -20,10 +19,10 @@ export interface DropdownItem {
 export interface DropdownProps {
   title: string;
   items: DropdownItem[];
-  selectedItems: string[];
+  selectedItems: number[];
   isOpen: boolean;
   toggleOpen: () => void;
-  toggleItem: (name: string) => void;
+  toggleItem: (id: number) => void;
 }
 
 const Dropdown = ({
@@ -35,66 +34,53 @@ const Dropdown = ({
   toggleItem,
 }: DropdownProps) => {
   return (
-    <Box width="100%" p={0}>
+    <Box width="100%">
       <Button
         onClick={toggleOpen}
         width="100%"
-        variant="outline"
-        border={0}
-        p={0}
-        _hover={{ bg: 'none' }}
-        _focus={{ bg: 'none', boxShadow: 'none', outline: 'none' }}
-        _active={{ bg: 'none' }}
+        variant="ghost"
+        px={1}
+        py={0}
+        height="32px"
       >
         <Flex justify="space-between" align="center" width="100%">
-          <Text fontWeight="500" fontSize="14px">
-            {title}
-          </Text>
-          {/* <Text fontFamily="Poppins" fontSize="14px" fontWeight="medium" color="#1B1B1B">
-                {title}
-               </Text> */}
-          {isOpen ? (
-            <ChevronUpIcon boxSize="2.0em" p={0} m={0} />
-          ) : (
-            <ChevronDownIcon boxSize="2.0em" p={0} m={0} />
-          )}
+          <Text textStyle="h4">{title}</Text>
+          {isOpen ? <IoChevronUp size={24} /> : <IoChevronDown size={24} />}
         </Flex>
       </Button>
-      <Collapse in={isOpen} animateOpacity>
-        <Stack spacing={2} mt={0}>
-          {items.map((item) => (
-            <Flex
-              key={item.name}
-              align="center"
-              cursor="pointer"
-              onClick={() => toggleItem(item.name)}
-            >
-              <Box position="relative" width="20px" height="20px" mr={2}>
+      <Box pl={1} mt={2}>
+        <Collapse in={isOpen} animateOpacity>
+          <Stack spacing={2} mt={0}>
+            {items.map((item) => (
+              <Flex
+                key={item.name}
+                align="center"
+                cursor="pointer"
+                onClick={() => toggleItem(item.id)}
+              >
                 <Box
-                  position="absolute"
-                  inset={0}
-                  bg={selectedItems.includes(item.name) ? item.color : 'white'}
+                  width="20px"
+                  height="20px"
+                  mr={2}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  borderRadius="2px"
+                  bg={selectedItems.includes(item.id) ? item.color : 'white'}
                   border={`2px solid ${item.color}`}
-                  borderRadius="0"
-                />
-                {selectedItems.includes(item.name) && (
-                  <Icon
-                    as={CheckIcon}
-                    position="absolute"
-                    inset={0}
-                    color="white"
-                    w="20px"
-                    h="20px"
-                  />
-                )}
-              </Box>
-              <Text fontSize="13px" fontWeight="400">
-                {item.name}
-              </Text>
-            </Flex>
-          ))}
-        </Stack>
-      </Collapse>
+                >
+                  {selectedItems.includes(item.id) && (
+                    <Icon as={CheckIcon} color="white" w="14px" h="14px" />
+                  )}
+                </Box>
+                <Text textStyle="subtitle" color="text.body">
+                  {item.name}
+                </Text>
+              </Flex>
+            ))}
+          </Stack>
+        </Collapse>
+      </Box>
     </Box>
   );
 };

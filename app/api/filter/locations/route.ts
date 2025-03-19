@@ -1,11 +1,6 @@
 import { prisma } from '@utils/prisma';
 import { NextResponse } from 'next/server';
-
-export interface Location {
-  id: number;
-  name: string;
-  abbreviation: string;
-}
+import { Location } from '@utils/types';
 
 export async function GET() {
   try {

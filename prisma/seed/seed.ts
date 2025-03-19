@@ -15,28 +15,45 @@ const main = async () => {
     ADMIN = 'ADMIN',
   }
 
-  enum StatusEnum {
-    ACTIVE = 'ACTIVE',
-    INVITED = 'INVITED',
-    DEACTIVATED = 'DEACTIVATED',
-  }
-
   const roles = [RoleEnum.TEACHER, RoleEnum.ADMIN];
-  const statuses = [
-    StatusEnum.ACTIVE,
-    StatusEnum.INVITED,
-    StatusEnum.DEACTIVATED,
+
+  const subjects = [
+    { name: 'Strings', abbreviation: 'STR', colorGroupId: 3 },
+    { name: 'Choir', abbreviation: 'CHO', colorGroupId: 2 },
+    {
+      name: 'Music & Movement',
+      abbreviation: 'M&M',
+      colorGroupId: 4,
+    },
+    { name: 'Percussion', abbreviation: 'PER', colorGroupId: 7 },
+    { name: 'Trumpet/Clarinets', abbreviation: 'T&C', colorGroupId: 1 },
+    {
+      name: 'Harpsichord',
+      abbreviation: 'HPS',
+      colorGroupId: 5,
+      archived: true,
+    },
   ];
 
-  await seed.user((createMany) =>
-    createMany(5, () => ({
-      authId: faker.string.uuid(),
-      email: faker.internet.email(),
-      firstName: faker.person.firstName(),
-      lastName: faker.person.lastName(),
-      role: faker.helpers.arrayElement(roles),
-      status: faker.helpers.arrayElement(statuses),
-    }))
+  const numUsers = 20;
+  const numAbsences = 100;
+  const numSubjects = subjects.length;
+  const userIds = Array.from({ length: numUsers }, (_, i) => i + 1);
+  const subjectIds = Array.from({ length: numSubjects }, (_, i) => i + 1);
+
+  const users = await seed.user((createMany) =>
+    createMany(numUsers, () => {
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      return {
+        authId: faker.string.uuid(),
+        email: faker.internet.email({ firstName, lastName }),
+        firstName: firstName,
+        lastName: lastName,
+        profilePicture: `https://i.pravatar.cc/50?u=${faker.string.uuid()}`,
+        role: faker.helpers.arrayElement(roles),
+      };
+    })
   );
 
   const schools = [
@@ -54,13 +71,6 @@ const main = async () => {
       }))
     );
   }
-
-  const subjects = [
-    { name: 'Strings', abbreviation: 'STR', colorGroup: 'Coral' },
-    { name: 'Music and Movement', abbreviation: 'M&M', colorGroup: 'Orange' },
-    { name: 'Choir', abbreviation: 'CHO', colorGroup: 'Purple' },
-    { name: 'Percussion', abbreviation: 'PER', colorGroup: 'Turquoise' },
-  ];
 
   const colorGroups = [
     {
@@ -114,17 +124,14 @@ const main = async () => {
     );
   }
 
-  for (const subject of subjects) {
-    await seed.subject((createMany) =>
-      createMany(1, () => ({
-        name: subject.name,
-        abbreviation: subject.abbreviation,
-        colorGroupId: colorGroups.find(
-          (group) => group.name === subject.colorGroup
-        )?.id,
-      }))
-    );
-  }
+  await seed.subject((createMany) =>
+    createMany(numSubjects, (curSubject) => ({
+      name: subjects[curSubject.index].name,
+      abbreviation: subjects[curSubject.index].abbreviation,
+      colorGroupId: subjects[curSubject.index].colorGroupId,
+      archived: subjects[curSubject.index].archived,
+    }))
+  );
 
   const generateWeekdayFutureDate = (): Date => {
     let date: Date;
@@ -135,7 +142,7 @@ const main = async () => {
   };
 
   await seed.absence((createMany) =>
-    createMany(10, () => {
+    createMany(numAbsences, () => {
       const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
         probability: 0.5,
       });
@@ -144,18 +151,37 @@ const main = async () => {
         lessonPlan: faker.internet.url(),
         reasonOfAbsence: faker.lorem.sentence(),
         notes: maybeNotes ?? null,
+        roomNumber: faker.helpers.arrayElement([
+          '101',
+          '202',
+          '303',
+          '404',
+          'B1',
+          'A5',
+          'C12',
+        ]),
       };
     })
   );
 
-  await seed.mailingList((createMany) =>
-    createMany(10, () => {
-      const subject = faker.helpers.arrayElement(subjects);
-      return {
-        name: subject.name,
-        emails: [faker.internet.email(), faker.internet.email()],
-      };
-    })
+  for (const subjectId of subjectIds) {
+    const randomNumUsers = faker.number.int({ min: 0, max: numUsers });
+    const randomUserIds = faker.helpers.arrayElements(userIds, randomNumUsers);
+
+    for (const userId of randomUserIds) {
+      await seed.mailingList((createMany) =>
+        createMany(1, () => ({
+          userId: userId,
+          subjectId: subjectId,
+        }))
+      );
+    }
+  }
+
+  await seed.globalSettings((createMany) =>
+    createMany(1, () => ({
+      absenceCap: 10,
+    }))
   );
 
   console.log('Database seeded successfully!');
