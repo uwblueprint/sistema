@@ -115,7 +115,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   const [isAddingSubject, setIsAddingSubject] = useState(false);
   const [isAddingLocation, setIsAddingLocation] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState<number | null>(null);
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const confirmationDialog = useDisclosure();
   const toast = useToast();
   const theme = useTheme();
@@ -129,6 +128,8 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
 
   // Create a ref to detect clicks outside the editing row
   const editingRowRef = useRef<HTMLDivElement>(null);
+
+  const [isConfirmingClose, setIsConfirmingClose] = useState(false);
 
   const fetchSubjects = useCallback(async () => {
     try {
@@ -224,12 +225,103 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   ]);
 
   const handleAddChange = (change: Change) => {
-    // Remove any existing changes for the same entity and ID
-    const filteredChanges = pendingChanges.filter(
-      (c) => !(c.entity === change.entity && c.id === change.id)
-    );
+    setPendingChanges((prevChanges) => {
+      // Create a unique key to track changes by entity type and ID
+      const changeKey = `${change.entity}-${change.id || 'new'}`;
 
-    setPendingChanges([...filteredChanges, change]);
+      // Group existing changes by this key for easier processing
+      const changesByKey = new Map<string, Change[]>();
+      prevChanges.forEach((c) => {
+        const key = `${c.entity}-${c.id || 'new'}`;
+        if (!changesByKey.has(key)) {
+          changesByKey.set(key, []);
+        }
+        changesByKey.get(key)?.push(c);
+      });
+
+      const existingChanges = changesByKey.get(changeKey) || [];
+
+      // Case 1: Entity is added and then deleted - remove both changes
+      if (
+        change.type === 'delete' &&
+        existingChanges.some((c) => c.type === 'add') &&
+        (change.id === undefined || change.id < 0)
+      ) {
+        // Remove all changes for this entity
+        return prevChanges.filter(
+          (c) => !(c.entity === change.entity && c.id === change.id)
+        );
+      }
+
+      // Case 2: Entity is changed and then deleted - keep only the delete
+      if (change.type === 'delete') {
+        // Filter out any previous changes for this entity, keeping only the delete
+        return [
+          ...prevChanges.filter(
+            (c) => !(c.entity === change.entity && c.id === change.id)
+          ),
+          change,
+        ];
+      }
+
+      // Case 3: Entity is added and then modified - update the add operation
+      if (
+        change.type === 'update' &&
+        existingChanges.some((c) => c.type === 'add') &&
+        (change.id === undefined || change.id < 0)
+      ) {
+        // Find the add operation
+        const addChange = existingChanges.find((c) => c.type === 'add');
+        if (addChange) {
+          // Update the add operation with the new data
+          return prevChanges.map((c) => {
+            if (c === addChange) {
+              return {
+                ...c,
+                data: { ...c.data, ...change.data },
+                displayText: `Added ${change.entity === 'subject' ? 'Subject' : 'Location'} "${change.data.name || c.data.name}"`,
+              };
+            }
+            return c;
+          });
+        }
+      }
+
+      // Case 4: Entity is updated multiple times - merge the update operations
+      if (change.type === 'update') {
+        const existingUpdate = existingChanges.find((c) => c.type === 'update');
+
+        if (existingUpdate) {
+          // Merge this update with the existing update
+          return prevChanges.map((c) => {
+            if (c === existingUpdate) {
+              return {
+                ...c,
+                data: { ...c.data, ...change.data },
+                // Keep the original displayText as we'll generate detailed messages in getDisplayableChanges
+                displayText: c.displayText,
+              };
+            }
+            return c;
+          });
+        }
+      }
+
+      // For all other cases (including archive/unarchive operations and new updates)
+      return [
+        ...prevChanges.filter(
+          (c) =>
+            // Keep everything that's not an update to the same entity
+            // (allows keeping archive/unarchive operations separate)
+            !(
+              c.entity === change.entity &&
+              c.id === change.id &&
+              c.type === change.type
+            )
+        ),
+        change,
+      ];
+    });
   };
 
   // Handle clicks outside the editing row
@@ -258,17 +350,40 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
           ) {
             const colorGroupId = currentEditingSubject.colorGroupId;
             if (colorGroupId) {
-              handleAddChange({
-                type: 'update',
-                entity: 'subject',
-                id: currentEditingSubject.id!,
-                data: {
-                  name: currentEditingSubject.name,
-                  abbreviation: currentEditingSubject.abbreviation,
-                  colorGroupId: colorGroupId,
-                },
-                displayText: `Updated Subject "${currentEditingSubject.name}"`,
-              });
+              // Find the original subject to compare changes
+              const originalSubject = subjects.find(
+                (s) => s.id === currentEditingSubject.id
+              );
+              if (!originalSubject) return;
+
+              // Only include fields that have changed
+              const changedData: any = {};
+
+              if (originalSubject.name !== currentEditingSubject.name) {
+                changedData.name = currentEditingSubject.name;
+              }
+
+              if (
+                originalSubject.abbreviation !==
+                currentEditingSubject.abbreviation
+              ) {
+                changedData.abbreviation = currentEditingSubject.abbreviation;
+              }
+
+              if (originalSubject.colorGroupId !== colorGroupId) {
+                changedData.colorGroupId = colorGroupId;
+              }
+
+              // Only proceed if there are actual changes
+              if (Object.keys(changedData).length > 0) {
+                handleAddChange({
+                  type: 'update',
+                  entity: 'subject',
+                  id: currentEditingSubject.id!,
+                  data: changedData,
+                  displayText: `Updated Subject "${currentEditingSubject.name}"`,
+                });
+              }
             }
           }
         } else if (currentEditingLocation) {
@@ -279,16 +394,36 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
             currentEditingLocation.name &&
             currentEditingLocation.abbreviation
           ) {
-            handleAddChange({
-              type: 'update',
-              entity: 'location',
-              id: currentEditingLocation.id!,
-              data: {
-                name: currentEditingLocation.name,
-                abbreviation: currentEditingLocation.abbreviation,
-              },
-              displayText: `Updated Location "${currentEditingLocation.name}"`,
-            });
+            // Find the original location to compare changes
+            const originalLocation = locations.find(
+              (l) => l.id === currentEditingLocation.id
+            );
+            if (!originalLocation) return;
+
+            // Only include fields that have changed
+            const changedData: any = {};
+
+            if (originalLocation.name !== currentEditingLocation.name) {
+              changedData.name = currentEditingLocation.name;
+            }
+
+            if (
+              originalLocation.abbreviation !==
+              currentEditingLocation.abbreviation
+            ) {
+              changedData.abbreviation = currentEditingLocation.abbreviation;
+            }
+
+            // Only proceed if there are actual changes
+            if (Object.keys(changedData).length > 0) {
+              handleAddChange({
+                type: 'update',
+                entity: 'location',
+                id: currentEditingLocation.id!,
+                data: changedData,
+                displayText: `Updated Location "${currentEditingLocation.name}"`,
+              });
+            }
           }
         }
       }
@@ -300,7 +435,14 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       // Remove event listener on cleanup
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [editingSubject, editingLocation, colorGroups, handleAddChange]);
+  }, [
+    editingSubject,
+    editingLocation,
+    colorGroups,
+    handleAddChange,
+    subjects,
+    locations,
+  ]);
 
   const handleArchiveSubject = (subject: SubjectAPI) => {
     handleAddChange({
@@ -383,6 +525,12 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     const colorGroupId = currentEditingSubject.colorGroupId;
     if (!colorGroupId) return;
 
+    // Find the original subject to compare changes
+    const originalSubject = subjects.find(
+      (s) => s.id === currentEditingSubject.id
+    );
+    if (!originalSubject) return;
+
     // Update the local subjects array to immediately reflect changes in UI
     setSubjects(
       subjects.map((subject) =>
@@ -398,17 +546,31 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       )
     );
 
-    handleAddChange({
-      type: 'update',
-      entity: 'subject',
-      id: currentEditingSubject.id!,
-      data: {
-        name: currentEditingSubject.name,
-        abbreviation: currentEditingSubject.abbreviation,
-        colorGroupId: colorGroupId,
-      },
-      displayText: `Updated Subject "${currentEditingSubject.name}"`,
-    });
+    // Only include fields that have changed
+    const changedData: any = {};
+
+    if (originalSubject.name !== currentEditingSubject.name) {
+      changedData.name = currentEditingSubject.name;
+    }
+
+    if (originalSubject.abbreviation !== currentEditingSubject.abbreviation) {
+      changedData.abbreviation = currentEditingSubject.abbreviation;
+    }
+
+    if (originalSubject.colorGroupId !== colorGroupId) {
+      changedData.colorGroupId = colorGroupId;
+    }
+
+    // Only proceed if there are actual changes
+    if (Object.keys(changedData).length > 0) {
+      handleAddChange({
+        type: 'update',
+        entity: 'subject',
+        id: currentEditingSubject.id!,
+        data: changedData,
+        displayText: `Updated Subject "${currentEditingSubject.name}"`,
+      });
+    }
   };
 
   const handleCancelEdit = () => {
@@ -562,6 +724,12 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     // Reset the editing state first
     setEditingLocation(null);
 
+    // Find the original location to compare changes
+    const originalLocation = locations.find(
+      (l) => l.id === currentEditingLocation.id
+    );
+    if (!originalLocation) return;
+
     // Update the local locations array to immediately reflect changes in UI
     setLocations(
       locations.map((location) =>
@@ -575,16 +743,44 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       )
     );
 
-    handleAddChange({
-      type: 'update',
-      entity: 'location',
-      id: currentEditingLocation.id!,
-      data: {
-        name: currentEditingLocation.name,
-        abbreviation: currentEditingLocation.abbreviation,
-      },
-      displayText: `Updated Location "${currentEditingLocation.name}"`,
-    });
+    // Only include fields that have changed
+    const changedData: any = {};
+
+    if (originalLocation.name !== currentEditingLocation.name) {
+      changedData.name = currentEditingLocation.name;
+    }
+
+    if (originalLocation.abbreviation !== currentEditingLocation.abbreviation) {
+      changedData.abbreviation = currentEditingLocation.abbreviation;
+    }
+
+    // Only proceed if there are actual changes
+    if (Object.keys(changedData).length > 0) {
+      handleAddChange({
+        type: 'update',
+        entity: 'location',
+        id: currentEditingLocation.id!,
+        data: changedData,
+        displayText: `Updated Location "${currentEditingLocation.name}"`,
+      });
+    }
+  };
+
+  const handleClose = () => {
+    if (pendingChanges.length > 0) {
+      setIsConfirmingClose(true);
+      confirmationDialog.onOpen();
+    } else {
+      onClose();
+    }
+  };
+
+  const handleCloseConfirmed = () => {
+    confirmationDialog.onClose();
+    setIsConfirmingClose(false);
+    // Clear any pending changes
+    setPendingChanges([]);
+    onClose();
   };
 
   const applyChanges = async () => {
@@ -679,21 +875,142 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
 
     // Close confirmation dialog
     confirmationDialog.onClose();
+    setIsConfirmingClose(false);
   };
 
   const handleSave = () => {
     if (pendingChanges.length > 0) {
+      // Log the pending changes to help debug
+      console.log('Pending changes before confirmation:', pendingChanges);
+      setIsConfirmingClose(false);
       confirmationDialog.onOpen();
     } else {
       onClose();
     }
   };
 
+  const getDisplayableChanges = (changes: Change[]): string[] => {
+    const displayChanges: string[] = [];
+
+    console.log('Generating displayable changes from:', changes);
+
+    if (changes.length === 0) {
+      return ['No changes to apply'];
+    }
+
+    // Process each change to create more granular display items
+    changes.forEach((change) => {
+      console.log('Processing change:', change);
+      console.log('Change data:', change.data);
+
+      if (change.type === 'add') {
+        displayChanges.push(
+          `Added ${change.entity === 'subject' ? 'Subject' : 'Location'} "${change.data.name}"`
+        );
+        if (change.data.abbreviation) {
+          displayChanges.push(`· Set Display to "${change.data.abbreviation}"`);
+        }
+        if (change.entity === 'subject' && change.data.colorGroupId) {
+          const colorGroup = colorGroups.find(
+            (cg) => cg.id === change.data.colorGroupId
+          );
+          if (colorGroup) {
+            displayChanges.push(`· Set Color to "${colorGroup.name}"`);
+          }
+        }
+      } else if (change.type === 'delete') {
+        displayChanges.push(
+          `Deleted ${change.entity === 'subject' ? 'Subject' : 'Location'} "${
+            // Try to find the name from the entities array
+            change.entity === 'subject'
+              ? subjects.find((s) => s.id === change.id)?.name || 'Unknown'
+              : locations.find((l) => l.id === change.id)?.name || 'Unknown'
+          }"`
+        );
+      } else if (change.type === 'archive' || change.type === 'unarchive') {
+        const entityName =
+          change.entity === 'subject'
+            ? subjects.find((s) => s.id === change.id)?.name
+            : locations.find((l) => l.id === change.id)?.name;
+
+        displayChanges.push(
+          `${change.type === 'archive' ? 'Archived' : 'Unarchived'} ${
+            change.entity === 'subject' ? 'Subject' : 'Location'
+          } "${entityName || 'Unknown'}"`
+        );
+      } else if (change.type === 'update') {
+        // Since we're filtering changes in the handleSaveEdited functions,
+        // and merging multiple updates to the same entity in handleAddChange,
+        // any field present in change.data represents an actual change
+
+        // Name changes
+        if (change.data.name !== undefined) {
+          const entityList = change.entity === 'subject' ? subjects : locations;
+          const entity = entityList.find((e) => e.id === change.id);
+          const oldName = entity?.name || 'Unknown';
+
+          displayChanges.push(
+            `Updated ${change.entity === 'subject' ? 'Subject' : 'Location'} Name "${oldName}" → "${change.data.name}"`
+          );
+        }
+
+        // Abbreviation changes
+        if (change.data.abbreviation !== undefined) {
+          const entityList = change.entity === 'subject' ? subjects : locations;
+          const entity = entityList.find((e) => e.id === change.id);
+          const oldAbbr = entity?.abbreviation || 'Unknown';
+
+          displayChanges.push(
+            `Updated Display "${oldAbbr}" → "${change.data.abbreviation}"`
+          );
+        }
+
+        // Color changes for subjects
+        if (
+          change.entity === 'subject' &&
+          change.data.colorGroupId !== undefined
+        ) {
+          const subject = subjects.find((s) => s.id === change.id);
+          const oldColorGroup = colorGroups.find(
+            (cg) => cg.id === subject?.colorGroupId
+          );
+          const newColorGroup = colorGroups.find(
+            (cg) => cg.id === change.data.colorGroupId
+          );
+
+          if (oldColorGroup && newColorGroup) {
+            displayChanges.push(
+              `Updated Color "${oldColorGroup.name}" → "${newColorGroup.name}"`
+            );
+          }
+        }
+      } else if (change.entity === 'setting') {
+        if (change.data.absenceCap !== undefined) {
+          displayChanges.push(
+            `Updated Allowed Absences ${absenceCap} → ${change.data.absenceCap}`
+          );
+        }
+      }
+    });
+
+    console.log('Final displayable changes:', displayChanges);
+
+    // If we still have no changes to display but changes exist,
+    // provide a fallback message
+    if (displayChanges.length === 0 && changes.length > 0) {
+      // Examine the first change to provide some information
+      const firstChange = changes[0];
+      displayChanges.push(`Changes will be applied to ${firstChange.entity}`);
+    }
+
+    return displayChanges;
+  };
+
   return (
     <>
       <Modal
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={handleClose}
         size="md"
         scrollBehavior="outside"
         isCentered={false}
@@ -721,7 +1038,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                 aria-label="Close"
                 icon={<IoCloseOutline size={20} />}
                 variant="ghost"
-                onClick={onClose}
+                onClick={handleClose}
                 size="sm"
               />
             </HStack>
@@ -1035,13 +1352,10 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                             </Text>
                             <Box
                               className="menu-button"
-                              opacity={openMenuId === subject.id ? '1' : '0'}
+                              opacity="0"
                               _groupHover={{ opacity: '1' }}
                             >
-                              <Menu
-                                onOpen={() => setOpenMenuId(subject.id)}
-                                onClose={() => setOpenMenuId(null)}
-                              >
+                              <Menu>
                                 <MenuButton
                                   as={IconButton}
                                   aria-label="Options"
@@ -1493,13 +1807,10 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                             </Text>
                             <Box
                               className="menu-button"
-                              opacity={openMenuId === location.id ? '1' : '0'}
+                              opacity="0"
                               _groupHover={{ opacity: '1' }}
                             >
-                              <Menu
-                                onOpen={() => setOpenMenuId(location.id)}
-                                onClose={() => setOpenMenuId(null)}
-                              >
+                              <Menu>
                                 <MenuButton
                                   as={IconButton}
                                   aria-label="Options"
@@ -1685,7 +1996,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
             </VStack>
           </ModalBody>
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose}>
+            <Button variant="ghost" mr={3} onClick={handleClose}>
               Cancel
             </Button>
             <Button colorScheme="blue" onClick={handleSave}>
@@ -1698,9 +2009,17 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       <ConfirmationDialog
         isOpen={confirmationDialog.isOpen}
         onClose={confirmationDialog.onClose}
-        onConfirm={applyChanges}
-        title="You are making the following changes"
-        message={pendingChanges.map((change) => change.displayText).join('\n')}
+        onConfirm={isConfirmingClose ? handleCloseConfirmed : applyChanges}
+        title={
+          isConfirmingClose
+            ? 'Discard Changes?'
+            : 'You are making the following changes'
+        }
+        message={
+          isConfirmingClose
+            ? 'You have unsaved changes. Are you sure you want to close without saving?'
+            : getDisplayableChanges(pendingChanges).join('\n')
+        }
       />
     </>
   );
