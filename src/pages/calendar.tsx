@@ -147,8 +147,6 @@ const Calendar: React.FC = () => {
       const data = await res.json();
       const formattedEvents = data.events.map(convertAbsenceToEvent);
       setEvents(formattedEvents);
-      console.log(formattedEvents);
-      console.log(data);
     } catch (error) {
       console.error('Error fetching absences:', error);
       toast({
