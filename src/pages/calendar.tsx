@@ -17,7 +17,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { Absence, Prisma } from '@prisma/client';
-import { AbsenceAPI } from '@utils/types';
+import { AbsenceAPI, AbsenceUpdate } from '@utils/types';
 import useUserData from '@utils/useUserData';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import CalendarHeader from '../components/CalendarHeader';
@@ -113,7 +113,7 @@ const Calendar: React.FC = () => {
   };
 
   const handleEditAbsence = async (
-    absence: Prisma.AbsenceUpdateInput & { id: number }
+    absence: AbsenceUpdate & { id: number }
   ): Promise<Absence | null> => {
     try {
       const res = await fetch('/api/editAbsence', {
