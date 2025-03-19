@@ -12,6 +12,7 @@ import {
   Box,
   VStack,
   Flex,
+  Button,
 } from '@chakra-ui/react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
@@ -206,6 +207,15 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                     </>
                   ) : null}
                 </Flex>
+              )}
+
+            {/* Fill Absence Button*/}
+            {!event.substituteTeacher &&
+              !isUserAbsentTeacher &&
+              !isUserAdmin && (
+                <Button colorScheme="blue" width="full" height="44px">
+                  Fill this Absence
+                </Button>
               )}
           </VStack>
         </ModalBody>
