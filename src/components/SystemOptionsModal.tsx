@@ -115,6 +115,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   const [isAddingSubject, setIsAddingSubject] = useState(false);
   const [isAddingLocation, setIsAddingLocation] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState<number | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const confirmationDialog = useDisclosure();
   const toast = useToast();
   const theme = useTheme();
@@ -1034,10 +1035,13 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                             </Text>
                             <Box
                               className="menu-button"
-                              opacity="0"
+                              opacity={openMenuId === subject.id ? '1' : '0'}
                               _groupHover={{ opacity: '1' }}
                             >
-                              <Menu>
+                              <Menu
+                                onOpen={() => setOpenMenuId(subject.id)}
+                                onClose={() => setOpenMenuId(null)}
+                              >
                                 <MenuButton
                                   as={IconButton}
                                   aria-label="Options"
@@ -1489,10 +1493,13 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                             </Text>
                             <Box
                               className="menu-button"
-                              opacity="0"
+                              opacity={openMenuId === location.id ? '1' : '0'}
                               _groupHover={{ opacity: '1' }}
                             >
-                              <Menu>
+                              <Menu
+                                onOpen={() => setOpenMenuId(location.id)}
+                                onClose={() => setOpenMenuId(null)}
+                              >
                                 <MenuButton
                                   as={IconButton}
                                   aria-label="Options"
