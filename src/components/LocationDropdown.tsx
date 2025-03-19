@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import type { Location } from '@utils/types';
-import Dropdown, { DropdownItem } from './Dropdown';
 import { useTheme } from '@chakra-ui/react';
+import type { Location } from '@utils/types';
+import { useEffect, useState } from 'react';
+import Dropdown, { DropdownItem } from './Dropdown';
 interface LocationDropdownProps {
   setFilter: (location: number[]) => void;
 }
