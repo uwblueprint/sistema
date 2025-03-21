@@ -42,6 +42,7 @@ export function CalendarTabs({ activeTab, onTabChange }: CalendarTabsProps) {
         color={activeTab === 'declared' ? '#0468C1' : '#838383'}
         _hover={{ color: activeTab === 'declared' ? '#0468C1' : '#0468C1' }}
         onClick={() => onTabChange('declared')}
+        _active={{ bg: 'transparent' }}
       >
         My Declared & Filled Absences
         <Box
