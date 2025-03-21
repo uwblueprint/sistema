@@ -39,6 +39,8 @@ export default function DashboardPage() {
     (data) => data.yearRange === selectedYearRange
   );
 
+  if (!selectedYearData) return null;
+
   const yearlyAbsencesFilled =
     selectedYearData?.yearlyData.reduce(
       (sum, month) => sum + month.filled,
@@ -59,26 +61,11 @@ export default function DashboardPage() {
       return startYearA - startYearB;
     });
 
-  console.log('Sorted Year Ranges:', sortedYearRanges);
+  const highestMonthlyAbsence = Math.max(
+    ...selectedYearData.yearlyData.map((month) => month.filled + month.unfilled)
+  );
 
   const totalAbsenceCount = yearlyAbsencesUnfilled + yearlyAbsencesFilled;
-
-  const monthlyData = selectedYearData ? selectedYearData.yearlyData : [];
-
-  const monthlyData = [
-    { month: 'Sep', filled: 25, unfilled: 0 },
-    { month: 'Oct', filled: 25, unfilled: 15 },
-    { month: 'Nov', filled: 40, unfilled: 0 },
-    { month: 'Dec', filled: 22, unfilled: 0 },
-    { month: 'Jan', filled: 35, unfilled: 15 },
-    { month: 'Feb', filled: 25, unfilled: 15 },
-    { month: 'Mar', filled: 3, unfilled: 22 },
-    { month: 'Apr', filled: 40, unfilled: 0 },
-    { month: 'May', filled: 10, unfilled: 5 },
-    { month: 'Jun', filled: 20, unfilled: 20 },
-    { month: 'Jul', filled: 15, unfilled: 0 },
-    { month: 'Aug', filled: 25, unfilled: 0 },
-  ];
 
   return (
     <Box>
@@ -109,8 +96,8 @@ export default function DashboardPage() {
               />
               <MonthlyAbsencesModal
                 width="65%"
-                monthlyData={monthlyData}
-                highestAbsencesCount={totalAbsenceCount} // FIX THIS
+                monthlyData={selectedYearData.yearlyData}
+                highestMonthlyAbsence={highestMonthlyAbsence} // FIX THIS
               />
             </HStack>
             <UserManagementSection />

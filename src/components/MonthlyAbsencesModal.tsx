@@ -74,11 +74,11 @@ const CustomTooltip = ({
 export default function MonthlyAbsencesModal({
   width,
   monthlyData,
-  highestAbsencesCount,
+  highestMonthlyAbsence,
 }: {
   width: string | number;
   monthlyData: MonthlyAbsenceData[];
-  highestAbsencesCount: number;
+  highestMonthlyAbsence: number;
 }) {
   const theme = useTheme();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -87,10 +87,10 @@ export default function MonthlyAbsencesModal({
   const unfilledColor = theme.colors.neutralGray[200];
   const chartTextColor = theme.colors.text.subtitle;
 
-  const yAxisMax = Math.ceil(highestAbsencesCount / 10) * 10;
+  const yAxisMax = Math.ceil(highestMonthlyAbsence / 10) * 10;
   const yAxisTicks = Array.from(
-    { length: Math.floor(yAxisMax / 10) + 1 },
-    (_, i) => i * 10
+    { length: Math.floor(yAxisMax / 5) + 1 },
+    (_, i) => i * 5
   );
 
   return (
