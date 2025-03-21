@@ -19,15 +19,24 @@ import FullCalendar from '@fullcalendar/react';
 import { Absence, Prisma } from '@prisma/client';
 import { AbsenceAPI } from '@utils/types';
 import useUserData from '@utils/useUserData';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import CalendarHeader from '../components/CalendarHeader';
 import { CalendarTabs } from '../components/CalendarTabs';
-import { useSession } from 'next-auth/react';
-import InputForm from '../components/InputForm';
 import CalendarSidebar from '../components/CalendarSidebar';
+import InputForm from '../components/InputForm';
 
 const Calendar: React.FC = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/');
+    }
+  }, [status, router]);
+
   const calendarRef = useRef<FullCalendar>(null);
   const [events, setEvents] = useState<EventInput[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);

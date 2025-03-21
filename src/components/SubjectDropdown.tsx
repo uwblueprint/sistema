@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
 import { SubjectAPI } from '@utils/types';
+import { useEffect, useState } from 'react';
 import Dropdown, { DropdownItem } from './Dropdown';
 
 interface SubjectDropdownProps {
