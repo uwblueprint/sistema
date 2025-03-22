@@ -23,16 +23,11 @@ import LessonPlanView from './LessonPlanView';
 const AbsenceDetails = ({ isOpen, onClose, event }) => {
   const { data: session, status } = useSession();
   if (!event) return null;
-  console.log('Absent Teacher ID:', event.absentTeacher.id);
-  console.log(
-    'Substitute Teacher ID:',
-    event.substituteTeacher ? event.substituteTeacher.id : 'N/A'
-  );
 
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
   const isUserAbsentTeacher = userId === event.absentTeacher.id;
   const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
-  const isUserAdmin = true;
+  const isUserAdmin = false;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
@@ -51,23 +46,25 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                 <>
                   <IconButton
                     aria-label="Edit Absence"
-                    icon={<FiEdit2 />}
+                    icon={<FiEdit2 size="15px" color="#373636" />}
                     size="sm"
                     variant="ghost"
-                    color="#656565"
-                  />
-
-                  <IconButton
-                    aria-label="Delete Absence"
-                    icon={<FiTrash2 />}
-                    size="sm"
-                    variant="ghost"
-                    color="#656565"
                   />
                 </>
               )}
 
-              <ModalCloseButton color="#2D3748" position="static" />
+              {(isUserAdmin ||
+                (isUserAbsentTeacher && !event.substituteTeacher)) && (
+                <>
+                  <IconButton
+                    aria-label="Delete Absence"
+                    icon={<FiTrash2 size="15px" color="#373636" />}
+                    size="sm"
+                    variant="ghost"
+                  />
+                </>
+              )}
+              <ModalCloseButton color="#373636" position="static" />
             </Flex>
           </Flex>
         </ModalHeader>
@@ -121,6 +118,7 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                 lessonPlan={event.lessonPlan}
                 absentTeacherFirstName={event.absentTeacher.firstName}
                 isUserAbsentTeacher={isUserAbsentTeacher}
+                isUserSubstituteTeacher={isUserSubstituteTeacher}
               />
             </Box>
             {isUserAdmin && (
@@ -137,7 +135,7 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                 </Text>
               </Box>
             )}
-            {(event.notes || isUserAbsentTeacher) && (
+            {isUserAbsentTeacher && (
               <Box position="relative">
                 <Text fontSize="14px" fontWeight="500" mb="9px">
                   Notes
@@ -151,21 +149,37 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                     background: '#F7F7F7',
                   }}
                 >
+                  (TO DO: Editable textbox) {'\n'}
                   {event.notes}
                 </Box>
 
-                {isUserAbsentTeacher && (
-                  <IconButton
-                    aria-label="Edit Notes"
-                    icon={<FiEdit2 />}
-                    size="sm"
-                    variant="ghost"
-                    color="#656565"
-                    position="absolute"
-                    bottom="5px"
-                    right="5px"
-                  />
-                )}
+                <IconButton
+                  aria-label="Edit Notes"
+                  icon={<FiEdit2 size="15px" color="#656565" />}
+                  size="sm"
+                  variant="ghost"
+                  position="absolute"
+                  bottom="5px"
+                  right="5px"
+                />
+              </Box>
+            )}
+            {event.notes && !isUserAbsentTeacher && (
+              <Box position="relative">
+                <Text fontSize="14px" fontWeight="500" mb="9px">
+                  Notes
+                </Text>
+
+                <Box
+                  fontSize="12px"
+                  sx={{
+                    padding: '15px 15px 15px 15px',
+                    borderRadius: '10px',
+                    background: '#F7F7F7',
+                  }}
+                >
+                  {event.notes}
+                </Box>
               </Box>
             )}
 
@@ -213,7 +227,13 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
             {!event.substituteTeacher &&
               !isUserAbsentTeacher &&
               !isUserAdmin && (
-                <Button colorScheme="blue" width="full" height="44px">
+                <Button
+                  colorScheme="blue"
+                  width="full"
+                  height="44px"
+                  font-size="16px"
+                  fontWeight="500"
+                >
                   Fill this Absence
                 </Button>
               )}

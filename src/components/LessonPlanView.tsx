@@ -39,17 +39,19 @@ const LessonPlanDisplay = ({
       {isUserAbsentTeacher && (
         <IconButton
           aria-label="Swap Lesson Plan"
-          icon={<VscArrowSwap size="15px" />}
+          icon={<VscArrowSwap size="15px" color="#656565" />}
           size="sm"
           variant="ghost"
-          color="#656565"
         />
       )}
     </Flex>
   );
 };
 
-const NoLessonPlanFillingDisplay = ({ absentTeacherFirstName }) => {
+const NoLessonPlanViewingDisplay = ({
+  absentTeacherFirstName,
+  isUserSubstituteTeacher,
+}) => {
   return (
     <Flex
       align="center"
@@ -71,7 +73,7 @@ const NoLessonPlanFillingDisplay = ({ absentTeacherFirstName }) => {
 
       <Text fontSize="11px" color="#8C8C8C" width="154px">
         <strong>{absentTeacherFirstName}</strong> has not uploaded a lesson plan
-        yet.
+        yet. {isUserSubstituteTeacher && " We'll let you know when they do!"}
       </Text>
     </Flex>
   );
@@ -81,7 +83,7 @@ const NoLessonPlanDeclaredDisplay = ({}) => {
   return (
     <Flex width="100%">
       <Text fontSize="11px" color="#8C8C8C">
-        TO-DO: Upload lesson plan + attach to absence
+        TO-DO: Upload PDF component
       </Text>
     </Flex>
   );
@@ -91,6 +93,7 @@ const LessonPlanView = ({
   lessonPlan,
   absentTeacherFirstName,
   isUserAbsentTeacher,
+  isUserSubstituteTeacher,
 }) => {
   const getFileName = (url) => (url ? 'File name: TO-DO' : '');
   const getFileSize = (url) => (url ? 'File size: TO-DO' : '');
@@ -105,8 +108,9 @@ const LessonPlanView = ({
   ) : isUserAbsentTeacher ? (
     <NoLessonPlanDeclaredDisplay />
   ) : (
-    <NoLessonPlanFillingDisplay
+    <NoLessonPlanViewingDisplay
       absentTeacherFirstName={absentTeacherFirstName}
+      isUserSubstituteTeacher={isUserSubstituteTeacher}
     />
   );
 };
