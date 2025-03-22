@@ -59,8 +59,6 @@ const Calendar: React.FC = () => {
   );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [absenceToEdit, setAbsenceToEdit] = useState<EventInput | null>(null);
   const toast = useToast();
   const theme = useTheme();
   const {

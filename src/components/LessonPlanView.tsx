@@ -83,7 +83,7 @@ const NoLessonPlanDeclaredDisplay = ({}) => {
   return (
     <Flex width="100%">
       <Text fontSize="11px" color="#8C8C8C">
-        TO-DO: Upload PDF component
+        Upload PDF component
       </Text>
     </Flex>
   );
@@ -95,8 +95,8 @@ const LessonPlanView = ({
   isUserAbsentTeacher,
   isUserSubstituteTeacher,
 }) => {
-  const getFileName = (url) => (url ? 'File name: TO-DO' : '');
-  const getFileSize = (url) => (url ? 'File size: TO-DO' : '');
+  const getFileName = (url) => (url ? 'File name' : '');
+  const getFileSize = (url) => (url ? 'File size' : '');
 
   return lessonPlan ? (
     <LessonPlanDisplay

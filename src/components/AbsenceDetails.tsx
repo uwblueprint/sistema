@@ -2,7 +2,6 @@ import { useSession } from 'next-auth/react';
 import React from 'react';
 import {
   Modal,
-  ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalCloseButton,
@@ -30,9 +29,13 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
   const isUserAdmin = false;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <ModalOverlay />
-      <ModalContent width="362px" borderRadius="15px" padding="30px">
+    <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
+      <ModalContent
+        width="362px"
+        borderRadius="15px"
+        padding="30px"
+        boxShadow="0px 0px 25px 0px rgba(0, 0, 0, 0.25)"
+      >
         <ModalHeader p="0">
           <Flex justify="space-between" align="center" position="relative">
             <AbsenceStatusTag
@@ -149,7 +152,6 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                     background: '#F7F7F7',
                   }}
                 >
-                  (TO DO: Editable textbox) {'\n'}
                   {event.notes}
                 </Box>
 
