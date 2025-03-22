@@ -272,6 +272,20 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
           existingChanges.some((c) => c.type === 'add') &&
           (change.id === undefined || change.id < 0)
         ) {
+          // For newly added and then deleted entities, we need to ensure they're removed from the UI
+          // Add a special flag to immediately remove from state
+          if (change.entity === 'subject') {
+            // Immediately update subjects state to remove this entity
+            setSubjects((prevSubjects) =>
+              prevSubjects.filter((subject) => subject.id !== change.id)
+            );
+          } else if (change.entity === 'location') {
+            // Immediately update locations state to remove this entity
+            setLocations((prevLocations) =>
+              prevLocations.filter((location) => location.id !== change.id)
+            );
+          }
+
           // Remove all changes for this entity
           return prevChanges.filter(
             (c) => !(c.entity === change.entity && c.id === change.id)
