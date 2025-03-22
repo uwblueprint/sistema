@@ -12,6 +12,7 @@ export interface Absence {
 }
 
 export interface AbsenceAPI {
+  id: number;
   lessonDate: Date;
   lessonPlan?: string | null;
   reasonOfAbsence: string;
@@ -20,10 +21,12 @@ export interface AbsenceAPI {
   absentTeacherId: number;
   substituteTeacherId: number | null;
   absentTeacher: {
+    id: number;
     firstName: string;
     lastName: string;
   };
   substituteTeacher?: {
+    id: number;
     firstName: string;
     lastName: string;
   } | null;
