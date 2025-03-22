@@ -58,7 +58,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   return (
     <Flex marginBottom={theme.space[4]} alignItems="center" width="100%">
       <HStack spacing={theme.space[4]}>
-        <HStack spacing={theme.space[0]}>
+        <HStack spacing={1}>
           <IconButton
             onClick={onPrevClick}
             icon={
