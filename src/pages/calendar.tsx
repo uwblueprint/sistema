@@ -51,7 +51,7 @@ const Calendar: React.FC = () => {
     'explore'
   );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [isAdminMode, setIsAdminMode] = useState<boolean>(true);
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
   const toast = useToast();
   const theme = useTheme();
   const { isOpen, onOpen, onClose } = useDisclosure();

@@ -15,8 +15,6 @@ const main = async () => {
     ADMIN = 'ADMIN',
   }
 
-  const roles = [RoleEnum.TEACHER, RoleEnum.ADMIN];
-
   const subjects = [
     { name: 'Strings', abbreviation: 'STR', colorGroupId: 3 },
     { name: 'Choir', abbreviation: 'CHO', colorGroupId: 2 },
@@ -41,7 +39,20 @@ const main = async () => {
   const userIds = Array.from({ length: numUsers }, (_, i) => i + 1);
   const subjectIds = Array.from({ length: numSubjects }, (_, i) => i + 1);
 
-  const users = await seed.user((createMany) =>
+  await seed.user((createMany) =>
+    createMany(1, () => {
+      return {
+        authId: faker.string.uuid(),
+        email: 'sistema@uwblueprint.org',
+        firstName: 'Sistema',
+        lastName: 'Blueprint',
+        profilePicture: `https://lh3.googleusercontent.com/a/ACg8ocKxepJIC2yHao12N7K58_vzFKhY4GLrzOzpLKhBJRC14k2E_Q=s96-c`,
+        role: RoleEnum.ADMIN,
+      };
+    })
+  );
+
+  await seed.user((createMany) =>
     createMany(numUsers, () => {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
@@ -51,7 +62,7 @@ const main = async () => {
         firstName: firstName,
         lastName: lastName,
         profilePicture: `https://i.pravatar.cc/50?u=${faker.string.uuid()}`,
-        role: faker.helpers.arrayElement(roles),
+        role: RoleEnum.TEACHER,
       };
     })
   );
@@ -146,6 +157,12 @@ const main = async () => {
       const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
         probability: 0.5,
       });
+      const randomSubstitute = faker.helpers.maybe(
+        () => faker.helpers.arrayElement(userIds),
+        {
+          probability: 0.5,
+        }
+      );
       return {
         lessonDate: generateWeekdayFutureDate(),
         lessonPlan: faker.internet.url(),
@@ -160,6 +177,7 @@ const main = async () => {
           'A5',
           'C12',
         ]),
+        substituteTeacherId: randomSubstitute ?? null,
       };
     })
   );
