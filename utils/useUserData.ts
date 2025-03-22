@@ -1,43 +1,22 @@
+import { useMemo } from 'react';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
 
-interface UserData {
-  name: string;
-  email: string;
-  image?: string;
-  usedAbsences: number;
-  numOfAbsences: number;
-}
+export const useUserData = () => {
+  const { data: session, status } = useSession();
 
-const useUserData = () => {
-  const [userData, setUserData] = useState<UserData | undefined>(undefined);
-  const { data: session } = useSession();
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (session?.user?.email) {
-        try {
-          const res = await fetch(
-            `/api/users/email/${session.user.email}?shouldIncludeAbsences=true`
-          );
-          const data = await res.json();
-          setUserData({
-            name: session.user.name ?? '',
-            email: session.user.email,
-            image: session.user.image ?? undefined,
-            numOfAbsences: data.numOfAbsences,
-            usedAbsences: data.absences?.length ?? 0,
-          });
-        } catch (err) {
-          console.error('Could not fetch user data:', err);
-          setUserData(undefined);
-        }
-      }
+  const userData = useMemo(() => {
+    return {
+      name: session?.user?.name ?? '',
+      email: session?.user?.email ?? '',
+      image: session?.user?.image ?? undefined,
+      numOfAbsences: session?.user?.absenceCap ?? 0,
+      usedAbsences: session?.user?.usedAbsences ?? 0,
+      id: session?.user?.id,
+      role: session?.user?.role,
+      isAuthenticated: status === 'authenticated',
+      isLoading: status === 'loading',
     };
-    fetchUserData();
-  }, [session]);
+  }, [session, status]);
 
   return userData;
 };
-
-export default useUserData;

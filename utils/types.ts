@@ -17,13 +17,13 @@ export interface AbsenceAPI {
   reasonOfAbsence: string;
   notes?: string | null;
   roomNumber?: string | null;
-  absentTeacherId: number;
-  substituteTeacherId: number | null;
   absentTeacher: {
+    id: number;
     firstName: string;
     lastName: string;
   };
   substituteTeacher?: {
+    id: number;
     firstName: string;
     lastName: string;
   } | null;
@@ -120,5 +120,4 @@ export interface UserData {
   email: string;
   image?: string;
   usedAbsences: number;
-  numOfAbsences: number;
 }

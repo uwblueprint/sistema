@@ -1,5 +1,4 @@
 import { Box } from '@chakra-ui/react';
-import useUserData from '@utils/useUserData';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -16,11 +15,15 @@ export default function DashboardPage() {
     }
   }, [status, router]);
 
-  const userData = useUserData();
+  if (status === 'loading') {
+    return null;
+  }
+
+  if (!session?.user) return null;
 
   return (
     <Box>
-      <DashboardHeader userData={userData} />
+      <DashboardHeader userData={session.user} />
       <Box px={8} pt={3} pb={8}>
         <UserManagementSection />
       </Box>

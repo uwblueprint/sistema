@@ -30,12 +30,16 @@ interface InputFormProps {
   onAddAbsence: (
     absence: Prisma.AbsenceCreateManyInput
   ) => Promise<Absence | null>;
+  userId: number;
+  onTabChange: (tab: 'explore' | 'declared') => void;
   initialDate: Date;
 }
 
 const InputForm: React.FC<InputFormProps> = ({
   onClose,
   onAddAbsence,
+  userId,
+  onTabChange,
   initialDate,
 }) => {
   const toast = useToast();
@@ -155,6 +159,10 @@ const InputForm: React.FC<InputFormProps> = ({
           duration: 5000,
           isClosable: true,
         });
+
+        if (parseInt(formData.absentTeacherId, 10) === userId) {
+          onTabChange('declared');
+        }
 
         if (onClose) {
           onClose();

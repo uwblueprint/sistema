@@ -1,4 +1,3 @@
-import { Box, Spinner } from '@chakra-ui/react';
 import { Role, UserAPI } from '@utils/types';
 import { useEffect, useState } from 'react';
 import { UserManagementTable } from './UserManagementTable';
@@ -67,16 +66,7 @@ const UserManagementSection = () => {
     }
   };
 
-  return loading ? (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      height="100vh"
-    >
-      <Spinner />
-    </Box>
-  ) : (
+  return loading ? null : (
     <UserManagementTable
       users={users}
       updateUserRole={updateUserRole}

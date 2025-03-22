@@ -47,15 +47,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async jwt({ token, user }) {
-      if (user?.id) {
-        token.userId = user.id;
+      if (user?.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email },
+          include: {
+            absences: true,
+          },
+        });
+
+        const settings = await prisma.globalSettings.findFirst();
+        token.userId = Number(dbUser?.id);
+        token.role = dbUser?.role;
+        token.usedAbsences = dbUser?.absences.length ?? 0;
+        token.absenceCap = settings?.absenceCap ?? 10;
       }
+
       return token;
     },
 
     async session({ session, token }) {
-      if (session.user && typeof token.userId === 'string') {
-        session.user.id = token.userId;
+      if (session.user) {
+        session.user.id = token.userId as number;
+        session.user.role = token.role as Role;
+        session.user.usedAbsences = token.usedAbsences as number;
+        session.user.absenceCap = token.absenceCap as number;
       }
       return session;
     },
