@@ -56,7 +56,6 @@ const Calendar: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
     'explore'
   );
-  const userId = useMemo(() => Number(userData.id), [userData.id]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const toast = useToast();
   const theme = useTheme();
@@ -239,18 +238,19 @@ const Calendar: React.FC = () => {
 
     if (activeTab === 'explore') {
       filtered = filtered.filter(
-        (event) => event.absentTeacher.id !== userId && !event.substituteTeacher
+        (event) =>
+          event.absentTeacher.id !== userData.id && !event.substituteTeacher
       );
     } else if (activeTab === 'declared') {
       filtered = filtered.filter(
         (event) =>
-          event.absentTeacher.id === userId ||
-          event.substituteTeacher?.id === userId
+          event.absentTeacher.id === userData.id ||
+          event.substituteTeacher?.id === userData.id
       );
     }
 
     setFilteredEvents(filtered);
-  }, [searchQuery, events, activeTab, userId]);
+  }, [searchQuery, events, activeTab, userData.id]);
 
   if (userData.isLoading) {
     return null;
@@ -380,6 +380,8 @@ const Calendar: React.FC = () => {
               onClose={onClose}
               onAddAbsence={handleAddAbsence}
               initialDate={selectedDate!!}
+              userId={userData.id}
+              onTabChange={setActiveTab}
             />
           </ModalBody>
         </ModalContent>

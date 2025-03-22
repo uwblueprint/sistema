@@ -24,6 +24,7 @@ export function CalendarTabs({ activeTab, onTabChange }: CalendarTabsProps) {
         onClick={() => onTabChange('explore')}
         pb="8px"
         _active={{ bg: 'transparent' }}
+        borderRadius={0}
       >
         Explore Fillable Absences
       </Button>
@@ -38,6 +39,7 @@ export function CalendarTabs({ activeTab, onTabChange }: CalendarTabsProps) {
         onClick={() => onTabChange('declared')}
         pb="8px"
         _active={{ bg: 'transparent' }}
+        borderRadius={0}
       >
         My Declared & Filled Absences
       </Button>
