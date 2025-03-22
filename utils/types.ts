@@ -12,6 +12,7 @@ export interface Absence {
 }
 
 export interface AbsenceAPI {
+  id: number;
   lessonDate: Date;
   lessonPlan?: string | null;
   reasonOfAbsence: string;

@@ -91,6 +91,7 @@ const Calendar: React.FC = () => {
     lessonPlan: absenceData.lessonPlan,
     reasonOfAbsence: absenceData.reasonOfAbsence,
     notes: absenceData.notes,
+    absenceId: absenceData.id,
   });
 
   const handleAddAbsence = async (
@@ -242,6 +243,7 @@ const Calendar: React.FC = () => {
       roomNumber: clickInfo.event.extendedProps.roomNumber || '',
       reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
       notes: clickInfo.event.extendedProps.notes || '',
+      absenceId: clickInfo.event.extendedProps.absenceId,
     });
     onAbsenceDetailsOpen();
   };
@@ -265,6 +267,11 @@ const Calendar: React.FC = () => {
 
     setFilteredEvents(filtered);
   }, [searchQuery, events]);
+
+  const handleDeleteAbsence = async (deletedId) => {
+    console.log('Deleted absence id:', deletedId);
+    await fetchAbsences();
+  };
 
   return (
     <>
@@ -375,6 +382,7 @@ const Calendar: React.FC = () => {
         isOpen={isAbsenceDetailsOpen}
         onClose={onAbsenceDetailsClose}
         event={selectedEvent}
+        onDelete={handleDeleteAbsence}
       />
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>
