@@ -225,7 +225,99 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   ]);
 
   const handleAddChange = (change: Change) => {
+    // For display name/abbreviation changes, ensure we store the original values
+    if (change.type === 'update') {
+      // Find the entity to get its current values before changes
+      const entityList = change.entity === 'subject' ? subjects : locations;
+      const entity = entityList.find((e) => e.id === change.id);
+
+      if (entity) {
+        const originalValues: Record<string, any> = {};
+
+        // Store original values for each field being changed
+        if (change.data?.abbreviation !== undefined) {
+          originalValues.originalAbbreviation = entity.abbreviation;
+        }
+
+        if (change.data?.name !== undefined) {
+          originalValues.originalName = entity.name;
+        }
+
+        // ColorGroupId only exists on Subject entities
+        if (
+          change.data?.colorGroupId !== undefined &&
+          change.entity === 'subject'
+        ) {
+          // Safe type cast since we've verified this is a subject
+          originalValues.originalColorGroupId = (
+            entity as SubjectAPI
+          ).colorGroupId;
+        }
+
+        // Add original values to the change data
+        change = {
+          ...change,
+          data: {
+            ...change.data,
+            ...originalValues,
+          },
+        };
+      }
+    }
+
     setPendingChanges((prevChanges) => {
+      // Check if this is a newly added entity being updated
+      // Look for any 'add' changes for the same entity type
+      const addChangesForSameEntityType = prevChanges.filter(
+        (c) => c.type === 'add' && c.entity === change.entity
+      );
+
+      // For update changes, check if we're updating a newly added entity
+      if (change.type === 'update' && addChangesForSameEntityType.length > 0) {
+        // Find the newly added entity with the same ID (for negative IDs which indicate new entities)
+        // or find newly added entities with no ID
+        const matchingAddChange = addChangesForSameEntityType.find(
+          (c) =>
+            (change.id && change.id < 0 && c.id === change.id) ||
+            (c.id === undefined && change.id === undefined)
+        );
+
+        if (matchingAddChange) {
+          // We found a matching add change - update it instead of creating a new change
+          return prevChanges.map((c) => {
+            if (c === matchingAddChange) {
+              // Merge the data from the update into the add operation
+              const mergedData = { ...c.data };
+
+              // Apply updates
+              if (change.data?.name !== undefined) {
+                mergedData.name = change.data.name;
+              }
+              if (change.data?.abbreviation !== undefined) {
+                mergedData.abbreviation = change.data.abbreviation;
+              }
+              if (
+                change.data?.colorGroupId !== undefined &&
+                change.entity === 'subject'
+              ) {
+                mergedData.colorGroupId = change.data.colorGroupId;
+              }
+
+              return {
+                ...c,
+                data: mergedData,
+                id: change.id || c.id, // Ensure ID is consistent
+                displayText: `Added ${change.entity === 'subject' ? 'Subject' : 'Location'} "${mergedData.name}"`,
+              };
+            }
+            return c;
+          });
+        }
+      }
+
+      // If we got here, it's not an update to a newly added entity
+      // Continue with normal change processing...
+
       // Create a unique key to track changes by entity type and ID
       const changeKey = `${change.entity}-${change.id || 'new'}`;
 
@@ -264,41 +356,106 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         ];
       }
 
-      // Case 3: Entity is added and then modified - update the add operation
-      if (
-        change.type === 'update' &&
-        existingChanges.some((c) => c.type === 'add') &&
-        (change.id === undefined || change.id < 0)
-      ) {
-        // Find the add operation
-        const addChange = existingChanges.find((c) => c.type === 'add');
-        if (addChange) {
-          // Update the add operation with the new data
-          return prevChanges.map((c) => {
-            if (c === addChange) {
-              return {
-                ...c,
-                data: { ...c.data, ...change.data },
-                displayText: `Added ${change.entity === 'subject' ? 'Subject' : 'Location'} "${change.data.name || c.data.name}"`,
-              };
-            }
-            return c;
-          });
-        }
-      }
-
-      // Case 4: Entity is updated multiple times - merge the update operations
+      // Case 3: Entity is updated multiple times - merge the update operations
       if (change.type === 'update') {
         const existingUpdate = existingChanges.find((c) => c.type === 'update');
 
         if (existingUpdate) {
-          // Merge this update with the existing update
+          // Merge this update with the existing update, but preserve original values
+          // First, calculate what the merged data would look like
+          const mergedData = { ...existingUpdate.data, ...change.data };
+
+          // Extract original values
+          const originalName =
+            existingUpdate.data?.originalName || change.data?.originalName;
+          const originalAbbreviation =
+            existingUpdate.data?.originalAbbreviation ||
+            change.data?.originalAbbreviation;
+          const originalColorGroupId =
+            existingUpdate.data?.originalColorGroupId ||
+            change.data?.originalColorGroupId;
+
+          // Check if all changed values now match their original values
+          let allChangesReverted = true;
+
+          // If name was changed
+          if (mergedData.name !== undefined) {
+            allChangesReverted =
+              allChangesReverted && mergedData.name === originalName;
+          }
+
+          // If abbreviation was changed
+          if (mergedData.abbreviation !== undefined) {
+            allChangesReverted =
+              allChangesReverted &&
+              mergedData.abbreviation === originalAbbreviation;
+          }
+
+          // If colorGroupId was changed (only applies to subjects)
+          if (
+            change.entity === 'subject' &&
+            mergedData.colorGroupId !== undefined
+          ) {
+            allChangesReverted =
+              allChangesReverted &&
+              mergedData.colorGroupId === originalColorGroupId;
+          }
+
+          // If all changes have been reverted, remove this change entirely
+          if (allChangesReverted) {
+            return prevChanges.filter((c) => c !== existingUpdate);
+          }
+
+          // Otherwise, merge the changes as usual
           return prevChanges.map((c) => {
             if (c === existingUpdate) {
+              // Extract any original values from both changes
+              const preservedOriginalValues: Record<string, any> = {};
+
+              // Keep original values from the existing update
+              if (c.data?.originalName) {
+                preservedOriginalValues.originalName = c.data.originalName;
+              }
+              if (c.data?.originalAbbreviation) {
+                preservedOriginalValues.originalAbbreviation =
+                  c.data.originalAbbreviation;
+              }
+              // ColorGroupId is only applicable for subjects
+              if (change.entity === 'subject' && c.data?.originalColorGroupId) {
+                preservedOriginalValues.originalColorGroupId =
+                  c.data.originalColorGroupId;
+              }
+
+              // Only use new original values if the existing update doesn't have them
+              if (!c.data?.originalName && change.data?.originalName) {
+                preservedOriginalValues.originalName = change.data.originalName;
+              }
+              if (
+                !c.data?.originalAbbreviation &&
+                change.data?.originalAbbreviation
+              ) {
+                preservedOriginalValues.originalAbbreviation =
+                  change.data.originalAbbreviation;
+              }
+              // ColorGroupId is only applicable for subjects
+              if (
+                change.entity === 'subject' &&
+                !c.data?.originalColorGroupId &&
+                change.data?.originalColorGroupId
+              ) {
+                preservedOriginalValues.originalColorGroupId =
+                  change.data.originalColorGroupId;
+              }
+
               return {
                 ...c,
-                data: { ...c.data, ...change.data },
-                // Keep the original displayText as we'll generate detailed messages in getDisplayableChanges
+                data: {
+                  // Spread new data from change (overwrites old values)
+                  ...change.data,
+                  // Preserve all original values (don't overwrite with new ones)
+                  ...preservedOriginalValues,
+                },
+                // Keep the original displayText
                 displayText: c.displayText,
               };
             }
@@ -307,7 +464,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         }
       }
 
-      // For all other cases (including archive/unarchive operations and new updates)
+      // For all other cases (including archive/unarchive operations and new changes)
       return [
         ...prevChanges.filter(
           (c) =>
@@ -361,6 +518,8 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
 
               if (originalSubject.name !== currentEditingSubject.name) {
                 changedData.name = currentEditingSubject.name;
+                // Store original name for change history
+                changedData.originalName = originalSubject.name;
               }
 
               if (
@@ -368,21 +527,39 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                 currentEditingSubject.abbreviation
               ) {
                 changedData.abbreviation = currentEditingSubject.abbreviation;
+                // Store original abbreviation for change history
+                changedData.originalAbbreviation = originalSubject.abbreviation;
               }
 
               if (originalSubject.colorGroupId !== colorGroupId) {
                 changedData.colorGroupId = colorGroupId;
+                // Store original color group for change history
+                changedData.originalColorGroupId = originalSubject.colorGroupId;
               }
 
               // Only proceed if there are actual changes
               if (Object.keys(changedData).length > 0) {
-                handleAddChange({
-                  type: 'update',
-                  entity: 'subject',
-                  id: currentEditingSubject.id!,
-                  data: changedData,
-                  displayText: `Updated Subject "${currentEditingSubject.name}"`,
-                });
+                // Check if all values being changed are actually the same as original values
+                const allChangesReverted =
+                  (changedData.name === undefined ||
+                    changedData.name === changedData.originalName) &&
+                  (changedData.abbreviation === undefined ||
+                    changedData.abbreviation ===
+                      changedData.originalAbbreviation) &&
+                  (changedData.colorGroupId === undefined ||
+                    changedData.colorGroupId ===
+                      changedData.originalColorGroupId);
+
+                // Only add the change if something is actually different
+                if (!allChangesReverted) {
+                  handleAddChange({
+                    type: 'update',
+                    entity: 'subject',
+                    id: currentEditingSubject.id!,
+                    data: changedData,
+                    displayText: `Updated Subject "${currentEditingSubject.name}"`,
+                  });
+                }
               }
             }
           }
@@ -405,6 +582,8 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
 
             if (originalLocation.name !== currentEditingLocation.name) {
               changedData.name = currentEditingLocation.name;
+              // Store original name for change history
+              changedData.originalName = originalLocation.name;
             }
 
             if (
@@ -412,17 +591,30 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
               currentEditingLocation.abbreviation
             ) {
               changedData.abbreviation = currentEditingLocation.abbreviation;
+              // Store original abbreviation for change history
+              changedData.originalAbbreviation = originalLocation.abbreviation;
             }
 
             // Only proceed if there are actual changes
             if (Object.keys(changedData).length > 0) {
-              handleAddChange({
-                type: 'update',
-                entity: 'location',
-                id: currentEditingLocation.id!,
-                data: changedData,
-                displayText: `Updated Location "${currentEditingLocation.name}"`,
-              });
+              // Check if all values being changed are actually the same as original values
+              const allChangesReverted =
+                (changedData.name === undefined ||
+                  changedData.name === changedData.originalName) &&
+                (changedData.abbreviation === undefined ||
+                  changedData.abbreviation ===
+                    changedData.originalAbbreviation);
+
+              // Only add the change if something is actually different
+              if (!allChangesReverted) {
+                handleAddChange({
+                  type: 'update',
+                  entity: 'location',
+                  id: currentEditingLocation.id!,
+                  data: changedData,
+                  displayText: `Updated Location "${currentEditingLocation.name}"`,
+                });
+              }
             }
           }
         }
@@ -435,14 +627,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       // Remove event listener on cleanup
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [
-    editingSubject,
-    editingLocation,
-    colorGroups,
-    handleAddChange,
-    subjects,
-    locations,
-  ]);
+  }, [editingSubject, editingLocation, subjects, locations, handleAddChange]);
 
   const handleArchiveSubject = (subject: SubjectAPI) => {
     handleAddChange({
@@ -551,25 +736,43 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
 
     if (originalSubject.name !== currentEditingSubject.name) {
       changedData.name = currentEditingSubject.name;
+      // Store original name for change history
+      changedData.originalName = originalSubject.name;
     }
 
     if (originalSubject.abbreviation !== currentEditingSubject.abbreviation) {
       changedData.abbreviation = currentEditingSubject.abbreviation;
+      // Store original abbreviation for change history
+      changedData.originalAbbreviation = originalSubject.abbreviation;
     }
 
     if (originalSubject.colorGroupId !== colorGroupId) {
       changedData.colorGroupId = colorGroupId;
+      // Store original color group for change history
+      changedData.originalColorGroupId = originalSubject.colorGroupId;
     }
 
     // Only proceed if there are actual changes
     if (Object.keys(changedData).length > 0) {
-      handleAddChange({
-        type: 'update',
-        entity: 'subject',
-        id: currentEditingSubject.id!,
-        data: changedData,
-        displayText: `Updated Subject "${currentEditingSubject.name}"`,
-      });
+      // Check if all values being changed are actually the same as original values
+      const allChangesReverted =
+        (changedData.name === undefined ||
+          changedData.name === changedData.originalName) &&
+        (changedData.abbreviation === undefined ||
+          changedData.abbreviation === changedData.originalAbbreviation) &&
+        (changedData.colorGroupId === undefined ||
+          changedData.colorGroupId === changedData.originalColorGroupId);
+
+      // Only add the change if something is actually different
+      if (!allChangesReverted) {
+        handleAddChange({
+          type: 'update',
+          entity: 'subject',
+          id: currentEditingSubject.id!,
+          data: changedData,
+          displayText: `Updated Subject "${currentEditingSubject.name}"`,
+        });
+      }
     }
   };
 
@@ -619,6 +822,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     handleAddChange({
       type: 'add',
       entity: 'subject',
+      id: tempId,
       data: {
         name: newSubject.name,
         abbreviation: newSubject.abbreviation,
@@ -676,6 +880,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     handleAddChange({
       type: 'add',
       entity: 'location',
+      id: tempId,
       data: {
         name: newLocation.name,
         abbreviation: newLocation.abbreviation,
@@ -748,21 +953,35 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
 
     if (originalLocation.name !== currentEditingLocation.name) {
       changedData.name = currentEditingLocation.name;
+      // Store original name for change history
+      changedData.originalName = originalLocation.name;
     }
 
     if (originalLocation.abbreviation !== currentEditingLocation.abbreviation) {
       changedData.abbreviation = currentEditingLocation.abbreviation;
+      // Store original abbreviation for change history
+      changedData.originalAbbreviation = originalLocation.abbreviation;
     }
 
     // Only proceed if there are actual changes
     if (Object.keys(changedData).length > 0) {
-      handleAddChange({
-        type: 'update',
-        entity: 'location',
-        id: currentEditingLocation.id!,
-        data: changedData,
-        displayText: `Updated Location "${currentEditingLocation.name}"`,
-      });
+      // Check if all values being changed are actually the same as original values
+      const allChangesReverted =
+        (changedData.name === undefined ||
+          changedData.name === changedData.originalName) &&
+        (changedData.abbreviation === undefined ||
+          changedData.abbreviation === changedData.originalAbbreviation);
+
+      // Only add the change if something is actually different
+      if (!allChangesReverted) {
+        handleAddChange({
+          type: 'update',
+          entity: 'location',
+          id: currentEditingLocation.id!,
+          data: changedData,
+          displayText: `Updated Location "${currentEditingLocation.name}"`,
+        });
+      }
     }
   };
 
@@ -904,20 +1123,10 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       console.log('Change data:', change.data);
 
       if (change.type === 'add') {
+        // Only show the main "Added Subject/Location" message
         displayChanges.push(
           `Added ${change.entity === 'subject' ? 'Subject' : 'Location'} "${change.data.name}"`
         );
-        if (change.data.abbreviation) {
-          displayChanges.push(`· Set Display to "${change.data.abbreviation}"`);
-        }
-        if (change.entity === 'subject' && change.data.colorGroupId) {
-          const colorGroup = colorGroups.find(
-            (cg) => cg.id === change.data.colorGroupId
-          );
-          if (colorGroup) {
-            displayChanges.push(`· Set Color to "${colorGroup.name}"`);
-          }
-        }
       } else if (change.type === 'delete') {
         displayChanges.push(
           `Deleted ${change.entity === 'subject' ? 'Subject' : 'Location'} "${
@@ -939,18 +1148,16 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
           } "${entityName || 'Unknown'}"`
         );
       } else if (change.type === 'update') {
-        // Since we're filtering changes in the handleSaveEdited functions,
-        // and merging multiple updates to the same entity in handleAddChange,
-        // any field present in change.data represents an actual change
-
         // Name changes
         if (change.data.name !== undefined) {
           const entityList = change.entity === 'subject' ? subjects : locations;
           const entity = entityList.find((e) => e.id === change.id);
-          const oldName = entity?.name || 'Unknown';
+          // Use the original name we stored when the change was created
+          const originalName =
+            change.data.originalName || entity?.name || 'Unknown';
 
           displayChanges.push(
-            `Updated ${change.entity === 'subject' ? 'Subject' : 'Location'} Name "${oldName}" → "${change.data.name}"`
+            `Updated ${change.entity === 'subject' ? 'Subject' : 'Location'} Name "${originalName}" → "${change.data.name}"`
           );
         }
 
@@ -958,10 +1165,14 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         if (change.data.abbreviation !== undefined) {
           const entityList = change.entity === 'subject' ? subjects : locations;
           const entity = entityList.find((e) => e.id === change.id);
-          const oldAbbr = entity?.abbreviation || 'Unknown';
+          // Use the original abbreviation we stored when the change was created
+          const originalAbbr =
+            change.data.originalAbbreviation ||
+            entity?.abbreviation ||
+            'Unknown';
 
           displayChanges.push(
-            `Updated Display "${oldAbbr}" → "${change.data.abbreviation}"`
+            `Updated Display "${originalAbbr}" → "${change.data.abbreviation}"`
           );
         }
 
@@ -971,8 +1182,11 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
           change.data.colorGroupId !== undefined
         ) {
           const subject = subjects.find((s) => s.id === change.id);
+          // Get from original stored value if available, otherwise from the current subject data
+          const originalColorGroupId =
+            change.data.originalColorGroupId || subject?.colorGroupId;
           const oldColorGroup = colorGroups.find(
-            (cg) => cg.id === subject?.colorGroupId
+            (cg) => cg.id === originalColorGroupId
           );
           const newColorGroup = colorGroups.find(
             (cg) => cg.id === change.data.colorGroupId
