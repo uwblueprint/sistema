@@ -10,45 +10,21 @@ import {
   HStack,
   Text,
   Box,
-  FormControl,
-  FormLabel,
   IconButton,
-  Input,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
   useDisclosure,
-  Divider,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  Flex,
-  Circle,
   useToast,
-  Heading,
   useTheme,
-  Tooltip,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  IoEllipsisHorizontal,
-  IoAdd,
-  IoTrashOutline,
-  IoArchiveOutline,
-  IoCreateOutline,
-  IoBookOutline,
-  IoCheckmark,
-  IoCloseOutline,
-  IoSettingsOutline,
-} from 'react-icons/io5';
-import { FiType } from 'react-icons/fi';
-import ConfirmationDialog from '../components/ConfirmationDialog';
+import { IoSettingsOutline, IoCloseOutline } from 'react-icons/io5';
 import { Subject, SubjectAPI, Location } from '@utils/types';
 import React from 'react';
-import { LuInfo, LuArchive } from 'react-icons/lu';
+import SystemChangesConfirmationDialog, {
+  Change,
+} from './SystemChangesConfirmationDialog';
+import SubjectsTable from './SubjectsTable';
+import LocationsTable from './LocationsTable';
+import SystemSettings from './SystemSettings';
 
 interface SystemOptionsModalProps {
   isOpen: boolean;
@@ -56,28 +32,11 @@ interface SystemOptionsModalProps {
   absenceCap: number;
 }
 
-type ChangeType = 'delete' | 'archive' | 'unarchive' | 'update' | 'add';
-
-interface Change {
-  type: ChangeType;
-  entity: 'subject' | 'location' | 'setting';
-  id?: number;
-  data?: any;
-  displayText: string;
-}
-
-interface ChangeResult {
-  success: boolean;
-  message: string;
-}
-
 const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   isOpen,
   onClose,
   absenceCap,
 }) => {
-  const COLOR_CODE_INDEX = 1;
-
   // Constants for character limits
   const MAX_SUBJECT_ABBREVIATION_LENGTH = 9;
   const MAX_LOCATION_ABBREVIATION_LENGTH = 12;
@@ -88,33 +47,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   const [pendingChanges, setPendingChanges] = useState<Change[]>([]);
   const [subjectsInUse, setSubjectsInUse] = useState<number[]>([]);
   const [locationsInUse, setLocationsInUse] = useState<number[]>([]);
-  const [newSubject, setNewSubject] = useState<SubjectAPI>({
-    id: 0,
-    name: '',
-    abbreviation: '',
-    colorGroup: {
-      // TODO: Add color group to the database
-      name: 'Strings',
-      colorCodes: ['#f44336', '#ff9800', '#ffeb3b'],
-    },
-    colorGroupId: 1,
-    archived: false,
-  });
-  const [editingSubject, setEditingSubject] = useState<SubjectAPI | null>(null);
-  const [newLocation, setNewLocation] = useState<Location>({
-    id: 0,
-    name: '',
-    abbreviation: '',
-    archived: false,
-  });
-  const [editingLocation, setEditingLocation] = useState<{
-    id: number | null;
-    name: string;
-    abbreviation: string;
-  } | null>(null);
-  const [isAddingSubject, setIsAddingSubject] = useState(false);
-  const [isAddingLocation, setIsAddingLocation] = useState(false);
-  const [colorPickerOpen, setColorPickerOpen] = useState<number | null>(null);
   const confirmationDialog = useDisclosure();
   const toast = useToast();
   const theme = useTheme();
@@ -125,9 +57,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       colorCodes: string[];
     }[]
   >([]);
-
-  // Create a ref to detect clicks outside the editing row
-  const editingRowRef = useRef<HTMLDivElement>(null);
 
   const [isConfirmingClose, setIsConfirmingClose] = useState(false);
 
@@ -224,766 +153,442 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     checkLocationsInUse,
   ]);
 
-  const handleAddChange = (change: Change) => {
-    // For display name/abbreviation changes, ensure we store the original values
-    if (change.type === 'update') {
-      // Find the entity to get its current values before changes
-      const entityList = change.entity === 'subject' ? subjects : locations;
-      const entity = entityList.find((e) => e.id === change.id);
+  const handleAddChange = useCallback(
+    (change: Change) => {
+      // For display name/abbreviation changes, ensure we store the original values
+      if (change.type === 'update') {
+        // Find the entity to get its current values before changes
+        const entityList = change.entity === 'subject' ? subjects : locations;
+        const entity = entityList.find((e) => e.id === change.id);
 
-      if (entity) {
-        const originalValues: Record<string, any> = {};
+        if (entity) {
+          const originalValues: Record<string, any> = {};
 
-        // Store original values for each field being changed
-        if (change.data?.abbreviation !== undefined) {
-          originalValues.originalAbbreviation = entity.abbreviation;
+          // Store original values for each field being changed
+          if (change.data?.abbreviation !== undefined) {
+            originalValues.originalAbbreviation = entity.abbreviation;
+          }
+
+          if (change.data?.name !== undefined) {
+            originalValues.originalName = entity.name;
+          }
+
+          // ColorGroupId only exists on Subject entities
+          if (
+            change.data?.colorGroupId !== undefined &&
+            change.entity === 'subject'
+          ) {
+            // Safe type cast since we've verified this is a subject
+            originalValues.originalColorGroupId = (
+              entity as SubjectAPI
+            ).colorGroupId;
+          }
+
+          // Add original values to the change data
+          change = {
+            ...change,
+            data: {
+              ...change.data,
+              ...originalValues,
+            },
+          };
         }
+      }
 
-        if (change.data?.name !== undefined) {
-          originalValues.originalName = entity.name;
-        }
+      setPendingChanges((prevChanges) => {
+        // Check if this is a newly added entity being updated
+        // Look for any 'add' changes for the same entity type
+        const addChangesForSameEntityType = prevChanges.filter(
+          (c) => c.type === 'add' && c.entity === change.entity
+        );
 
-        // ColorGroupId only exists on Subject entities
+        // For update changes, check if we're updating a newly added entity
         if (
-          change.data?.colorGroupId !== undefined &&
-          change.entity === 'subject'
+          change.type === 'update' &&
+          addChangesForSameEntityType.length > 0
         ) {
-          // Safe type cast since we've verified this is a subject
-          originalValues.originalColorGroupId = (
-            entity as SubjectAPI
-          ).colorGroupId;
+          // Find the newly added entity with the same ID (for negative IDs which indicate new entities)
+          // or find newly added entities with no ID
+          const matchingAddChange = addChangesForSameEntityType.find(
+            (c) =>
+              (change.id && change.id < 0 && c.id === change.id) ||
+              (c.id === undefined && change.id === undefined)
+          );
+
+          if (matchingAddChange) {
+            // We found a matching add change - update it instead of creating a new change
+            return prevChanges.map((c) => {
+              if (c === matchingAddChange) {
+                // Merge the data from the update into the add operation
+                const mergedData = { ...c.data };
+
+                // Apply updates
+                if (change.data?.name !== undefined) {
+                  mergedData.name = change.data.name;
+                }
+                if (change.data?.abbreviation !== undefined) {
+                  mergedData.abbreviation = change.data.abbreviation;
+                }
+                if (
+                  change.data?.colorGroupId !== undefined &&
+                  change.entity === 'subject'
+                ) {
+                  mergedData.colorGroupId = change.data.colorGroupId;
+                }
+
+                return {
+                  ...c,
+                  data: mergedData,
+                  id: change.id || c.id, // Ensure ID is consistent
+                  displayText: `Added ${change.entity === 'subject' ? 'Subject' : 'Location'} "${mergedData.name}"`,
+                };
+              }
+              return c;
+            });
+          }
         }
 
-        // Add original values to the change data
-        change = {
-          ...change,
-          data: {
-            ...change.data,
-            ...originalValues,
-          },
-        };
-      }
-    }
+        // If we got here, it's not an update to a newly added entity
+        // Continue with normal change processing...
 
-    setPendingChanges((prevChanges) => {
-      // Check if this is a newly added entity being updated
-      // Look for any 'add' changes for the same entity type
-      const addChangesForSameEntityType = prevChanges.filter(
-        (c) => c.type === 'add' && c.entity === change.entity
-      );
+        // Create a unique key to track changes by entity type and ID
+        const changeKey = `${change.entity}-${change.id || 'new'}`;
 
-      // For update changes, check if we're updating a newly added entity
-      if (change.type === 'update' && addChangesForSameEntityType.length > 0) {
-        // Find the newly added entity with the same ID (for negative IDs which indicate new entities)
-        // or find newly added entities with no ID
-        const matchingAddChange = addChangesForSameEntityType.find(
-          (c) =>
-            (change.id && change.id < 0 && c.id === change.id) ||
-            (c.id === undefined && change.id === undefined)
-        );
+        // Group existing changes by this key for easier processing
+        const changesByKey = new Map<string, Change[]>();
+        prevChanges.forEach((c) => {
+          const key = `${c.entity}-${c.id || 'new'}`;
+          if (!changesByKey.has(key)) {
+            changesByKey.set(key, []);
+          }
+          changesByKey.get(key)?.push(c);
+        });
 
-        if (matchingAddChange) {
-          // We found a matching add change - update it instead of creating a new change
-          return prevChanges.map((c) => {
-            if (c === matchingAddChange) {
-              // Merge the data from the update into the add operation
-              const mergedData = { ...c.data };
+        const existingChanges = changesByKey.get(changeKey) || [];
 
-              // Apply updates
-              if (change.data?.name !== undefined) {
-                mergedData.name = change.data.name;
-              }
-              if (change.data?.abbreviation !== undefined) {
-                mergedData.abbreviation = change.data.abbreviation;
-              }
-              if (
-                change.data?.colorGroupId !== undefined &&
-                change.entity === 'subject'
-              ) {
-                mergedData.colorGroupId = change.data.colorGroupId;
-              }
+        // Case 1: Entity is added and then deleted - remove both changes
+        if (
+          change.type === 'delete' &&
+          existingChanges.some((c) => c.type === 'add') &&
+          (change.id === undefined || change.id < 0)
+        ) {
+          // Remove all changes for this entity
+          return prevChanges.filter(
+            (c) => !(c.entity === change.entity && c.id === change.id)
+          );
+        }
 
-              return {
-                ...c,
-                data: mergedData,
-                id: change.id || c.id, // Ensure ID is consistent
-                displayText: `Added ${change.entity === 'subject' ? 'Subject' : 'Location'} "${mergedData.name}"`,
-              };
+        // Case 2: Entity is changed and then deleted - keep only the delete
+        if (change.type === 'delete') {
+          // Filter out any previous changes for this entity, keeping only the delete
+          return [
+            ...prevChanges.filter(
+              (c) => !(c.entity === change.entity && c.id === change.id)
+            ),
+            change,
+          ];
+        }
+
+        // Case 3: Entity is updated multiple times - merge the update operations
+        if (change.type === 'update') {
+          const existingUpdate = existingChanges.find(
+            (c) => c.type === 'update'
+          );
+
+          if (existingUpdate) {
+            // Merge this update with the existing update, but preserve original values
+            // First, calculate what the merged data would look like
+            const mergedData = { ...existingUpdate.data, ...change.data };
+
+            // Extract original values
+            const originalName =
+              existingUpdate.data?.originalName || change.data?.originalName;
+            const originalAbbreviation =
+              existingUpdate.data?.originalAbbreviation ||
+              change.data?.originalAbbreviation;
+            const originalColorGroupId =
+              existingUpdate.data?.originalColorGroupId ||
+              change.data?.originalColorGroupId;
+
+            // Check if all changed values now match their original values
+            let allChangesReverted = true;
+
+            // If name was changed
+            if (mergedData.name !== undefined) {
+              allChangesReverted =
+                allChangesReverted && mergedData.name === originalName;
             }
-            return c;
-          });
+
+            // If abbreviation was changed
+            if (mergedData.abbreviation !== undefined) {
+              allChangesReverted =
+                allChangesReverted &&
+                mergedData.abbreviation === originalAbbreviation;
+            }
+
+            // If colorGroupId was changed (only applies to subjects)
+            if (
+              change.entity === 'subject' &&
+              mergedData.colorGroupId !== undefined
+            ) {
+              allChangesReverted =
+                allChangesReverted &&
+                mergedData.colorGroupId === originalColorGroupId;
+            }
+
+            // If all changes have been reverted, remove this change entirely
+            if (allChangesReverted) {
+              return prevChanges.filter((c) => c !== existingUpdate);
+            }
+
+            // Otherwise, merge the changes as usual
+            return prevChanges.map((c) => {
+              if (c === existingUpdate) {
+                // Extract any original values from both changes
+                const preservedOriginalValues: Record<string, any> = {};
+
+                // Keep original values from the existing update
+                if (c.data?.originalName) {
+                  preservedOriginalValues.originalName = c.data.originalName;
+                }
+                if (c.data?.originalAbbreviation) {
+                  preservedOriginalValues.originalAbbreviation =
+                    c.data.originalAbbreviation;
+                }
+                // ColorGroupId is only applicable for subjects
+                if (
+                  change.entity === 'subject' &&
+                  c.data?.originalColorGroupId
+                ) {
+                  preservedOriginalValues.originalColorGroupId =
+                    c.data.originalColorGroupId;
+                }
+
+                // Only use new original values if the existing update doesn't have them
+                if (!c.data?.originalName && change.data?.originalName) {
+                  preservedOriginalValues.originalName =
+                    change.data.originalName;
+                }
+                if (
+                  !c.data?.originalAbbreviation &&
+                  change.data?.originalAbbreviation
+                ) {
+                  preservedOriginalValues.originalAbbreviation =
+                    change.data.originalAbbreviation;
+                }
+                // ColorGroupId is only applicable for subjects
+                if (
+                  change.entity === 'subject' &&
+                  !c.data?.originalColorGroupId &&
+                  change.data?.originalColorGroupId
+                ) {
+                  preservedOriginalValues.originalColorGroupId =
+                    change.data.originalColorGroupId;
+                }
+
+                return {
+                  ...c,
+                  data: {
+                    // Spread new data from change (overwrites old values)
+                    ...change.data,
+                    // Preserve all original values (don't overwrite with new ones)
+                    ...preservedOriginalValues,
+                  },
+                  // Keep the original displayText
+                  displayText: c.displayText,
+                };
+              }
+              return c;
+            });
+          }
         }
-      }
 
-      // If we got here, it's not an update to a newly added entity
-      // Continue with normal change processing...
-
-      // Create a unique key to track changes by entity type and ID
-      const changeKey = `${change.entity}-${change.id || 'new'}`;
-
-      // Group existing changes by this key for easier processing
-      const changesByKey = new Map<string, Change[]>();
-      prevChanges.forEach((c) => {
-        const key = `${c.entity}-${c.id || 'new'}`;
-        if (!changesByKey.has(key)) {
-          changesByKey.set(key, []);
-        }
-        changesByKey.get(key)?.push(c);
-      });
-
-      const existingChanges = changesByKey.get(changeKey) || [];
-
-      // Case 1: Entity is added and then deleted - remove both changes
-      if (
-        change.type === 'delete' &&
-        existingChanges.some((c) => c.type === 'add') &&
-        (change.id === undefined || change.id < 0)
-      ) {
-        // Remove all changes for this entity
-        return prevChanges.filter(
-          (c) => !(c.entity === change.entity && c.id === change.id)
-        );
-      }
-
-      // Case 2: Entity is changed and then deleted - keep only the delete
-      if (change.type === 'delete') {
-        // Filter out any previous changes for this entity, keeping only the delete
+        // For all other cases (including archive/unarchive operations and new changes)
         return [
           ...prevChanges.filter(
-            (c) => !(c.entity === change.entity && c.id === change.id)
+            (c) =>
+              // Keep everything that's not an update to the same entity
+              // (allows keeping archive/unarchive operations separate)
+              !(
+                c.entity === change.entity &&
+                c.id === change.id &&
+                c.type === change.type
+              )
           ),
           change,
         ];
-      }
+      });
+    },
+    [subjects, locations]
+  );
 
-      // Case 3: Entity is updated multiple times - merge the update operations
-      if (change.type === 'update') {
-        const existingUpdate = existingChanges.find((c) => c.type === 'update');
-
-        if (existingUpdate) {
-          // Merge this update with the existing update, but preserve original values
-          // First, calculate what the merged data would look like
-          const mergedData = { ...existingUpdate.data, ...change.data };
-
-          // Extract original values
-          const originalName =
-            existingUpdate.data?.originalName || change.data?.originalName;
-          const originalAbbreviation =
-            existingUpdate.data?.originalAbbreviation ||
-            change.data?.originalAbbreviation;
-          const originalColorGroupId =
-            existingUpdate.data?.originalColorGroupId ||
-            change.data?.originalColorGroupId;
-
-          // Check if all changed values now match their original values
-          let allChangesReverted = true;
-
-          // If name was changed
-          if (mergedData.name !== undefined) {
-            allChangesReverted =
-              allChangesReverted && mergedData.name === originalName;
-          }
-
-          // If abbreviation was changed
-          if (mergedData.abbreviation !== undefined) {
-            allChangesReverted =
-              allChangesReverted &&
-              mergedData.abbreviation === originalAbbreviation;
-          }
-
-          // If colorGroupId was changed (only applies to subjects)
-          if (
-            change.entity === 'subject' &&
-            mergedData.colorGroupId !== undefined
-          ) {
-            allChangesReverted =
-              allChangesReverted &&
-              mergedData.colorGroupId === originalColorGroupId;
-          }
-
-          // If all changes have been reverted, remove this change entirely
-          if (allChangesReverted) {
-            return prevChanges.filter((c) => c !== existingUpdate);
-          }
-
-          // Otherwise, merge the changes as usual
-          return prevChanges.map((c) => {
-            if (c === existingUpdate) {
-              // Extract any original values from both changes
-              const preservedOriginalValues: Record<string, any> = {};
-
-              // Keep original values from the existing update
-              if (c.data?.originalName) {
-                preservedOriginalValues.originalName = c.data.originalName;
-              }
-              if (c.data?.originalAbbreviation) {
-                preservedOriginalValues.originalAbbreviation =
-                  c.data.originalAbbreviation;
-              }
-              // ColorGroupId is only applicable for subjects
-              if (change.entity === 'subject' && c.data?.originalColorGroupId) {
-                preservedOriginalValues.originalColorGroupId =
-                  c.data.originalColorGroupId;
-              }
-
-              // Only use new original values if the existing update doesn't have them
-              if (!c.data?.originalName && change.data?.originalName) {
-                preservedOriginalValues.originalName = change.data.originalName;
-              }
-              if (
-                !c.data?.originalAbbreviation &&
-                change.data?.originalAbbreviation
-              ) {
-                preservedOriginalValues.originalAbbreviation =
-                  change.data.originalAbbreviation;
-              }
-              // ColorGroupId is only applicable for subjects
-              if (
-                change.entity === 'subject' &&
-                !c.data?.originalColorGroupId &&
-                change.data?.originalColorGroupId
-              ) {
-                preservedOriginalValues.originalColorGroupId =
-                  change.data.originalColorGroupId;
-              }
-
-              return {
-                ...c,
-                data: {
-                  // Spread new data from change (overwrites old values)
-                  ...change.data,
-                  // Preserve all original values (don't overwrite with new ones)
-                  ...preservedOriginalValues,
-                },
-                // Keep the original displayText
-                displayText: c.displayText,
-              };
-            }
-            return c;
-          });
-        }
-      }
-
-      // For all other cases (including archive/unarchive operations and new changes)
-      return [
-        ...prevChanges.filter(
-          (c) =>
-            // Keep everything that's not an update to the same entity
-            // (allows keeping archive/unarchive operations separate)
-            !(
-              c.entity === change.entity &&
-              c.id === change.id &&
-              c.type === change.type
-            )
-        ),
-        change,
-      ];
-    });
-  };
-
-  // Handle clicks outside the editing row
+  // Handle data changes (needed to update UI when adding/updating entities)
   useEffect(() => {
-    // Only add the event listener if we're in edit mode
-    if (!editingSubject && !editingLocation) return;
+    // Update the subjects state when a subject is added or modified
+    const handleSubjectChanges = () => {
+      const subjectChanges = pendingChanges.filter(
+        (change) => change.entity === 'subject'
+      );
 
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        editingRowRef.current &&
-        !editingRowRef.current.contains(event.target as Node)
-      ) {
-        // Save the current editing state to local variables
-        const currentEditingSubject = editingSubject;
-        const currentEditingLocation = editingLocation;
+      if (subjectChanges.length > 0) {
+        // Create a copy of the current subjects
+        let updatedSubjects = [...subjects];
 
-        // Reset the editing state first to prevent infinite loops
-        if (currentEditingSubject) {
-          setEditingSubject(null);
-          setColorPickerOpen(null);
+        // Process each change
+        subjectChanges.forEach((change) => {
+          if (change.type === 'add') {
+            // Add new subject with temporary ID
+            const newSubject: SubjectAPI = {
+              id: change.id || -Date.now(),
+              name: change.data.name,
+              abbreviation: change.data.abbreviation,
+              colorGroupId: change.data.colorGroupId,
+              colorGroup: colorGroups.find(
+                (cg) => cg.id === change.data.colorGroupId
+              ) || {
+                name: 'Default',
+                colorCodes: ['#000000', '#000000', '#000000'],
+              },
+              archived: false,
+            };
 
-          // Then apply the changes
-          if (
-            currentEditingSubject.name &&
-            currentEditingSubject.abbreviation
-          ) {
-            const colorGroupId = currentEditingSubject.colorGroupId;
-            if (colorGroupId) {
-              // Find the original subject to compare changes
-              const originalSubject = subjects.find(
-                (s) => s.id === currentEditingSubject.id
-              );
-              if (!originalSubject) return;
-
-              // Only include fields that have changed
-              const changedData: any = {};
-
-              if (originalSubject.name !== currentEditingSubject.name) {
-                changedData.name = currentEditingSubject.name;
-                // Store original name for change history
-                changedData.originalName = originalSubject.name;
-              }
-
-              if (
-                originalSubject.abbreviation !==
-                currentEditingSubject.abbreviation
-              ) {
-                changedData.abbreviation = currentEditingSubject.abbreviation;
-                // Store original abbreviation for change history
-                changedData.originalAbbreviation = originalSubject.abbreviation;
-              }
-
-              if (originalSubject.colorGroupId !== colorGroupId) {
-                changedData.colorGroupId = colorGroupId;
-                // Store original color group for change history
-                changedData.originalColorGroupId = originalSubject.colorGroupId;
-              }
-
-              // Only proceed if there are actual changes
-              if (Object.keys(changedData).length > 0) {
-                // Check if all values being changed are actually the same as original values
-                const allChangesReverted =
-                  (changedData.name === undefined ||
-                    changedData.name === changedData.originalName) &&
-                  (changedData.abbreviation === undefined ||
-                    changedData.abbreviation ===
-                      changedData.originalAbbreviation) &&
-                  (changedData.colorGroupId === undefined ||
-                    changedData.colorGroupId ===
-                      changedData.originalColorGroupId);
-
-                // Only add the change if something is actually different
-                if (!allChangesReverted) {
-                  handleAddChange({
-                    type: 'update',
-                    entity: 'subject',
-                    id: currentEditingSubject.id!,
-                    data: changedData,
-                    displayText: `Updated Subject "${currentEditingSubject.name}"`,
-                  });
-                }
-              }
-            }
-          }
-        } else if (currentEditingLocation) {
-          setEditingLocation(null);
-
-          // Then apply the changes
-          if (
-            currentEditingLocation.name &&
-            currentEditingLocation.abbreviation
-          ) {
-            // Find the original location to compare changes
-            const originalLocation = locations.find(
-              (l) => l.id === currentEditingLocation.id
+            // Check if this subject already exists in our list (for when we reload from API)
+            const existingIndex = updatedSubjects.findIndex(
+              (s) => s.id === newSubject.id
             );
-            if (!originalLocation) return;
-
-            // Only include fields that have changed
-            const changedData: any = {};
-
-            if (originalLocation.name !== currentEditingLocation.name) {
-              changedData.name = currentEditingLocation.name;
-              // Store original name for change history
-              changedData.originalName = originalLocation.name;
+            if (existingIndex === -1) {
+              updatedSubjects.push(newSubject);
             }
-
-            if (
-              originalLocation.abbreviation !==
-              currentEditingLocation.abbreviation
-            ) {
-              changedData.abbreviation = currentEditingLocation.abbreviation;
-              // Store original abbreviation for change history
-              changedData.originalAbbreviation = originalLocation.abbreviation;
-            }
-
-            // Only proceed if there are actual changes
-            if (Object.keys(changedData).length > 0) {
-              // Check if all values being changed are actually the same as original values
-              const allChangesReverted =
-                (changedData.name === undefined ||
-                  changedData.name === changedData.originalName) &&
-                (changedData.abbreviation === undefined ||
-                  changedData.abbreviation ===
-                    changedData.originalAbbreviation);
-
-              // Only add the change if something is actually different
-              if (!allChangesReverted) {
-                handleAddChange({
-                  type: 'update',
-                  entity: 'location',
-                  id: currentEditingLocation.id!,
-                  data: changedData,
-                  displayText: `Updated Location "${currentEditingLocation.name}"`,
-                });
-              }
-            }
+          } else if (change.type === 'update') {
+            // Update existing subject
+            updatedSubjects = updatedSubjects.map((subject) =>
+              subject.id === change.id
+                ? {
+                    ...subject,
+                    ...(change.data.name && { name: change.data.name }),
+                    ...(change.data.abbreviation && {
+                      abbreviation: change.data.abbreviation,
+                    }),
+                    ...(change.data.colorGroupId && {
+                      colorGroupId: change.data.colorGroupId,
+                      colorGroup:
+                        colorGroups.find(
+                          (cg) => cg.id === change.data.colorGroupId
+                        ) || subject.colorGroup,
+                    }),
+                  }
+                : subject
+            );
+          } else if (change.type === 'delete') {
+            // Remove subject
+            updatedSubjects = updatedSubjects.filter(
+              (subject) => subject.id !== change.id
+            );
+          } else if (change.type === 'archive' || change.type === 'unarchive') {
+            // Archive/unarchive subject
+            updatedSubjects = updatedSubjects.map((subject) =>
+              subject.id === change.id
+                ? { ...subject, archived: change.data.archived }
+                : subject
+            );
           }
+        });
+
+        // Only update if the subjects have actually changed
+        if (JSON.stringify(updatedSubjects) !== JSON.stringify(subjects)) {
+          setSubjects(updatedSubjects);
         }
       }
-    }
-
-    // Add event listener
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      // Remove event listener on cleanup
-      document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [editingSubject, editingLocation, subjects, locations, handleAddChange]);
 
-  const handleArchiveSubject = (subject: SubjectAPI) => {
-    handleAddChange({
-      type: subject.archived ? 'unarchive' : 'archive',
-      entity: 'subject',
-      id: subject.id,
-      data: { archived: !subject.archived },
-      displayText: `${subject.archived ? 'Unarchived' : 'Archived'} Subject "${subject.name}"`,
-    });
-  };
+    // Update the locations state when a location is added or modified
+    const handleLocationChanges = () => {
+      const locationChanges = pendingChanges.filter(
+        (change) => change.entity === 'location'
+      );
 
-  const handleDeleteSubject = (subject: SubjectAPI) => {
-    handleAddChange({
-      type: 'delete',
-      entity: 'subject',
-      id: subject.id,
-      displayText: `Deleted Subject "${subject.name}"`,
-    });
-  };
+      if (locationChanges.length > 0) {
+        // Create a copy of the current locations
+        let updatedLocations = [...locations];
 
-  const handleArchiveLocation = (location: Location) => {
-    handleAddChange({
-      type: location.archived ? 'unarchive' : 'archive',
-      entity: 'location',
-      id: location.id,
-      data: { archived: !location.archived },
-      displayText: `${location.archived ? 'Unarchived' : 'Archived'} Location "${location.name}"`,
-    });
-  };
+        // Process each change
+        locationChanges.forEach((change) => {
+          if (change.type === 'add') {
+            // Add new location with temporary ID
+            const newLocation: Location = {
+              id: change.id || -Date.now(),
+              name: change.data.name,
+              abbreviation: change.data.abbreviation,
+              archived: false,
+            };
 
-  const handleDeleteLocation = (location: Location) => {
-    handleAddChange({
-      type: 'delete',
-      entity: 'location',
-      id: location.id,
-      displayText: `Deleted Location "${location.name}"`,
-    });
-  };
-
-  const handleAbsenceCapChange = (value: number) => {
-    setAllowedAbsences(value);
-    if (value !== absenceCap) {
-      handleAddChange({
-        type: 'update',
-        entity: 'setting',
-        data: { absenceCap: value },
-        displayText: `Updated Allowed Absences "${absenceCap}" → "${value}"`,
-      });
-    }
-  };
-
-  const handleEditSubject = (subject: SubjectAPI) => {
-    setEditingSubject(subject);
-  };
-
-  const handleSaveEditedSubject = () => {
-    if (!editingSubject || !editingSubject.name || !editingSubject.abbreviation)
-      return;
-
-    // Validate abbreviation length
-    if (editingSubject.abbreviation.length > MAX_SUBJECT_ABBREVIATION_LENGTH) {
-      toast({
-        title: 'Error',
-        description: `Subject abbreviation must be ${MAX_SUBJECT_ABBREVIATION_LENGTH} characters or less`,
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    // Store the current editing state
-    const currentEditingSubject = { ...editingSubject };
-
-    // Reset the editing state first
-    setEditingSubject(null);
-    setColorPickerOpen(null);
-
-    // Find colorGroupId based on name
-    const colorGroupId = currentEditingSubject.colorGroupId;
-    if (!colorGroupId) return;
-
-    // Find the original subject to compare changes
-    const originalSubject = subjects.find(
-      (s) => s.id === currentEditingSubject.id
-    );
-    if (!originalSubject) return;
-
-    // Update the local subjects array to immediately reflect changes in UI
-    setSubjects(
-      subjects.map((subject) =>
-        subject.id === currentEditingSubject.id
-          ? {
-              ...subject,
-              name: currentEditingSubject.name,
-              abbreviation: currentEditingSubject.abbreviation,
-              colorGroupId: colorGroupId,
-              colorGroup: currentEditingSubject.colorGroup,
+            // Check if this location already exists in our list (for when we reload from API)
+            const existingIndex = updatedLocations.findIndex(
+              (l) => l.id === newLocation.id
+            );
+            if (existingIndex === -1) {
+              updatedLocations.push(newLocation);
             }
-          : subject
-      )
-    );
-
-    // Only include fields that have changed
-    const changedData: any = {};
-
-    if (originalSubject.name !== currentEditingSubject.name) {
-      changedData.name = currentEditingSubject.name;
-      // Store original name for change history
-      changedData.originalName = originalSubject.name;
-    }
-
-    if (originalSubject.abbreviation !== currentEditingSubject.abbreviation) {
-      changedData.abbreviation = currentEditingSubject.abbreviation;
-      // Store original abbreviation for change history
-      changedData.originalAbbreviation = originalSubject.abbreviation;
-    }
-
-    if (originalSubject.colorGroupId !== colorGroupId) {
-      changedData.colorGroupId = colorGroupId;
-      // Store original color group for change history
-      changedData.originalColorGroupId = originalSubject.colorGroupId;
-    }
-
-    // Only proceed if there are actual changes
-    if (Object.keys(changedData).length > 0) {
-      // Check if all values being changed are actually the same as original values
-      const allChangesReverted =
-        (changedData.name === undefined ||
-          changedData.name === changedData.originalName) &&
-        (changedData.abbreviation === undefined ||
-          changedData.abbreviation === changedData.originalAbbreviation) &&
-        (changedData.colorGroupId === undefined ||
-          changedData.colorGroupId === changedData.originalColorGroupId);
-
-      // Only add the change if something is actually different
-      if (!allChangesReverted) {
-        handleAddChange({
-          type: 'update',
-          entity: 'subject',
-          id: currentEditingSubject.id!,
-          data: changedData,
-          displayText: `Updated Subject "${currentEditingSubject.name}"`,
+          } else if (change.type === 'update') {
+            // Update existing location
+            updatedLocations = updatedLocations.map((location) =>
+              location.id === change.id
+                ? {
+                    ...location,
+                    ...(change.data.name && { name: change.data.name }),
+                    ...(change.data.abbreviation && {
+                      abbreviation: change.data.abbreviation,
+                    }),
+                  }
+                : location
+            );
+          } else if (change.type === 'delete') {
+            // Remove location
+            updatedLocations = updatedLocations.filter(
+              (location) => location.id !== change.id
+            );
+          } else if (change.type === 'archive' || change.type === 'unarchive') {
+            // Archive/unarchive location
+            updatedLocations = updatedLocations.map((location) =>
+              location.id === change.id
+                ? { ...location, archived: change.data.archived }
+                : location
+            );
+          }
         });
+
+        // Only update if the locations have actually changed
+        if (JSON.stringify(updatedLocations) !== JSON.stringify(locations)) {
+          setLocations(updatedLocations);
+        }
       }
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingSubject(null);
-    setEditingLocation(null);
-    setIsAddingSubject(false);
-    setIsAddingLocation(false);
-    setColorPickerOpen(null);
-  };
-
-  const handleAddSubject = () => {
-    if (!newSubject.name || !newSubject.abbreviation) return;
-
-    // Validate abbreviation length
-    if (newSubject.abbreviation.length > MAX_SUBJECT_ABBREVIATION_LENGTH) {
-      toast({
-        title: 'Error',
-        description: `Subject abbreviation must be ${MAX_SUBJECT_ABBREVIATION_LENGTH} characters or less`,
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    // Find colorGroupId based on name
-    const colorGroupId = newSubject.colorGroupId;
-    if (!colorGroupId) return;
-
-    // Create a temporary ID for the new subject (negative to avoid conflicts)
-    const tempId = -Date.now();
-
-    // Create the new subject object
-    const newSubjectObj: SubjectAPI = {
-      id: tempId,
-      name: newSubject.name,
-      abbreviation: newSubject.abbreviation,
-      colorGroup: colorGroups[colorGroupId - 1],
-      colorGroupId: colorGroupId,
-      archived: false,
     };
 
-    // Add to the subjects array
-    setSubjects([...subjects, newSubjectObj]);
+    // Update the allowed absences when changed
+    const handleSettingChanges = () => {
+      const settingChanges = pendingChanges.filter(
+        (change) => change.entity === 'setting'
+      );
 
-    handleAddChange({
-      type: 'add',
-      entity: 'subject',
-      id: tempId,
-      data: {
-        name: newSubject.name,
-        abbreviation: newSubject.abbreviation,
-        colorGroupId: colorGroupId,
-      },
-      displayText: `Added Subject "${newSubject.name}"`,
-    });
+      if (settingChanges.length > 0) {
+        // Find the most recent absenceCap change
+        const absenceCapChange = settingChanges
+          .filter((change) => change.data?.absenceCap !== undefined)
+          .pop();
 
-    // Reset form and close it
-    setNewSubject({
-      id: 0,
-      name: '',
-      abbreviation: '',
-      colorGroup: {
-        // TODO make a default color group
-        name: 'Strings',
-        colorCodes: ['#f44336', '#ff9800', '#ffeb3b'],
-      },
-      colorGroupId: 1,
-      archived: false,
-    });
-    setIsAddingSubject(false);
-    setColorPickerOpen(null);
-  };
-
-  const handleAddLocation = () => {
-    if (!newLocation.name || !newLocation.abbreviation) return;
-
-    // Validate abbreviation length
-    if (newLocation.abbreviation.length > MAX_LOCATION_ABBREVIATION_LENGTH) {
-      toast({
-        title: 'Error',
-        description: `Location abbreviation must be ${MAX_LOCATION_ABBREVIATION_LENGTH} characters or less`,
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    // Create a temporary ID for the new location (negative to avoid conflicts)
-    const tempId = -Date.now();
-
-    // Create the new location object
-    const newLocationObj: Location = {
-      id: tempId,
-      name: newLocation.name,
-      abbreviation: newLocation.abbreviation,
-      archived: false,
+        if (
+          absenceCapChange &&
+          absenceCapChange.data?.absenceCap !== undefined
+        ) {
+          setAllowedAbsences(absenceCapChange.data.absenceCap);
+        }
+      }
     };
 
-    // Add to the locations array
-    setLocations([...locations, newLocationObj]);
-
-    handleAddChange({
-      type: 'add',
-      entity: 'location',
-      id: tempId,
-      data: {
-        name: newLocation.name,
-        abbreviation: newLocation.abbreviation,
-      },
-      displayText: `Added Location "${newLocation.name}"`,
-    });
-
-    setIsAddingLocation(false);
-    setNewLocation({
-      id: 0,
-      name: '',
-      abbreviation: '',
-      archived: false,
-    });
-  };
-
-  const handleEditLocation = (location: Location) => {
-    setEditingLocation(location);
-  };
-
-  const handleSaveEditedLocation = () => {
-    if (
-      !editingLocation ||
-      !editingLocation.name ||
-      !editingLocation.abbreviation
-    )
-      return;
-
-    // Validate abbreviation length
-    if (
-      editingLocation.abbreviation.length > MAX_LOCATION_ABBREVIATION_LENGTH
-    ) {
-      toast({
-        title: 'Error',
-        description: `Location abbreviation must be ${MAX_LOCATION_ABBREVIATION_LENGTH} characters or less`,
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    // Store the current editing state
-    const currentEditingLocation = { ...editingLocation };
-
-    // Reset the editing state first
-    setEditingLocation(null);
-
-    // Find the original location to compare changes
-    const originalLocation = locations.find(
-      (l) => l.id === currentEditingLocation.id
-    );
-    if (!originalLocation) return;
-
-    // Update the local locations array to immediately reflect changes in UI
-    setLocations(
-      locations.map((location) =>
-        location.id === currentEditingLocation.id
-          ? {
-              ...location,
-              name: currentEditingLocation.name,
-              abbreviation: currentEditingLocation.abbreviation,
-            }
-          : location
-      )
-    );
-
-    // Only include fields that have changed
-    const changedData: any = {};
-
-    if (originalLocation.name !== currentEditingLocation.name) {
-      changedData.name = currentEditingLocation.name;
-      // Store original name for change history
-      changedData.originalName = originalLocation.name;
-    }
-
-    if (originalLocation.abbreviation !== currentEditingLocation.abbreviation) {
-      changedData.abbreviation = currentEditingLocation.abbreviation;
-      // Store original abbreviation for change history
-      changedData.originalAbbreviation = originalLocation.abbreviation;
-    }
-
-    // Only proceed if there are actual changes
-    if (Object.keys(changedData).length > 0) {
-      // Check if all values being changed are actually the same as original values
-      const allChangesReverted =
-        (changedData.name === undefined ||
-          changedData.name === changedData.originalName) &&
-        (changedData.abbreviation === undefined ||
-          changedData.abbreviation === changedData.originalAbbreviation);
-
-      // Only add the change if something is actually different
-      if (!allChangesReverted) {
-        handleAddChange({
-          type: 'update',
-          entity: 'location',
-          id: currentEditingLocation.id!,
-          data: changedData,
-          displayText: `Updated Location "${currentEditingLocation.name}"`,
-        });
-      }
-    }
-  };
+    handleSubjectChanges();
+    handleLocationChanges();
+    handleSettingChanges();
+  }, [pendingChanges, subjects, locations, colorGroups]);
 
   const handleClose = () => {
     if (pendingChanges.length > 0) {
@@ -1003,7 +608,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   };
 
   const applyChanges = async () => {
-    const results: ChangeResult[] = [];
+    const results: { success: boolean; message: string }[] = [];
     let hasErrors = false;
 
     for (const change of pendingChanges) {
@@ -1108,118 +713,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     }
   };
 
-  const getDisplayableChanges = (changes: Change[]): string[] => {
-    const displayChanges: string[] = [];
-
-    console.log('Generating displayable changes from:', changes);
-
-    if (changes.length === 0) {
-      return ['No changes to apply'];
-    }
-
-    // Process each change to create more granular display items
-    changes.forEach((change) => {
-      console.log('Processing change:', change);
-      console.log('Change data:', change.data);
-
-      if (change.type === 'add') {
-        // Only show the main "Added Subject/Location" message
-        displayChanges.push(
-          `Added ${change.entity === 'subject' ? 'Subject' : 'Location'} "${change.data.name}"`
-        );
-      } else if (change.type === 'delete') {
-        displayChanges.push(
-          `Deleted ${change.entity === 'subject' ? 'Subject' : 'Location'} "${
-            // Try to find the name from the entities array
-            change.entity === 'subject'
-              ? subjects.find((s) => s.id === change.id)?.name || 'Unknown'
-              : locations.find((l) => l.id === change.id)?.name || 'Unknown'
-          }"`
-        );
-      } else if (change.type === 'archive' || change.type === 'unarchive') {
-        const entityName =
-          change.entity === 'subject'
-            ? subjects.find((s) => s.id === change.id)?.name
-            : locations.find((l) => l.id === change.id)?.name;
-
-        displayChanges.push(
-          `${change.type === 'archive' ? 'Archived' : 'Unarchived'} ${
-            change.entity === 'subject' ? 'Subject' : 'Location'
-          } "${entityName || 'Unknown'}"`
-        );
-      } else if (change.type === 'update') {
-        // Name changes
-        if (change.data.name !== undefined) {
-          const entityList = change.entity === 'subject' ? subjects : locations;
-          const entity = entityList.find((e) => e.id === change.id);
-          // Use the original name we stored when the change was created
-          const originalName =
-            change.data.originalName || entity?.name || 'Unknown';
-
-          displayChanges.push(
-            `Updated ${change.entity === 'subject' ? 'Subject' : 'Location'} Name "${originalName}" → "${change.data.name}"`
-          );
-        }
-
-        // Abbreviation changes
-        if (change.data.abbreviation !== undefined) {
-          const entityList = change.entity === 'subject' ? subjects : locations;
-          const entity = entityList.find((e) => e.id === change.id);
-          // Use the original abbreviation we stored when the change was created
-          const originalAbbr =
-            change.data.originalAbbreviation ||
-            entity?.abbreviation ||
-            'Unknown';
-
-          displayChanges.push(
-            `Updated Display "${originalAbbr}" → "${change.data.abbreviation}"`
-          );
-        }
-
-        // Color changes for subjects
-        if (
-          change.entity === 'subject' &&
-          change.data.colorGroupId !== undefined
-        ) {
-          const subject = subjects.find((s) => s.id === change.id);
-          // Get from original stored value if available, otherwise from the current subject data
-          const originalColorGroupId =
-            change.data.originalColorGroupId || subject?.colorGroupId;
-          const oldColorGroup = colorGroups.find(
-            (cg) => cg.id === originalColorGroupId
-          );
-          const newColorGroup = colorGroups.find(
-            (cg) => cg.id === change.data.colorGroupId
-          );
-
-          if (oldColorGroup && newColorGroup) {
-            displayChanges.push(
-              `Updated Color "${oldColorGroup.name}" → "${newColorGroup.name}"`
-            );
-          }
-        }
-      } else if (change.entity === 'setting') {
-        if (change.data.absenceCap !== undefined) {
-          displayChanges.push(
-            `Updated Allowed Absences ${absenceCap} → ${change.data.absenceCap}`
-          );
-        }
-      }
-    });
-
-    console.log('Final displayable changes:', displayChanges);
-
-    // If we still have no changes to display but changes exist,
-    // provide a fallback message
-    if (displayChanges.length === 0 && changes.length > 0) {
-      // Examine the first change to provide some information
-      const firstChange = changes[0];
-      displayChanges.push(`Changes will be applied to ${firstChange.entity}`);
-    }
-
-    return displayChanges;
-  };
-
   return (
     <>
       <Modal
@@ -1267,946 +760,31 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
             <VStack align="stretch" spacing={6} width="100%">
               {/* Subjects Section */}
               <Box>
-                <Box borderWidth="1px" borderRadius="md" overflow="hidden">
-                  {/* Table Header */}
-                  <Box
-                    p={3}
-                    bg="gray.50"
-                    borderBottomWidth="1px"
-                    display="flex"
-                    width="100%"
-                  >
-                    <Box width="70%" pl={2}>
-                      <HStack spacing={1}>
-                        <IoBookOutline />
-                        <Text fontWeight="medium">Subject</Text>
-                        <Box
-                          as="span"
-                          ml={1}
-                          color="primaryBlue.300"
-                          cursor="help"
-                          position="relative"
-                          _hover={{
-                            '& > div': {
-                              display: 'block',
-                            },
-                          }}
-                        >
-                          <LuInfo />
-                          <Box
-                            display="none"
-                            position="absolute"
-                            bg="gray.700"
-                            color="white"
-                            p={2}
-                            borderRadius="md"
-                            fontSize="sm"
-                            zIndex={10}
-                            top="100%"
-                            left="50%"
-                            transform="translateX(-50%)"
-                            width="150px"
-                            textAlign="center"
-                          >
-                            The full subject name
-                          </Box>
-                        </Box>
-                      </HStack>
-                    </Box>
-                    <Box width="30%">
-                      <HStack spacing={1}>
-                        <FiType />
-                        <Text fontWeight="medium">Display</Text>
-                        <Box
-                          as="span"
-                          ml={1}
-                          color="primaryBlue.300"
-                          cursor="help"
-                          position="relative"
-                          _hover={{
-                            '& > div': {
-                              display: 'block',
-                            },
-                          }}
-                        >
-                          <LuInfo />
-                          <Box
-                            display="none"
-                            position="absolute"
-                            bg="gray.700"
-                            color="white"
-                            p={2}
-                            borderRadius="md"
-                            fontSize="sm"
-                            zIndex={10}
-                            top="100%"
-                            right="0"
-                            width="200px"
-                            textAlign="center"
-                          >
-                            The abbreviated subject name
-                            <br />
-                            (max {MAX_SUBJECT_ABBREVIATION_LENGTH} characters)
-                          </Box>
-                        </Box>
-                      </HStack>
-                    </Box>
-                  </Box>
-
-                  {/* Table Rows */}
-                  {subjects.map((subject) => (
-                    <Box
-                      p={3}
-                      borderBottomWidth="1px"
-                      _last={{ borderBottomWidth: 0 }}
-                      ref={
-                        editingSubject?.id === subject.id
-                          ? editingRowRef
-                          : undefined
-                      }
-                      bg={subject.archived ? 'neutralGray.100' : 'white'}
-                      display="flex"
-                      width="100%"
-                      role="group"
-                      key={subject.id}
-                    >
-                      {editingSubject && editingSubject.id === subject.id ? (
-                        <>
-                          <Box width="70%" pl={2}>
-                            <HStack>
-                              <Box position="relative">
-                                <Circle
-                                  size="24px"
-                                  bg={
-                                    editingSubject.colorGroup.colorCodes[
-                                      COLOR_CODE_INDEX
-                                    ]
-                                  }
-                                  cursor="pointer"
-                                  onClick={() => setColorPickerOpen(subject.id)}
-                                />
-                                {colorPickerOpen === subject.id && (
-                                  <Box
-                                    position="absolute"
-                                    top="100%"
-                                    left="0"
-                                    zIndex={10}
-                                    bg="white"
-                                    borderWidth="1px"
-                                    borderRadius="md"
-                                    boxShadow="md"
-                                    p={2}
-                                    width="auto"
-                                  >
-                                    <Box
-                                      display="grid"
-                                      gridTemplateColumns="repeat(4, 1fr)"
-                                      gap={2}
-                                    >
-                                      {colorGroups.map((group) => (
-                                        <Circle
-                                          key={group.id}
-                                          size="24px"
-                                          bg={
-                                            group.colorCodes[COLOR_CODE_INDEX]
-                                          }
-                                          border="2px solid"
-                                          borderColor={
-                                            editingSubject?.colorGroup?.name ===
-                                            group.name
-                                              ? `${group.colorCodes[0]}` // Use darker color from array for selected item
-                                              : 'transparent'
-                                          }
-                                          cursor="pointer"
-                                          onClick={() => {
-                                            setEditingSubject({
-                                              ...editingSubject,
-                                              colorGroup: group,
-                                              colorGroupId: group.id,
-                                            });
-                                            setColorPickerOpen(null);
-                                          }}
-                                        />
-                                      ))}
-                                    </Box>
-                                  </Box>
-                                )}
-                              </Box>
-                              <Input
-                                value={editingSubject.name}
-                                onChange={(e) =>
-                                  setEditingSubject({
-                                    ...editingSubject,
-                                    name: e.target.value,
-                                  })
-                                }
-                                size="sm"
-                                flex="1"
-                              />
-                            </HStack>
-                          </Box>
-                          <Box
-                            width="30%"
-                            display="flex"
-                            justifyContent="space-between"
-                            alignItems="center"
-                          >
-                            <Input
-                              value={editingSubject.abbreviation}
-                              onChange={(e) =>
-                                setEditingSubject({
-                                  ...editingSubject,
-                                  abbreviation: e.target.value,
-                                })
-                              }
-                              size="sm"
-                              maxW="60px"
-                              maxLength={MAX_SUBJECT_ABBREVIATION_LENGTH}
-                            />
-                            <HStack>
-                              <Button
-                                variant="outline"
-                                onClick={handleSaveEditedSubject}
-                                size="sm"
-                                borderRadius="md"
-                                p={0}
-                              >
-                                <IoCheckmark
-                                  size={20}
-                                  color={theme.colors.gray[600]}
-                                />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                onClick={handleCancelEdit}
-                                size="sm"
-                                borderRadius="md"
-                                p={0}
-                              >
-                                <IoCloseOutline
-                                  size={20}
-                                  color={theme.colors.gray[600]}
-                                />
-                              </Button>
-                            </HStack>
-                          </Box>
-                        </>
-                      ) : (
-                        <>
-                          <Box width="70%" pl={2}>
-                            <HStack>
-                              <Circle
-                                size="24px"
-                                bg={
-                                  subject.colorGroup.colorCodes[
-                                    COLOR_CODE_INDEX
-                                  ]
-                                }
-                              />
-                              {subject.archived && (
-                                <LuArchive
-                                  color={theme.colors.text.inactiveButtonText}
-                                  size={16}
-                                />
-                              )}
-                              <Tooltip
-                                label={subject.name}
-                                placement="top"
-                                openDelay={300}
-                                isDisabled={subject.name.length <= 20}
-                              >
-                                <Box
-                                  position="relative"
-                                  width="100%"
-                                  maxWidth="170px"
-                                  overflow="hidden"
-                                >
-                                  <Text
-                                    color={
-                                      subject.archived
-                                        ? 'text.inactiveButtonText'
-                                        : 'inherit'
-                                    }
-                                    noOfLines={1}
-                                    overflow="hidden"
-                                    textOverflow="ellipsis"
-                                    whiteSpace="nowrap"
-                                    position="relative"
-                                    pr="30px"
-                                  >
-                                    {subject.name}
-                                  </Text>
-                                  <Box
-                                    position="absolute"
-                                    right="0"
-                                    top="0"
-                                    height="100%"
-                                    width="30px"
-                                    background={`linear-gradient(to right, transparent, ${subject.archived ? 'var(--chakra-colors-neutralGray-100)' : 'white'})`}
-                                    zIndex="1"
-                                    pointerEvents="none"
-                                  />
-                                </Box>
-                              </Tooltip>
-                            </HStack>
-                          </Box>
-                          <Box
-                            width="30%"
-                            display="flex"
-                            justifyContent="space-between"
-                          >
-                            <Text
-                              color={
-                                subject.archived
-                                  ? 'text.inactiveButtonText'
-                                  : 'inherit'
-                              }
-                            >
-                              {subject.abbreviation}
-                            </Text>
-                            <Box
-                              className="menu-button"
-                              opacity="0"
-                              _groupHover={{ opacity: '1' }}
-                            >
-                              <Menu>
-                                <MenuButton
-                                  as={IconButton}
-                                  aria-label="Options"
-                                  icon={<IoEllipsisHorizontal />}
-                                  variant="ghost"
-                                  size="sm"
-                                />
-                                <MenuList>
-                                  <MenuItem
-                                    icon={<IoCreateOutline />}
-                                    onClick={() => handleEditSubject(subject)}
-                                  >
-                                    Edit
-                                  </MenuItem>
-                                  <MenuItem
-                                    icon={<IoArchiveOutline />}
-                                    onClick={() =>
-                                      handleArchiveSubject(subject)
-                                    }
-                                  >
-                                    {subject.archived ? 'Unarchive' : 'Archive'}
-                                  </MenuItem>
-                                  <Tooltip
-                                    label={
-                                      subjectsInUse.includes(subject.id)
-                                        ? 'Cannot delete subject because it is used in existing absences'
-                                        : ''
-                                    }
-                                    isDisabled={
-                                      !subjectsInUse.includes(subject.id)
-                                    }
-                                  >
-                                    <MenuItem
-                                      icon={<IoTrashOutline />}
-                                      onClick={() =>
-                                        handleDeleteSubject(subject)
-                                      }
-                                      color="red.500"
-                                      isDisabled={subjectsInUse.includes(
-                                        subject.id
-                                      )}
-                                      bg={
-                                        subjectsInUse.includes(subject.id)
-                                          ? 'neutralGray.100'
-                                          : undefined
-                                      }
-                                      _hover={
-                                        subjectsInUse.includes(subject.id)
-                                          ? { bg: 'neutralGray.100' }
-                                          : undefined
-                                      }
-                                      cursor={
-                                        subjectsInUse.includes(subject.id)
-                                          ? 'not-allowed'
-                                          : 'pointer'
-                                      }
-                                    >
-                                      Delete
-                                    </MenuItem>
-                                  </Tooltip>
-                                </MenuList>
-                              </Menu>
-                            </Box>
-                          </Box>
-                        </>
-                      )}
-                    </Box>
-                  ))}
-
-                  {/* Add New Subject Row */}
-                  {isAddingSubject ? (
-                    <Box
-                      p={3}
-                      borderBottomWidth="1px"
-                      display="flex"
-                      width="100%"
-                      ref={editingRowRef}
-                    >
-                      <Box width="70%" pl={2}>
-                        <HStack>
-                          <Box position="relative">
-                            <Circle
-                              size="24px"
-                              bg={
-                                colorGroups.find(
-                                  (cg) => cg.name === newSubject.colorGroup.name
-                                )?.colorCodes[COLOR_CODE_INDEX] || '#CBD5E0'
-                              }
-                              cursor="pointer"
-                              onClick={() => setColorPickerOpen(-1)}
-                            />
-                            {colorPickerOpen === -1 && (
-                              <Box
-                                position="absolute"
-                                top="100%"
-                                left="0"
-                                zIndex={10}
-                                bg="white"
-                                borderWidth="1px"
-                                borderRadius="md"
-                                boxShadow="md"
-                                p={2}
-                                width="auto"
-                              >
-                                <Box
-                                  display="grid"
-                                  gridTemplateColumns="repeat(4, 1fr)"
-                                  gap={2}
-                                >
-                                  {colorGroups.map((group) => (
-                                    <Circle
-                                      key={group.id}
-                                      size="24px"
-                                      bg={group.colorCodes[COLOR_CODE_INDEX]}
-                                      border="2px solid"
-                                      borderColor={
-                                        newSubject?.colorGroup?.name ===
-                                        group.name
-                                          ? `${group.colorCodes[0]}` // Use darker color from array for selected item
-                                          : 'transparent'
-                                      }
-                                      cursor="pointer"
-                                      onClick={() => {
-                                        setNewSubject({
-                                          ...newSubject,
-                                          colorGroup: group,
-                                          colorGroupId: group.id,
-                                        });
-                                        setColorPickerOpen(null);
-                                      }}
-                                    />
-                                  ))}
-                                </Box>
-                              </Box>
-                            )}
-                          </Box>
-                          <Input
-                            value={newSubject.name}
-                            onChange={(e) =>
-                              setNewSubject({
-                                ...newSubject,
-                                name: e.target.value,
-                              })
-                            }
-                            placeholder="Subject name"
-                            size="sm"
-                            flex="1"
-                          />
-                        </HStack>
-                      </Box>
-                      <Box
-                        width="30%"
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="center"
-                      >
-                        <Input
-                          value={newSubject.abbreviation}
-                          onChange={(e) =>
-                            setNewSubject({
-                              ...newSubject,
-                              abbreviation: e.target.value,
-                            })
-                          }
-                          placeholder="Abbr."
-                          size="sm"
-                          maxW="60px"
-                          maxLength={MAX_SUBJECT_ABBREVIATION_LENGTH}
-                        />
-                        <HStack>
-                          <Button
-                            variant="outline"
-                            onClick={handleAddSubject}
-                            size="sm"
-                            borderRadius="md"
-                            p={0}
-                          >
-                            <IoCheckmark
-                              size={20}
-                              color={theme.colors.gray[600]}
-                            />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={handleCancelEdit}
-                            size="sm"
-                            borderRadius="md"
-                            p={0}
-                          >
-                            <IoCloseOutline
-                              size={20}
-                              color={theme.colors.gray[600]}
-                            />
-                          </Button>
-                        </HStack>
-                      </Box>
-                    </Box>
-                  ) : null}
-
-                  {/* Add Button */}
-                  <HStack
-                    p={3}
-                    justify="flex-start"
-                    borderTopWidth={subjects.length > 0 ? '1px' : '0'}
-                    bg="gray.50"
-                  >
-                    <Button
-                      leftIcon={<IoAdd />}
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setIsAddingSubject(true)}
-                    >
-                      Add
-                    </Button>
-                  </HStack>
-                </Box>
+                <SubjectsTable
+                  subjects={subjects}
+                  colorGroups={colorGroups}
+                  subjectsInUse={subjectsInUse}
+                  handleAddChange={handleAddChange}
+                  maxAbbreviationLength={MAX_SUBJECT_ABBREVIATION_LENGTH}
+                />
               </Box>
 
               {/* Locations Section */}
               <Box>
-                <Box borderWidth="1px" borderRadius="md" overflow="hidden">
-                  {/* Table Header */}
-                  <Box
-                    p={3}
-                    bg="gray.50"
-                    borderBottomWidth="1px"
-                    display="flex"
-                    width="100%"
-                  >
-                    <Box width="70%" pl={2}>
-                      <HStack spacing={1}>
-                        <IoBookOutline />
-                        <Text fontWeight="medium">Location</Text>
-                        <Box
-                          as="span"
-                          ml={1}
-                          color="primaryBlue.300"
-                          cursor="help"
-                          position="relative"
-                          _hover={{
-                            '& > div': {
-                              display: 'block',
-                            },
-                          }}
-                        >
-                          <LuInfo />
-                          <Box
-                            display="none"
-                            position="absolute"
-                            bg="gray.700"
-                            color="white"
-                            p={2}
-                            borderRadius="md"
-                            fontSize="sm"
-                            zIndex={10}
-                            top="100%"
-                            left="50%"
-                            transform="translateX(-50%)"
-                            width="150px"
-                            textAlign="center"
-                          >
-                            The full location name
-                          </Box>
-                        </Box>
-                      </HStack>
-                    </Box>
-                    <Box width="30%">
-                      <HStack spacing={1}>
-                        <FiType />
-                        <Text fontWeight="medium">Display</Text>
-                        <Box
-                          as="span"
-                          ml={1}
-                          color="primaryBlue.300"
-                          cursor="help"
-                          position="relative"
-                          _hover={{
-                            '& > div': {
-                              display: 'block',
-                            },
-                          }}
-                        >
-                          <LuInfo />
-                          <Box
-                            display="none"
-                            position="absolute"
-                            bg="gray.700"
-                            color="white"
-                            p={2}
-                            borderRadius="md"
-                            fontSize="sm"
-                            zIndex={10}
-                            top="100%"
-                            right="0"
-                            width="200px"
-                            textAlign="center"
-                          >
-                            The abbreviated location name
-                            <br />
-                            (max {MAX_LOCATION_ABBREVIATION_LENGTH} characters)
-                          </Box>
-                        </Box>
-                      </HStack>
-                    </Box>
-                  </Box>
-
-                  {/* Table Rows */}
-                  {locations.map((location) => (
-                    <Box
-                      p={3}
-                      borderBottomWidth="1px"
-                      _last={{ borderBottomWidth: 0 }}
-                      ref={
-                        editingLocation?.id === location.id
-                          ? editingRowRef
-                          : undefined
-                      }
-                      bg={location.archived ? 'neutralGray.100' : 'white'}
-                      display="flex"
-                      width="100%"
-                      role="group"
-                      key={location.id}
-                    >
-                      {editingLocation && editingLocation.id === location.id ? (
-                        <>
-                          <Box width="70%" pl={2}>
-                            <Input
-                              value={editingLocation.name}
-                              onChange={(e) =>
-                                setEditingLocation({
-                                  ...editingLocation,
-                                  name: e.target.value,
-                                })
-                              }
-                              size="sm"
-                              flex="1"
-                            />
-                          </Box>
-                          <Box
-                            width="30%"
-                            display="flex"
-                            justifyContent="space-between"
-                            alignItems="center"
-                          >
-                            <Input
-                              value={editingLocation.abbreviation}
-                              onChange={(e) =>
-                                setEditingLocation({
-                                  ...editingLocation,
-                                  abbreviation: e.target.value,
-                                })
-                              }
-                              size="sm"
-                              maxW="60px"
-                              maxLength={MAX_LOCATION_ABBREVIATION_LENGTH}
-                            />
-                            <HStack>
-                              <Button
-                                variant="outline"
-                                onClick={handleSaveEditedLocation}
-                                size="sm"
-                                borderRadius="md"
-                                p={0}
-                              >
-                                <IoCheckmark
-                                  size={20}
-                                  color={theme.colors.gray[600]}
-                                />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                onClick={handleCancelEdit}
-                                size="sm"
-                                borderRadius="md"
-                                p={0}
-                              >
-                                <IoCloseOutline
-                                  size={20}
-                                  color={theme.colors.gray[600]}
-                                />
-                              </Button>
-                            </HStack>
-                          </Box>
-                        </>
-                      ) : (
-                        <>
-                          <Box width="70%" pl={2}>
-                            <HStack>
-                              {location.archived && (
-                                <LuArchive
-                                  color={theme.colors.text.inactiveButtonText}
-                                  size={16}
-                                />
-                              )}
-                              <Tooltip
-                                label={location.name}
-                                placement="top"
-                                openDelay={300}
-                                isDisabled={location.name.length <= 20}
-                              >
-                                <Box
-                                  position="relative"
-                                  width="100%"
-                                  maxWidth="170px"
-                                  overflow="hidden"
-                                >
-                                  <Text
-                                    color={
-                                      location.archived
-                                        ? 'text.inactiveButtonText'
-                                        : 'inherit'
-                                    }
-                                    noOfLines={1}
-                                    overflow="hidden"
-                                    textOverflow="ellipsis"
-                                    whiteSpace="nowrap"
-                                    position="relative"
-                                    pr="30px"
-                                  >
-                                    {location.name}
-                                  </Text>
-                                  <Box
-                                    position="absolute"
-                                    right="0"
-                                    top="0"
-                                    height="100%"
-                                    width="30px"
-                                    background={`linear-gradient(to right, transparent, ${location.archived ? 'var(--chakra-colors-neutralGray-100)' : 'white'})`}
-                                    zIndex="1"
-                                    pointerEvents="none"
-                                  />
-                                </Box>
-                              </Tooltip>
-                            </HStack>
-                          </Box>
-                          <Box
-                            width="30%"
-                            display="flex"
-                            justifyContent="space-between"
-                          >
-                            <Text
-                              color={
-                                location.archived
-                                  ? 'text.inactiveButtonText'
-                                  : 'inherit'
-                              }
-                            >
-                              {location.abbreviation}
-                            </Text>
-                            <Box
-                              className="menu-button"
-                              opacity="0"
-                              _groupHover={{ opacity: '1' }}
-                            >
-                              <Menu>
-                                <MenuButton
-                                  as={IconButton}
-                                  aria-label="Options"
-                                  icon={<IoEllipsisHorizontal />}
-                                  variant="ghost"
-                                  size="sm"
-                                />
-                                <MenuList>
-                                  <MenuItem
-                                    icon={<IoCreateOutline />}
-                                    onClick={() => handleEditLocation(location)}
-                                  >
-                                    Edit
-                                  </MenuItem>
-                                  <MenuItem
-                                    icon={<IoArchiveOutline />}
-                                    onClick={() =>
-                                      handleArchiveLocation(location)
-                                    }
-                                  >
-                                    {location.archived
-                                      ? 'Unarchive'
-                                      : 'Archive'}
-                                  </MenuItem>
-                                  <Tooltip
-                                    label={
-                                      locationsInUse.includes(location.id)
-                                        ? 'Cannot delete location because it is used in existing absences'
-                                        : ''
-                                    }
-                                    isDisabled={
-                                      !locationsInUse.includes(location.id)
-                                    }
-                                  >
-                                    <MenuItem
-                                      icon={<IoTrashOutline />}
-                                      onClick={() =>
-                                        handleDeleteLocation(location)
-                                      }
-                                      color="red.500"
-                                      isDisabled={locationsInUse.includes(
-                                        location.id
-                                      )}
-                                      bg={
-                                        locationsInUse.includes(location.id)
-                                          ? 'neutralGray.100'
-                                          : undefined
-                                      }
-                                      _hover={
-                                        locationsInUse.includes(location.id)
-                                          ? { bg: 'neutralGray.100' }
-                                          : undefined
-                                      }
-                                      cursor={
-                                        locationsInUse.includes(location.id)
-                                          ? 'not-allowed'
-                                          : 'pointer'
-                                      }
-                                    >
-                                      Delete
-                                    </MenuItem>
-                                  </Tooltip>
-                                </MenuList>
-                              </Menu>
-                            </Box>
-                          </Box>
-                        </>
-                      )}
-                    </Box>
-                  ))}
-
-                  {/* Add New Location Row */}
-                  {isAddingLocation ? (
-                    <Box
-                      p={3}
-                      borderBottomWidth="1px"
-                      display="flex"
-                      width="100%"
-                      ref={editingRowRef}
-                    >
-                      <Box width="70%" pl={2}>
-                        <Input
-                          value={newLocation.name}
-                          onChange={(e) =>
-                            setNewLocation({
-                              ...newLocation,
-                              name: e.target.value,
-                            })
-                          }
-                          placeholder="Location name"
-                          size="sm"
-                          flex="1"
-                        />
-                      </Box>
-                      <Box
-                        width="30%"
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="center"
-                      >
-                        <Input
-                          value={newLocation.abbreviation}
-                          onChange={(e) =>
-                            setNewLocation({
-                              ...newLocation,
-                              abbreviation: e.target.value,
-                            })
-                          }
-                          placeholder="Abbr."
-                          size="sm"
-                          maxW="60px"
-                          maxLength={MAX_LOCATION_ABBREVIATION_LENGTH}
-                        />
-                        <HStack>
-                          <Button
-                            variant="outline"
-                            onClick={handleAddLocation}
-                            size="sm"
-                            borderRadius="md"
-                            p={0}
-                          >
-                            <IoCheckmark
-                              size={20}
-                              color={theme.colors.gray[600]}
-                            />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={handleCancelEdit}
-                            size="sm"
-                            borderRadius="md"
-                            p={0}
-                          >
-                            <IoCloseOutline
-                              size={20}
-                              color={theme.colors.gray[600]}
-                            />
-                          </Button>
-                        </HStack>
-                      </Box>
-                    </Box>
-                  ) : null}
-
-                  {/* Add Button */}
-                  <HStack
-                    p={3}
-                    justify="flex-start"
-                    borderTopWidth={locations.length > 0 ? '1px' : '0'}
-                    bg="gray.50"
-                  >
-                    <Button
-                      leftIcon={<IoAdd />}
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setIsAddingLocation(true)}
-                    >
-                      Add
-                    </Button>
-                  </HStack>
-                </Box>
+                <LocationsTable
+                  locations={locations}
+                  locationsInUse={locationsInUse}
+                  handleAddChange={handleAddChange}
+                  maxAbbreviationLength={MAX_LOCATION_ABBREVIATION_LENGTH}
+                />
               </Box>
 
               {/* Settings Section */}
-              <Box>
-                <VStack align="stretch" spacing={3}>
-                  <FormControl>
-                    <FormLabel>Allowed Absences</FormLabel>
-                    <NumberInput
-                      value={allowedAbsences}
-                      onChange={(_, value) => handleAbsenceCapChange(value)}
-                      min={1}
-                      max={100}
-                    >
-                      <NumberInputField />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                  </FormControl>
-                </VStack>
-              </Box>
+              <SystemSettings
+                allowedAbsences={allowedAbsences}
+                originalAbsenceCap={absenceCap}
+                handleAddChange={handleAddChange}
+              />
             </VStack>
           </ModalBody>
           <ModalFooter>
@@ -2220,20 +798,16 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         </ModalContent>
       </Modal>
 
-      <ConfirmationDialog
+      <SystemChangesConfirmationDialog
         isOpen={confirmationDialog.isOpen}
         onClose={confirmationDialog.onClose}
         onConfirm={isConfirmingClose ? handleCloseConfirmed : applyChanges}
-        title={
-          isConfirmingClose
-            ? 'Discard Changes?'
-            : 'You are making the following changes'
-        }
-        message={
-          isConfirmingClose
-            ? 'You have unsaved changes. Are you sure you want to close without saving?'
-            : getDisplayableChanges(pendingChanges).join('\n')
-        }
+        pendingChanges={pendingChanges}
+        isConfirmingClose={isConfirmingClose}
+        subjects={subjects}
+        locations={locations}
+        colorGroups={colorGroups}
+        absenceCap={absenceCap}
       />
     </>
   );
