@@ -80,6 +80,7 @@ const ExportAbsencesButton = () => {
         leftIcon={<FiDownload size={18} />}
         variant="solid"
         onClick={handleDownload}
+        height="40px"
       >
         Export
       </Button>

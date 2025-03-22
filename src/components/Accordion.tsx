@@ -10,29 +10,29 @@ import {
 } from '@chakra-ui/react';
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 
-export interface DropdownItem {
+export interface AccordionItem {
   id: number;
   name: string;
   color: string;
 }
 
-export interface DropdownProps {
+export interface AccordionProps {
   title: string;
-  items: DropdownItem[];
+  items: AccordionItem[];
   selectedItems: number[];
   isOpen: boolean;
   toggleOpen: () => void;
   toggleItem: (id: number) => void;
 }
 
-const Dropdown = ({
+const Accordion = ({
   title,
   items,
   selectedItems,
   isOpen,
   toggleOpen,
   toggleItem,
-}: DropdownProps) => {
+}: AccordionProps) => {
   return (
     <Box width="100%">
       <Button
@@ -85,4 +85,4 @@ const Dropdown = ({
   );
 };
 
-export default Dropdown;
+export default Accordion;

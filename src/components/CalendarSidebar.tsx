@@ -2,9 +2,9 @@ import { AddIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
 import React, { useCallback } from 'react';
 import { TacetLogo } from '../components/SistemaLogoColour';
-import LocationDropdown from './LocationDropdown';
+import LocationAccordion from './LocationAccordion';
 import MiniCalendar from './MiniCalendar';
-import SubjectDropdown from './SubjectDropdown';
+import SubjectAccordion from './SubjectAccordion';
 
 interface CalendarSidebarProps {
   setSearchQuery;
@@ -70,8 +70,8 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         onDateSelect={onDateSelect}
         selectDate={selectDate}
       />
-      <SubjectDropdown setFilter={setSubjectIdFilter} />
-      <LocationDropdown setFilter={setLocationIdFilter} />
+      <SubjectAccordion setFilter={setSubjectIdFilter} />
+      <LocationAccordion setFilter={setLocationIdFilter} />
     </Flex>
   );
 };

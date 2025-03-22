@@ -20,9 +20,9 @@ export function CalendarTabs({ activeTab, onTabChange }: CalendarTabsProps) {
         fontWeight="600"
         width="50%"
         color={activeTab === 'explore' ? 'primaryBlue.300' : 'text.subtitle'}
-        _hover={{ color: 'primaryBlue.300' }}
         onClick={() => onTabChange('explore')}
         pb="8px"
+        _hover={{ color: 'primaryBlue.300' }}
         _active={{ bg: 'transparent' }}
         borderRadius={0}
       >
@@ -35,9 +35,9 @@ export function CalendarTabs({ activeTab, onTabChange }: CalendarTabsProps) {
         fontWeight="600"
         width="50%"
         color={activeTab === 'declared' ? 'primaryBlue.300' : 'text.subtitle'}
-        _hover={{ color: 'primaryBlue.300' }}
         onClick={() => onTabChange('declared')}
         pb="8px"
+        _hover={{ color: 'primaryBlue.300' }}
         _active={{ bg: 'transparent' }}
         borderRadius={0}
       >

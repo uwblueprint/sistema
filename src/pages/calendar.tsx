@@ -20,13 +20,7 @@ import { Absence, Prisma } from '@prisma/client';
 import { AbsenceAPI } from '@utils/types';
 import { useUserData } from '@utils/useUserData';
 import { useRouter } from 'next/navigation';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import CalendarHeader from '../components/CalendarHeader';
 import CalendarSidebar from '../components/CalendarSidebar';
 import { CalendarTabs } from '../components/CalendarTabs';
@@ -57,6 +51,7 @@ const Calendar: React.FC = () => {
     'explore'
   );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(true);
   const toast = useToast();
   const theme = useTheme();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -236,21 +231,23 @@ const Calendar: React.FC = () => {
       return subjectIdMatch && locationIdMatch;
     });
 
-    if (activeTab === 'explore') {
-      filtered = filtered.filter(
-        (event) =>
-          event.absentTeacher.id !== userData.id && !event.substituteTeacher
-      );
-    } else if (activeTab === 'declared') {
-      filtered = filtered.filter(
-        (event) =>
-          event.absentTeacher.id === userData.id ||
-          event.substituteTeacher?.id === userData.id
-      );
+    if (!isAdminMode) {
+      if (activeTab === 'explore') {
+        filtered = filtered.filter(
+          (event) =>
+            event.absentTeacher.id !== userData.id && !event.substituteTeacher
+        );
+      } else if (activeTab === 'declared') {
+        filtered = filtered.filter(
+          (event) =>
+            event.absentTeacher.id === userData.id ||
+            event.substituteTeacher?.id === userData.id
+        );
+      }
     }
 
     setFilteredEvents(filtered);
-  }, [searchQuery, events, activeTab, userData.id]);
+  }, [searchQuery, events, activeTab, userData.id, isAdminMode]);
 
   if (userData.isLoading) {
     return null;
@@ -342,10 +339,14 @@ const Calendar: React.FC = () => {
             onPrevClick={handlePrevClick}
             onNextClick={handleNextClick}
             userData={userData}
+            isAdminMode={isAdminMode}
+            setIsAdminMode={setIsAdminMode}
           />
 
           <Box flex={1} overflow="hidden" paddingRight={theme.space[2]}>
-            <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
+            {!isAdminMode && (
+              <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
+            )}
             <FullCalendar
               ref={calendarRef}
               headerToolbar={false}

@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { IoChevronBack, IoChevronForward, IoStatsChart } from 'react-icons/io5';
 import ProfileMenu from './ProfileMenu';
+import { AdminTeacherToggle } from './AdminTeacherToggle';
 
 interface CalendarHeaderProps {
   currentMonthYear: string;
@@ -20,6 +21,8 @@ interface CalendarHeaderProps {
   onPrevClick: () => void;
   onNextClick: () => void;
   userData?: UserData;
+  isAdminMode: boolean;
+  setIsAdminMode: (mode: boolean) => void;
 }
 
 const CalendarHeader: React.FC<CalendarHeaderProps> = ({
@@ -28,6 +31,8 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onPrevClick,
   onNextClick,
   userData,
+  isAdminMode,
+  setIsAdminMode,
 }) => {
   const theme = useTheme();
   const router = useRouter();
@@ -47,6 +52,8 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
 
     fetchSettings();
   }, []);
+
+  const isAdmin = userData?.role === 'ADMIN';
 
   return (
     <Flex marginBottom={theme.space[4]} alignItems="center" width="100%">
@@ -79,15 +86,28 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
       </HStack>
       <Spacer />
       <HStack spacing={theme.space[4]} mr={theme.space[4]}>
-        <Button
-          leftIcon={
-            <IoStatsChart size={20} color={theme.colors.primaryBlue[300]} />
-          }
-          variant="outline"
-          onClick={() => router.push('/dashboard')}
-        >
-          Admin Dashboard
-        </Button>
+        {isAdmin && (
+          <>
+            {isAdminMode && (
+              <Button
+                leftIcon={
+                  <IoStatsChart
+                    size={20}
+                    color={theme.colors.primaryBlue[300]}
+                  />
+                }
+                variant="outline"
+                onClick={() => router.push('/dashboard')}
+              >
+                Admin Dashboard
+              </Button>
+            )}
+            <AdminTeacherToggle
+              isAdminMode={isAdminMode}
+              onToggle={(mode) => setIsAdminMode(mode === 'admin')}
+            />
+          </>
+        )}
         <ProfileMenu userData={userData} absenceCap={absenceCap} />
       </HStack>
     </Flex>
