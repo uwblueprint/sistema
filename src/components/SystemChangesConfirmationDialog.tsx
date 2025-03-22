@@ -1,13 +1,23 @@
 import {
   Button,
-  useDisclosure,
   Text,
   VStack,
   Box,
+  HStack,
+  Icon,
+  Flex,
   Divider,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  Center,
 } from '@chakra-ui/react';
 import React from 'react';
-import ConfirmationDialog from './ConfirmationDialog';
+import { FiTrash2, FiArchive, FiFolder, FiEdit2 } from 'react-icons/fi';
+import { IoWarning, IoAlertCircleSharp, IoAdd } from 'react-icons/io5';
 
 export type ChangeType = 'delete' | 'archive' | 'unarchive' | 'update' | 'add';
 
@@ -44,127 +54,262 @@ const SystemChangesConfirmationDialog: React.FC<
   colorGroups,
   absenceCap,
 }) => {
-  const getDisplayableChanges = (changes: Change[]): string[] => {
-    const displayChanges: string[] = [];
+  const cancelRef = React.useRef<HTMLButtonElement>(null);
 
-    if (changes.length === 0) {
-      return ['No changes to apply'];
+  const getChangeIcon = (change: Change) => {
+    if (change.type === 'delete') {
+      return <Icon as={FiTrash2} color="red.500" boxSize={5} />;
+    } else if (change.type === 'archive' || change.type === 'unarchive') {
+      return <Icon as={FiArchive} color="blue.500" boxSize={5} />;
+    } else if (change.type === 'update') {
+      return <Icon as={FiEdit2} color="blue.500" boxSize={5} />;
+    } else if (change.type === 'add') {
+      return <Icon as={IoAdd} color="blue.500" boxSize={8} />;
+    }
+    return null;
+  };
+
+  const getChangeText = (change: Change): { text: string; color: string } => {
+    if (change.type === 'delete') {
+      return {
+        text: `Deleted ${change.entity === 'subject' ? 'Subject' : 'Location'}`,
+        color: 'red.500',
+      };
+    } else if (change.type === 'archive') {
+      return {
+        text: `Archived ${change.entity === 'subject' ? 'Subject' : 'Location'}`,
+        color: 'blue.500',
+      };
+    } else if (change.type === 'unarchive') {
+      return {
+        text: `Unarchived ${change.entity === 'subject' ? 'Subject' : 'Location'}`,
+        color: 'blue.500',
+      };
+    }
+    return { text: change.displayText, color: 'gray.700' };
+  };
+
+  const getDisplayableChanges = (): {
+    icon: React.ReactNode;
+    label: string;
+    color: string;
+    details: string;
+  }[] => {
+    const displayChanges: {
+      icon: React.ReactNode;
+      label: string;
+      color: string;
+      details: string;
+    }[] = [];
+
+    if (pendingChanges.length === 0) {
+      return [
+        {
+          icon: null,
+          label: 'No changes to apply',
+          color: 'gray.700',
+          details: '',
+        },
+      ];
     }
 
     // Process each change to create more granular display items
-    changes.forEach((change) => {
+    pendingChanges.forEach((change) => {
       if (change.type === 'add') {
-        // Only show the main "Added Subject/Location" message
-        displayChanges.push(
-          `Added ${change.entity === 'subject' ? 'Subject' : 'Location'} "${change.data.name}"`
-        );
+        displayChanges.push({
+          icon: getChangeIcon(change),
+          label: `Added ${change.entity === 'subject' ? 'Subject' : 'Location'}`,
+          color: 'blue.500',
+          details: `"${change.data.name}"`,
+        });
       } else if (change.type === 'delete') {
-        displayChanges.push(
-          `Deleted ${change.entity === 'subject' ? 'Subject' : 'Location'} "${
-            // Try to find the name from the entities array
-            change.entity === 'subject'
-              ? subjects.find((s) => s.id === change.id)?.name || 'Unknown'
-              : locations.find((l) => l.id === change.id)?.name || 'Unknown'
-          }"`
-        );
+        const entityName =
+          change.entity === 'subject'
+            ? subjects.find((s) => s.id === change.id)?.name || 'Unknown'
+            : locations.find((l) => l.id === change.id)?.name || 'Unknown';
+
+        displayChanges.push({
+          icon: getChangeIcon(change),
+          label: `Deleted ${change.entity === 'subject' ? 'Subject' : 'Location'}`,
+          color: 'red.500',
+          details: `"${entityName}"`,
+        });
       } else if (change.type === 'archive' || change.type === 'unarchive') {
         const entityName =
           change.entity === 'subject'
             ? subjects.find((s) => s.id === change.id)?.name
             : locations.find((l) => l.id === change.id)?.name;
 
-        displayChanges.push(
-          `${change.type === 'archive' ? 'Archived' : 'Unarchived'} ${
+        displayChanges.push({
+          icon: getChangeIcon(change),
+          label: `${change.type === 'archive' ? 'Archived' : 'Unarchived'} ${
             change.entity === 'subject' ? 'Subject' : 'Location'
-          } "${entityName || 'Unknown'}"`
-        );
+          }`,
+          color: 'blue.500',
+          details: `"${entityName || 'Unknown'}"`,
+        });
       } else if (change.type === 'update') {
-        // Name changes
-        if (change.data.name !== undefined) {
+        // We'll handle updates separately for simplicity
+        if (change.data?.name !== undefined) {
+          // Name changes
           const entityList = change.entity === 'subject' ? subjects : locations;
           const entity = entityList.find((e) => e.id === change.id);
-          // Use the original name we stored when the change was created
           const originalName =
             change.data.originalName || entity?.name || 'Unknown';
 
-          displayChanges.push(
-            `Updated ${change.entity === 'subject' ? 'Subject' : 'Location'} Name "${originalName}" → "${change.data.name}"`
-          );
+          displayChanges.push({
+            icon: getChangeIcon(change),
+            label: `Updated ${change.entity === 'subject' ? 'Subject' : 'Location'} Name`,
+            color: 'blue.500',
+            details: `"${originalName}" → "${change.data.name}"`,
+          });
         }
 
         // Abbreviation changes
-        if (change.data.abbreviation !== undefined) {
+        if (change.data?.abbreviation !== undefined) {
           const entityList = change.entity === 'subject' ? subjects : locations;
           const entity = entityList.find((e) => e.id === change.id);
-          // Use the original abbreviation we stored when the change was created
           const originalAbbr =
             change.data.originalAbbreviation ||
             entity?.abbreviation ||
             'Unknown';
 
-          displayChanges.push(
-            `Updated Display "${originalAbbr}" → "${change.data.abbreviation}"`
-          );
+          displayChanges.push({
+            icon: getChangeIcon(change),
+            label: `Updated Display`,
+            color: 'blue.500',
+            details: `"${originalAbbr}" → "${change.data.abbreviation}"`,
+          });
         }
 
-        // Color changes for subjects
+        // Absence cap changes
         if (
-          change.entity === 'subject' &&
-          change.data.colorGroupId !== undefined
+          change.entity === 'setting' &&
+          change.data?.absenceCap !== undefined
         ) {
-          const subject = subjects.find((s) => s.id === change.id);
-          // Get from original stored value if available, otherwise from the current subject data
-          const originalColorGroupId =
-            change.data.originalColorGroupId || subject?.colorGroupId;
-          const oldColorGroup = colorGroups.find(
-            (cg) => cg.id === originalColorGroupId
-          );
-          const newColorGroup = colorGroups.find(
-            (cg) => cg.id === change.data.colorGroupId
-          );
-
-          if (oldColorGroup && newColorGroup) {
-            displayChanges.push(
-              `Updated Color "${oldColorGroup.name}" → "${newColorGroup.name}"`
-            );
-          }
-        }
-      } else if (change.entity === 'setting') {
-        if (change.data.absenceCap !== undefined) {
-          displayChanges.push(
-            `Updated Allowed Absences ${absenceCap} → ${change.data.absenceCap}`
-          );
+          displayChanges.push({
+            icon: getChangeIcon(change),
+            label: `Updated Allowed Absences`,
+            color: 'blue.500',
+            details: `${absenceCap} → ${change.data.absenceCap}`,
+          });
         }
       }
     });
 
-    // If we still have no changes to display but changes exist,
-    // provide a fallback message
-    if (displayChanges.length === 0 && changes.length > 0) {
-      // Examine the first change to provide some information
-      const firstChange = changes[0];
-      displayChanges.push(`Changes will be applied to ${firstChange.entity}`);
-    }
-
     return displayChanges;
   };
 
+  // Check if there are any delete operations
+  const hasDeletedItems = pendingChanges.some(
+    (change) => change.type === 'delete'
+  );
+
   return (
-    <ConfirmationDialog
+    <AlertDialog
       isOpen={isOpen}
+      leastDestructiveRef={cancelRef}
       onClose={onClose}
-      onConfirm={onConfirm}
-      title={
-        isConfirmingClose
-          ? 'Discard Changes?'
-          : 'You are making the following changes'
-      }
-      message={
-        isConfirmingClose
-          ? 'You have unsaved changes. Are you sure you want to close without saving?'
-          : getDisplayableChanges(pendingChanges).join('\n')
-      }
-    />
+    >
+      <AlertDialogOverlay>
+        <AlertDialogContent>
+          <AlertDialogHeader
+            fontSize="lg"
+            fontWeight="bold"
+            textAlign="center"
+            p={4}
+          >
+            {isConfirmingClose ? (
+              'Discard Changes?'
+            ) : (
+              <Box>
+                <Center mb={2}>
+                  <Icon
+                    as={IoAlertCircleSharp}
+                    color="orange.400"
+                    boxSize={6}
+                  />
+                </Center>
+                <Text>You are making the following changes.</Text>
+                <Text>Do you wish to proceed?</Text>
+              </Box>
+            )}
+          </AlertDialogHeader>
+
+          <AlertDialogBody pb={6}>
+            {isConfirmingClose ? (
+              <Text>
+                You have unsaved changes. Are you sure you want to close without
+                saving?
+              </Text>
+            ) : (
+              <VStack
+                spacing={4}
+                align="stretch"
+                p={2}
+                borderWidth="1px"
+                borderRadius="md"
+                borderStyle="dotted"
+              >
+                {pendingChanges.length > 0 ? (
+                  getDisplayableChanges().map((change, index) => (
+                    <HStack key={index} spacing={3} align="center">
+                      <Box w="40px" textAlign="center">
+                        {change.icon}
+                      </Box>
+                      <VStack align="start" spacing={0}>
+                        <Text fontWeight="bold" color={change.color}>
+                          {change.label}
+                        </Text>
+                        <Text fontSize="sm">{change.details}</Text>
+                      </VStack>
+                    </HStack>
+                  ))
+                ) : (
+                  <Text textAlign="center">No changes to apply</Text>
+                )}
+
+                {hasDeletedItems && (
+                  <Flex
+                    mt={4}
+                    color="red.500"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Icon as={IoWarning} mr={2} />
+                    <Text fontSize="sm">
+                      Deleted subjects/locations cannot be restored.
+                    </Text>
+                  </Flex>
+                )}
+              </VStack>
+            )}
+          </AlertDialogBody>
+
+          <AlertDialogFooter>
+            <Button
+              ref={cancelRef}
+              onClick={onClose}
+              flex="1"
+              size="lg"
+              colorScheme="blue"
+              variant="outline"
+            >
+              Back
+            </Button>
+            <Button
+              colorScheme="blue"
+              onClick={onConfirm}
+              ml={3}
+              flex="1"
+              size="lg"
+            >
+              Proceed
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogOverlay>
+    </AlertDialog>
   );
 };
 
