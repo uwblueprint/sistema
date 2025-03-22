@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { Box, Button, Flex } from '@chakra-ui/react';
 
@@ -10,50 +8,52 @@ interface CalendarTabsProps {
 
 export function CalendarTabs({ activeTab, onTabChange }: CalendarTabsProps) {
   return (
-    <Flex width="100%" justify="space-between" align="center">
+    <Flex
+      position="relative"
+      width="100%"
+      justify="space-between"
+      align="center"
+    >
       <Button
         variant="unstyled"
-        position="relative"
         fontSize="16px"
         fontWeight="600"
         width="50%"
-        color={activeTab === 'explore' ? '#0468C1' : '#838383'}
-        _hover={{ color: activeTab === 'explore' ? '#0468C1' : '#0468C1' }}
+        color={activeTab === 'explore' ? 'primaryBlue.300' : 'text.subtitle'}
+        _hover={{ color: 'primaryBlue.300' }}
         onClick={() => onTabChange('explore')}
         pb="8px"
+        _active={{ bg: 'transparent' }}
       >
         Explore Fillable Absences
-        <Box
-          position="absolute"
-          left={0}
-          right={0}
-          bottom="0"
-          height={activeTab === 'explore' ? '2px' : '1px'}
-          bg={activeTab === 'explore' ? '#0468C1' : '#D1D1D1'}
-        />
       </Button>
 
       <Button
         variant="unstyled"
-        position="relative"
         fontSize="16px"
         fontWeight="600"
         width="50%"
-        color={activeTab === 'declared' ? '#0468C1' : '#838383'}
-        _hover={{ color: activeTab === 'declared' ? '#0468C1' : '#0468C1' }}
+        color={activeTab === 'declared' ? 'primaryBlue.300' : 'text.subtitle'}
+        _hover={{ color: 'primaryBlue.300' }}
         onClick={() => onTabChange('declared')}
+        pb="8px"
         _active={{ bg: 'transparent' }}
       >
         My Declared & Filled Absences
-        <Box
-          position="absolute"
-          left={0}
-          right={0}
-          bottom="0"
-          height={activeTab === 'declared' ? '2px' : '1px'}
-          bg={activeTab === 'declared' ? '#0468C1' : '#D1D1D1'}
-        />
       </Button>
+
+      <Box
+        position="absolute"
+        bottom="0"
+        left="0"
+        width="50%"
+        height="2px"
+        bg="primaryBlue.300"
+        transition="transform 0.3s ease"
+        transform={
+          activeTab === 'explore' ? 'translateX(0%)' : 'translateX(100%)'
+        }
+      />
     </Flex>
   );
 }

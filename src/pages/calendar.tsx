@@ -18,24 +18,29 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { Absence, Prisma } from '@prisma/client';
 import { AbsenceAPI } from '@utils/types';
-import useUserData from '@utils/useUserData';
-import { useSession } from 'next-auth/react';
+import { useUserData } from '@utils/useUserData';
 import { useRouter } from 'next/navigation';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import CalendarHeader from '../components/CalendarHeader';
-import { CalendarTabs } from '../components/CalendarTabs';
 import CalendarSidebar from '../components/CalendarSidebar';
+import { CalendarTabs } from '../components/CalendarTabs';
 import InputForm from '../components/InputForm';
 
 const Calendar: React.FC = () => {
-  const { data: session, status } = useSession();
+  const userData = useUserData();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (!userData.isLoading && !userData.isAuthenticated) {
       router.push('/');
     }
-  }, [status, router]);
+  }, [userData.isLoading, userData.isAuthenticated, router]);
 
   const calendarRef = useRef<FullCalendar>(null);
   const [events, setEvents] = useState<EventInput[]>([]);
@@ -51,12 +56,11 @@ const Calendar: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
     'explore'
   );
-  const userEmail = session?.user?.email;
+  const userId = useMemo(() => Number(userData.id), [userData.id]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const toast = useToast();
   const theme = useTheme();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const userData = useUserData();
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => (
@@ -80,7 +84,7 @@ const Calendar: React.FC = () => {
     allDay: true,
     display: 'auto',
     location: absenceData.location.name,
-    absentTeacherEmail: absenceData.absentTeacher.email,
+    absentTeacher: absenceData.absentTeacher,
     substituteTeacher: absenceData.substituteTeacher,
     subjectId: absenceData.subject.id,
     locationId: absenceData.location.id,
@@ -235,20 +239,26 @@ const Calendar: React.FC = () => {
 
     if (activeTab === 'explore') {
       filtered = filtered.filter(
-        (event) =>
-          event.absentTeacherEmail !== userEmail && !event.substituteTeacher
+        (event) => event.absentTeacher.id !== userId && !event.substituteTeacher
       );
     } else if (activeTab === 'declared') {
       filtered = filtered.filter(
         (event) =>
-          event.absentTeacherEmail === userEmail ||
-          event.substituteTeacher?.email === userEmail
+          event.absentTeacher.id === userId ||
+          event.substituteTeacher?.id === userId
       );
     }
 
     setFilteredEvents(filtered);
-  }, [searchQuery, events, activeTab, userEmail]);
+  }, [searchQuery, events, activeTab, userId]);
 
+  if (userData.isLoading) {
+    return null;
+  }
+
+  if (!userData.isAuthenticated) {
+    return null;
+  }
   return (
     <>
       <Global
