@@ -1,10 +1,10 @@
 import {
   Flex,
-  IconButton,
-  Text,
-  Spacer,
-  useTheme,
   HStack,
+  IconButton,
+  Spacer,
+  Text,
+  useTheme,
 } from '@chakra-ui/react';
 import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';

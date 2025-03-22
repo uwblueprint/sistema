@@ -1,28 +1,36 @@
+import { Box, Flex, Spinner, HStack } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import DashboardHeader from '../components/DashboardHeader';
 import UserManagementSection from '../components/UserManagementSection';
 import TotalAbsencesModal from '../components/TotalAbsencesModal';
 import MonthlyAbsencesModal from '../components/MonthlyAbsencesModal';
-import { HStack, Flex, Box, Spinner } from '@chakra-ui/react';
-import useUserData from '@utils/useUserData';
-import { useState, useEffect } from 'react';
+import { useUserData } from '@utils/useUserData';
 import { YearlyAbsenceData } from '@utils/types';
 
 export default function DashboardPage() {
   const currentYear = new Date().getFullYear();
   const userData = useUserData();
+  const router = useRouter();
+
   const [selectedYearRange, setSelectedYearRange] = useState(
     `${currentYear - 1} - ${currentYear}`
   );
   const [absenceData, setAbsenceData] = useState<YearlyAbsenceData[]>([]);
-  const [startYear, endYear] = selectedYearRange.split('-');
   const [loading, setLoading] = useState(true);
+  const [startYear, endYear] = selectedYearRange.split(' - ');
+
+  useEffect(() => {
+    if (!userData.isLoading && !userData.isAuthenticated) {
+      router.push('/');
+    }
+  }, [userData.isLoading, userData.isAuthenticated, router]);
 
   useEffect(() => {
     const fetchAbsenceDates = async (): Promise<void> => {
       try {
         const response = await fetch('/api/getAbsenceDates');
         if (!response.ok) throw new Error('Failed to fetch absence data');
-
         const data = await response.json();
         setAbsenceData(data.events);
       } catch (err) {
@@ -34,6 +42,10 @@ export default function DashboardPage() {
 
     fetchAbsenceDates();
   }, []);
+
+  if (userData.isLoading || !userData.isAuthenticated) {
+    return null;
+  }
 
   const selectedYearData = absenceData.find(
     (data) => data.yearRange === selectedYearRange
@@ -65,7 +77,7 @@ export default function DashboardPage() {
     ...selectedYearData.yearlyData.map((month) => month.filled + month.unfilled)
   );
 
-  const totalAbsenceCount = yearlyAbsencesUnfilled + yearlyAbsencesFilled;
+  const totalAbsenceCount = yearlyAbsencesFilled + yearlyAbsencesUnfilled;
 
   return (
     <Box>
@@ -97,7 +109,7 @@ export default function DashboardPage() {
               <MonthlyAbsencesModal
                 width="65%"
                 monthlyData={selectedYearData.yearlyData}
-                highestMonthlyAbsence={highestMonthlyAbsence} // FIX THIS
+                highestMonthlyAbsence={highestMonthlyAbsence}
               />
             </HStack>
             <UserManagementSection />

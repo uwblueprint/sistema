@@ -29,7 +29,7 @@
     "@fullcalendar/react": "^6.1.15",
     "@mui/material": "^5.15.20",
     "@mui/system": "^5.15.20",
-    "@prisma/client": "^6.4.1",
+    "@prisma/client": "^6.5.0",
     "dotenv": "^16.4.5",
     "framer-motion": "^6.3.0",
     "googleapis": "^140.0.1",
