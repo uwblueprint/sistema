@@ -99,7 +99,7 @@ const Calendar: React.FC = () => {
         backgroundColor,
         textColor,
         border: '0.1rem solid',
-        borderLeft: '0.5rem solid',
+        borderLeft: '5px solid',
         borderColor,
         position: 'relative',
       }}
@@ -151,6 +151,7 @@ const Calendar: React.FC = () => {
     absentTeacherFullName: `${absenceData.absentTeacher.firstName} ${absenceData.absentTeacher.lastName}`,
     substituteTeacherDisplayName:
       absenceData.substituteTeacher?.firstName || undefined,
+      lessonPlan: absenceData.lessonPlan,
   });
 
   const handleAddAbsence = async (
