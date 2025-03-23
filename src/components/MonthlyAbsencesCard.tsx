@@ -23,6 +23,7 @@ import {
   YAxis,
 } from 'recharts';
 import { CustomTooltip } from './CustomTooltip';
+import DualColorBar from './DualColourBar';
 
 export default function MonthlyAbsencesCard({
   width,
@@ -40,14 +41,16 @@ export default function MonthlyAbsencesCard({
   const unfilledColor = theme.colors.neutralGray[200];
   const chartTextColor = theme.colors.text.subtitle;
 
-  const getBarShadow = (index: number) =>
-    activeIndex === index ? 'drop-shadow(0px 4px 6px rgba(0,0,0,0.2))' : 'none';
-
   const yAxisMax = Math.ceil(highestMonthlyAbsence / 10) * 10;
   const yAxisTicks = Array.from(
     { length: Math.floor(yAxisMax / 5) + 1 },
     (_, i) => i * 5
   );
+
+  const combinedMonthlyData = monthlyData.map((entry) => ({
+    ...entry,
+    total: entry.filled + entry.unfilled,
+  }));
 
   return (
     <Card
@@ -71,7 +74,7 @@ export default function MonthlyAbsencesCard({
           <Box width="100%" height="110px">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={monthlyData}
+                data={combinedMonthlyData}
                 margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
                 onMouseMove={(state) => {
                   if (state.isTooltipActive) {
@@ -107,38 +110,17 @@ export default function MonthlyAbsencesCard({
                   cursor={{ fill: 'transparent' }}
                 />
                 <Bar
-                  dataKey="filled"
-                  stackId="a"
-                  fill={filledColor}
+                  dataKey="total"
                   barSize={28}
-                >
-                  {monthlyData.map((entry, index) => (
-                    <Cell
-                      key={`cell-filled-${index}`}
-                      fill={filledColor}
-                      style={{ filter: getBarShadow(index) }}
+                  shape={(props) => (
+                    <DualColorBar
+                      {...props}
+                      filledColor={filledColor}
+                      unfilledColor={unfilledColor}
+                      isActive={activeIndex === props.index}
                     />
-                  ))}
-                </Bar>
-                <Bar
-                  dataKey="unfilled"
-                  stackId="a"
-                  fill={unfilledColor}
-                  barSize={28}
-                >
-                  {monthlyData.map((entry, index) => (
-                    <Cell
-                      key={`cell-unfilled-${index}`}
-                      fill={unfilledColor}
-                      style={{
-                        filter:
-                          activeIndex === index
-                            ? 'drop-shadow(0px 4px 6px rgba(0,0,0,0.2))'
-                            : 'none',
-                      }}
-                    />
-                  ))}
-                </Bar>
+                  )}
+                ></Bar>
               </BarChart>
             </ResponsiveContainer>
           </Box>

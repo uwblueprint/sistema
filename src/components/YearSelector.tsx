@@ -44,6 +44,7 @@ export const YearSelector: React.FC<YearSelectorProps> = ({
         borderRadius="7px"
         py="11px"
         px="15px"
+        height="40px"
         width="207px"
         maxWidth="207px"
         _hover={{ bg: theme.colors.primaryBlue[50] }}
