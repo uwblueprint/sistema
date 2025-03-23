@@ -1,77 +1,30 @@
-'use client';
-
 import {
   Box,
   Card,
   CardBody,
   CardHeader,
-  VStack,
+  Divider,
   Heading,
   HStack,
   Text,
-  Divider,
   useTheme,
+  VStack,
 } from '@chakra-ui/react';
+import { MonthlyAbsenceData } from '@utils/types';
 import { useState } from 'react';
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
+  Cell,
   ResponsiveContainer,
   Tooltip,
-  Cell,
-  type TooltipProps,
+  XAxis,
+  YAxis,
 } from 'recharts';
-import { MonthlyAbsenceData } from '@utils/types';
+import { CustomTooltip } from './CustomTooltip';
 
-const CustomTooltip = ({
-  active,
-  payload,
-  coordinate,
-}: TooltipProps<number, string>) => {
-  if (active && payload && payload.length) {
-    const filled =
-      payload.find((entry) => entry.dataKey === 'filled')?.value || 0;
-    const unfilled =
-      payload.find((entry) => entry.dataKey === 'unfilled')?.value || 0;
-    const total = filled + unfilled;
-
-    return (
-      <Box
-        position="absolute"
-        left={`${coordinate?.x}px`}
-        width="60px"
-        transform="translateX(-50%) translateY(-80%)"
-        bg="#0468C1"
-        color="white"
-        px="8px"
-        py="4px"
-        borderRadius="md"
-        fontSize="14px"
-        fontWeight="300"
-        textAlign="center"
-        zIndex={1}
-        _after={{
-          content: '""',
-          position: 'absolute',
-          bottom: '-5px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          borderLeft: '6px solid transparent',
-          borderRight: '6px solid transparent',
-          borderTop: '6px solid #0468C1',
-        }}
-      >
-        {filled}/{total}
-      </Box>
-    );
-  }
-  return null;
-};
-
-export default function MonthlyAbsencesModal({
+export default function MonthlyAbsencesCard({
   width,
   monthlyData,
   highestMonthlyAbsence,
@@ -86,6 +39,9 @@ export default function MonthlyAbsencesModal({
   const filledColor = theme.colors.primaryBlue[300];
   const unfilledColor = theme.colors.neutralGray[200];
   const chartTextColor = theme.colors.text.subtitle;
+
+  const getBarShadow = (index: number) =>
+    activeIndex === index ? 'drop-shadow(0px 4px 6px rgba(0,0,0,0.2))' : 'none';
 
   const yAxisMax = Math.ceil(highestMonthlyAbsence / 10) * 10;
   const yAxisTicks = Array.from(
@@ -160,12 +116,7 @@ export default function MonthlyAbsencesModal({
                     <Cell
                       key={`cell-filled-${index}`}
                       fill={filledColor}
-                      style={{
-                        filter:
-                          activeIndex === index
-                            ? 'drop-shadow(0px 4px 6px rgba(0,0,0,0.2))'
-                            : 'none',
-                      }}
+                      style={{ filter: getBarShadow(index) }}
                     />
                   ))}
                 </Bar>

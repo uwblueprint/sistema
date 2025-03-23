@@ -1,12 +1,12 @@
-import { Box, Flex, Spinner, HStack } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import DashboardHeader from '../components/DashboardHeader';
-import UserManagementSection from '../components/UserManagementSection';
-import TotalAbsencesModal from '../components/TotalAbsencesModal';
-import MonthlyAbsencesModal from '../components/MonthlyAbsencesModal';
-import { useUserData } from '@utils/useUserData';
+import { Box, Flex, HStack, Spinner } from '@chakra-ui/react';
 import { YearlyAbsenceData } from '@utils/types';
+import { useUserData } from '@utils/useUserData';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import DashboardHeader from '../components/DashboardHeader';
+import MonthlyAbsencesCard from '../components/MonthlyAbsencesCard';
+import TotalAbsencesCard from '../components/TotalAbsencesCard';
+import UserManagementCard from '../components/UserManagementCard';
 
 export default function DashboardPage() {
   const currentYear = new Date().getFullYear();
@@ -99,20 +99,20 @@ export default function DashboardPage() {
         ) : (
           <>
             <HStack height="216px" mb="10px">
-              <TotalAbsencesModal
+              <TotalAbsencesCard
                 width="35%"
                 filled={yearlyAbsencesFilled}
                 total={totalAbsenceCount}
                 startYear={startYear}
                 endYear={endYear}
               />
-              <MonthlyAbsencesModal
+              <MonthlyAbsencesCard
                 width="65%"
                 monthlyData={selectedYearData.yearlyData}
                 highestMonthlyAbsence={highestMonthlyAbsence}
               />
             </HStack>
-            <UserManagementSection />
+            <UserManagementCard />
           </>
         )}
       </Box>

@@ -5,8 +5,9 @@ interface CircularProgressProps {
   value: number;
   size?: number;
   strokeWidth?: number;
-  filledColor?: string;
-  unfilledColor?: string;
+  filledColor: string;
+  unfilledColor: string;
+  animate?: boolean;
 }
 
 const CircularProgress: React.FC<CircularProgressProps> = ({
@@ -21,8 +22,18 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
   const progress = (value / 100) * circumference;
 
   return (
-    <Box position="relative" width={`${size}px`} height={`${size}px`}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <Box
+      position="relative"
+      width={`${size}px`}
+      height={`${size}px`}
+      display="inline-block"
+    >
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        style={{ transform: 'scale(-1, 1)' }}
+      >
         <circle
           cx={size / 2}
           cy={size / 2}

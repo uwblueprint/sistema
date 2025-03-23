@@ -3,13 +3,13 @@ import {
   Card,
   CardBody,
   CardHeader,
-  VStack,
+  Divider,
+  Flex,
   Heading,
   HStack,
   Text,
-  Divider,
   useTheme,
-  Center,
+  VStack,
 } from '@chakra-ui/react';
 
 import CircularProgress from './CircularProgress';
@@ -22,7 +22,7 @@ interface TotalAbsencesProps {
   endYear: string;
 }
 
-export default function TotalAbsencesModal({
+export default function TotalAbsencesCard({
   width,
   filled,
   total,
@@ -60,57 +60,60 @@ export default function TotalAbsencesModal({
         </Heading>
       </CardHeader>
       <Divider />
-      <CardBody>
-        <HStack align="left" gap="35px">
-          <CircularProgress
-            value={percentage}
-            size={110}
-            strokeWidth={24}
-            filledColor={filledColor}
-            unfilledColor={unfilledColor}
-          />
-          <Box>
-            <Text
-              fontSize="42.955px"
-              fontWeight="500"
-              fontStyle="normal"
-              lineHeight="normal"
-              fontFamily="Poppins"
-              color={numColor}
-              mt="10px"
-            >
-              {filled}/{total}
-            </Text>
-            <Text
-              fontSize="22px"
-              lineHeight="normal"
-              fontWeight="400"
-              color={dateColor}
-            >
-              Sept {startYear} - Aug {endYear}
-            </Text>
-          </Box>
-
-          <VStack align="flex-start" gap="10px" height="43px" mb="65px">
+      <CardBody overflowY="auto" maxHeight="300px" pr="2">
+        <Flex align="flex-start">
+          <HStack align="flex-start" gap="35px">
+            <CircularProgress
+              value={percentage}
+              size={110}
+              strokeWidth={24}
+              filledColor={filledColor}
+              unfilledColor={unfilledColor}
+            />
+            <Box>
+              <Text
+                fontSize="42.955px"
+                fontWeight="500"
+                fontStyle="normal"
+                lineHeight="normal"
+                fontFamily="Poppins"
+                color={numColor}
+                mt="10px"
+              >
+                {filled}/{total}
+              </Text>
+              <Text
+                fontSize="22px"
+                lineHeight="normal"
+                fontWeight="400"
+                color={dateColor}
+              >
+                Sept {startYear} - Aug {endYear}
+              </Text>
+            </Box>
+          </HStack>
+          <VStack
+            align="flex-start"
+            gap="10px"
+            height="43px"
+            mb="65px"
+            ml="auto"
+            mr="0"
+          >
             <HStack>
-              <Box
-                w="16px"
-                h="16px"
-                borderRadius="full"
-                bg={unfilledColor}
-              ></Box>
+              <Box w="16px" h="16px" borderRadius="full" bg={unfilledColor} />
               <Text fontSize="13px" fontStyle="normal" fontWeight="400">
                 Unfilled
               </Text>
             </HStack>
             <HStack>
-              <Box w="16px" h="16px" borderRadius="full" bg={filledColor}></Box>
+              <Box w="16px" h="16px" borderRadius="full" bg={filledColor} />
               <Text fontSize="13px" fontStyle="normal" fontWeight="400">
                 Filled
               </Text>
             </HStack>
           </VStack>
-        </HStack>
+        </Flex>
       </CardBody>
     </Card>
   );
