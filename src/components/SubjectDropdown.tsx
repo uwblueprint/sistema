@@ -4,18 +4,24 @@ import Dropdown, { DropdownItem } from './Dropdown';
 
 interface SubjectDropdownProps {
   setFilter: (subjects: number[]) => void;
+  showArchived: boolean;
 }
 
 interface SubjectItem {
   id: number;
   name: string;
   color: string;
+  archived: boolean;
 }
 
-export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
+export default function SubjectDropdown({
+  setFilter,
+  showArchived,
+}: SubjectDropdownProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [subjects, setSubjects] = useState<SubjectItem[]>([]);
   const [selectedSubjectsIds, setSelectedSubjectsIds] = useState<number[]>([]);
+  const [allSubjects, setAllSubjects] = useState<SubjectItem[]>([]);
 
   useEffect(() => {
     async function fetchSubjects() {
@@ -31,10 +37,17 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
               id: subject.id,
               name: subject.name,
               color: subject.colorGroup.colorCodes[1],
+              archived: subject.archived,
             })
           );
-          setSubjects(fetchedSubjects);
-          setSelectedSubjectsIds(fetchedSubjects.map((subject) => subject.id));
+          setAllSubjects(fetchedSubjects);
+
+          const visibleSubjects = showArchived
+            ? fetchedSubjects
+            : fetchedSubjects.filter((subject) => !subject.archived);
+
+          setSubjects(visibleSubjects);
+          setSelectedSubjectsIds(visibleSubjects.map((subject) => subject.id));
         }
       } catch (error) {
         console.error('Error fetching subjects:', error);
@@ -42,11 +55,26 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
     }
 
     fetchSubjects();
-  }, []);
+  }, [showArchived]);
 
   useEffect(() => {
-    setFilter(selectedSubjectsIds);
-  }, [selectedSubjectsIds, setFilter]);
+    const visibleSubjects = showArchived
+      ? allSubjects
+      : allSubjects.filter((subject) => !subject.archived);
+
+    setSubjects(visibleSubjects);
+
+    const newSelectedIds = selectedSubjectsIds.filter((id) =>
+      visibleSubjects.some((subject) => subject.id === id)
+    );
+
+    const newVisibleIds = visibleSubjects
+      .filter((subject) => !selectedSubjectsIds.includes(subject.id))
+      .map((subject) => subject.id);
+
+    setSelectedSubjectsIds([...newSelectedIds, ...newVisibleIds]);
+    setFilter([...newSelectedIds, ...newVisibleIds]);
+  }, [showArchived, allSubjects]);
 
   const toggleSubject = (subjectId: number) => {
     let newSelection: number[];
@@ -67,6 +95,7 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
     id: subject.id,
     name: subject.name,
     color: subject.color,
+    archived: subject.archived,
   }));
 
   return (

@@ -8,6 +8,7 @@ export async function GET() {
       select: {
         id: true,
         name: true,
+        archived: true,
         abbreviation: true,
         colorGroupId: true,
         colorGroup: {
@@ -17,11 +18,7 @@ export async function GET() {
           },
         },
       },
-      where: {
-        archived: false,
-      },
     });
-
     if (!subjects.length) {
       return NextResponse.json({ subjects: [] }, { status: 200 });
     }

@@ -28,13 +28,16 @@ export const getAbsencesFromDatabase = async (): Promise<AbsenceAPI[]> => {
           select: {
             id: true,
             name: true,
+            archived: true,
           },
         },
+
         subject: {
           select: {
             id: true,
             name: true,
             abbreviation: true,
+            archived: true,
             colorGroup: {
               select: {
                 colorCodes: true,

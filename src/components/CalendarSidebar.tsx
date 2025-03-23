@@ -1,6 +1,6 @@
 import { AddIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, useTheme } from '@chakra-ui/react';
-import React, { useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TacetLogo } from '../components/SistemaLogoColour';
 import LocationDropdown from './LocationDropdown';
 import MiniCalendar from './MiniCalendar';
@@ -8,9 +8,11 @@ import SubjectDropdown from './SubjectDropdown';
 import ArchivedDropdown from './ArchivedDropdown';
 
 interface CalendarSidebarProps {
-  setSearchQuery: React.Dispatch<
-    React.SetStateAction<{ subjectIds: number[]; locationIds: number[] }>
-  >;
+  setSearchQuery: (query: {
+    subjectIds: number[];
+    locationIds: number[];
+    archiveIds: number[];
+  }) => void;
   onDateSelect: (date: Date) => void;
 }
 
@@ -18,36 +20,28 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   setSearchQuery,
   onDateSelect,
 }) => {
+  const [subjectIds, setSubjectIds] = useState<number[]>([]);
+  const [locationIds, setLocationIds] = useState<number[]>([]);
+  const [archiveIds, setArchiveIds] = useState<number[]>([]);
+
   const theme = useTheme();
+  const [showArchivedSubjects, setShowArchivedSubjects] = useState(false);
+  const [showArchivedLocations, setShowArchivedLocations] = useState(false);
 
-  const setSubjectIdFilter = useCallback(
-    (subjectIds: number[]) => {
-      setSearchQuery((prev) => ({
-        ...prev,
-        subjectIds,
-      }));
-    },
-    [setSearchQuery]
-  );
+  useEffect(() => {
+    setSearchQuery({
+      subjectIds,
+      locationIds,
+      archiveIds,
+    });
+  }, [subjectIds, locationIds, archiveIds, setSearchQuery]);
 
-  const setLocationIdFilter = useCallback(
-    (locationIds: number[]) => {
-      setSearchQuery((prev) => ({
-        ...prev,
-        locationIds,
-      }));
+  const handleArchivedToggle = useCallback(
+    (subjectsArchived: boolean, locationsArchived: boolean) => {
+      setShowArchivedSubjects(subjectsArchived);
+      setShowArchivedLocations(locationsArchived);
     },
-    [setSearchQuery]
-  );
-
-  const setArchiveIdFilter = useCallback(
-    (archiveIds: number[]) => {
-      setSearchQuery((prev) => ({
-        ...prev,
-        archiveIds,
-      }));
-    },
-    [setSearchQuery]
+    []
   );
 
   return (
@@ -73,9 +67,18 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         Declare Absence
       </Button>
       <MiniCalendar initialDate={new Date()} onDateSelect={onDateSelect} />
-      <SubjectDropdown setFilter={setSubjectIdFilter} />
-      <LocationDropdown setFilter={setLocationIdFilter} />
-      <ArchivedDropdown setFilter={setArchiveIdFilter} />
+      <SubjectDropdown
+        setFilter={setSubjectIds}
+        showArchived={showArchivedSubjects}
+      />
+      <LocationDropdown
+        setFilter={setLocationIds}
+        showArchived={showArchivedLocations}
+      />
+      <ArchivedDropdown
+        setFilter={setArchiveIds}
+        onArchivedToggle={handleArchivedToggle}
+      />
     </Flex>
   );
 };

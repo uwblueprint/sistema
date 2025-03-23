@@ -9,10 +9,7 @@ export async function GET() {
         id: true,
         name: true,
         abbreviation: true,
-        archived: false,
-      },
-      where: {
-        archived: false,
+        archived: true,
       },
     });
 

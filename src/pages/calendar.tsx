@@ -1,4 +1,4 @@
-import { Box, Flex, useTheme, useToast } from '@chakra-ui/react';
+import { Box, filter, Flex, useTheme, useToast } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import { EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -53,6 +53,8 @@ const Calendar: React.FC = () => {
     location: absenceData.location.name,
     subjectId: absenceData.subject.id,
     locationId: absenceData.location.id,
+    archived_location: absenceData.location.archived,
+    archived_subject: absenceData.subject.archived,
   });
 
   const fetchAbsences = useCallback(async () => {
@@ -145,16 +147,33 @@ const Calendar: React.FC = () => {
   };
 
   useEffect(() => {
-    //TODO: Add Archive ids
-    const { subjectIds, locationIds } = searchQuery;
+    const { subjectIds, locationIds, archiveIds } = searchQuery;
 
     const filtered = events.filter((event) => {
-      const subjectIdMatch = subjectIds.includes(event.subjectId);
-      const locationIdMatch = locationIds.includes(event.locationId);
-      // const archiveIdMatch = archiveIds.includes(event.archiveId)
-      return subjectIdMatch && locationIdMatch;
+      const subjectMatch = subjectIds.includes(event.subjectId);
+
+      const locationMatch = locationIds.includes(event.locationId);
+
+      let archiveMatch = true;
+
+      if (archiveIds.length === 0) {
+        archiveMatch = !event.archived_subject && !event.archived_location;
+      } else {
+        const includeArchivedSubjects = archiveIds.includes(0);
+        const includeArchivedLocations = archiveIds.includes(1);
+
+        const subjectArchiveMatch =
+          includeArchivedSubjects || !event.archived_subject;
+        const locationArchiveMatch =
+          includeArchivedLocations || !event.archived_location;
+
+        archiveMatch = subjectArchiveMatch && locationArchiveMatch;
+      }
+
+      return subjectMatch && locationMatch && archiveMatch;
     });
 
+    console.log(filtered);
     setFilteredEvents(filtered);
   }, [searchQuery, events]);
 

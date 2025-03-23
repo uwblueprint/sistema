@@ -1,15 +1,20 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { SubjectAPI } from '@utils/types';
+import React, { useEffect, useState } from 'react';
 import Dropdown, { DropdownItem } from './Dropdown';
-import { generateKey } from 'crypto';
 
-interface SubjectDropdownProps {
+interface ArchivedDropdownProps {
   setFilter: (archives: number[]) => void;
+  onArchivedToggle: (
+    subjectsArchived: boolean,
+    locationsArchived: boolean
+  ) => void;
 }
 
-export default function ArchivedDropdown({ setFilter }: SubjectDropdownProps) {
+export default function ArchivedDropdown({
+  setFilter,
+  onArchivedToggle,
+}: ArchivedDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedArchiveIds, setselectedArchiveIds] = useState<number[]>([]);
+  const [selectedArchiveIds, setSelectedArchiveIds] = useState<number[]>([]);
 
   const archives = [
     { id: 0, name: 'Subjects' },
@@ -18,26 +23,29 @@ export default function ArchivedDropdown({ setFilter }: SubjectDropdownProps) {
 
   useEffect(() => {
     setFilter(selectedArchiveIds);
-  }, [setselectedArchiveIds, setFilter]);
 
-  const toggleSubject = (archive: number) => {
+    const showArchivedSubjects = selectedArchiveIds.includes(0);
+    const showArchivedLocations = selectedArchiveIds.includes(1);
+    onArchivedToggle(showArchivedSubjects, showArchivedLocations);
+  }, [selectedArchiveIds, setFilter, onArchivedToggle]);
+
+  const toggleArchive = (archiveId: number) => {
     let newSelection: number[];
-    if (selectedArchiveIds.includes(archive)) {
-      newSelection = selectedArchiveIds.filter((s) => s !== archive);
+    if (selectedArchiveIds.includes(archiveId)) {
+      newSelection = selectedArchiveIds.filter((s) => s !== archiveId);
     } else {
-      newSelection = [...selectedArchiveIds, archive];
+      newSelection = [...selectedArchiveIds, archiveId];
     }
-    setselectedArchiveIds(newSelection);
-    setFilter(newSelection);
+    setSelectedArchiveIds(newSelection);
   };
 
   const toggleOpen = () => {
     setIsOpen((prev) => !prev);
   };
 
-  const dropdownItems: DropdownItem[] = archives.map((subject) => ({
-    id: subject.id,
-    name: subject.name,
+  const dropdownItems: DropdownItem[] = archives.map((archive) => ({
+    id: archive.id,
+    name: archive.name,
     color: 'gray',
   }));
 
@@ -48,7 +56,7 @@ export default function ArchivedDropdown({ setFilter }: SubjectDropdownProps) {
       selectedItems={selectedArchiveIds}
       isOpen={isOpen}
       toggleOpen={toggleOpen}
-      toggleItem={toggleSubject}
+      toggleItem={toggleArchive}
     />
   );
 }
