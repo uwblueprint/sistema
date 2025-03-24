@@ -4,6 +4,7 @@ interface DualColorBarProps {
   width: number;
   height: number;
   payload: {
+    month: string;
     filled: number;
     unfilled: number;
   };
@@ -38,7 +39,10 @@ const DualColorBar: React.FC<DualColorBarProps> = ({
   const shadow = isActive ? 'drop-shadow(0px 4px 6px rgba(0,0,0,0.2))' : 'none';
 
   return (
-    <g filter={shadow}>
+    <g
+      filter={shadow}
+      key={`group-${payload.month}-${payload.filled}-${payload.unfilled}`}
+    >
       <path
         d={`
             M${x},${y + height}

@@ -9,13 +9,10 @@ import TotalAbsencesCard from '../components/TotalAbsencesCard';
 import UserManagementCard from '../components/UserManagementCard';
 
 export default function DashboardPage() {
-  const currentYear = new Date().getFullYear();
   const userData = useUserData();
   const router = useRouter();
 
-  const [selectedYearRange, setSelectedYearRange] = useState(
-    `${currentYear - 1} - ${currentYear}`
-  );
+  const [selectedYearRange, setSelectedYearRange] = useState('');
   const [absenceData, setAbsenceData] = useState<YearlyAbsenceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [startYear, endYear] = selectedYearRange.split(' - ');
@@ -36,10 +33,7 @@ export default function DashboardPage() {
         const events = data.events || [];
         setAbsenceData(events);
 
-        if (
-          events.length > 0 &&
-          !events.find((entry) => entry.yearRange === selectedYearRange)
-        ) {
+        if (events.length > 0 && !selectedYearRange) {
           setSelectedYearRange(events[0].yearRange);
         }
       } catch (err) {
@@ -50,7 +44,7 @@ export default function DashboardPage() {
     };
 
     fetchAbsenceDates();
-  }, []);
+  }, [selectedYearRange]);
 
   if (userData.isLoading || !userData.isAuthenticated) {
     return null;
@@ -81,7 +75,7 @@ export default function DashboardPage() {
     yearlyData: emptyYearlyData,
   };
 
-  const yearlyData = selectedYearData?.yearlyData ?? [];
+  const yearlyData = selectedYearData?.yearlyData ?? emptyYearlyData;
 
   const highestMonthlyAbsence = Math.max(
     ...yearlyData.map((month) => month.filled + month.unfilled),
@@ -109,6 +103,11 @@ export default function DashboardPage() {
     });
 
   const totalAbsenceCount = yearlyAbsencesFilled + yearlyAbsencesUnfilled;
+  const hasAbsenceData = absenceData.some(
+    (data) =>
+      data.yearRange === selectedYearRange &&
+      data.yearlyData.some((month) => month.filled > 0 || month.unfilled > 0)
+  );
 
   return (
     <Box>
@@ -117,15 +116,12 @@ export default function DashboardPage() {
         selectedYearRange={selectedYearRange}
         setSelectedYearRange={setSelectedYearRange}
         yearRanges={sortedYearRanges}
-        hasData={!!selectedYearData}
+        hasData={hasAbsenceData}
       />
       <Box px={8} pt={3} pb={8} justifyContent="center">
         {loading ? null : (
           <>
-            <HStack
-              // height="216px"
-              mb="10px"
-            >
+            <HStack mb="10px">
               <TotalAbsencesCard
                 width="35%"
                 filled={yearlyAbsencesFilled}
@@ -133,7 +129,6 @@ export default function DashboardPage() {
                 startYear={startYear}
                 endYear={endYear}
               />
-              {totalAbsenceCount}
               <MonthlyAbsencesCard
                 width="65%"
                 monthlyData={selectedYearData.yearlyData}

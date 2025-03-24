@@ -388,6 +388,10 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
 
   return (
     <Box
+      display="flex"
+      flexDirection="column"
+      flex="1"
+      minHeight="0"
       shadow="sm"
       borderRadius="lg"
       bg="white"
@@ -434,7 +438,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         </HStack>
       </HStack>
       <Divider />
-      <Box overflowX="auto" maxHeight="40vh">
+      <Box overflowX="auto" maxHeight="55vh">
         <Table variant="simple">
           <Thead
             position="sticky"
@@ -469,81 +473,75 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           </Thead>
 
           <Tbody>
-            {sortedUsers.length > 0 ? (
-              sortedUsers.map((user, index) => (
-                <Tr
-                  key={index}
-                  sx={{
-                    ':last-child td': { borderBottom: 'none' },
-                  }}
-                >
-                  <Td>
-                    <HStack spacing={3}>
-                      <Avatar
-                        size="sm"
-                        name={`${user.firstName} ${user.lastName}`}
-                        src={user.profilePicture || undefined}
+            {sortedUsers.length > 0
+              ? sortedUsers.map((user, index) => (
+                  <Tr
+                    key={index}
+                    sx={{
+                      ':last-child td': { borderBottom: 'none' },
+                    }}
+                  >
+                    <Td>
+                      <HStack spacing={3}>
+                        <Avatar
+                          size="sm"
+                          name={`${user.firstName} ${user.lastName}`}
+                          src={user.profilePicture || undefined}
+                        />
+                        <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
+                      </HStack>
+                    </Td>
+                    <Td color="gray.600">
+                      <Text textStyle="cellBody">{user.email}</Text>
+                    </Td>
+                    <Td textAlign="center">
+                      <Text
+                        textStyle="cellBold"
+                        color={getAbsenceColor(
+                          user.absences?.length || 0,
+                          absenceCap
+                        )}
+                      >
+                        {user.absences?.length || 0}
+                      </Text>
+                    </Td>
+                    <Td>
+                      <EditableRoleCell
+                        key={`role-cell-${user.id}`}
+                        role={user.role}
+                        onRoleChange={(newRole) =>
+                          updateUserRole(user.id, newRole as Role)
+                        }
                       />
-                      <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
-                    </HStack>
-                  </Td>
-                  <Td color="gray.600">
-                    <Text textStyle="cellBody">{user.email}</Text>
-                  </Td>
-                  <Td textAlign="center">
-                    <Text
-                      textStyle="cellBold"
-                      color={getAbsenceColor(
-                        user.absences?.length || 0,
-                        absenceCap
-                      )}
-                    >
-                      {user.absences?.length || 0}
-                    </Text>
-                  </Td>
-                  <Td>
-                    <EditableRoleCell
-                      key={`role-cell-${user.id}`}
-                      role={user.role}
-                      onRoleChange={(newRole) =>
-                        updateUserRole(user.id, newRole as Role)
-                      }
-                    />
-                  </Td>
-                  <Td>
-                    <Wrap spacing={2}>
-                      {user.mailingLists?.map((mailingList, index) => (
-                        <WrapItem key={index}>
-                          <Tag
-                            height="28px"
-                            variant="subtle"
-                            key={index}
-                            bg={mailingList.subject.colorGroup.colorCodes[3]}
-                          >
-                            <TagLabel>
-                              <Text
-                                color={
-                                  mailingList.subject.colorGroup.colorCodes[0]
-                                }
-                                textStyle="label"
-                              >
-                                {mailingList.subject.name}
-                              </Text>
-                            </TagLabel>
-                          </Tag>
-                        </WrapItem>
-                      ))}
-                    </Wrap>
-                  </Td>
-                </Tr>
-              ))
-            ) : (
-              <Tr>
-                <Td colSpan={5} textAlign="center" py={4}>
-                  <Text>No users match your search criteria</Text>
-                </Td>
-              </Tr>
-            )}
+                    </Td>
+                    <Td>
+                      <Wrap spacing={2}>
+                        {user.mailingLists?.map((mailingList, index) => (
+                          <WrapItem key={index}>
+                            <Tag
+                              height="28px"
+                              variant="subtle"
+                              key={index}
+                              bg={mailingList.subject.colorGroup.colorCodes[3]}
+                            >
+                              <TagLabel>
+                                <Text
+                                  color={
+                                    mailingList.subject.colorGroup.colorCodes[0]
+                                  }
+                                  textStyle="label"
+                                >
+                                  {mailingList.subject.name}
+                                </Text>
+                              </TagLabel>
+                            </Tag>
+                          </WrapItem>
+                        ))}
+                      </Wrap>
+                    </Td>
+                  </Tr>
+                ))
+              : null}
           </Tbody>
         </Table>
       </Box>

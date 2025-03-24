@@ -19,6 +19,7 @@ interface DashboardHeaderProps {
   selectedYearRange: string;
   setSelectedYearRange: (yearRange: string) => void;
   yearRanges: string[];
+  hasData: boolean;
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
@@ -26,6 +27,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   selectedYearRange,
   setSelectedYearRange,
   yearRanges,
+  hasData,
 }) => {
   const theme = useTheme();
   const router = useRouter();
@@ -70,11 +72,14 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       </HStack>
       <Spacer />
       <HStack spacing={theme.space[4]}>
-        <YearSelector
-          selectedRange={selectedYearRange}
-          onChange={setSelectedYearRange}
-          yearRanges={yearRanges}
-        />
+        {hasData && (
+          <YearSelector
+            selectedRange={selectedYearRange}
+            onChange={setSelectedYearRange}
+            yearRanges={yearRanges}
+          />
+        )}
+
         <ExportAbsencesButton />
         <ProfileMenu userData={userData} absenceCap={absenceCap} />
       </HStack>

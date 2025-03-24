@@ -4,7 +4,6 @@ import {
   CardBody,
   CardHeader,
   Divider,
-  Flex,
   Heading,
   HStack,
   Text,
@@ -29,19 +28,25 @@ export default function TotalAbsencesCard({
   startYear,
   endYear,
 }: TotalAbsencesProps) {
-  const percentage = (filled / total) * 100;
-
   const theme = useTheme();
 
-  const filledColor = theme.colors.primaryBlue[300];
-  const unfilledColor = theme.colors.neutralGray[200];
+  const percentage = total > 0 ? (filled / total) * 100 : 0;
+  const noData = total === 0;
+
+  const filledColor = noData
+    ? theme.colors.primaryBlue[50]
+    : theme.colors.primaryBlue[300];
+  const unfilledColor = noData
+    ? theme.colors.primaryBlue[50]
+    : theme.colors.neutralGray[200];
+
   const dateColor = theme.colors.text.subtitle;
   const numColor = theme.colors.text.body;
 
   return (
     <Card
       width={width}
-      height="100%"
+      height="220px"
       borderRadius="lg"
       shadow="sm"
       overflow="hidden"
@@ -60,8 +65,8 @@ export default function TotalAbsencesCard({
         </Heading>
       </CardHeader>
       <Divider />
-      <CardBody overflowY="auto" maxHeight="300px" pr="2">
-        <Flex align="flex-start">
+      <CardBody display="flex" flexDirection="column" overflowY="auto">
+        <HStack align="flex-start" justify="space-between" width="100%">
           <HStack align="flex-start" gap="35px">
             <CircularProgress
               value={percentage}
@@ -70,7 +75,7 @@ export default function TotalAbsencesCard({
               filledColor={filledColor}
               unfilledColor={unfilledColor}
             />
-            <Box>
+            <Box whiteSpace="nowrap" mt="10px">
               <Text
                 fontSize="42.955px"
                 fontWeight="500"
@@ -78,42 +83,49 @@ export default function TotalAbsencesCard({
                 lineHeight="normal"
                 fontFamily="Poppins"
                 color={numColor}
-                mt="10px"
+                mb="1"
+                isTruncated
               >
-                {filled}/{total}
+                {noData ? 'No Data' : `${filled}/${total}`}
               </Text>
-              <Text
-                fontSize="22px"
-                lineHeight="normal"
-                fontWeight="400"
-                color={dateColor}
-              >
-                Sept {startYear} - Aug {endYear}
-              </Text>
+              {!noData && (
+                <Text
+                  fontSize="22px"
+                  lineHeight="normal"
+                  fontWeight="400"
+                  color={dateColor}
+                  isTruncated
+                >
+                  Sept {startYear} - Aug {endYear}
+                </Text>
+              )}
             </Box>
+            <VStack align="flex-start" pr="30px">
+              <HStack>
+                <Box
+                  w="16px"
+                  h="16px"
+                  borderRadius="full"
+                  bg={theme.colors.neutralGray[200]}
+                />
+                <Text fontSize="13px" fontStyle="normal" fontWeight="400">
+                  Unfilled
+                </Text>
+              </HStack>
+              <HStack>
+                <Box
+                  w="16px"
+                  h="16px"
+                  borderRadius="full"
+                  bg={theme.colors.primaryBlue[300]}
+                />
+                <Text fontSize="13px" fontStyle="normal" fontWeight="400">
+                  Filled
+                </Text>
+              </HStack>
+            </VStack>
           </HStack>
-          <VStack
-            align="flex-start"
-            gap="10px"
-            height="43px"
-            mb="65px"
-            ml="auto"
-            mr="0"
-          >
-            <HStack>
-              <Box w="16px" h="16px" borderRadius="full" bg={unfilledColor} />
-              <Text fontSize="13px" fontStyle="normal" fontWeight="400">
-                Unfilled
-              </Text>
-            </HStack>
-            <HStack>
-              <Box w="16px" h="16px" borderRadius="full" bg={filledColor} />
-              <Text fontSize="13px" fontStyle="normal" fontWeight="400">
-                Filled
-              </Text>
-            </HStack>
-          </VStack>
-        </Flex>
+        </HStack>
       </CardBody>
     </Card>
   );
