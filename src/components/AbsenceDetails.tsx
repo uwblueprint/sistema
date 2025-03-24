@@ -108,8 +108,7 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
               <Flex gap="13px" mt="-8px">
                 <Buildings size="20px" color="#0468C1" />
                 <Text fontSize="13px" color="#373636">
-                  {' '}
-                  Room {event.roomNumber}{' '}
+                  Room {event.roomNumber}
                 </Text>
               </Flex>
             )}
@@ -225,7 +224,6 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                 </Flex>
               )}
 
-            {/* Fill Absence Button*/}
             {!event.substituteTeacher &&
               !isUserAbsentTeacher &&
               !isUserAdmin && (
@@ -233,7 +231,7 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                   colorScheme="blue"
                   width="full"
                   height="44px"
-                  font-size="16px"
+                  fontSize="16px"
                   fontWeight="500"
                 >
                   Fill this Absence
