@@ -35,7 +35,7 @@ const DualColorBar: React.FC<DualColorBarProps> = ({
   const rY = Math.min(r, height / 2);
   const rX = Math.min(r, width / 2);
 
-  const shadow = isActive ? 'drop-shadow(0px -4px 4px rgba(0,0,0,0.1)' : 'none';
+  const shadow = isActive ? 'drop-shadow(0px 4px 6px rgba(0,0,0,0.2))' : 'none';
 
   return (
     <g filter={shadow}>

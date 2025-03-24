@@ -1,4 +1,4 @@
-import { Box, Flex, HStack, Spinner } from '@chakra-ui/react';
+import { Box, HStack } from '@chakra-ui/react';
 import { YearlyAbsenceData } from '@utils/types';
 import { useUserData } from '@utils/useUserData';
 import { useRouter } from 'next/navigation';
@@ -32,7 +32,16 @@ export default function DashboardPage() {
         const response = await fetch('/api/getAbsenceDates');
         if (!response.ok) throw new Error('Failed to fetch absence data');
         const data = await response.json();
-        setAbsenceData(data.events);
+
+        const events = data.events || [];
+        setAbsenceData(events);
+
+        if (
+          events.length > 0 &&
+          !events.find((entry) => entry.yearRange === selectedYearRange)
+        ) {
+          setSelectedYearRange(events[0].yearRange);
+        }
       } catch (err) {
         console.error('Error fetching absences:', err);
       } finally {
@@ -46,12 +55,38 @@ export default function DashboardPage() {
   if (userData.isLoading || !userData.isAuthenticated) {
     return null;
   }
+  const emptyYearlyData = Array.from({ length: 12 }, (_, i) => ({
+    month: [
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+    ][i],
+    filled: 0,
+    unfilled: 0,
+  }));
 
   const selectedYearData = absenceData.find(
     (data) => data.yearRange === selectedYearRange
-  );
+  ) ?? {
+    yearRange: selectedYearRange,
+    yearlyData: emptyYearlyData,
+  };
 
-  if (!selectedYearData) return null;
+  const yearlyData = selectedYearData?.yearlyData ?? [];
+
+  const highestMonthlyAbsence = Math.max(
+    ...yearlyData.map((month) => month.filled + month.unfilled),
+    0
+  );
 
   const yearlyAbsencesFilled =
     selectedYearData?.yearlyData.reduce(
@@ -73,10 +108,6 @@ export default function DashboardPage() {
       return startYearA - startYearB;
     });
 
-  const highestMonthlyAbsence = Math.max(
-    ...selectedYearData.yearlyData.map((month) => month.filled + month.unfilled)
-  );
-
   const totalAbsenceCount = yearlyAbsencesFilled + yearlyAbsencesUnfilled;
 
   return (
@@ -86,19 +117,15 @@ export default function DashboardPage() {
         selectedYearRange={selectedYearRange}
         setSelectedYearRange={setSelectedYearRange}
         yearRanges={sortedYearRanges}
+        hasData={!!selectedYearData}
       />
       <Box px={8} pt={3} pb={8} justifyContent="center">
-        {loading ? (
-          <Flex
-            height="calc(100vh - 100px)"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Spinner size="xl" />
-          </Flex>
-        ) : (
+        {loading ? null : (
           <>
-            <HStack height="216px" mb="10px">
+            <HStack
+              // height="216px"
+              mb="10px"
+            >
               <TotalAbsencesCard
                 width="35%"
                 filled={yearlyAbsencesFilled}
@@ -106,6 +133,7 @@ export default function DashboardPage() {
                 startYear={startYear}
                 endYear={endYear}
               />
+              {totalAbsenceCount}
               <MonthlyAbsencesCard
                 width="65%"
                 monthlyData={selectedYearData.yearlyData}
