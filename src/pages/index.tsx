@@ -1,7 +1,7 @@
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Box, Flex, Text } from '@chakra-ui/react';
 import { SignInButton } from '../components/SignInButton';
 import { TacetLogo } from '../components/SistemaLogoColour';
 

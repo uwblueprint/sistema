@@ -25,7 +25,7 @@ import {
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { FilterOptions, Role, UserAPI } from '@utils/types';
 import useUserFiltering from '@utils/useUserFiltering';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FiClock,
   FiLock,
@@ -100,67 +100,6 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
-
-  // Handle filter changes from FilterPopup
-  const handleFilterChange = (filterOptions: FilterOptions) => {
-    setFilters((prev) => ({
-      ...prev,
-      role: filterOptions.role,
-      absencesOperator: filterOptions.absencesOperator,
-      absencesValue: filterOptions.absencesValue,
-      tags: filterOptions.tags,
-    }));
-  };
-
-  // Filter users based on search term and other criteria
-  const filteredUsers = useMemo(() => {
-    return users.filter((user: UserAPI) => {
-      const { role, absencesOperator, absencesValue, tags } = filters;
-
-      // Search term filter - only search by name
-      if (searchTerm) {
-        const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
-        const searchLower = searchTerm.toLowerCase();
-        if (!fullName.includes(searchLower)) {
-          return false;
-        }
-      }
-
-      // Role filter
-      if (role && user.role !== role) {
-        return false;
-      }
-
-      // Absences filter
-      if (absencesValue !== null && absencesValue !== undefined) {
-        const userAbsences = user.absences?.length || 0;
-
-        switch (absencesOperator) {
-          case 'greater_than':
-            if (userAbsences <= absencesValue) return false;
-            break;
-          case 'less_than':
-            if (userAbsences >= absencesValue) return false;
-            break;
-          case 'equal_to':
-            if (userAbsences !== absencesValue) return false;
-            break;
-        }
-      }
-
-      // Tags filter
-      if (tags && tags.length > 0) {
-        const userTags =
-          user.mailingLists?.map((list) => list.subject.name) || [];
-        // Check if user has at least one of the selected tags
-        if (!tags.some((tag) => userTags.includes(tag))) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [users, filters, searchTerm]);
 
   // Sort the filtered users
   const { sortedUsers } = useUserFiltering(
@@ -314,81 +253,75 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           </Thead>
 
           <Tbody>
-            {sortedUsers.length > 0 ? (
-              sortedUsers.map((user, index) => (
-                <Tr
-                  key={index}
-                  sx={{
-                    ':last-child td': { borderBottom: 'none' },
-                  }}
-                >
-                  <Td>
-                    <HStack spacing={3}>
-                      <Avatar
-                        size="sm"
-                        name={`${user.firstName} ${user.lastName}`}
-                        src={user.profilePicture || undefined}
+            {sortedUsers.length > 0
+              ? sortedUsers.map((user, index) => (
+                  <Tr
+                    key={index}
+                    sx={{
+                      ':last-child td': { borderBottom: 'none' },
+                    }}
+                  >
+                    <Td>
+                      <HStack spacing={3}>
+                        <Avatar
+                          size="sm"
+                          name={`${user.firstName} ${user.lastName}`}
+                          src={user.profilePicture || undefined}
+                        />
+                        <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
+                      </HStack>
+                    </Td>
+                    <Td color="gray.600">
+                      <Text textStyle="cellBody">{user.email}</Text>
+                    </Td>
+                    <Td textAlign="center">
+                      <Text
+                        textStyle="cellBold"
+                        color={getAbsenceColor(
+                          user.absences?.length || 0,
+                          absenceCap
+                        )}
+                      >
+                        {user.absences?.length || 0}
+                      </Text>
+                    </Td>
+                    <Td>
+                      <EditableRoleCell
+                        key={`role-cell-${user.id}`}
+                        role={user.role}
+                        onRoleChange={(newRole) =>
+                          updateUserRole(user.id, newRole as Role)
+                        }
                       />
-                      <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
-                    </HStack>
-                  </Td>
-                  <Td color="gray.600">
-                    <Text textStyle="cellBody">{user.email}</Text>
-                  </Td>
-                  <Td textAlign="center">
-                    <Text
-                      textStyle="cellBold"
-                      color={getAbsenceColor(
-                        user.absences?.length || 0,
-                        absenceCap
-                      )}
-                    >
-                      {user.absences?.length || 0}
-                    </Text>
-                  </Td>
-                  <Td>
-                    <EditableRoleCell
-                      key={`role-cell-${user.id}`}
-                      role={user.role}
-                      onRoleChange={(newRole) =>
-                        updateUserRole(user.id, newRole as Role)
-                      }
-                    />
-                  </Td>
-                  <Td>
-                    <Wrap spacing={2}>
-                      {user.mailingLists?.map((mailingList, index) => (
-                        <WrapItem key={index}>
-                          <Tag
-                            height="28px"
-                            variant="subtle"
-                            key={index}
-                            bg={mailingList.subject.colorGroup.colorCodes[3]}
-                          >
-                            <TagLabel>
-                              <Text
-                                color={
-                                  mailingList.subject.colorGroup.colorCodes[0]
-                                }
-                                textStyle="label"
-                              >
-                                {mailingList.subject.name}
-                              </Text>
-                            </TagLabel>
-                          </Tag>
-                        </WrapItem>
-                      ))}
-                    </Wrap>
-                  </Td>
-                </Tr>
-              ))
-            ) : (
-              <Tr>
-                <Td colSpan={5} textAlign="center" py={4}>
-                  <Text>No users match your search criteria</Text>
-                </Td>
-              </Tr>
-            )}
+                    </Td>
+                    <Td>
+                      <Wrap spacing={2}>
+                        {user.mailingLists?.map((mailingList, index) => (
+                          <WrapItem key={index}>
+                            <Tag
+                              height="28px"
+                              variant="subtle"
+                              key={index}
+                              bg={mailingList.subject.colorGroup.colorCodes[3]}
+                            >
+                              <TagLabel>
+                                <Text
+                                  color={
+                                    mailingList.subject.colorGroup.colorCodes[0]
+                                  }
+                                  textStyle="label"
+                                >
+                                  {mailingList.subject.name}
+                                </Text>
+                              </TagLabel>
+                            </Tag>
+                          </WrapItem>
+                        ))}
+                      </Wrap>
+                    </Td>
+                  </Tr>
+                ))
+              : null}
           </Tbody>
         </Table>
       </Box>

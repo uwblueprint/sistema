@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
 import { Box, Button, Icon, Text, useTheme } from '@chakra-ui/react';
-import { IoCheckmark, IoCloseOutline } from 'react-icons/io5';
+import React, { useState } from 'react';
 import { FiChevronDown, FiChevronUp, FiEdit2 } from 'react-icons/fi';
+import { IoCheckmark, IoCloseOutline } from 'react-icons/io5';
 
 type EditableRoleCellProps = {
   role: string;
