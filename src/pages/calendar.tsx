@@ -1,4 +1,4 @@
-import { Box, filter, Flex, useTheme, useToast } from '@chakra-ui/react';
+import { Box, Flex, useTheme, useToast } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import { EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -53,8 +53,8 @@ const Calendar: React.FC = () => {
     location: absenceData.location.name,
     subjectId: absenceData.subject.id,
     locationId: absenceData.location.id,
-    archived_location: absenceData.location.archived,
-    archived_subject: absenceData.subject.archived,
+    archivedLocation: absenceData.location.archived,
+    archivedSubject: absenceData.subject.archived,
   });
 
   const fetchAbsences = useCallback(async () => {
@@ -157,15 +157,15 @@ const Calendar: React.FC = () => {
       let archiveMatch = true;
 
       if (archiveIds.length === 0) {
-        archiveMatch = !event.archived_subject && !event.archived_location;
+        archiveMatch = !event.archivedSubject && !event.archivedLocation;
       } else {
         const includeArchivedSubjects = archiveIds.includes(0);
         const includeArchivedLocations = archiveIds.includes(1);
 
         const subjectArchiveMatch =
-          includeArchivedSubjects || !event.archived_subject;
+          includeArchivedSubjects || !event.archivedSubject;
         const locationArchiveMatch =
-          includeArchivedLocations || !event.archived_location;
+          includeArchivedLocations || !event.archivedLocation;
 
         archiveMatch = subjectArchiveMatch && locationArchiveMatch;
       }
@@ -173,7 +173,6 @@ const Calendar: React.FC = () => {
       return subjectMatch && locationMatch && archiveMatch;
     });
 
-    console.log(filtered);
     setFilteredEvents(filtered);
   }, [searchQuery, events]);
 
