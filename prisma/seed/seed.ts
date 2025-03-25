@@ -15,8 +15,6 @@ const main = async () => {
     ADMIN = 'ADMIN',
   }
 
-  const roles = [RoleEnum.TEACHER, RoleEnum.ADMIN];
-
   const subjects = [
     { name: 'Strings', abbreviation: 'STR', colorGroupId: 3 },
     { name: 'Choir', abbreviation: 'CHO', colorGroupId: 2 },
@@ -35,13 +33,26 @@ const main = async () => {
     },
   ];
 
-  const numUsers = 20;
-  const numAbsences = 100;
+  const numUsers = 100;
+  const numAbsences = 300;
   const numSubjects = subjects.length;
-  const userIds = Array.from({ length: numUsers }, (_, i) => i + 1);
+  const userIds = Array.from({ length: numUsers + 1 }, (_, i) => i + 1);
   const subjectIds = Array.from({ length: numSubjects }, (_, i) => i + 1);
 
-  const users = await seed.user((createMany) =>
+  await seed.user((createMany) =>
+    createMany(1, () => {
+      return {
+        authId: faker.string.uuid(),
+        email: 'sistema@uwblueprint.org',
+        firstName: 'Sistema',
+        lastName: 'Blueprint',
+        profilePicture: `https://lh3.googleusercontent.com/a/ACg8ocKxepJIC2yHao12N7K58_vzFKhY4GLrzOzpLKhBJRC14k2E_Q=s96-c`,
+        role: RoleEnum.ADMIN,
+      };
+    })
+  );
+
+  await seed.user((createMany) =>
     createMany(numUsers, () => {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
@@ -51,7 +62,7 @@ const main = async () => {
         firstName: firstName,
         lastName: lastName,
         profilePicture: `https://i.pravatar.cc/50?u=${faker.string.uuid()}`,
-        role: faker.helpers.arrayElement(roles),
+        role: RoleEnum.TEACHER,
       };
     })
   );
@@ -136,7 +147,15 @@ const main = async () => {
   const generateWeekdayFutureDate = (): Date => {
     let date: Date;
     do {
-      date = faker.date.future();
+      date = faker.date.future({ years: 2 });
+    } while (date.getDay() === 0 || date.getDay() === 6);
+    return date;
+  };
+
+  const generateWeekdayPastDate = (): Date => {
+    let date: Date;
+    do {
+      date = faker.date.future({ years: 2 });
     } while (date.getDay() === 0 || date.getDay() === 6);
     return date;
   };
@@ -146,13 +165,42 @@ const main = async () => {
       const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
         probability: 0.5,
       });
-      const randomSub = faker.helpers.maybe(
+      const randomSubstitute = faker.helpers.maybe(
         () => faker.helpers.arrayElement(userIds),
         {
           probability: 0.5,
         }
       );
+      return {
+        lessonDate: generateWeekdayPastDate(),
+        lessonPlan: faker.internet.url(),
+        reasonOfAbsence: faker.lorem.sentence(),
+        notes: maybeNotes ?? null,
+        roomNumber: faker.helpers.arrayElement([
+          '101',
+          '202',
+          '303',
+          '404',
+          'B1',
+          'A5',
+          'C12',
+        ]),
+        substituteTeacherId: randomSubstitute ?? null,
+      };
+    })
+  );
 
+  await seed.absence((createMany) =>
+    createMany(numAbsences, () => {
+      const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
+        probability: 0.5,
+      });
+      const randomSubstitute = faker.helpers.maybe(
+        () => faker.helpers.arrayElement(userIds),
+        {
+          probability: 0.5,
+        }
+      );
       return {
         lessonDate: generateWeekdayFutureDate(),
         lessonPlan: faker.internet.url(),
@@ -167,7 +215,7 @@ const main = async () => {
           'A5',
           'C12',
         ]),
-        substituteTeacherId: randomSub ?? null,
+        substituteTeacherId: randomSubstitute ?? null,
       };
     })
   );

@@ -3,7 +3,6 @@ import { IoChevronDownOutline, IoChevronUpOutline } from 'react-icons/io5';
 import {
   Avatar,
   Box,
-  Button,
   Divider,
   HStack,
   Icon,
@@ -19,161 +18,24 @@ import {
   Th,
   Thead,
   Tr,
-  useTheme,
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
 
 import { getAbsenceColor } from '@utils/getAbsenceColor';
-import { Role, UserAPI } from '@utils/types';
-import React, { useEffect, useMemo, useState } from 'react';
+import { FilterOptions, Role, UserAPI } from '@utils/types';
+import useUserFiltering from '@utils/useUserFiltering';
+import React, { useEffect, useState } from 'react';
 import {
-  FiChevronDown,
-  FiChevronUp,
   FiClock,
-  FiEdit2,
   FiLock,
   FiMail,
   FiSearch,
   FiTag,
   FiUser,
 } from 'react-icons/fi';
-import { IoCheckmark, IoCloseOutline } from 'react-icons/io5';
-import FilterPopup, { FilterOptions } from './FilterPopup';
-
-type EditableRoleCellProps = {
-  role: string;
-  onRoleChange: (newRole: string) => void;
-};
-
-const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [newRole, setNewRole] = useState(role);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleEditClick = () => {
-    setIsEditing(true);
-    setIsDropdownOpen(false);
-    setIsHovered(false);
-  };
-
-  const toggleDropdown = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsDropdownOpen((prev) => !prev);
-  };
-
-  const handleRoleChange = (selectedRole: string) => {
-    setNewRole(selectedRole);
-    setIsDropdownOpen(false);
-  };
-
-  const handleConfirmClick = () => {
-    onRoleChange(newRole);
-    setIsEditing(false);
-  };
-
-  const handleCancelClick = () => {
-    setNewRole(role);
-    setIsEditing(false);
-    setIsHovered(false);
-    setIsDropdownOpen(false);
-  };
-  const oppositeRole = newRole === 'TEACHER' ? 'ADMIN' : 'TEACHER';
-  const theme = useTheme();
-
-  return (
-    <Box
-      position="relative"
-      display="inline-flex"
-      alignItems="center"
-      onMouseEnter={() => !isEditing && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        cursor="pointer"
-        onClick={handleEditClick}
-        bg={isEditing ? 'primaryBlue.50' : 'transparent'}
-        p={2}
-        borderRadius="md"
-        width="100px"
-      >
-        <Text textStyle="cellBody" flexGrow={1}>
-          {newRole === 'TEACHER' ? 'Teacher' : 'Admin'}
-        </Text>
-
-        <Box display="flex" alignItems="center">
-          {isEditing ? (
-            <Icon
-              as={isDropdownOpen ? FiChevronUp : FiChevronDown}
-              color="neutralGray.600"
-              onClick={toggleDropdown}
-            />
-          ) : (
-            isHovered && <Icon as={FiEdit2} color="neutralGray.600" />
-          )}
-        </Box>
-      </Box>
-      {isDropdownOpen && (
-        <Box
-          position="absolute"
-          top="38px"
-          left="0"
-          bg="white"
-          border="1px solid"
-          borderColor="neutralGray.300"
-          borderRadius="md"
-          shadow="md"
-          zIndex="10"
-          width="100px"
-        >
-          <Box
-            p={2}
-            cursor="pointer"
-            borderRadius="md"
-            _hover={{ bg: 'primaryBlue.50' }}
-            onClick={() => handleRoleChange(oppositeRole)}
-          >
-            <Text textStyle="cellBody" flexGrow={1}>
-              {oppositeRole === 'TEACHER' ? 'Teacher' : 'Admin'}
-            </Text>
-          </Box>
-        </Box>
-      )}
-
-      {isEditing && newRole !== role && (
-        <Button
-          variant="outline"
-          onClick={handleConfirmClick}
-          position="absolute"
-          right={'-70px'}
-          size="sm"
-          borderRadius="md"
-          p={0}
-        >
-          <IoCheckmark size={20} color={theme.colors.neutralGray[600]} />
-        </Button>
-      )}
-
-      {isEditing && (
-        <Button
-          variant="outline"
-          onClick={handleCancelClick}
-          position="absolute"
-          right={'-35px'}
-          size="sm"
-          borderRadius="md"
-          p={0}
-        >
-          <IoCloseOutline size={20} color={theme.colors.neutralGray[600]} />
-        </Button>
-      )}
-    </Box>
-  );
-};
+import EditableRoleCell from './EditableRoleCell';
+import FilterPopup from './FilterPopup';
 
 type SortField = 'name' | 'email' | 'absences' | 'role';
 
@@ -239,92 +101,14 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
     setSearchTerm(e.target.value);
   };
 
-  // Handle filter changes from FilterPopup
-  const handleFilterChange = (filterOptions: FilterOptions) => {
-    setFilters((prev) => ({
-      ...prev,
-      role: filterOptions.role,
-      absencesOperator: filterOptions.absencesOperator,
-      absencesValue: filterOptions.absencesValue,
-      tags: filterOptions.tags,
-    }));
-  };
-
-  // Filter users based on search term and other criteria
-  const filteredUsers = useMemo(() => {
-    return users.filter((user: UserAPI) => {
-      const { role, absencesOperator, absencesValue, tags } = filters;
-
-      // Search term filter - only search by name
-      if (searchTerm) {
-        const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
-        const searchLower = searchTerm.toLowerCase();
-        if (!fullName.includes(searchLower)) {
-          return false;
-        }
-      }
-
-      // Role filter
-      if (role && user.role !== role) {
-        return false;
-      }
-
-      // Absences filter
-      if (absencesValue !== null && absencesValue !== undefined) {
-        const userAbsences = user.absences?.length || 0;
-
-        switch (absencesOperator) {
-          case 'greater_than':
-            if (userAbsences <= absencesValue) return false;
-            break;
-          case 'less_than':
-            if (userAbsences >= absencesValue) return false;
-            break;
-          case 'equal_to':
-            if (userAbsences !== absencesValue) return false;
-            break;
-        }
-      }
-
-      // Tags filter
-      if (tags && tags.length > 0) {
-        const userTags =
-          user.mailingLists?.map((list) => list.subject.name) || [];
-        // Check if user has at least one of the selected tags
-        if (!tags.some((tag) => userTags.includes(tag))) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [users, filters, searchTerm]);
-
   // Sort the filtered users
-  const sortedUsers = useMemo(() => {
-    return [...filteredUsers].sort((a, b) => {
-      const modifier = sortDirection === 'asc' ? 1 : -1;
-
-      switch (sortField) {
-        case 'name': // Right now this is sorting by first name
-          const nameA = `${a.firstName} ${a.lastName}`;
-          const nameB = `${b.firstName} ${b.lastName}`;
-          return nameA.localeCompare(nameB) * modifier;
-
-        case 'email':
-          return a.email.localeCompare(b.email) * modifier;
-
-        case 'absences':
-          return (a.absences.length - b.absences.length) * modifier;
-
-        case 'role':
-          return a.role.localeCompare(b.role) * modifier;
-
-        default:
-          return 0;
-      }
-    });
-  }, [filteredUsers, sortField, sortDirection]);
+  const { sortedUsers } = useUserFiltering(
+    users,
+    filters,
+    searchTerm,
+    sortField,
+    sortDirection
+  );
 
   const SortIcon = ({ field }: { field: SortField }) => {
     const isActive = sortField === field;
@@ -394,6 +178,9 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       w="full"
       border="1px solid"
       borderColor="neutralGray.300"
+      display="flex"
+      flexDirection="column"
+      height="100%"
     >
       <HStack justify="space-between" mx={5} my={3}>
         <Text fontSize={'22px'} lineHeight="33px" fontWeight={700}>
@@ -434,7 +221,8 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         </HStack>
       </HStack>
       <Divider />
-      <Box overflowX="auto" maxHeight="40vh">
+
+      <Box flex="1" overflowY="auto">
         <Table variant="simple">
           <Thead
             position="sticky"
@@ -469,81 +257,74 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           </Thead>
 
           <Tbody>
-            {sortedUsers.length > 0 ? (
-              sortedUsers.map((user, index) => (
-                <Tr
-                  key={index}
-                  sx={{
-                    ':last-child td': { borderBottom: 'none' },
-                  }}
-                >
-                  <Td>
-                    <HStack spacing={3}>
-                      <Avatar
-                        size="sm"
-                        name={`${user.firstName} ${user.lastName}`}
-                        src={user.profilePicture || undefined}
+            {sortedUsers.length > 0
+              ? sortedUsers.map((user, index) => (
+                  <Tr
+                    key={index}
+                    sx={{
+                      ':last-child td': { borderBottom: 'none' },
+                    }}
+                  >
+                    <Td>
+                      <HStack spacing={3}>
+                        <Avatar
+                          size="sm"
+                          name={`${user.firstName} ${user.lastName}`}
+                          src={user.profilePicture || undefined}
+                        />
+                        <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
+                      </HStack>
+                    </Td>
+                    <Td color="gray.600">
+                      <Text textStyle="cellBody">{user.email}</Text>
+                    </Td>
+                    <Td textAlign="center">
+                      <Text
+                        textStyle="cellBold"
+                        color={getAbsenceColor(
+                          user.absences?.length || 0,
+                          absenceCap
+                        )}
+                      >
+                        {user.absences?.length || 0}
+                      </Text>
+                    </Td>
+                    <Td>
+                      <EditableRoleCell
+                        key={`role-cell-${user.id}`}
+                        role={user.role}
+                        onRoleChange={(newRole) =>
+                          updateUserRole(user.id, newRole as Role)
+                        }
                       />
-                      <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
-                    </HStack>
-                  </Td>
-                  <Td color="gray.600">
-                    <Text textStyle="cellBody">{user.email}</Text>
-                  </Td>
-                  <Td textAlign="center">
-                    <Text
-                      textStyle="cellBold"
-                      color={getAbsenceColor(
-                        user.absences?.length || 0,
-                        absenceCap
-                      )}
-                    >
-                      {user.absences?.length || 0}
-                    </Text>
-                  </Td>
-                  <Td>
-                    <EditableRoleCell
-                      key={`role-cell-${user.id}`}
-                      role={user.role}
-                      onRoleChange={(newRole) =>
-                        updateUserRole(user.id, newRole as Role)
-                      }
-                    />
-                  </Td>
-                  <Td>
-                    <Wrap spacing={2}>
-                      {user.mailingLists?.map((mailingList, index) => (
-                        <WrapItem key={index}>
-                          <Tag
-                            height="28px"
-                            variant="subtle"
-                            key={index}
-                            bg={mailingList.subject.colorGroup.colorCodes[3]}
-                          >
-                            <TagLabel>
-                              <Text
-                                color={
-                                  mailingList.subject.colorGroup.colorCodes[0]
-                                }
-                                textStyle="label"
-                              >
-                                {mailingList.subject.name}
-                              </Text>
-                            </TagLabel>
-                          </Tag>
-                        </WrapItem>
-                      ))}
-                    </Wrap>
-                  </Td>
-                </Tr>
-              ))
-            ) : (
-              <Tr>
-                <Td colSpan={5} textAlign="center" py={4}>
-                  <Text>No users match your search criteria</Text>
-                </Td>
-              </Tr>
-            )}
+                    </Td>
+                    <Td>
+                      <Wrap spacing={2}>
+                        {user.mailingLists?.map((mailingList, index) => (
+                          <WrapItem key={index}>
+                            <Tag
+                              height="28px"
+                              variant="subtle"
+                              bg={mailingList.subject.colorGroup.colorCodes[3]}
+                            >
+                              <TagLabel>
+                                <Text
+                                  color={
+                                    mailingList.subject.colorGroup.colorCodes[0]
+                                  }
+                                  textStyle="label"
+                                >
+                                  {mailingList.subject.name}
+                                </Text>
+                              </TagLabel>
+                            </Tag>
+                          </WrapItem>
+                        ))}
+                      </Wrap>
+                    </Td>
+                  </Tr>
+                ))
+              : null}
           </Tbody>
         </Table>
       </Box>
