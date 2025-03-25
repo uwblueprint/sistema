@@ -1,5 +1,6 @@
 import {
   Box,
+  Divider,
   Input,
   InputGroup,
   InputRightElement,
@@ -36,12 +37,9 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
       const res = await fetch('/api/formDropdown');
       if (res.ok) {
         const data = await res.json();
-
-        if (type === 'location') {
-          setOptions(data.locationOptions);
-        } else if (type === 'subject') {
-          setOptions(data.subjectOptions);
-        }
+        setOptions(
+          type === 'location' ? data.locationOptions : data.subjectOptions
+        );
       }
     } catch (error) {
       console.error(`Failed to fetch ${type} options:`, error);
@@ -68,7 +66,11 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
       onClose={() => setIsOpen(false)}
     >
       <PopoverTrigger>
-        <InputGroup>
+        <InputGroup
+          border="1px solid"
+          borderColor="neutralGray.300"
+          borderRadius="md"
+        >
           <Input
             ref={inputRef}
             cursor="pointer"
@@ -77,6 +79,8 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
             placeholder={`Please select ${label}`}
             value={selectedOption ? selectedOption.name : ''}
             readOnly
+            border="none"
+            _focusVisible={{ outline: 'none' }}
           />
           <InputRightElement pointerEvents="none">
             {isOpen ? <IoChevronUp /> : <IoChevronDown />}
@@ -84,22 +88,37 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
         </InputGroup>
       </PopoverTrigger>
 
-      <PopoverContent width="300px" borderRadius="md" overflow="hidden">
+      <PopoverContent
+        width="300px"
+        mt="-5px"
+        borderRadius="md"
+        overflow="hidden"
+        border="1px solid"
+        borderColor="neutralGray.300"
+      >
         <PopoverArrow />
         <PopoverBody p={0}>
-          {options.map((option) => (
-            <Box
-              key={option.id}
-              onClick={() => handleOptionSelect(option)}
-              sx={{
-                padding: '10px 16px',
-                cursor: 'pointer',
-                bg: 'transparent',
-                _hover: { bg: 'neutralGray.100' },
-              }}
-            >
-              <Text textStyle="subtitle">{option.name}</Text>
-            </Box>
+          {options.map((option, index) => (
+            <React.Fragment key={option.id}>
+              <Box
+                onClick={() => handleOptionSelect(option)}
+                sx={{
+                  padding: '10px 16px',
+                  cursor: 'pointer',
+                  bg:
+                    selectedOption?.id === option.id
+                      ? 'primaryBlue.50'
+                      : 'transparent',
+                  _hover: { bg: 'neutralGray.100' },
+                  _active: { bg: 'neutralGray.300' },
+                }}
+              >
+                <Text textStyle="subtitle">{option.name}</Text>
+              </Box>
+              {index < options.length - 1 && (
+                <Divider borderColor="neutralGray.300" opacity={1} />
+              )}
+            </React.Fragment>
           ))}
         </PopoverBody>
       </PopoverContent>

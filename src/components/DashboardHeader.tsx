@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import { IoChevronBack } from 'react-icons/io5';
 import ExportAbsencesButton from './ExportAbsencesButton';
 import ProfileMenu from './ProfileMenu';
-import { YearSelector } from './YearSelector';
+import YearDropdown from './YearDropdown';
 
 interface DashboardHeaderProps {
   userData?: UserData;
@@ -73,7 +73,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       <Spacer />
       <HStack spacing={theme.space[4]}>
         {hasData && (
-          <YearSelector
+          <YearDropdown
             selectedRange={selectedYearRange}
             onChange={setSelectedYearRange}
             yearRanges={yearRanges}

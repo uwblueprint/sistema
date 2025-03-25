@@ -135,9 +135,11 @@ export interface YearlyAbsenceData {
   yearlyData: MonthlyAbsenceData[];
 }
 
+export type ComparisonOperator = 'greater_than' | 'less_than' | 'equal_to';
+
 export interface FilterOptions {
   role: string | null | undefined;
-  absencesOperator: 'greater_than' | 'less_than' | 'equal_to';
+  absencesOperator: ComparisonOperator;
   absencesValue: number | null;
   tags: string[] | null;
 }
