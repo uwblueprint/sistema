@@ -2,6 +2,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 interface UserData {
+  id?: number;
   name: string;
   email: string;
   image?: string;
@@ -18,10 +19,11 @@ const useUserData = () => {
       if (session?.user?.email) {
         try {
           const res = await fetch(
-            `/api/users/email/${session.user.email}?shouldIncludeAbsences=true`
+            `/api/users/email/${session.user.email}?getAbsences=true`
           );
           const data = await res.json();
           setUserData({
+            id: data.id, // Include the user's ID
             name: session.user.name ?? '',
             email: session.user.email,
             image: session.user.image ?? undefined,

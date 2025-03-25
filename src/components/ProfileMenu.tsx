@@ -7,14 +7,17 @@ import {
   MenuButton,
   MenuList,
   Text,
+  VStack,
+  Divider,
   useTheme,
   useToast,
+  HStack,
 } from '@chakra-ui/react';
 import { NEXT_PUBLIC_PROD_URL } from '@utils/config';
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { UserData } from '@utils/types';
 import { signOut } from 'next-auth/react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { IoLinkOutline } from 'react-icons/io5';
 
 interface ProfileMenuProps {
@@ -28,14 +31,39 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
     : getAbsenceColor(0, absenceCap);
   const theme = useTheme();
   const toast = useToast();
+  const [baseUrl, setBaseUrl] = useState('');
+
+  // Set the base URL when the component mounts
+  useEffect(() => {
+    // Use NEXT_PUBLIC_PROD_URL if defined, otherwise use current origin
+    setBaseUrl(NEXT_PUBLIC_PROD_URL || window.location.origin);
+  }, []);
 
   const handleCopyICal = async () => {
-    const iCalURL = `${NEXT_PUBLIC_PROD_URL}/api/ics/calendar.ics`;
+    const iCalURL = `${baseUrl}/api/ics/calendar.ics`;
     try {
       await navigator.clipboard.writeText(iCalURL);
       toast({
         title: 'Copied!',
-        description: 'iCal URL has been copied to your clipboard.',
+        description: 'Sistema iCal URL has been copied to your clipboard.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
+  };
+
+  const handleCopyPersonalICal = async () => {
+    if (!userData?.id) return;
+
+    const iCalURL = `${baseUrl}/api/ics/user-${userData.id}.ics`;
+    try {
+      await navigator.clipboard.writeText(iCalURL);
+      toast({
+        title: 'Copied!',
+        description: 'Personal iCal URL has been copied to your clipboard.',
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -75,20 +103,38 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
             <Text textStyle="h4">Absences Taken</Text>
           </Flex>
         </Box>
-        <Flex
-          alignItems="center"
-          gap={2}
-          justifyContent="center"
-          mb={4}
-          cursor="pointer"
-          onClick={handleCopyICal}
-        >
-          <Text textStyle="caption" color="text.subtitle">
-            Sistema iCal
-          </Text>
 
-          <IoLinkOutline size={16} color={theme.colors.neutralGray[600]} />
-        </Flex>
+        {/* Calendar subscription options */}
+
+        <HStack spacing={2} align="center" justifyContent="center" mb={4}>
+          {userData?.id && (
+            <Flex
+              alignItems="center"
+              gap={2}
+              justifyContent="center"
+              cursor="pointer"
+              onClick={handleCopyPersonalICal}
+            >
+              <Text textStyle="caption" color="text.subtitle">
+                Personal iCal
+              </Text>
+              <IoLinkOutline size={16} color={theme.colors.neutralGray[600]} />
+            </Flex>
+          )}
+          <Flex
+            alignItems="center"
+            gap={2}
+            justifyContent="center"
+            cursor="pointer"
+            onClick={handleCopyICal}
+          >
+            <Text textStyle="caption" color="text.subtitle">
+              Sistema iCal
+            </Text>
+            <IoLinkOutline size={16} color={theme.colors.neutralGray[600]} />
+          </Flex>
+        </HStack>
+
         <Button
           onClick={() => signOut()}
           variant="outline"

@@ -1,6 +1,6 @@
 import { extendTheme } from '@chakra-ui/react';
-import '@fontsource/inter';
-import '@fontsource/poppins';
+// import '@fontsource/inter';
+// import '@fontsource/poppins';
 
 const fonts = {
   heading: `'Poppins', sans-serif`,

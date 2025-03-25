@@ -116,6 +116,7 @@ export enum Role {
 }
 
 export interface UserData {
+  id?: number;
   name: string;
   email: string;
   image?: string;
