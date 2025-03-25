@@ -18,26 +18,23 @@ import {
 import React from 'react';
 import { FiTrash2, FiArchive, FiFolder, FiEdit2 } from 'react-icons/fi';
 import { IoWarning, IoAlertCircleSharp, IoAdd } from 'react-icons/io5';
+import { SubjectAPI, Location } from '@utils/types';
 
-export type ChangeType = 'delete' | 'archive' | 'unarchive' | 'update' | 'add';
-
-export interface Change {
-  type: ChangeType;
-  entity: 'subject' | 'location' | 'setting';
-  id?: number;
-  tempId?: string;
-  data?: any;
-  displayText: string;
+// Entity-based pending changes structure
+export interface PendingEntities {
+  subjects: Map<number, SubjectAPI | null>;
+  locations: Map<number, Location | null>;
+  settings: { absenceCap?: number };
 }
 
 interface SystemChangesConfirmationDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  pendingChanges: Change[];
+  pendingEntities: PendingEntities;
   isConfirmingClose?: boolean;
-  subjects: any[];
-  locations: any[];
+  subjects: SubjectAPI[];
+  locations: Location[];
   colorGroups: any[];
   absenceCap: number;
 }
@@ -48,7 +45,7 @@ const SystemChangesConfirmationDialog: React.FC<
   isOpen,
   onClose,
   onConfirm,
-  pendingChanges,
+  pendingEntities,
   isConfirmingClose = false,
   subjects,
   locations,
@@ -57,39 +54,50 @@ const SystemChangesConfirmationDialog: React.FC<
 }) => {
   const cancelRef = React.useRef<HTMLButtonElement>(null);
 
-  const getChangeIcon = (change: Change) => {
-    if (change.type === 'delete') {
+  // Icons for different change types
+  const getChangeIcon = (changeType: string) => {
+    if (changeType === 'delete') {
       return <Icon as={FiTrash2} color="red.500" boxSize={5} />;
-    } else if (change.type === 'archive' || change.type === 'unarchive') {
+    } else if (changeType === 'archive' || changeType === 'unarchive') {
       return <Icon as={FiArchive} color="blue.500" boxSize={5} />;
-    } else if (change.type === 'update') {
+    } else if (changeType === 'update') {
       return <Icon as={FiEdit2} color="blue.500" boxSize={5} />;
-    } else if (change.type === 'add') {
+    } else if (changeType === 'add') {
       return <Icon as={IoAdd} color="blue.500" boxSize={8} />;
     }
     return null;
   };
 
-  const getChangeText = (change: Change): { text: string; color: string } => {
-    if (change.type === 'delete') {
+  // Get display text for a change
+  const getChangeText = (
+    changeType: string,
+    entityType: string
+  ): { text: string; color: string } => {
+    if (changeType === 'delete') {
       return {
-        text: `Deleted ${change.entity === 'subject' ? 'Subject' : 'Location'}`,
+        text: `Deleted ${entityType === 'subject' ? 'Subject' : 'Location'}`,
         color: 'red.500',
       };
-    } else if (change.type === 'archive') {
+    } else if (changeType === 'archive') {
       return {
-        text: `Archived ${change.entity === 'subject' ? 'Subject' : 'Location'}`,
+        text: `Archived ${entityType === 'subject' ? 'Subject' : 'Location'}`,
         color: 'blue.500',
       };
-    } else if (change.type === 'unarchive') {
+    } else if (changeType === 'unarchive') {
       return {
-        text: `Unarchived ${change.entity === 'subject' ? 'Subject' : 'Location'}`,
+        text: `Unarchived ${entityType === 'subject' ? 'Subject' : 'Location'}`,
+        color: 'blue.500',
+      };
+    } else if (changeType === 'add') {
+      return {
+        text: `Added ${entityType === 'subject' ? 'Subject' : 'Location'}`,
         color: 'blue.500',
       };
     }
-    return { text: change.displayText, color: 'gray.700' };
+    return { text: `Updated ${entityType}`, color: 'gray.700' };
   };
 
+  // Convert pending entities to displayable changes
   const getDisplayableChanges = (): {
     icon: React.ReactNode;
     label: string;
@@ -103,7 +111,12 @@ const SystemChangesConfirmationDialog: React.FC<
       details: React.ReactNode;
     }[] = [];
 
-    if (pendingChanges.length === 0) {
+    // Check if there are any pending changes
+    const hasSubjectChanges = pendingEntities.subjects.size > 0;
+    const hasLocationChanges = pendingEntities.locations.size > 0;
+    const hasSettingChanges = pendingEntities.settings.absenceCap !== undefined;
+
+    if (!hasSubjectChanges && !hasLocationChanges && !hasSettingChanges) {
       return [
         {
           icon: null,
@@ -114,126 +127,96 @@ const SystemChangesConfirmationDialog: React.FC<
       ];
     }
 
-    // Process each change to create more granular display items
-    pendingChanges.forEach((change) => {
-      if (change.type === 'add') {
-        displayChanges.push({
-          icon: getChangeIcon(change),
-          label: `Added ${change.entity === 'subject' ? 'Subject' : 'Location'}`,
-          color: 'blue.500',
-          details: `"${change.data.name}"`,
-        });
-      } else if (change.type === 'delete') {
-        const entityName =
-          change.entity === 'subject'
-            ? subjects.find((s) => s.id === change.id)?.name || 'Unknown'
-            : locations.find((l) => l.id === change.id)?.name || 'Unknown';
-
-        displayChanges.push({
-          icon: getChangeIcon(change),
-          label: `Deleted ${change.entity === 'subject' ? 'Subject' : 'Location'}`,
-          color: 'red.500',
-          details: `"${entityName}"`,
-        });
-      } else if (change.type === 'archive' || change.type === 'unarchive') {
-        const entityName =
-          change.entity === 'subject'
-            ? subjects.find((s) => s.id === change.id)?.name
-            : locations.find((l) => l.id === change.id)?.name;
-
-        displayChanges.push({
-          icon: getChangeIcon(change),
-          label: `${change.type === 'archive' ? 'Archived' : 'Unarchived'} ${
-            change.entity === 'subject' ? 'Subject' : 'Location'
-          }`,
-          color: 'blue.500',
-          details: `"${entityName || 'Unknown'}"`,
-        });
-      } else if (change.type === 'update') {
-        // We'll handle updates separately for simplicity
-        if (change.data?.name !== undefined) {
-          // Name changes
-          const entityList = change.entity === 'subject' ? subjects : locations;
-          const entity = entityList.find((e) => e.id === change.id);
-          const originalName =
-            change.data.originalName || entity?.name || 'Unknown';
-
+    // Process subject changes
+    pendingEntities.subjects.forEach((updatedSubject, id) => {
+      if (updatedSubject === null) {
+        // Handle deleted subject
+        const originalSubject = subjects.find((s) => s.id === id);
+        if (originalSubject) {
           displayChanges.push({
-            icon: getChangeIcon(change),
-            label: `Updated ${change.entity === 'subject' ? 'Subject' : 'Location'} Name`,
+            icon: getChangeIcon('delete'),
+            label: `Deleted Subject`,
+            color: 'red.500',
+            details: `"${originalSubject.name}"`,
+          });
+        }
+      } else if (id < 0) {
+        // Handle new subject
+        displayChanges.push({
+          icon: getChangeIcon('add'),
+          label: `Added Subject`,
+          color: 'blue.500',
+          details: `"${updatedSubject.name}"`,
+        });
+      } else {
+        // Handle updated subject
+        const originalSubject = subjects.find((s) => s.id === id);
+        if (!originalSubject) return;
+
+        // Check for name changes
+        if (originalSubject.name !== updatedSubject.name) {
+          displayChanges.push({
+            icon: getChangeIcon('update'),
+            label: `Updated Subject Name`,
             color: 'blue.500',
-            details: `"${originalName}" → "${change.data.name}"`,
+            details: `"${originalSubject.name}" → "${updatedSubject.name}"`,
           });
         }
 
-        // Abbreviation changes
-        if (change.data?.abbreviation !== undefined) {
-          const entityList = change.entity === 'subject' ? subjects : locations;
-          const entity = entityList.find((e) => e.id === change.id);
-          const originalAbbr =
-            change.data.originalAbbreviation || entity?.abbreviation || '';
-          const newAbbr = change.data.abbreviation;
-
-          // For updated abbreviations, we need the entity name
-          // If the name was also changed in this update, use that as priority
-          const entityName =
-            // First try to use the name that's also being updated in this change
-            change.data.name ||
-            // Then try the original name stored with this abbreviation change
-            change.data.originalName ||
-            // Finally fall back to the current entity name from the subjects/locations list
-            entity?.name ||
-            'Unknown';
-
+        // Check for abbreviation changes
+        if (originalSubject.abbreviation !== updatedSubject.abbreviation) {
           let label = 'Updated Display';
-          let details = `"${originalAbbr}" → "${newAbbr}"`;
+          let details = `"${originalSubject.abbreviation}" → "${updatedSubject.abbreviation}"`;
 
           // Handle empty to value case: "Added Display"
-          if (originalAbbr === '') {
+          if (originalSubject.abbreviation === '') {
             label = 'Added Display';
-            details = `"${newAbbr}" to "${entityName}"`;
+            details = `"${updatedSubject.abbreviation}" to "${updatedSubject.name}"`;
           }
           // Handle value to empty case: "Removed Display"
-          else if (newAbbr === '') {
+          else if (updatedSubject.abbreviation === '') {
             label = 'Removed Display';
-            details = `"${originalAbbr}" from "${entityName}"`;
+            details = `"${originalSubject.abbreviation}" from "${updatedSubject.name}"`;
           }
 
           displayChanges.push({
-            icon: getChangeIcon(change),
+            icon: getChangeIcon('update'),
             label,
             color: 'blue.500',
             details,
           });
         }
 
-        // Color group changes
-        if (
-          change.entity === 'subject' &&
-          change.data?.colorGroupId !== undefined
-        ) {
-          const entity = subjects.find((s) => s.id === change.id);
-          const originalColorGroupId =
-            change.data.originalColorGroupId || entity?.colorGroupId;
-          const newColorGroupId = change.data.colorGroupId;
+        // Check for archived status changes
+        if (originalSubject.archived !== updatedSubject.archived) {
+          displayChanges.push({
+            icon: getChangeIcon(
+              updatedSubject.archived ? 'archive' : 'unarchive'
+            ),
+            label: updatedSubject.archived
+              ? 'Archived Subject'
+              : 'Unarchived Subject',
+            color: 'blue.500',
+            details: `"${updatedSubject.name}"`,
+          });
+        }
 
+        // Check for color group changes
+        if (originalSubject.colorGroupId !== updatedSubject.colorGroupId) {
           const originalColorGroup = colorGroups.find(
-            (cg) => cg.id === originalColorGroupId
+            (cg) => cg.id === originalSubject.colorGroupId
           );
           const newColorGroup = colorGroups.find(
-            (cg) => cg.id === newColorGroupId
+            (cg) => cg.id === updatedSubject.colorGroupId
           );
 
-          // Get entity name for display
-          const entityName = entity?.name || 'Unknown Subject';
-
           displayChanges.push({
-            icon: getChangeIcon(change),
+            icon: getChangeIcon('update'),
             label: `Updated Subject Colour`,
             color: 'blue.500',
             details: (
               <HStack spacing={1}>
-                <Text>{entityName}:</Text>
+                <Text>{updatedSubject.name}:</Text>
                 <Box
                   display="inline-block"
                   w="14px"
@@ -253,29 +236,105 @@ const SystemChangesConfirmationDialog: React.FC<
             ),
           });
         }
+      }
+    });
 
-        // Absence cap changes
-        if (
-          change.entity === 'setting' &&
-          change.data?.absenceCap !== undefined
-        ) {
+    // Process location changes
+    pendingEntities.locations.forEach((updatedLocation, id) => {
+      if (updatedLocation === null) {
+        // Handle deleted location
+        const originalLocation = locations.find((l) => l.id === id);
+        if (originalLocation) {
           displayChanges.push({
-            icon: getChangeIcon(change),
-            label: `Updated Allowed Absences`,
+            icon: getChangeIcon('delete'),
+            label: `Deleted Location`,
+            color: 'red.500',
+            details: `"${originalLocation.name}"`,
+          });
+        }
+      } else if (id < 0) {
+        // Handle new location
+        displayChanges.push({
+          icon: getChangeIcon('add'),
+          label: `Added Location`,
+          color: 'blue.500',
+          details: `"${updatedLocation.name}"`,
+        });
+      } else {
+        // Handle updated location
+        const originalLocation = locations.find((l) => l.id === id);
+        if (!originalLocation) return;
+
+        // Check for name changes
+        if (originalLocation.name !== updatedLocation.name) {
+          displayChanges.push({
+            icon: getChangeIcon('update'),
+            label: `Updated Location Name`,
             color: 'blue.500',
-            details: `${absenceCap} → ${change.data.absenceCap}`,
+            details: `"${originalLocation.name}" → "${updatedLocation.name}"`,
+          });
+        }
+
+        // Check for abbreviation changes
+        if (originalLocation.abbreviation !== updatedLocation.abbreviation) {
+          let label = 'Updated Display';
+          let details = `"${originalLocation.abbreviation}" → "${updatedLocation.abbreviation}"`;
+
+          // Handle empty to value case: "Added Display"
+          if (originalLocation.abbreviation === '') {
+            label = 'Added Display';
+            details = `"${updatedLocation.abbreviation}" to "${updatedLocation.name}"`;
+          }
+          // Handle value to empty case: "Removed Display"
+          else if (updatedLocation.abbreviation === '') {
+            label = 'Removed Display';
+            details = `"${originalLocation.abbreviation}" from "${updatedLocation.name}"`;
+          }
+
+          displayChanges.push({
+            icon: getChangeIcon('update'),
+            label,
+            color: 'blue.500',
+            details,
+          });
+        }
+
+        // Check for archived status changes
+        if (originalLocation.archived !== updatedLocation.archived) {
+          displayChanges.push({
+            icon: getChangeIcon(
+              updatedLocation.archived ? 'archive' : 'unarchive'
+            ),
+            label: updatedLocation.archived
+              ? 'Archived Location'
+              : 'Unarchived Location',
+            color: 'blue.500',
+            details: `"${updatedLocation.name}"`,
           });
         }
       }
     });
 
+    // Process settings changes
+    if (pendingEntities.settings.absenceCap !== undefined) {
+      const newAbsenceCap = pendingEntities.settings.absenceCap;
+      if (newAbsenceCap !== absenceCap) {
+        displayChanges.push({
+          icon: getChangeIcon('update'),
+          label: `Updated Allowed Absences`,
+          color: 'blue.500',
+          details: `${absenceCap} → ${newAbsenceCap}`,
+        });
+      }
+    }
+
     return displayChanges;
   };
 
   // Check if there are any delete operations
-  const hasDeletedItems = pendingChanges.some(
-    (change) => change.type === 'delete'
-  );
+  const hasDeletedItems =
+    Array.from(pendingEntities.subjects.values()).some((s) => s === null) ||
+    Array.from(pendingEntities.locations.values()).some((l) => l === null);
 
   return (
     <AlertDialog
@@ -323,27 +382,23 @@ const SystemChangesConfirmationDialog: React.FC<
                 borderRadius="md"
                 borderStyle="dotted"
               >
-                {pendingChanges.length > 0 ? (
-                  getDisplayableChanges().map((change, index) => (
-                    <HStack key={index} spacing={3} align="center">
-                      <Box w="40px" textAlign="center">
-                        {change.icon}
-                      </Box>
-                      <VStack align="start" spacing={0}>
-                        <Text fontWeight="bold" color={change.color}>
-                          {change.label}
-                        </Text>
-                        {typeof change.details === 'string' ? (
-                          <Text fontSize="sm">{change.details}</Text>
-                        ) : (
-                          change.details
-                        )}
-                      </VStack>
-                    </HStack>
-                  ))
-                ) : (
-                  <Text textAlign="center">No changes to apply</Text>
-                )}
+                {getDisplayableChanges().map((change, index) => (
+                  <HStack key={index} spacing={3} align="center">
+                    <Box w="40px" textAlign="center">
+                      {change.icon}
+                    </Box>
+                    <VStack align="start" spacing={0}>
+                      <Text fontWeight="bold" color={change.color}>
+                        {change.label}
+                      </Text>
+                      {typeof change.details === 'string' ? (
+                        <Text fontSize="sm">{change.details}</Text>
+                      ) : (
+                        change.details
+                      )}
+                    </VStack>
+                  </HStack>
+                ))}
 
                 {hasDeletedItems && (
                   <Flex

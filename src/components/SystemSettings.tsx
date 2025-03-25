@@ -10,27 +10,21 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
 } from '@chakra-ui/react';
-import { Change } from './SystemChangesConfirmationDialog';
 
 interface SystemSettingsProps {
   allowedAbsences: number;
   originalAbsenceCap: number;
-  handleAddChange: (change: Change) => void;
+  handleUpdateAbsenceCap: (value: number) => void;
 }
 
 const SystemSettings: React.FC<SystemSettingsProps> = ({
   allowedAbsences,
   originalAbsenceCap,
-  handleAddChange,
+  handleUpdateAbsenceCap,
 }) => {
-  const handleAbsenceCapChange = (value: number) => {
+  const handleChange = (value: number) => {
     if (value !== originalAbsenceCap) {
-      handleAddChange({
-        type: 'update',
-        entity: 'setting',
-        data: { absenceCap: value },
-        displayText: `Updated Allowed Absences "${originalAbsenceCap}" → "${value}"`,
-      });
+      handleUpdateAbsenceCap(value);
     }
   };
 
@@ -41,7 +35,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({
           <FormLabel>Allowed Absences</FormLabel>
           <NumberInput
             value={allowedAbsences}
-            onChange={(_, value) => handleAbsenceCapChange(value)}
+            onChange={(_, value) => handleChange(value)}
             min={1}
             max={100}
           >
