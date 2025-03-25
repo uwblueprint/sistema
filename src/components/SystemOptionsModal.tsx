@@ -159,7 +159,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   const {
     pendingChanges,
     handleAddChange,
-    applyChanges,
+    applyChanges: applyChangesOriginal,
     clearChanges,
     updatedSubjects,
     updatedLocations,
@@ -172,6 +172,17 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     onRefresh: refreshData,
     toast,
   });
+
+  // Create a wrapper for applyChanges that also closes the modal
+  const applyChanges = async () => {
+    try {
+      await applyChangesOriginal();
+      confirmationDialog.onClose();
+      onClose();
+    } catch (error) {
+      console.error('Error applying changes:', error);
+    }
+  };
 
   const handleClose = () => {
     if (pendingChanges.length > 0) {
