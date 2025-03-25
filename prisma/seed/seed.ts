@@ -61,7 +61,11 @@ const main = async () => {
     { name: 'St Martin de Porres Catholic School', abbreviation: 'SC' },
     { name: 'Yorkwoods Public School', abbreviation: 'YW' },
     { name: 'Parkdale Junior Senior Public School', abbreviation: 'PD' },
-    { name: 'Twin Towers', abbreviation: 'TT', archived: true },
+    {
+      name: 'St Gertrude Elementary School',
+      abbreviation: 'SG',
+      archived: true,
+    },
   ];
 
   for (const school of schools) {
