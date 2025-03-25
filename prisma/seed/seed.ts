@@ -147,7 +147,7 @@ const main = async () => {
   const generateWeekdayFutureDate = (): Date => {
     let date: Date;
     do {
-      date = faker.date.future(2);
+      date = faker.date.future({ years: 2 });
     } while (date.getDay() === 0 || date.getDay() === 6);
     return date;
   };
@@ -155,7 +155,7 @@ const main = async () => {
   const generateWeekdayPastDate = (): Date => {
     let date: Date;
     do {
-      date = faker.date.past(2);
+      date = faker.date.future({ years: 2 });
     } while (date.getDay() === 0 || date.getDay() === 6);
     return date;
   };

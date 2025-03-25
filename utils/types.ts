@@ -123,3 +123,10 @@ export interface UserData {
   usedAbsences: number;
   role: Role;
 }
+
+export interface FilterOptions {
+  role: string | null | undefined;
+  absencesOperator: 'greater_than' | 'less_than' | 'equal_to';
+  absencesValue: number | null;
+  tags: string[] | null;
+}
