@@ -116,8 +116,28 @@ export enum Role {
 }
 
 export interface UserData {
+  id: number;
   name: string;
   email: string;
   image?: string;
   usedAbsences: number;
+  role: Role;
+}
+
+export interface MonthlyAbsenceData {
+  month: string;
+  filled: number;
+  unfilled: number;
+}
+
+export interface YearlyAbsenceData {
+  yearRange: string;
+  yearlyData: MonthlyAbsenceData[];
+}
+
+export interface FilterOptions {
+  role: string | null | undefined;
+  absencesOperator: 'greater_than' | 'less_than' | 'equal_to';
+  absencesValue: number | null;
+  tags: string[] | null;
 }
