@@ -1,11 +1,11 @@
 import { AddIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, useTheme } from '@chakra-ui/react';
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
 import { TacetLogo } from '../components/SistemaLogoColour';
-import LocationDropdown from './LocationDropdown';
-import MiniCalendar from './MiniCalendar';
-import SubjectDropdown from './SubjectDropdown';
+import LocationAccordion from './LocationAccordion';
+import SubjectAccordion from './SubjectAccordion';
 import ArchivedDropdown from './ArchivedDropdown';
+import MiniCalendar from './MiniCalendar';
 
 interface CalendarSidebarProps {
   setSearchQuery: (query: {
@@ -14,11 +14,15 @@ interface CalendarSidebarProps {
     archiveIds: number[];
   }) => void;
   onDateSelect: (date: Date) => void;
+  onDeclareAbsenceClick: () => void;
+  selectDate: Date | null;
 }
 
 const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   setSearchQuery,
   onDateSelect,
+  onDeclareAbsenceClick,
+  selectDate,
 }) => {
   const [subjectIds, setSubjectIds] = useState<number[]>([]);
   const [locationIds, setLocationIds] = useState<number[]>([]);
@@ -57,24 +61,24 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       <Box width="150px">
         <TacetLogo />
       </Box>
-      <Button
-        paddingX="40px"
-        variant="outline"
-        borderColor={theme.colors.neutralGray[300]}
-        size="lg"
-        leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
-      >
-        Declare Absence
-      </Button>
-      <MiniCalendar initialDate={new Date()} onDateSelect={onDateSelect} />
-      <SubjectDropdown
-        setFilter={setSubjectIds}
-        showArchived={showArchivedSubjects}
+      <HStack>
+        <Button
+          width="240px"
+          variant="outline"
+          borderColor={theme.colors.neutralGray[300]}
+          onClick={onDeclareAbsenceClick}
+          leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
+        >
+          Declare Absence
+        </Button>
+      </HStack>
+      <MiniCalendar
+        initialDate={new Date()}
+        onDateSelect={onDateSelect}
+        selectDate={selectDate}
       />
-      <LocationDropdown
-        setFilter={setLocationIds}
-        showArchived={showArchivedLocations}
-      />
+      <SubjectAccordion setFilter={setSubjectIdFilter} />
+      <LocationAccordion setFilter={setLocationIdFilter} />
       <ArchivedDropdown
         setFilter={setArchiveIds}
         onArchivedToggle={handleArchivedToggle}

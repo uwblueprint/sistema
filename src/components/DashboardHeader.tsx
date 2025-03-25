@@ -1,10 +1,10 @@
 import {
   Flex,
-  IconButton,
-  Text,
-  Spacer,
-  useTheme,
   HStack,
+  IconButton,
+  Spacer,
+  Text,
+  useTheme,
 } from '@chakra-ui/react';
 import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
@@ -12,12 +12,23 @@ import { useEffect, useState } from 'react';
 import { IoChevronBack } from 'react-icons/io5';
 import ExportAbsencesButton from './ExportAbsencesButton';
 import ProfileMenu from './ProfileMenu';
+import YearDropdown from './YearDropdown';
 
 interface DashboardHeaderProps {
   userData?: UserData;
+  selectedYearRange: string;
+  setSelectedYearRange: (yearRange: string) => void;
+  yearRanges: string[];
+  hasData: boolean;
 }
 
-const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userData }) => {
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({
+  userData,
+  selectedYearRange,
+  setSelectedYearRange,
+  yearRanges,
+  hasData,
+}) => {
   const theme = useTheme();
   const router = useRouter();
   const [absenceCap, setAbsenceCap] = useState<number>(10);
@@ -61,6 +72,14 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userData }) => {
       </HStack>
       <Spacer />
       <HStack spacing={theme.space[4]}>
+        {hasData && (
+          <YearDropdown
+            selectedRange={selectedYearRange}
+            onChange={setSelectedYearRange}
+            yearRanges={yearRanges}
+          />
+        )}
+
         <ExportAbsencesButton />
         <ProfileMenu userData={userData} absenceCap={absenceCap} />
       </HStack>

@@ -101,6 +101,8 @@ const colors = {
     subtitle: '#838383',
     inactiveButtonText: '#ACACAC',
   },
+  outline: '#C5C8D8',
+  icon: '#1E1E1E',
 };
 
 const textStyles = {
@@ -214,15 +216,27 @@ const theme = extendTheme({
           _hover: {
             bg: 'primaryBlue.500',
           },
+          _active: {
+            bg: 'primaryBlue.600',
+          },
+          _disabled: {
+            bg: 'neutralGray.100',
+            color: 'text.inactiveButtonText',
+          },
         },
         outline: {
           borderColor: 'neutralGray.300',
+          border: '1px solid',
           color: 'text.header',
           _hover: {
             bg: 'neutralGray.100',
           },
           _active: {
             bg: 'neutralGray.300',
+          },
+          _disabled: {
+            bg: 'neutralGray.100',
+            color: 'text.inactiveButtonText',
           },
         },
         ghost: {
@@ -233,7 +247,73 @@ const theme = extendTheme({
           _active: {
             bg: 'neutralGray.300',
           },
+          _disabled: {
+            bg: 'neutralGray.100',
+            color: 'text.inactiveButtonText',
+          },
         },
+      },
+    },
+    Input: {
+      baseStyle: {
+        field: {
+          border: '1px solid',
+          borderColor: 'outline',
+          borderRadius: '10px',
+          fontSize: '13px',
+          fontWeight: 400,
+          lineHeight: '15.73px',
+          fontFamily: 'body',
+          _placeholder: {
+            color: 'text.subtitle',
+          },
+          _hover: {
+            borderColor: 'outline',
+          },
+          _focus: {
+            borderColor: 'primaryBlue.300',
+            boxShadow: '0 0 0 1px primaryBlue.300',
+          },
+          _active: {
+            borderColor: 'primaryBlue.300',
+            boxShadow: '0 0 0 1px primaryBlue.300',
+          },
+        },
+      },
+      sizes: {},
+      variants: {},
+      defaultProps: {
+        variant: null,
+      },
+    },
+    Textarea: {
+      baseStyle: {
+        border: '1px solid',
+        borderColor: 'outline',
+        borderRadius: '10px',
+        fontSize: '13px',
+        fontWeight: 400,
+        lineHeight: '15.73px',
+        fontFamily: 'body',
+        _placeholder: {
+          color: 'text.subtitle',
+        },
+        _hover: {
+          borderColor: 'outline',
+        },
+        _focus: {
+          borderColor: 'primaryBlue.300',
+          boxShadow: '0 0 0 1px primaryBlue.300',
+        },
+        _active: {
+          borderColor: 'primaryBlue.300',
+          boxShadow: '0 0 0 1px primaryBlue.300',
+        },
+      },
+      sizes: {},
+      variants: {},
+      defaultProps: {
+        variant: null,
       },
     },
   },

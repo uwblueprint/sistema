@@ -1,6 +1,6 @@
-import { Button, Text, Box } from '@chakra-ui/react';
-import { FiDownload } from 'react-icons/fi';
+import { Box, Button, Text } from '@chakra-ui/react';
 import { useState } from 'react';
+import { FiDownload } from 'react-icons/fi';
 
 const ExportAbsencesButton = () => {
   const [error, setError] = useState<string | null>(null);
@@ -80,11 +80,12 @@ const ExportAbsencesButton = () => {
         leftIcon={<FiDownload size={18} />}
         variant="solid"
         onClick={handleDownload}
+        height="40px"
       >
         Export
       </Button>
       {error && (
-        <Text color="red.500" mt={2} fontSize="sm">
+        <Text color="errorRed.200" mt={2} fontSize="sm">
           {error}
         </Text>
       )}

@@ -12,6 +12,7 @@ export const getAbsencesFromDatabase = async (): Promise<AbsenceAPI[]> => {
         roomNumber: true,
         absentTeacher: {
           select: {
+            id: true,
             firstName: true,
             lastName: true,
             profilePicture: true,
@@ -19,6 +20,7 @@ export const getAbsencesFromDatabase = async (): Promise<AbsenceAPI[]> => {
         },
         substituteTeacher: {
           select: {
+            id: true,
             firstName: true,
             lastName: true,
             profilePicture: true,

@@ -18,10 +18,12 @@ export interface AbsenceAPI {
   notes?: string | null;
   roomNumber?: string | null;
   absentTeacher: {
+    id: number;
     firstName: string;
     lastName: string;
   };
   substituteTeacher?: {
+    id: number;
     firstName: string;
     lastName: string;
   } | null;
@@ -119,9 +121,30 @@ export enum Role {
 }
 
 export interface UserData {
+  id: number;
   name: string;
   email: string;
   image?: string;
   usedAbsences: number;
-  numOfAbsences: number;
+  role: Role;
+}
+
+export interface MonthlyAbsenceData {
+  month: string;
+  filled: number;
+  unfilled: number;
+}
+
+export interface YearlyAbsenceData {
+  yearRange: string;
+  yearlyData: MonthlyAbsenceData[];
+}
+
+export type ComparisonOperator = 'greater_than' | 'less_than' | 'equal_to';
+
+export interface FilterOptions {
+  role: string | null | undefined;
+  absencesOperator: ComparisonOperator;
+  absencesValue: number | null;
+  tags: string[] | null;
 }

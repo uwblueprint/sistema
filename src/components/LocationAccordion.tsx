@@ -1,26 +1,26 @@
-import { useEffect, useState } from 'react';
-import type { Location } from '@utils/types';
-import Dropdown, { DropdownItem } from './Dropdown';
 import { useTheme } from '@chakra-ui/react';
+import type { Location } from '@utils/types';
+import { useEffect, useState } from 'react';
+import Accordion, { AccordionItem } from './Accordion';
 
-interface LocationDropdownProps {
+interface LocationAccordionProps {
   setFilter: (location: number[]) => void;
   showArchived: boolean;
 }
 
-interface LocationItem extends Location {
+interface LocationAccordionItem extends Location {
   color: string;
 }
 
-export default function LocationDropdown({
+export default function LocationAccordion({
   setFilter,
   showArchived,
-}: LocationDropdownProps) {
-  const [isOpen, setIsOpen] = useState(true);
-  const [locations, setLocations] = useState<LocationItem[]>([]);
-  const [allLocations, setAllLocations] = useState<LocationItem[]>([]);
-  const [selectedLocationIds, setSelectedLocationIds] = useState<number[]>([]);
+}: LocationAccordionProps) {
   const theme = useTheme();
+  const [isOpen, setIsOpen] = useState(true);
+  const [locations, setLocations] = useState<LocationAccordionItem[]>([]);
+  const [allLocations, setAllLocations] = useState<LocationAccordionItem[]>([]);
+  const [selectedLocationIds, setSelectedLocationIds] = useState<number[]>([]);
 
   useEffect(() => {
     async function fetchLocations() {
@@ -33,7 +33,7 @@ export default function LocationDropdown({
         if (data.locations) {
           const fetchedLocations = data.locations.map((location: Location) => ({
             ...location,
-            color: `${theme.colors.primaryBlue[300]}`,
+            color: theme.colors.primaryBlue[300], // Use theme color
           }));
           setAllLocations(fetchedLocations);
 
@@ -88,7 +88,7 @@ export default function LocationDropdown({
     setIsOpen((prev) => !prev);
   };
 
-  const dropdownItems: DropdownItem[] = locations.map((location) => ({
+  const AccordionItems: AccordionItem[] = locations.map((location) => ({
     id: location.id,
     name: location.name,
     color: location.color,
@@ -96,9 +96,9 @@ export default function LocationDropdown({
   }));
 
   return (
-    <Dropdown
+    <Accordion
       title="Location"
-      items={dropdownItems}
+      items={AccordionItems}
       selectedItems={selectedLocationIds}
       isOpen={isOpen}
       toggleOpen={toggleOpen}
