@@ -33,10 +33,10 @@ const main = async () => {
     },
   ];
 
-  const numUsers = 20;
-  const numAbsences = 100;
+  const numUsers = 100;
+  const numAbsences = 300;
   const numSubjects = subjects.length;
-  const userIds = Array.from({ length: numUsers }, (_, i) => i + 1);
+  const userIds = Array.from({ length: numUsers + 1 }, (_, i) => i + 1);
   const subjectIds = Array.from({ length: numSubjects }, (_, i) => i + 1);
 
   await seed.user((createMany) =>
@@ -147,10 +147,48 @@ const main = async () => {
   const generateWeekdayFutureDate = (): Date => {
     let date: Date;
     do {
-      date = faker.date.future();
+      date = faker.date.future(2);
     } while (date.getDay() === 0 || date.getDay() === 6);
     return date;
   };
+
+  const generateWeekdayPastDate = (): Date => {
+    let date: Date;
+    do {
+      date = faker.date.past(2);
+    } while (date.getDay() === 0 || date.getDay() === 6);
+    return date;
+  };
+
+  await seed.absence((createMany) =>
+    createMany(numAbsences, () => {
+      const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
+        probability: 0.5,
+      });
+      const randomSubstitute = faker.helpers.maybe(
+        () => faker.helpers.arrayElement(userIds),
+        {
+          probability: 0.5,
+        }
+      );
+      return {
+        lessonDate: generateWeekdayPastDate(),
+        lessonPlan: faker.internet.url(),
+        reasonOfAbsence: faker.lorem.sentence(),
+        notes: maybeNotes ?? null,
+        roomNumber: faker.helpers.arrayElement([
+          '101',
+          '202',
+          '303',
+          '404',
+          'B1',
+          'A5',
+          'C12',
+        ]),
+        substituteTeacherId: randomSubstitute ?? null,
+      };
+    })
+  );
 
   await seed.absence((createMany) =>
     createMany(numAbsences, () => {
