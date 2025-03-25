@@ -1,13 +1,12 @@
 import React from 'react';
 import { SubjectAPI } from '@utils/types';
-import { Change } from './SystemChangesConfirmationDialog';
 import EntityTable from './EntityTable';
 
 interface SubjectsTableProps {
   subjects: SubjectAPI[];
   colorGroups: { id: number; name: string; colorCodes: string[] }[];
   subjectsInUse: number[];
-  handleAddChange: (change: Change) => void;
+  handleUpdateSubject: (subject: SubjectAPI | null, id?: number) => void;
   maxAbbreviationLength: number;
 }
 
@@ -15,7 +14,7 @@ const SubjectsTable: React.FC<SubjectsTableProps> = ({
   subjects,
   colorGroups,
   subjectsInUse,
-  handleAddChange,
+  handleUpdateSubject,
   maxAbbreviationLength,
 }) => {
   return (
@@ -25,7 +24,7 @@ const SubjectsTable: React.FC<SubjectsTableProps> = ({
       items={subjects}
       colorGroups={colorGroups}
       itemsInUse={subjectsInUse}
-      handleAddChange={handleAddChange}
+      handleUpdateEntity={handleUpdateSubject}
       maxAbbreviationLength={maxAbbreviationLength}
     />
   );

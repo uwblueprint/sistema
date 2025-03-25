@@ -26,7 +26,6 @@ import {
 } from 'react-icons/io5';
 import { FiType } from 'react-icons/fi';
 import { LuInfo, LuArchive } from 'react-icons/lu';
-import { Change } from './SystemChangesConfirmationDialog';
 
 export interface EntityTableItem {
   id: number;
@@ -46,13 +45,13 @@ interface ColorGroup {
   colorCodes: string[];
 }
 
-interface EntityTableProps {
+export interface EntityTableProps {
   title: string;
   entityType: 'subject' | 'location';
   items: EntityTableItem[];
   colorGroups?: ColorGroup[];
   itemsInUse: number[];
-  handleAddChange: (change: Change) => void;
+  handleUpdateEntity: (entity: EntityTableItem | null, id?: number) => void;
   maxAbbreviationLength: number;
 }
 
@@ -62,7 +61,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
   items,
   colorGroups = [],
   itemsInUse,
-  handleAddChange,
+  handleUpdateEntity,
   maxAbbreviationLength,
 }) => {
   const COLOR_CODE_INDEX = 1;
@@ -131,48 +130,16 @@ const EntityTable: React.FC<EntityTableProps> = ({
     const originalItem = items.find((i) => i.id === currentEditingItem.id);
     if (!originalItem) return;
 
-    // Only include fields that have changed
-    const changedData: any = {};
+    // Check if anything has changed
+    const hasChanges =
+      originalItem.name !== currentEditingItem.name ||
+      originalItem.abbreviation !== currentEditingItem.abbreviation ||
+      (entityType === 'subject' &&
+        originalItem.colorGroupId !== currentEditingItem.colorGroupId);
 
-    if (originalItem.name !== currentEditingItem.name) {
-      changedData.name = currentEditingItem.name;
-      changedData.originalName = originalItem.name;
-    }
-
-    if (originalItem.abbreviation !== currentEditingItem.abbreviation) {
-      changedData.abbreviation = currentEditingItem.abbreviation;
-      changedData.originalAbbreviation = originalItem.abbreviation;
-    }
-
-    if (
-      entityType === 'subject' &&
-      originalItem.colorGroupId !== currentEditingItem.colorGroupId
-    ) {
-      changedData.colorGroupId = currentEditingItem.colorGroupId;
-      changedData.originalColorGroupId = originalItem.colorGroupId;
-    }
-
-    // Only proceed if there are actual changes
-    if (Object.keys(changedData).length > 0) {
-      // Check if all changes are reverted to original values
-      const allChangesReverted =
-        (changedData.name === undefined ||
-          changedData.name === changedData.originalName) &&
-        (changedData.abbreviation === undefined ||
-          changedData.abbreviation === changedData.originalAbbreviation) &&
-        (changedData.colorGroupId === undefined ||
-          changedData.colorGroupId === changedData.originalColorGroupId);
-
-      // Only add the change if something is actually different
-      if (!allChangesReverted) {
-        handleAddChange({
-          type: 'update',
-          entity: entityType,
-          id: currentEditingItem.id!,
-          data: changedData,
-          displayText: `Updated ${title} "${currentEditingItem.name}"`,
-        });
-      }
+    // Only update if something has changed
+    if (hasChanges) {
+      handleUpdateEntity(currentEditingItem);
     }
   };
 
@@ -189,28 +156,15 @@ const EntityTable: React.FC<EntityTableProps> = ({
       return;
     }
 
-    // Create a temporary ID for the new item
-    const tempId = -Date.now();
-
-    const itemData: any = {
-      name: newItem.name,
-      abbreviation: newItem.abbreviation,
+    // Create a temporary item with the new data
+    const itemToAdd = {
+      ...newItem,
+      id: 0, // This will be replaced with a negative ID by the change management hook
     };
 
-    // Add colorGroupId if this is a subject
-    if (entityType === 'subject' && newItem.colorGroupId) {
-      itemData.colorGroupId = newItem.colorGroupId;
-    }
-
-    handleAddChange({
-      type: 'add',
-      entity: entityType,
-      id: tempId,
-      data: itemData,
-      displayText: `Added ${title} "${newItem.name}"`,
-    });
-
     // Reset form and close it
+    handleUpdateEntity(itemToAdd);
+
     setNewItem({
       id: 0,
       name: '',
@@ -234,22 +188,18 @@ const EntityTable: React.FC<EntityTableProps> = ({
   };
 
   const handleArchiveItem = (item: EntityTableItem) => {
-    handleAddChange({
-      type: item.archived ? 'unarchive' : 'archive',
-      entity: entityType,
-      id: item.id,
-      data: { archived: !item.archived },
-      displayText: `${item.archived ? 'Unarchived' : 'Archived'} ${title} "${item.name}"`,
-    });
+    // Create a modified item with the archive status toggled
+    const updatedItem = {
+      ...item,
+      archived: !item.archived,
+    };
+
+    handleUpdateEntity(updatedItem);
   };
 
   const handleDeleteItem = (item: EntityTableItem) => {
-    handleAddChange({
-      type: 'delete',
-      entity: entityType,
-      id: item.id,
-      displayText: `Deleted ${title} "${item.name}"`,
-    });
+    // Mark item for deletion
+    handleUpdateEntity(null, item.id);
   };
 
   return (

@@ -19,7 +19,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { IoSettingsOutline, IoCloseOutline } from 'react-icons/io5';
 import { SubjectAPI, Location } from '@utils/types';
 import React from 'react';
-import SystemChangesConfirmationDialog from './SystemChangesConfirmationDialog';
+import SystemChangesConfirmationDialog, {
+  PendingEntities,
+} from './SystemChangesConfirmationDialog';
 import SubjectsTable from './SubjectsTable';
 import LocationsTable from './LocationsTable';
 import SystemSettings from './SystemSettings';
@@ -157,8 +159,10 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
 
   // Use our change management hook
   const {
-    pendingChanges,
-    handleAddChange,
+    pendingEntities,
+    handleUpdateSubject,
+    handleUpdateLocation,
+    handleUpdateAbsenceCap,
     applyChanges: applyChangesOriginal,
     clearChanges,
     updatedSubjects,
@@ -185,7 +189,13 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   };
 
   const handleClose = () => {
-    if (pendingChanges.length > 0) {
+    // Check if there are any pending changes
+    const hasChanges =
+      pendingEntities.subjects.size > 0 ||
+      pendingEntities.locations.size > 0 ||
+      pendingEntities.settings.absenceCap !== undefined;
+
+    if (hasChanges) {
       setIsConfirmingClose(true);
       confirmationDialog.onOpen();
     } else {
@@ -202,9 +212,15 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   };
 
   const handleSave = () => {
-    if (pendingChanges.length > 0) {
+    // Check if there are any pending changes
+    const hasChanges =
+      pendingEntities.subjects.size > 0 ||
+      pendingEntities.locations.size > 0 ||
+      pendingEntities.settings.absenceCap !== undefined;
+
+    if (hasChanges) {
       // Log the pending changes to help debug
-      console.log('Pending changes before confirmation:', pendingChanges);
+      console.log('Pending entities before confirmation:', pendingEntities);
       setIsConfirmingClose(false);
       confirmationDialog.onOpen();
     } else {
@@ -263,7 +279,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                   subjects={updatedSubjects}
                   colorGroups={colorGroups}
                   subjectsInUse={subjectsInUse}
-                  handleAddChange={handleAddChange}
+                  handleUpdateSubject={handleUpdateSubject}
                   maxAbbreviationLength={MAX_SUBJECT_ABBREVIATION_LENGTH}
                 />
               </Box>
@@ -273,7 +289,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                 <LocationsTable
                   locations={updatedLocations}
                   locationsInUse={locationsInUse}
-                  handleAddChange={handleAddChange}
+                  handleUpdateLocation={handleUpdateLocation}
                   maxAbbreviationLength={MAX_LOCATION_ABBREVIATION_LENGTH}
                 />
               </Box>
@@ -282,7 +298,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
               <SystemSettings
                 allowedAbsences={updatedAbsenceCap}
                 originalAbsenceCap={absenceCap}
-                handleAddChange={handleAddChange}
+                handleUpdateAbsenceCap={handleUpdateAbsenceCap}
               />
             </VStack>
           </ModalBody>
@@ -301,7 +317,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         isOpen={confirmationDialog.isOpen}
         onClose={confirmationDialog.onClose}
         onConfirm={isConfirmingClose ? handleCloseConfirmed : applyChanges}
-        pendingChanges={pendingChanges}
+        pendingEntities={pendingEntities}
         isConfirmingClose={isConfirmingClose}
         subjects={subjects}
         locations={locations}

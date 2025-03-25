@@ -1,19 +1,18 @@
 import React from 'react';
 import { Location } from '@utils/types';
-import { Change } from './SystemChangesConfirmationDialog';
 import EntityTable from './EntityTable';
 
 interface LocationsTableProps {
   locations: Location[];
   locationsInUse: number[];
-  handleAddChange: (change: Change) => void;
+  handleUpdateLocation: (location: Location | null, id?: number) => void;
   maxAbbreviationLength: number;
 }
 
 const LocationsTable: React.FC<LocationsTableProps> = ({
   locations,
   locationsInUse,
-  handleAddChange,
+  handleUpdateLocation,
   maxAbbreviationLength,
 }) => {
   return (
@@ -22,7 +21,7 @@ const LocationsTable: React.FC<LocationsTableProps> = ({
       entityType="location"
       items={locations}
       itemsInUse={locationsInUse}
-      handleAddChange={handleAddChange}
+      handleUpdateEntity={handleUpdateLocation}
       maxAbbreviationLength={maxAbbreviationLength}
     />
   );
