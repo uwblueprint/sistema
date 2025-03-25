@@ -1,91 +1,83 @@
-import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
-  Button,
-  Flex,
-  Icon,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
+  Box,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverBody,
+  Input,
+  InputGroup,
+  InputRightElement,
+  useDisclosure,
   Text,
-  useTheme,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
-import { CalendarIcon } from './CalendarIcon';
+import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
+import { useRef, useState } from 'react';
 
 interface YearDropdownProps {
-  selectedRange?: string;
-  onChange?: (range: string) => void;
+  selectedRange: string;
+  onChange: (yearRange: string) => void;
   yearRanges: string[];
 }
 
-export const YearDropdown: React.FC<YearDropdownProps> = ({
+export default function YearDropdown({
   selectedRange,
   onChange,
   yearRanges,
-}) => {
-  const theme = useTheme();
-  const [selected, setSelected] = useState(selectedRange || yearRanges[0]);
+}: YearDropdownProps) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleSelect = (range: string) => {
-    setSelected(range);
-    if (onChange) {
-      onChange(range);
-    }
+  const handleSelectYear = (year: string) => {
+    onChange(year);
+    onClose();
   };
 
   return (
-    <Menu offset={[0, 4]}>
-      <MenuButton
-        as={Button}
-        bg={theme.colors.buttonBackground}
-        border="1px solid"
-        borderColor={theme.colors.neutralGray[300]}
-        borderRadius="7px"
-        py="11px"
-        px="15px"
-        height="40px"
-        width="207px"
-        maxWidth="207px"
-        _hover={{ bg: theme.colors.primaryBlue[50] }}
-        _active={{ bg: theme.colors.primaryBlue[50] }}
-      >
-        <Flex alignItems="center" justifyContent="space-between" width="100%">
-          <Icon as={CalendarIcon} />
-          <Flex flex="1" justifyContent="center">
-            <Text fontWeight="600" fontSize="16px" color="black">
-              {selected}
-            </Text>
-          </Flex>
-          <ChevronDownIcon width="21px" height="21px" color="black" />
-        </Flex>
-      </MenuButton>
-      <MenuList
-        p={0}
-        borderRadius="md"
-        boxShadow="md"
-        width="207px"
-        maxWidth="207px"
-        minWidth="207px"
-      >
-        {yearRanges.map((range) => (
-          <MenuItem
-            key={range}
-            onClick={() => handleSelect(range)}
-            bg={theme.colors.buttonBackground}
-            _hover={{ bg: theme.colors.primaryBlue[50] }}
-            borderBottom="1px solid"
-            borderColor={theme.colors.neutralGray[300]}
-            px="16px"
-            height="52px"
-            width="100%"
-          >
-            <Text fontSize="14px" fontWeight="500">
-              {range}
-            </Text>
-          </MenuItem>
-        ))}
-      </MenuList>
-    </Menu>
+    <Popover
+      isOpen={isOpen}
+      onOpen={() => {
+        onOpen();
+        setTimeout(() => inputRef.current?.focus(), 0);
+      }}
+      onClose={onClose}
+    >
+      <PopoverTrigger>
+        <InputGroup>
+          <Input
+            ref={inputRef}
+            cursor="pointer"
+            textAlign="left"
+            pr="2.5rem"
+            placeholder="Select Year"
+            value={selectedRange}
+            readOnly
+          />
+          <InputRightElement pointerEvents="none">
+            {isOpen ? <IoChevronUp /> : <IoChevronDown />}
+          </InputRightElement>
+        </InputGroup>
+      </PopoverTrigger>
+
+      <PopoverContent width="200px" borderRadius="md" overflow="hidden">
+        <PopoverArrow />
+        <PopoverBody p={0}>
+          {yearRanges.map((year) => (
+            <Box
+              key={year}
+              onClick={() => handleSelectYear(year)}
+              sx={{
+                padding: '10px 16px',
+                cursor: 'pointer',
+                bg: 'transparent',
+                _hover: { bg: 'neutralGray.100' },
+              }}
+            >
+              <Text textStyle="subtitle">{year}</Text>
+            </Box>
+          ))}
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
   );
-};
+}

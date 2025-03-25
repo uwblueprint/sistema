@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import { IoChevronBack } from 'react-icons/io5';
 import ExportAbsencesButton from './ExportAbsencesButton';
 import ProfileMenu from './ProfileMenu';
-import { YearDropdown } from './YearDropdown';
+import YearDropdown from './YearDropdown';
 
 interface DashboardHeaderProps {
   userData?: UserData;
