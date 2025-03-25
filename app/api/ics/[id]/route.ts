@@ -13,8 +13,8 @@ const getICSFileById = async (id: string) => {
     if (!isNaN(userId)) {
       const userAbsences = absences.filter(
         (absence) =>
-          absence.absentTeacherId === userId ||
-          absence.substituteTeacherId === userId
+          absence.absentTeacher.id === userId ||
+          absence.substituteTeacher?.id === userId
       );
 
       const events = userAbsences.map((absence) => {
