@@ -141,6 +141,17 @@ export interface UserData {
   role: Role;
 }
 
+export interface MonthlyAbsenceData {
+  month: string;
+  filled: number;
+  unfilled: number;
+}
+
+export interface YearlyAbsenceData {
+  yearRange: string;
+  yearlyData: MonthlyAbsenceData[];
+}
+
 export interface FilterOptions {
   role: string | null | undefined;
   absencesOperator: 'greater_than' | 'less_than' | 'equal_to';

@@ -172,14 +172,16 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
 
   return (
     <Box
+      display="flex"
+      flexDirection="column"
+      flex="1"
+      minHeight="0"
       shadow="sm"
       borderRadius="lg"
       bg="white"
       w="full"
       border="1px solid"
       borderColor="neutralGray.300"
-      display="flex"
-      flexDirection="column"
       height="100%"
     >
       <HStack justify="space-between" mx={5} my={3}>
