@@ -93,13 +93,13 @@ const SystemChangesConfirmationDialog: React.FC<
     icon: React.ReactNode;
     label: string;
     color: string;
-    details: string;
+    details: React.ReactNode;
   }[] => {
     const displayChanges: {
       icon: React.ReactNode;
       label: string;
       color: string;
-      details: string;
+      details: React.ReactNode;
     }[] = [];
 
     if (pendingChanges.length === 0) {
@@ -182,6 +182,53 @@ const SystemChangesConfirmationDialog: React.FC<
           });
         }
 
+        // Color group changes
+        if (
+          change.entity === 'subject' &&
+          change.data?.colorGroupId !== undefined
+        ) {
+          const entity = subjects.find((s) => s.id === change.id);
+          const originalColorGroupId =
+            change.data.originalColorGroupId || entity?.colorGroupId;
+          const newColorGroupId = change.data.colorGroupId;
+
+          const originalColorGroup = colorGroups.find(
+            (cg) => cg.id === originalColorGroupId
+          );
+          const newColorGroup = colorGroups.find(
+            (cg) => cg.id === newColorGroupId
+          );
+
+          // Get entity name for display
+          const entityName = entity?.name || 'Unknown Subject';
+
+          displayChanges.push({
+            icon: getChangeIcon(change),
+            label: `Updated Subject Colour`,
+            color: 'blue.500',
+            details: (
+              <HStack spacing={1}>
+                <Text>{entityName}:</Text>
+                <Box
+                  display="inline-block"
+                  w="14px"
+                  h="14px"
+                  borderRadius="full"
+                  bg={originalColorGroup?.colorCodes[1] || 'gray.300'}
+                />
+                <Text mx={1}>→</Text>
+                <Box
+                  display="inline-block"
+                  w="14px"
+                  h="14px"
+                  borderRadius="full"
+                  bg={newColorGroup?.colorCodes[1] || 'gray.300'}
+                />
+              </HStack>
+            ),
+          });
+        }
+
         // Absence cap changes
         if (
           change.entity === 'setting' &&
@@ -261,7 +308,11 @@ const SystemChangesConfirmationDialog: React.FC<
                         <Text fontWeight="bold" color={change.color}>
                           {change.label}
                         </Text>
-                        <Text fontSize="sm">{change.details}</Text>
+                        {typeof change.details === 'string' ? (
+                          <Text fontSize="sm">{change.details}</Text>
+                        ) : (
+                          change.details
+                        )}
                       </VStack>
                     </HStack>
                   ))

@@ -291,14 +291,20 @@ export const useChangeManagement = ({
                     change.data.originalColorGroupId;
                 }
 
+                // Create a new data object that ensures we preserve both
+                // the original values and all previously changed values
+                const newData = {
+                  // Start with all properties from the existing update
+                  ...c.data,
+                  // Apply the new changes
+                  ...change.data,
+                  // Ensure all original values are preserved
+                  ...preservedOriginalValues,
+                };
+
                 return {
                   ...c,
-                  data: {
-                    // Spread new data from change (overwrites old values)
-                    ...change.data,
-                    // Preserve all original values (don't overwrite with new ones)
-                    ...preservedOriginalValues,
-                  },
+                  data: newData,
                   // Keep the original displayText
                   displayText: c.displayText,
                 };
@@ -327,172 +333,125 @@ export const useChangeManagement = ({
     [subjects, locations]
   );
 
+  // Generic function to handle entity changes
+  const processEntityChanges = <T extends { id: number }>(
+    entities: T[],
+    changes: Change[],
+    isSubject: boolean
+  ): T[] => {
+    if (changes.length === 0) return entities;
+
+    let updatedEntities = [...entities];
+
+    changes.forEach((change) => {
+      if (change.type === 'add') {
+        const newEntity = {
+          id: change.id || -Date.now(),
+          name: change.data.name,
+          abbreviation: change.data.abbreviation,
+          ...(isSubject && {
+            colorGroupId: change.data.colorGroupId,
+            colorGroup: colorGroups.find(
+              (cg) => cg.id === change.data.colorGroupId
+            ) || {
+              name: 'Default',
+              colorCodes: ['#000000', '#000000', '#000000'],
+            },
+          }),
+          archived: false,
+        } as unknown as T;
+
+        const existingIndex = updatedEntities.findIndex(
+          (e) => e.id === newEntity.id
+        );
+        if (existingIndex === -1) {
+          updatedEntities.push(newEntity);
+        }
+      } else if (change.type === 'update') {
+        updatedEntities = updatedEntities.map((entity) =>
+          entity.id === change.id
+            ? {
+                ...entity,
+                ...(change.data.name && { name: change.data.name }),
+                ...(change.data.abbreviation && {
+                  abbreviation: change.data.abbreviation,
+                }),
+                ...(isSubject &&
+                  change.data.colorGroupId && {
+                    colorGroupId: change.data.colorGroupId,
+                    colorGroup:
+                      colorGroups.find(
+                        (cg) => cg.id === change.data.colorGroupId
+                      ) || (entity as any).colorGroup,
+                  }),
+              }
+            : entity
+        );
+      } else if (change.type === 'delete') {
+        updatedEntities = updatedEntities.filter(
+          (entity) => entity.id !== change.id
+        );
+      } else if (change.type === 'archive' || change.type === 'unarchive') {
+        updatedEntities = updatedEntities.map((entity) =>
+          entity.id === change.id
+            ? { ...entity, archived: change.data.archived }
+            : entity
+        );
+      }
+    });
+
+    return updatedEntities;
+  };
+
   // Update local state based on pending changes
   useEffect(() => {
     // Update the subjects state when a subject is added or modified
-    const handleSubjectChanges = () => {
-      const subjectChanges = pendingChanges.filter(
-        (change) => change.entity === 'subject'
+    const subjectChanges = pendingChanges.filter(
+      (change) => change.entity === 'subject'
+    );
+
+    if (subjectChanges.length > 0) {
+      const updatedSubjects = processEntityChanges(
+        subjects,
+        subjectChanges,
+        true
       );
-
-      if (subjectChanges.length > 0) {
-        // Create a copy of the current subjects
-        let updatedSubjects = [...subjects];
-
-        // Process each change
-        subjectChanges.forEach((change) => {
-          if (change.type === 'add') {
-            // Add new subject with temporary ID
-            const newSubject: SubjectAPI = {
-              id: change.id || -Date.now(),
-              name: change.data.name,
-              abbreviation: change.data.abbreviation,
-              colorGroupId: change.data.colorGroupId,
-              colorGroup: colorGroups.find(
-                (cg) => cg.id === change.data.colorGroupId
-              ) || {
-                name: 'Default',
-                colorCodes: ['#000000', '#000000', '#000000'],
-              },
-              archived: false,
-            };
-
-            // Check if this subject already exists in our list
-            const existingIndex = updatedSubjects.findIndex(
-              (s) => s.id === newSubject.id
-            );
-            if (existingIndex === -1) {
-              updatedSubjects.push(newSubject);
-            }
-          } else if (change.type === 'update') {
-            // Update existing subject
-            updatedSubjects = updatedSubjects.map((subject) =>
-              subject.id === change.id
-                ? {
-                    ...subject,
-                    ...(change.data.name && { name: change.data.name }),
-                    ...(change.data.abbreviation && {
-                      abbreviation: change.data.abbreviation,
-                    }),
-                    ...(change.data.colorGroupId && {
-                      colorGroupId: change.data.colorGroupId,
-                      colorGroup:
-                        colorGroups.find(
-                          (cg) => cg.id === change.data.colorGroupId
-                        ) || subject.colorGroup,
-                    }),
-                  }
-                : subject
-            );
-          } else if (change.type === 'delete') {
-            // Remove subject
-            updatedSubjects = updatedSubjects.filter(
-              (subject) => subject.id !== change.id
-            );
-          } else if (change.type === 'archive' || change.type === 'unarchive') {
-            // Archive/unarchive subject
-            updatedSubjects = updatedSubjects.map((subject) =>
-              subject.id === change.id
-                ? { ...subject, archived: change.data.archived }
-                : subject
-            );
-          }
-        });
-
-        // Only update if the subjects have actually changed
-        if (JSON.stringify(updatedSubjects) !== JSON.stringify(subjects)) {
-          setSubjects(updatedSubjects);
-        }
+      if (JSON.stringify(updatedSubjects) !== JSON.stringify(subjects)) {
+        setSubjects(updatedSubjects);
       }
-    };
+    }
 
     // Update the locations state when a location is added or modified
-    const handleLocationChanges = () => {
-      const locationChanges = pendingChanges.filter(
-        (change) => change.entity === 'location'
+    const locationChanges = pendingChanges.filter(
+      (change) => change.entity === 'location'
+    );
+
+    if (locationChanges.length > 0) {
+      const updatedLocations = processEntityChanges(
+        locations,
+        locationChanges,
+        false
       );
-
-      if (locationChanges.length > 0) {
-        // Create a copy of the current locations
-        let updatedLocations = [...locations];
-
-        // Process each change
-        locationChanges.forEach((change) => {
-          if (change.type === 'add') {
-            // Add new location with temporary ID
-            const newLocation: Location = {
-              id: change.id || -Date.now(),
-              name: change.data.name,
-              abbreviation: change.data.abbreviation,
-              archived: false,
-            };
-
-            // Check if this location already exists in our list
-            const existingIndex = updatedLocations.findIndex(
-              (l) => l.id === newLocation.id
-            );
-            if (existingIndex === -1) {
-              updatedLocations.push(newLocation);
-            }
-          } else if (change.type === 'update') {
-            // Update existing location
-            updatedLocations = updatedLocations.map((location) =>
-              location.id === change.id
-                ? {
-                    ...location,
-                    ...(change.data.name && { name: change.data.name }),
-                    ...(change.data.abbreviation && {
-                      abbreviation: change.data.abbreviation,
-                    }),
-                  }
-                : location
-            );
-          } else if (change.type === 'delete') {
-            // Remove location
-            updatedLocations = updatedLocations.filter(
-              (location) => location.id !== change.id
-            );
-          } else if (change.type === 'archive' || change.type === 'unarchive') {
-            // Archive/unarchive location
-            updatedLocations = updatedLocations.map((location) =>
-              location.id === change.id
-                ? { ...location, archived: change.data.archived }
-                : location
-            );
-          }
-        });
-
-        // Only update if the locations have actually changed
-        if (JSON.stringify(updatedLocations) !== JSON.stringify(locations)) {
-          setLocations(updatedLocations);
-        }
+      if (JSON.stringify(updatedLocations) !== JSON.stringify(locations)) {
+        setLocations(updatedLocations);
       }
-    };
+    }
 
     // Update the allowed absences when changed
-    const handleSettingChanges = () => {
-      const settingChanges = pendingChanges.filter(
-        (change) => change.entity === 'setting'
-      );
+    const settingChanges = pendingChanges.filter(
+      (change) => change.entity === 'setting'
+    );
 
-      if (settingChanges.length > 0) {
-        // Find the most recent absenceCap change
-        const absenceCapChange = settingChanges
-          .filter((change) => change.data?.absenceCap !== undefined)
-          .pop();
+    if (settingChanges.length > 0) {
+      // Find the most recent absenceCap change
+      const absenceCapChange = settingChanges
+        .filter((change) => change.data?.absenceCap !== undefined)
+        .pop();
 
-        if (
-          absenceCapChange &&
-          absenceCapChange.data?.absenceCap !== undefined
-        ) {
-          setAbsenceCap(absenceCapChange.data.absenceCap);
-        }
+      if (absenceCapChange && absenceCapChange.data?.absenceCap !== undefined) {
+        setAbsenceCap(absenceCapChange.data.absenceCap);
       }
-    };
-
-    handleSubjectChanges();
-    handleLocationChanges();
-    handleSettingChanges();
+    }
   }, [pendingChanges, subjects, locations, colorGroups]);
 
   // Apply changes to backend
@@ -504,52 +463,59 @@ export const useChangeManagement = ({
 
     for (const change of pendingChanges) {
       try {
-        if (change.entity === 'subject') {
-          if (change.type === 'delete') {
-            await fetch(`/api/subjects/${change.id}`, { method: 'DELETE' });
-          } else if (
-            change.type === 'archive' ||
-            change.type === 'unarchive' ||
-            change.type === 'update'
-          ) {
-            await fetch(`/api/subjects/${change.id}`, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(change.data),
-            });
-          } else if (change.type === 'add') {
-            await fetch('/api/subjects', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(change.data),
-            });
+        // Determine API endpoint, method, and body based on entity and change type
+        let endpoint = '';
+        let method = '';
+        let body = null;
+
+        // Set endpoint based on entity type
+        switch (change.entity) {
+          case 'subject':
+            endpoint =
+              change.type === 'add'
+                ? '/api/subjects'
+                : `/api/subjects/${change.id}`;
+            break;
+          case 'location':
+            endpoint =
+              change.type === 'add'
+                ? '/api/locations'
+                : `/api/locations/${change.id}`;
+            break;
+          case 'setting':
+            endpoint = '/api/settings';
+            break;
+        }
+
+        // Set method and body based on change type
+        switch (change.type) {
+          case 'add':
+            method = 'POST';
+            body = change.data;
+            break;
+          case 'delete':
+            method = 'DELETE';
+            break;
+          case 'update':
+          case 'archive':
+          case 'unarchive':
+            method = 'PATCH';
+            body = change.data;
+            break;
+        }
+
+        // Make the API call
+        if (endpoint) {
+          const options: RequestInit = {
+            method,
+          };
+
+          if (body) {
+            options.headers = { 'Content-Type': 'application/json' };
+            options.body = JSON.stringify(body);
           }
-        } else if (change.entity === 'location') {
-          if (change.type === 'delete') {
-            await fetch(`/api/locations/${change.id}`, { method: 'DELETE' });
-          } else if (
-            change.type === 'archive' ||
-            change.type === 'unarchive' ||
-            change.type === 'update'
-          ) {
-            await fetch(`/api/locations/${change.id}`, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(change.data),
-            });
-          } else if (change.type === 'add') {
-            await fetch('/api/locations', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(change.data),
-            });
-          }
-        } else if (change.entity === 'setting') {
-          await fetch('/api/settings', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(change.data),
-          });
+
+          await fetch(endpoint, options);
         }
 
         results.push({ success: true, message: change.displayText });
