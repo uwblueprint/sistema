@@ -84,6 +84,21 @@ const EntityTable: React.FC<EntityTableProps> = ({
       : {}),
   });
 
+  // Ensure newItem always has a valid color group for subjects
+  React.useEffect(() => {
+    if (
+      entityType === 'subject' &&
+      colorGroups.length > 0 &&
+      (!newItem.colorGroup || !newItem.colorGroupId)
+    ) {
+      setNewItem((prev) => ({
+        ...prev,
+        colorGroup: colorGroups[0],
+        colorGroupId: colorGroups[0].id,
+      }));
+    }
+  }, [entityType, colorGroups, newItem.colorGroup, newItem.colorGroupId]);
+
   // Sort items: non-archived first (by ID), then archived (by ID)
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
@@ -558,9 +573,12 @@ const EntityTable: React.FC<EntityTableProps> = ({
                   <Circle
                     size="24px"
                     bg={
-                      colorGroups.find(
-                        (cg) => cg.name === newItem.colorGroup?.name
-                      )?.colorCodes[COLOR_CODE_INDEX] || '#CBD5E0'
+                      newItem.colorGroupId
+                        ? colorGroups.find(
+                            (cg) => cg.id === newItem.colorGroupId
+                          )?.colorCodes[COLOR_CODE_INDEX]
+                        : colorGroups[0]?.colorCodes[COLOR_CODE_INDEX] ||
+                          '#CBD5E0'
                     }
                     cursor="pointer"
                     onClick={() => setColorPickerOpen(-1)}
