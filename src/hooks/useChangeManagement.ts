@@ -386,13 +386,23 @@ export const useChangeManagement = ({
         c.type === 'add' && c.entity === (isSubject ? 'subject' : 'location')
     );
 
-    // Add new entities to the list
+    // Add new entities to the list - only if they don't already exist
     addChanges.forEach((change) => {
       if (!change.data) return;
 
+      // Skip if an entity with this ID already exists
+      const changeId =
+        change.id ||
+        (change.tempId
+          ? Number(change.tempId.split('-').pop()) * -1
+          : -Date.now());
+      if (result.some((entity) => entity.id === changeId)) {
+        return;
+      }
+
       // Create a new entity object with the required fields
       const newEntity: any = {
-        id: change.id || -Date.now(), // Use provided ID or generate a temp one
+        id: changeId,
         name: change.data.name || '',
         abbreviation:
           change.data.abbreviation !== undefined
