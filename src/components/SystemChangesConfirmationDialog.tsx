@@ -25,6 +25,7 @@ export interface Change {
   type: ChangeType;
   entity: 'subject' | 'location' | 'setting';
   id?: number;
+  tempId?: string;
   data?: any;
   displayText: string;
 }

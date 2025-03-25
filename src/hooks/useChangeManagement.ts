@@ -95,7 +95,11 @@ export const useChangeManagement = ({
     // Find the newly added entity with the same ID
     const matchingAddChange = addChangesForSameEntityType.find(
       (c) =>
+        // Match by negative ID for newly added entities
         (change.id && change.id < 0 && c.id === change.id) ||
+        // Match by temp ID format
+        (c.tempId && change.tempId && c.tempId === change.tempId) ||
+        // Match undefined IDs
         (c.id === undefined && change.id === undefined)
     );
 
@@ -124,6 +128,7 @@ export const useChangeManagement = ({
           ...c,
           data: mergedData,
           id: change.id || c.id,
+          tempId: change.tempId || c.tempId, // Preserve tempId for future updates
           displayText: `Added ${change.entity === 'subject' ? 'Subject' : 'Location'} "${mergedData.name}"`,
         };
       }
@@ -252,6 +257,14 @@ export const useChangeManagement = ({
 
   const handleAddChange = useCallback(
     (change: Change) => {
+      // For add operations, generate a tempId if not already present
+      if (change.type === 'add' && !change.tempId) {
+        change = {
+          ...change,
+          tempId: `temp-${change.entity}-${Date.now()}`,
+        };
+      }
+
       // Capture original values for update operations
       if (change.type === 'update') {
         const entityList = change.entity === 'subject' ? subjects : locations;
@@ -387,55 +400,76 @@ export const useChangeManagement = ({
               },
             }),
             archived: false,
+            // Add tempId for tracking newly added entities
+            ...(change.tempId && { tempId: change.tempId }),
           } as unknown as T;
 
           // Add entity if not already present
           const existingIndex = updatedEntities.findIndex(
-            (e) => e.id === newEntity.id
+            (e) =>
+              e.id === newEntity.id ||
+              ((e as any).tempId &&
+                (e as any).tempId === (newEntity as any).tempId)
           );
           if (existingIndex === -1) {
             updatedEntities.push(newEntity);
+          } else {
+            // Update existing entity with same tempId
+            updatedEntities[existingIndex] = newEntity;
           }
           break;
 
         case 'update':
           // Update entity properties
-          updatedEntities = updatedEntities.map((entity) =>
-            entity.id === change.id
-              ? {
-                  ...entity,
-                  ...(change.data.name && { name: change.data.name }),
-                  ...(change.data.abbreviation && {
-                    abbreviation: change.data.abbreviation,
+          updatedEntities = updatedEntities.map((entity) => {
+            // Match by ID or tempId
+            if (
+              entity.id === change.id ||
+              ((entity as any).tempId &&
+                (entity as any).tempId === change.tempId)
+            ) {
+              return {
+                ...entity,
+                ...(change.data.name && { name: change.data.name }),
+                ...(change.data.abbreviation && {
+                  abbreviation: change.data.abbreviation,
+                }),
+                ...(isSubject &&
+                  change.data.colorGroupId && {
+                    colorGroupId: change.data.colorGroupId,
+                    colorGroup:
+                      colorGroups.find(
+                        (cg) => cg.id === change.data.colorGroupId
+                      ) || (entity as any).colorGroup,
                   }),
-                  ...(isSubject &&
-                    change.data.colorGroupId && {
-                      colorGroupId: change.data.colorGroupId,
-                      colorGroup:
-                        colorGroups.find(
-                          (cg) => cg.id === change.data.colorGroupId
-                        ) || (entity as any).colorGroup,
-                    }),
-                }
-              : entity
-          );
+              };
+            }
+            return entity;
+          });
           break;
 
         case 'delete':
-          // Remove entity
+          // Remove entity by id or tempId
           updatedEntities = updatedEntities.filter(
-            (entity) => entity.id !== change.id
+            (entity) =>
+              entity.id !== change.id &&
+              (!change.tempId || (entity as any).tempId !== change.tempId)
           );
           break;
 
         case 'archive':
         case 'unarchive':
           // Change archived status
-          updatedEntities = updatedEntities.map((entity) =>
-            entity.id === change.id
-              ? { ...entity, archived: change.data.archived }
-              : entity
-          );
+          updatedEntities = updatedEntities.map((entity) => {
+            if (
+              entity.id === change.id ||
+              ((entity as any).tempId &&
+                (entity as any).tempId === change.tempId)
+            ) {
+              return { ...entity, archived: change.data.archived };
+            }
+            return entity;
+          });
           break;
       }
     });
