@@ -19,21 +19,20 @@ import React, { useMemo, useRef, useState } from 'react';
 import { BiRevision } from 'react-icons/bi';
 import { IoFilterOutline } from 'react-icons/io5';
 import OperatorMenu from './OperatorMenu';
+import { ComparisonOperator } from '@utils/types';
 
-// Define comparison operators for numeric filters
-export type ComparisonOperator = 'greater_than' | 'less_than' | 'equal_to';
 interface FilterPopupProps {
   filters: FilterOptions;
   setFilters: (filters: FilterOptions) => void;
   availableTags: string[];
-  tagColors?: Record<string, string[]>; // Make tagColors optional
+  tagColors?: Record<string, string[]>;
 }
 
 export const FilterPopup: React.FC<FilterPopupProps> = ({
   filters,
   setFilters,
   availableTags,
-  tagColors = {}, // Provide default empty object
+  tagColors = {},
 }) => {
   const { isOpen, onToggle, onClose } = useDisclosure();
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -260,7 +259,6 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
             </Button>
           </Flex>
 
-          {/* Absences Filter */}
           <Flex justify="space-between" align="center" gap={2}>
             <Text textStyle="h4">Absences</Text>
             <Spacer />
