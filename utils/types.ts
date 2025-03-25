@@ -134,3 +134,10 @@ export interface YearlyAbsenceData {
   yearRange: string;
   yearlyData: MonthlyAbsenceData[];
 }
+
+export interface FilterOptions {
+  role: string | null | undefined;
+  absencesOperator: 'greater_than' | 'less_than' | 'equal_to';
+  absencesValue: number | null;
+  tags: string[] | null;
+}

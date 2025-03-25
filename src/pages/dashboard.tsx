@@ -110,7 +110,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <Box>
+    <Box height="100vh" display="flex" flexDirection="column">
       <DashboardHeader
         userData={userData}
         selectedYearRange={selectedYearRange}
@@ -118,7 +118,7 @@ export default function DashboardPage() {
         yearRanges={sortedYearRanges}
         hasData={hasAbsenceData}
       />
-      <Box px={8} pt={3} pb={8} justifyContent="center">
+      <Box px={8} py={3} flex="1" minHeight="0">
         {loading ? null : (
           <>
             <HStack mb="10px">

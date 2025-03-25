@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Box, Button, Flex } from '@chakra-ui/react';
 
 interface CalendarTabsProps {
