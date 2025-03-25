@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import {
   Box,
   Text,
@@ -84,6 +84,24 @@ const EntityTable: React.FC<EntityTableProps> = ({
         }
       : {}),
   });
+
+  // Sort items: non-archived first (by ID), then archived (by ID)
+  const sortedItems = useMemo(() => {
+    return [...items].sort((a, b) => {
+      // First sort by archived status
+      if (a.archived !== b.archived) {
+        return a.archived ? 1 : -1;
+      }
+      // Then sort by ID
+      if (a.id >= 0 && b.id >= 0) {
+        return a.id - b.id; // Normal order for existing entities (smaller IDs first)
+      } else if (a.id < 0 && b.id < 0) {
+        return b.id - a.id; // Reverse order for temp entities (more negative = newer = lower)
+      } else {
+        return a.id < 0 ? 1 : -1; // Temp entities (negative IDs) go to the bottom
+      }
+    });
+  }, [items]);
 
   const handleEditItem = (item: EntityTableItem) => {
     setEditingItem(item);
@@ -322,7 +340,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
       </Box>
 
       {/* Table Rows */}
-      {items.map((item) => (
+      {sortedItems.map((item) => (
         <Box
           p={3}
           borderBottomWidth="1px"
