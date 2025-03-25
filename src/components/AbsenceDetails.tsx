@@ -78,11 +78,13 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
             <Text textStyle="h2">{event.title}</Text>
             <Flex gap="13px">
               <FiMapPin size="20px" color={theme.colors.primaryBlue[300]} />
-              <Text textStyle="body"> {event.location} </Text>
+              <Text textStyle="subtitle" color={theme.colors.text.body}>
+                {event.location}
+              </Text>
             </Flex>
             <Flex gap="13px" mt="-8px">
               <Calendar size="20px" color={theme.colors.primaryBlue[300]} />
-              <Text textStyle="body">
+              <Text textStyle="subtitle" color={theme.colors.text.body}>
                 {event.start
                   ? new Date(event.start).toLocaleDateString('en-US', {
                       weekday: 'long',
@@ -94,12 +96,16 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
             </Flex>
             <Flex gap="13px" mt="-8px">
               <FiUser size="20px" color={theme.colors.primaryBlue[300]} />
-              <Text textStyle="body">{event.absentTeacherFullName}</Text>
+              <Text textStyle="subtitle" color={theme.colors.text.body}>
+                {event.absentTeacherFullName}
+              </Text>
             </Flex>
             {event.roomNumber && (
               <Flex gap="13px" mt="-8px">
                 <Buildings size="20px" color={theme.colors.primaryBlue[300]} />
-                <Text textStyle="body">Room {event.roomNumber}</Text>
+                <Text textStyle="subtitle" color={theme.colors.text.body}>
+                  Room {event.roomNumber}
+                </Text>
               </Flex>
             )}
             <Box>
@@ -162,16 +168,13 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                   Notes
                 </Text>
 
-                <Box
+                <Text
                   fontSize="12px"
-                  sx={{
-                    padding: '15px 15px 15px 15px',
-                    borderRadius: '10px',
-                    background: `${theme.colors.neutralGray[50]}`,
-                  }}
+                  sx={{ padding: '15px 15px 33px 15px', borderRadius: '10px' }}
+                  background={theme.colors.neutralGray[50]}
                 >
                   {event.notes}
-                </Box>
+                </Text>
               </Box>
             )}
 
