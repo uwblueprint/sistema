@@ -94,7 +94,13 @@ const UserManagementCard = () => {
   };
 
   return loading ? null : (
-    <Box display="flex" flexDirection="column" height="100%">
+    <Box
+      height="100%"
+      display="flex"
+      flexDirection="column"
+      flex="1"
+      minHeight="0"
+    >
       <UserManagementTable
         users={users}
         updateUserRole={handleConfirmRoleChange}
