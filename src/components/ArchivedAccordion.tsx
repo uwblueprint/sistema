@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import Dropdown, { DropdownItem } from './Dropdown';
+import { useTheme } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import Accordion, { AccordionItem } from './Accordion';
 
-interface ArchivedDropdownProps {
+interface ArchivedAccordionProps {
   setFilter: (archives: number[]) => void;
   onArchivedToggle: (
     subjectsArchived: boolean,
@@ -9,10 +10,11 @@ interface ArchivedDropdownProps {
   ) => void;
 }
 
-export default function ArchivedDropdown({
+export default function ArchivedAccordion({
   setFilter,
   onArchivedToggle,
-}: ArchivedDropdownProps) {
+}: ArchivedAccordionProps) {
+  const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedArchiveIds, setSelectedArchiveIds] = useState<number[]>([]);
 
@@ -43,16 +45,16 @@ export default function ArchivedDropdown({
     setIsOpen((prev) => !prev);
   };
 
-  const dropdownItems: DropdownItem[] = archives.map((archive) => ({
+  const accordionItems: AccordionItem[] = archives.map((archive) => ({
     id: archive.id,
     name: archive.name,
-    color: 'gray',
+    color: theme.colors.neutralGray[300],
   }));
 
   return (
-    <Dropdown
+    <Accordion
       title="Archived"
-      items={dropdownItems}
+      items={accordionItems}
       selectedItems={selectedArchiveIds}
       isOpen={isOpen}
       toggleOpen={toggleOpen}

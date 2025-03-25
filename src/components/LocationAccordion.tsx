@@ -33,7 +33,7 @@ export default function LocationAccordion({
         if (data.locations) {
           const fetchedLocations = data.locations.map((location: Location) => ({
             ...location,
-            color: theme.colors.primaryBlue[300], // Use theme color
+            color: theme.colors.primaryBlue[300],
           }));
           setAllLocations(fetchedLocations);
 

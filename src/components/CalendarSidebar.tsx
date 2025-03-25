@@ -1,11 +1,11 @@
 import { AddIcon } from '@chakra-ui/icons';
-import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { TacetLogo } from '../components/SistemaLogoColour';
+import ArchivedAccordion from './ArchivedAccordion';
 import LocationAccordion from './LocationAccordion';
-import SubjectAccordion from './SubjectAccordion';
-import ArchivedDropdown from './ArchivedDropdown';
 import MiniCalendar from './MiniCalendar';
+import SubjectAccordion from './SubjectAccordion';
 
 interface CalendarSidebarProps {
   setSearchQuery: (query: {
@@ -77,9 +77,15 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         onDateSelect={onDateSelect}
         selectDate={selectDate}
       />
-      <SubjectAccordion setFilter={setSubjectIdFilter} />
-      <LocationAccordion setFilter={setLocationIdFilter} />
-      <ArchivedDropdown
+      <SubjectAccordion
+        setFilter={setSubjectIds}
+        showArchived={showArchivedSubjects}
+      />
+      <LocationAccordion
+        setFilter={setLocationIds}
+        showArchived={showArchivedLocations}
+      />
+      <ArchivedAccordion
         setFilter={setArchiveIds}
         onArchivedToggle={handleArchivedToggle}
       />
