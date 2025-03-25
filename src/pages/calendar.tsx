@@ -18,7 +18,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { Absence, Prisma } from '@prisma/client';
 import { AbsenceAPI, mapColorCodes } from '@utils/types';
-import useUserData from '@utils/useUserData';
+import { useUserData } from '@utils/useUserData';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiPaperclip } from 'react-icons/fi';
