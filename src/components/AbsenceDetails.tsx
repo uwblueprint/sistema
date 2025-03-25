@@ -124,13 +124,13 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                 <Text textStyle="h4" mb="9px">
                   Reason of Absence
                 </Text>
-                <Text
+                <Box
                   fontSize="12px"
                   sx={{ padding: '15px 15px 33px 15px', borderRadius: '10px' }}
                   background={theme.colors.neutralGray[50]}
                 >
                   {event.reasonOfAbsence}
-                </Text>
+                </Box>
               </Box>
             )}
             {isUserAbsentTeacher && (
@@ -138,13 +138,13 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                 <Text textStyle="h4" mb="9px">
                   Notes
                 </Text>
-                <Text
+                <Box
                   fontSize="12px"
                   sx={{ padding: '15px 15px 33px 15px', borderRadius: '10px' }}
                   background={theme.colors.neutralGray[50]}
                 >
                   {event.notes}
-                </Text>
+                </Box>
 
                 <IconButton
                   aria-label="Edit Notes"
@@ -168,13 +168,16 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                   Notes
                 </Text>
 
-                <Text
+                <Box
                   fontSize="12px"
-                  sx={{ padding: '15px 15px 33px 15px', borderRadius: '10px' }}
-                  background={theme.colors.neutralGray[50]}
+                  sx={{
+                    padding: '15px 15px 33px 15px',
+                    borderRadius: '10px',
+                    background: `${theme.colors.neutralGray[50]}`,
+                  }}
                 >
                   {event.notes}
-                </Text>
+                </Box>
               </Box>
             )}
 
