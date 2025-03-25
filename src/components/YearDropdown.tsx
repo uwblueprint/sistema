@@ -1,25 +1,25 @@
-import React, { useState } from 'react';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Button,
   Flex,
-  Text,
+  Icon,
   Menu,
   MenuButton,
-  MenuList,
   MenuItem,
-  Icon,
+  MenuList,
+  Text,
   useTheme,
 } from '@chakra-ui/react';
-import { ChevronDownIcon } from '@chakra-ui/icons';
+import React, { useState } from 'react';
 import { CalendarIcon } from './CalendarIcon';
 
-interface YearSelectorProps {
+interface YearDropdownProps {
   selectedRange?: string;
   onChange?: (range: string) => void;
   yearRanges: string[];
 }
 
-export const YearSelector: React.FC<YearSelectorProps> = ({
+export const YearDropdown: React.FC<YearDropdownProps> = ({
   selectedRange,
   onChange,
   yearRanges,
