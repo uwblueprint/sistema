@@ -160,7 +160,10 @@ const InputForm: React.FC<InputFormProps> = ({
           isClosable: true,
         });
 
-        if (parseInt(formData.absentTeacherId, 10) === userId) {
+        if (
+          parseInt(formData.substituteTeacherId, 10) === userId ||
+          parseInt(formData.absentTeacherId, 10) === userId
+        ) {
           onTabChange('declared');
         }
 
