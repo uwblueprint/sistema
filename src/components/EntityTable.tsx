@@ -231,75 +231,30 @@ const EntityTable: React.FC<EntityTableProps> = ({
           <HStack spacing={1}>
             <IoBookOutline />
             <Text fontWeight="medium">{title}</Text>
-            <Box
-              as="span"
-              ml={1}
-              color="primaryBlue.300"
-              cursor="help"
-              position="relative"
-              _hover={{
-                '& > div': {
-                  display: 'block',
-                },
-              }}
+            <Tooltip
+              label={`The full ${entityType} name`}
+              placement="bottom"
+              hasArrow
             >
-              <LuInfo />
-              <Box
-                display="none"
-                position="absolute"
-                bg="gray.700"
-                color="white"
-                p={2}
-                borderRadius="md"
-                fontSize="sm"
-                zIndex={10}
-                top="100%"
-                left="50%"
-                transform="translateX(-50%)"
-                width="150px"
-                textAlign="center"
-              >
-                The full {entityType} name
+              <Box as="span" ml={1} color="primaryBlue.300" cursor="help">
+                <LuInfo />
               </Box>
-            </Box>
+            </Tooltip>
           </HStack>
         </Box>
         <Box width="30%">
           <HStack spacing={1}>
             <FiType />
             <Text fontWeight="medium">Display</Text>
-            <Box
-              as="span"
-              ml={1}
-              color="primaryBlue.300"
-              cursor="help"
-              position="relative"
-              _hover={{
-                '& > div': {
-                  display: 'block',
-                },
-              }}
+            <Tooltip
+              label={`The abbreviated ${entityType} name (max ${maxAbbreviationLength} characters)`}
+              placement="bottom"
+              hasArrow
             >
-              <LuInfo />
-              <Box
-                display="none"
-                position="absolute"
-                bg="gray.700"
-                color="white"
-                p={2}
-                borderRadius="md"
-                fontSize="sm"
-                zIndex={10}
-                top="100%"
-                right="0"
-                width="200px"
-                textAlign="center"
-              >
-                The abbreviated {entityType} name
-                <br />
-                (max {maxAbbreviationLength} characters)
+              <Box as="span" ml={1} color="primaryBlue.300" cursor="help">
+                <LuInfo />
               </Box>
-            </Box>
+            </Tooltip>
           </HStack>
         </Box>
       </Box>
@@ -450,6 +405,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                     placement="top"
                     openDelay={300}
                     isDisabled={item.name.length <= 20}
+                    hasArrow
                   >
                     <Box
                       position="relative"
@@ -523,6 +479,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                             : ''
                         }
                         isDisabled={!itemsInUse.includes(item.id)}
+                        hasArrow
                       >
                         <MenuItem
                           icon={<IoTrashOutline />}
