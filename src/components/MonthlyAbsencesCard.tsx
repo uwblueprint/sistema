@@ -79,72 +79,58 @@ export default function MonthlyAbsencesCard({
       <CardBody display="flex" flexDirection="column">
         <HStack align="flex-start" justify="space-between" gap="35px">
           <Box flex="1" height="110px">
-            {monthlyData.length === 0 ? (
-              <Flex
-                height="100%"
-                align="center"
-                justify="center"
-                bg="primaryBlue.50"
-                borderRadius="md"
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={combinedMonthlyData}
+                margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
+                onMouseMove={(state) => {
+                  if (state.isTooltipActive) {
+                    setActiveIndex(state.activeTooltipIndex ?? null);
+                  } else {
+                    setActiveIndex(null);
+                  }
+                }}
               >
-                <Text fontSize="16px" color="text.subtitle">
-                  No Data
-                </Text>
-              </Flex>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={combinedMonthlyData}
-                  margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
-                  onMouseMove={(state) => {
-                    if (state.isTooltipActive) {
-                      setActiveIndex(state.activeTooltipIndex ?? null);
-                    } else {
-                      setActiveIndex(null);
-                    }
-                  }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="0"
-                    horizontal
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="month"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: chartTextColor, fontSize: 12 }}
-                    tickMargin={12}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: chartTextColor, fontSize: 12 }}
-                    domain={[0, yAxisMax]}
-                    ticks={yAxisTicks}
-                    tickCount={yAxisTicks.length}
-                    interval={0}
-                  />
-                  <Tooltip
-                    content={<CustomTooltip />}
-                    cursor={{ fill: 'transparent' }}
-                  />
-                  <Bar
-                    dataKey="total"
-                    barSize={28}
-                    shape={(props) => (
-                      <DualColorBar
-                        key={`bar-${props.payload?.month}-${props.payload?.filled}-${props.payload?.unfilled}`}
-                        {...props}
-                        filledColor={filledColor}
-                        unfilledColor={unfilledColor}
-                        isActive={activeIndex === props.index}
-                      />
-                    )}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
+                <CartesianGrid
+                  strokeDasharray="0"
+                  horizontal
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: chartTextColor, fontSize: 12 }}
+                  tickMargin={12}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: chartTextColor, fontSize: 12 }}
+                  domain={[0, yAxisMax]}
+                  ticks={yAxisTicks}
+                  tickCount={yAxisTicks.length}
+                  interval={0}
+                />
+                <Tooltip
+                  content={<CustomTooltip />}
+                  cursor={{ fill: 'transparent' }}
+                />
+                <Bar
+                  dataKey="total"
+                  barSize={28}
+                  shape={(props) => (
+                    <DualColorBar
+                      key={`bar-${props.payload?.month}-${props.payload?.filled}-${props.payload?.unfilled}`}
+                      {...props}
+                      filledColor={filledColor}
+                      unfilledColor={unfilledColor}
+                      isActive={activeIndex === props.index}
+                    />
+                  )}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </Box>
           <VStack align="flex-start" pr="10px">
             <HStack>

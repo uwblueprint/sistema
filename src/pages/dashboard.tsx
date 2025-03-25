@@ -7,6 +7,7 @@ import DashboardHeader from '../components/DashboardHeader';
 import MonthlyAbsencesCard from '../components/MonthlyAbsencesCard';
 import TotalAbsencesCard from '../components/TotalAbsencesCard';
 import UserManagementCard from '../components/UserManagementCard';
+import { Role } from '@utils/types';
 
 export default function DashboardPage() {
   const userData = useUserData();
@@ -46,9 +47,15 @@ export default function DashboardPage() {
     fetchAbsenceDates();
   }, [selectedYearRange]);
 
-  if (userData.isLoading || !userData.isAuthenticated) {
+  if (userData.isLoading) {
     return null;
   }
+
+  if (!userData.isAuthenticated || userData.role !== Role.ADMIN) {
+    router.push('/');
+    return null;
+  }
+
   const emptyYearlyData = Array.from({ length: 12 }, (_, i) => ({
     month: [
       'Sep',

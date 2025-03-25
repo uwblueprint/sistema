@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+import { Box, useTheme } from '@chakra-ui/react';
 import { type TooltipProps } from 'recharts';
 
 export const CustomTooltip = ({
@@ -6,6 +6,8 @@ export const CustomTooltip = ({
   payload,
   coordinate,
 }: TooltipProps<number, string>) => {
+  const theme = useTheme();
+  const primaryBlue = theme.colors.primaryBlue[300];
   if (active && payload && payload.length) {
     const data = payload[0]?.payload;
 
@@ -20,7 +22,7 @@ export const CustomTooltip = ({
         position="absolute"
         left={`${coordinate?.x}px`}
         transform="translateX(-50%) translateY(-80%)"
-        bg="primaryBlue.300"
+        bg={primaryBlue}
         color="white"
         px="8px"
         py="4px"
@@ -37,7 +39,7 @@ export const CustomTooltip = ({
           transform: 'translateX(-50%)',
           borderLeft: '6px solid transparent',
           borderRight: '6px solid transparent',
-          borderTop: '6px solid #0468C1',
+          borderTop: `6px solid ${primaryBlue}`,
         }}
       >
         {filled}/{total}
