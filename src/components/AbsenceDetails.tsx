@@ -148,12 +148,7 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
 
                 <IconButton
                   aria-label="Edit Notes"
-                  icon={
-                    <FiEdit2
-                      size="15px"
-                      color={theme.colors.neutralGray[600]}
-                    />
-                  }
+                  icon={<FiEdit2 size="15px" color={theme.colors.text.body} />}
                   size="sm"
                   variant="ghost"
                   position="absolute"
