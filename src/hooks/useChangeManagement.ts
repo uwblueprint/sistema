@@ -209,13 +209,22 @@ export const useChangeManagement = ({
     if (!hasChanges) return true;
 
     let success = true;
+    let errorMessage = '';
 
     try {
       // Process subject changes
       for (const [id, subject] of Array.from(pendingSubjects.entries())) {
         if (subject === null) {
           // Handle deletion
-          await fetch(`/api/subjects/${id}`, { method: 'DELETE' });
+          const response = await fetch(`/api/subjects/${id}`, {
+            method: 'DELETE',
+          });
+          if (!response.ok) {
+            success = false;
+            errorMessage = 'Failed to delete subject';
+            console.error(`${errorMessage}: ${await response.text()}`);
+            break;
+          }
         } else if (id < 0) {
           // Handle new subject (post)
           const newSubject = {
@@ -223,11 +232,22 @@ export const useChangeManagement = ({
             abbreviation: subject.abbreviation,
             colorGroupId: subject.colorGroupId,
           };
-          await fetch('/api/subjects', {
+          const response = await fetch('/api/subjects', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newSubject),
           });
+          if (!response.ok) {
+            success = false;
+            try {
+              const errorData = await response.json();
+              errorMessage = `Failed to create subject: ${errorData.error || 'Unknown error'}`;
+            } catch {
+              errorMessage = 'Failed to create subject';
+            }
+            console.error(errorMessage);
+            break;
+          }
         } else {
           // Handle update (patch)
           const originalSubject = initialSubjects.find((s) => s.id === id);
@@ -249,87 +269,155 @@ export const useChangeManagement = ({
 
           // Only send request if there are actual changes
           if (Object.keys(updates).length > 0) {
-            await fetch(`/api/subjects/${id}`, {
+            const response = await fetch(`/api/subjects/${id}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(updates),
             });
+            if (!response.ok) {
+              success = false;
+              try {
+                const errorData = await response.json();
+                errorMessage = `Failed to update subject: ${errorData.error || 'Unknown error'}`;
+              } catch {
+                errorMessage = 'Failed to update subject';
+              }
+              console.error(errorMessage);
+              break;
+            }
           }
         }
       }
 
-      // Process location changes
-      for (const [id, location] of Array.from(pendingLocations.entries())) {
-        if (location === null) {
-          // Handle deletion
-          await fetch(`/api/locations/${id}`, { method: 'DELETE' });
-        } else if (id < 0) {
-          // Handle new location (post)
-          const newLocation = {
-            name: location.name,
-            abbreviation: location.abbreviation,
-          };
-          await fetch('/api/locations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newLocation),
-          });
-        } else {
-          // Handle update (patch)
-          const originalLocation = initialLocations.find((l) => l.id === id);
-          if (!originalLocation) continue;
-
-          const updates: any = {};
-          if (location.name !== originalLocation.name) {
-            updates.name = location.name;
-          }
-          if (location.abbreviation !== originalLocation.abbreviation) {
-            updates.abbreviation = location.abbreviation;
-          }
-          if (location.archived !== originalLocation.archived) {
-            updates.archived = location.archived;
-          }
-
-          // Only send request if there are actual changes
-          if (Object.keys(updates).length > 0) {
-            await fetch(`/api/locations/${id}`, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(updates),
+      // Only proceed with location changes if subject changes were successful
+      if (success) {
+        // Process location changes
+        for (const [id, location] of Array.from(pendingLocations.entries())) {
+          if (location === null) {
+            // Handle deletion
+            const response = await fetch(`/api/locations/${id}`, {
+              method: 'DELETE',
             });
+            if (!response.ok) {
+              success = false;
+              errorMessage = 'Failed to delete location';
+              console.error(`${errorMessage}: ${await response.text()}`);
+              break;
+            }
+          } else if (id < 0) {
+            // Handle new location (post)
+            const newLocation = {
+              name: location.name,
+              abbreviation: location.abbreviation,
+            };
+            const response = await fetch('/api/locations', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newLocation),
+            });
+            if (!response.ok) {
+              success = false;
+              try {
+                const errorData = await response.json();
+                errorMessage = `Failed to create location: ${errorData.error || 'Unknown error'}`;
+              } catch {
+                errorMessage = 'Failed to create location';
+              }
+              console.error(errorMessage);
+              break;
+            }
+          } else {
+            // Handle update (patch)
+            const originalLocation = initialLocations.find((l) => l.id === id);
+            if (!originalLocation) continue;
+
+            const updates: any = {};
+            if (location.name !== originalLocation.name) {
+              updates.name = location.name;
+            }
+            if (location.abbreviation !== originalLocation.abbreviation) {
+              updates.abbreviation = location.abbreviation;
+            }
+            if (location.archived !== originalLocation.archived) {
+              updates.archived = location.archived;
+            }
+
+            // Only send request if there are actual changes
+            if (Object.keys(updates).length > 0) {
+              const response = await fetch(`/api/locations/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updates),
+              });
+              if (!response.ok) {
+                success = false;
+                try {
+                  const errorData = await response.json();
+                  errorMessage = `Failed to update location: ${errorData.error || 'Unknown error'}`;
+                } catch {
+                  errorMessage = 'Failed to update location';
+                }
+                console.error(errorMessage);
+                break;
+              }
+            }
           }
         }
       }
 
-      // Process settings changes
+      // Only proceed with settings changes if other changes were successful
       if (
+        success &&
         pendingSettings.absenceCap !== undefined &&
         pendingSettings.absenceCap !== initialAbsenceCap
       ) {
-        await fetch('/api/settings', {
+        const response = await fetch('/api/settings', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ absenceCap: pendingSettings.absenceCap }),
         });
+        if (!response.ok) {
+          success = false;
+          try {
+            const errorData = await response.json();
+            errorMessage = `Failed to update settings: ${errorData.error || 'Unknown error'}`;
+          } catch {
+            errorMessage = 'Failed to update settings';
+          }
+          console.error(errorMessage);
+        }
       }
 
-      // Refresh data after all changes have been applied
-      if (onRefresh) {
-        onRefresh();
-      }
+      if (success) {
+        // Refresh data after all changes have been applied
+        if (onRefresh) {
+          onRefresh();
+        }
 
-      // Show success toast
-      if (toast) {
-        toast({
-          title: 'Changes saved',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-        });
-      }
+        // Show success toast
+        if (toast) {
+          toast({
+            title: 'Changes saved',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
+        }
 
-      // Clear pending changes after successful application
-      clearChanges();
+        // Clear pending changes after successful application
+        clearChanges();
+      } else {
+        // Show error toast
+        if (toast) {
+          toast({
+            title: 'Error',
+            description: errorMessage || 'Failed to save changes',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+        }
+      }
     } catch (error) {
       console.error('Error applying changes:', error);
       success = false;
@@ -338,9 +426,10 @@ export const useChangeManagement = ({
       if (toast) {
         toast({
           title: 'Error',
-          description: 'Failed to save changes',
+          description:
+            error instanceof Error ? error.message : 'Failed to save changes',
           status: 'error',
-          duration: 3000,
+          duration: 5000,
           isClosable: true,
         });
       }

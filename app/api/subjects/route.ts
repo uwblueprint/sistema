@@ -21,9 +21,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const { name, abbreviation, colorGroupId } = await request.json();
-    if (!name || !abbreviation || !colorGroupId) {
+    if (!name || colorGroupId === undefined) {
       return NextResponse.json(
-        { error: 'name, abbreviation, and colorGroupId are required' },
+        { error: 'Subject name and color group are required' },
         { status: 400 }
       );
     }
@@ -43,7 +43,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating subject:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Unable to create subject. Please try again or contact support.',
+      },
       { status: 500 }
     );
   }
