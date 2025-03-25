@@ -387,7 +387,7 @@ const Calendar: React.FC = () => {
             setIsAdminMode={setIsAdminMode}
           />
 
-          <Box flex={1} overflow="hidden" paddingRight={theme.space[2]}>
+          <Box flex={1} overflow="hidden" pr={theme.space[2]}>
             {!isAdminMode && (
               <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
             )}

@@ -1,23 +1,20 @@
 import {
   Box,
+  Button,
+  Divider,
+  Flex,
   Popover,
-  PopoverTrigger,
-  PopoverContent,
   PopoverArrow,
   PopoverBody,
-  Input,
-  InputGroup,
-  InputRightElement,
-  useDisclosure,
+  PopoverContent,
+  PopoverTrigger,
   Text,
-  Button,
-  Flex,
+  useDisclosure,
   useTheme,
-  Divider,
 } from '@chakra-ui/react';
-import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
+import { Calendar } from 'iconsax-react';
 import { useRef } from 'react';
-import { CalendarIcon } from './CalendarIcon';
+import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 
 interface YearDropdownProps {
   selectedRange: string;
@@ -63,16 +60,16 @@ export default function YearDropdown({
           _active={{ bg: theme.colors.primaryBlue[50] }}
         >
           <Flex alignItems="center" justifyContent="space-between" width="100%">
-            <CalendarIcon />
+            <Calendar size={25} color={theme.colors.primaryBlue[300]} />
             <Flex flex="1" justifyContent="center">
-              <Text fontWeight="600" fontSize="16px" color="black">
+              <Text fontWeight="600" fontSize="16px" color="text.header">
                 {selectedRange}
               </Text>
             </Flex>
             {isOpen ? (
-              <IoChevronUp size={21} color="black" />
+              <IoChevronUp size={21} color={theme.colors.icon} />
             ) : (
-              <IoChevronDown size={21} color="black" />
+              <IoChevronDown size={21} color={theme.colors.icon} />
             )}
           </Flex>
         </Button>
