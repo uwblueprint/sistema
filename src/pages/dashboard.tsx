@@ -118,26 +118,29 @@ export default function DashboardPage() {
         yearRanges={sortedYearRanges}
         hasData={hasAbsenceData}
       />
-      <Box px={8} py={3} flex="1" minHeight="0">
-        {loading ? null : (
-          <>
-            <HStack mb="10px">
-              <TotalAbsencesCard
-                width="35%"
-                filled={yearlyAbsencesFilled}
-                total={totalAbsenceCount}
-                startYear={startYear}
-                endYear={endYear}
-              />
-              <MonthlyAbsencesCard
-                width="65%"
-                monthlyData={selectedYearData.yearlyData}
-                highestMonthlyAbsence={highestMonthlyAbsence}
-              />
-            </HStack>
-            <UserManagementCard />
-          </>
-        )}
+      <Box
+        px={8}
+        py={3}
+        display="flex"
+        flexDirection="column"
+        flex="1"
+        minHeight="0"
+      >
+        <HStack mb={3} spacing={3} height="220px">
+          <TotalAbsencesCard
+            width="35%"
+            filled={yearlyAbsencesFilled}
+            total={totalAbsenceCount}
+            startYear={startYear}
+            endYear={endYear}
+          />
+          <MonthlyAbsencesCard
+            width="65%"
+            monthlyData={selectedYearData.yearlyData}
+            highestMonthlyAbsence={highestMonthlyAbsence}
+          />
+        </HStack>
+        <UserManagementCard />
       </Box>
     </Box>
   );

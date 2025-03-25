@@ -46,7 +46,7 @@ export default function TotalAbsencesCard({
   return (
     <Card
       width={width}
-      height="220px"
+      height="100%"
       borderRadius="lg"
       shadow="sm"
       overflow="hidden"
