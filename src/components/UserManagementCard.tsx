@@ -8,6 +8,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Text,
+  Box,
   useDisclosure,
 } from '@chakra-ui/react';
 import { Role, UserAPI } from '@utils/types';
@@ -93,7 +94,7 @@ const UserManagementCard = () => {
   };
 
   return loading ? null : (
-    <>
+    <Box display="flex" flexDirection="column" height="100%">
       <UserManagementTable
         users={users}
         updateUserRole={handleConfirmRoleChange}
@@ -124,7 +125,7 @@ const UserManagementCard = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </>
+    </Box>
   );
 };
 

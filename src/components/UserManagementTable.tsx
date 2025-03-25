@@ -178,6 +178,9 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       w="full"
       border="1px solid"
       borderColor="neutralGray.300"
+      display="flex"
+      flexDirection="column"
+      height="100%"
     >
       <HStack justify="space-between" mx={5} my={3}>
         <Text fontSize={'22px'} lineHeight="33px" fontWeight={700}>
@@ -218,7 +221,8 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         </HStack>
       </HStack>
       <Divider />
-      <Box overflowX="auto" maxHeight="40vh">
+
+      <Box flex="1" overflowY="auto">
         <Table variant="simple">
           <Thead
             position="sticky"
@@ -301,7 +305,6 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                             <Tag
                               height="28px"
                               variant="subtle"
-                              key={index}
                               bg={mailingList.subject.colorGroup.colorCodes[3]}
                             >
                               <TagLabel>
