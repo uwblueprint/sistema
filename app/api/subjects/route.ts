@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const subject = await prisma.subject.create({
       data: {
         name,
-        abbreviation,
+        abbreviation: abbreviation || '',
         colorGroupId,
       },
       include: {
