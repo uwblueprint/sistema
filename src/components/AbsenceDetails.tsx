@@ -1,32 +1,34 @@
-import { useSession } from 'next-auth/react';
-import React from 'react';
 import {
+  Box,
+  Button,
+  Flex,
+  IconButton,
   Modal,
+  ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
-  ModalBody,
   Text,
-  IconButton,
-  Box,
   VStack,
-  Flex,
-  Button,
+  useTheme,
 } from '@chakra-ui/react';
+import { Role } from '@utils/types';
+import { useUserData } from '@utils/useUserData';
+import { Buildings, Calendar } from 'iconsax-react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
-import { Calendar, Buildings } from 'iconsax-react';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
 
 const AbsenceDetails = ({ isOpen, onClose, event }) => {
-  const { data: session, status } = useSession();
+  const theme = useTheme();
+  const userData = useUserData();
   if (!event) return null;
 
-  const userId = session?.user?.id ? Number(session.user.id) : undefined;
+  const userId = userData.id;
   const isUserAbsentTeacher = userId === event.absentTeacher.id;
   const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
-  const isUserAdmin = false;
+  const isUserAdmin = userData.role === Role.ADMIN;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
@@ -46,48 +48,41 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
             />
             <Flex position="absolute" right="0">
               {isUserAdmin && (
-                <>
-                  <IconButton
-                    aria-label="Edit Absence"
-                    icon={<FiEdit2 size="15px" color="#373636" />}
-                    size="sm"
-                    variant="ghost"
-                  />
-                </>
+                <IconButton
+                  aria-label="Edit Absence"
+                  icon={<FiEdit2 size="15px" color={theme.colors.text.body} />}
+                  size="sm"
+                  variant="ghost"
+                />
               )}
 
               {(isUserAdmin ||
                 (isUserAbsentTeacher && !event.substituteTeacher)) && (
-                <>
-                  <IconButton
-                    aria-label="Delete Absence"
-                    icon={<FiTrash2 size="15px" color="#373636" />}
-                    size="sm"
-                    variant="ghost"
-                  />
-                </>
+                <IconButton
+                  aria-label="Delete Absence"
+                  icon={<FiTrash2 size="15px" color={theme.colors.text.body} />}
+                  size="sm"
+                  variant="ghost"
+                />
               )}
-              <ModalCloseButton color="#373636" position="static" />
+              <ModalCloseButton
+                color={theme.colors.text.body}
+                position="static"
+              />
             </Flex>
           </Flex>
         </ModalHeader>
 
         <ModalBody sx={{ padding: '20px 0 0 0' }}>
           <VStack spacing="18px" align="stretch">
-            <Text fontSize="22px" fontWeight="500">
-              {' '}
-              {event.title}{' '}
-            </Text>
+            <Text textStyle="h2">{event.title}</Text>
             <Flex gap="13px">
-              <FiMapPin size="20px" color="#0468C1" />
-              <Text fontSize="13px" color="#373636">
-                {' '}
-                {event.location}{' '}
-              </Text>
+              <FiMapPin size="20px" color={theme.colors.primaryBlue[300]} />
+              <Text textStyle="body"> {event.location} </Text>
             </Flex>
             <Flex gap="13px" mt="-8px">
-              <Calendar size="20px" color="#0468C1" />
-              <Text fontSize="13px" color="#373636">
+              <Calendar size="20px" color={theme.colors.primaryBlue[300]} />
+              <Text textStyle="body">
                 {event.start
                   ? new Date(event.start).toLocaleDateString('en-US', {
                       weekday: 'long',
@@ -98,23 +93,17 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
               </Text>
             </Flex>
             <Flex gap="13px" mt="-8px">
-              <FiUser size="20px" color="#0468C1" />
-              <Text fontSize="13px" color="#373636">
-                {' '}
-                {event.absentTeacherFullName}{' '}
-              </Text>
+              <FiUser size="20px" color={theme.colors.primaryBlue[300]} />
+              <Text textStyle="body">{event.absentTeacherFullName}</Text>
             </Flex>
             {event.roomNumber && (
               <Flex gap="13px" mt="-8px">
-                <Buildings size="20px" color="#0468C1" />
-                <Text fontSize="13px" color="#373636">
-                  {' '}
-                  Room {event.roomNumber}{' '}
-                </Text>
+                <Buildings size="20px" color={theme.colors.primaryBlue[300]} />
+                <Text textStyle="body">Room {event.roomNumber}</Text>
               </Flex>
             )}
             <Box>
-              <Text fontSize="14px" fontWeight="500" mb="9px">
+              <Text textStyle="h4" mb="9px">
                 Lesson Plan
               </Text>
               <LessonPlanView
@@ -124,15 +113,15 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                 isUserSubstituteTeacher={isUserSubstituteTeacher}
               />
             </Box>
-            {isUserAdmin && (
+            {(isUserAdmin || isUserAbsentTeacher) && (
               <Box>
-                <Text fontSize="14px" fontWeight="500" mb="9px">
+                <Text textStyle="h4" mb="9px">
                   Reason of Absence
                 </Text>
                 <Text
                   fontSize="12px"
                   sx={{ padding: '15px 15px 33px 15px', borderRadius: '10px' }}
-                  background="#F7F7F7"
+                  background={theme.colors.neutralGray[50]}
                 >
                   {event.reasonOfAbsence}
                 </Text>
@@ -140,24 +129,25 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
             )}
             {isUserAbsentTeacher && (
               <Box position="relative">
-                <Text fontSize="14px" fontWeight="500" mb="9px">
+                <Text textStyle="h4" mb="9px">
                   Notes
                 </Text>
-
-                <Box
+                <Text
                   fontSize="12px"
-                  sx={{
-                    padding: '15px 15px 33px 15px',
-                    borderRadius: '10px',
-                    background: '#F7F7F7',
-                  }}
+                  sx={{ padding: '15px 15px 33px 15px', borderRadius: '10px' }}
+                  background={theme.colors.neutralGray[50]}
                 >
                   {event.notes}
-                </Box>
+                </Text>
 
                 <IconButton
                   aria-label="Edit Notes"
-                  icon={<FiEdit2 size="15px" color="#656565" />}
+                  icon={
+                    <FiEdit2
+                      size="15px"
+                      color={theme.colors.neutralGray[600]}
+                    />
+                  }
                   size="sm"
                   variant="ghost"
                   position="absolute"
@@ -168,7 +158,7 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
             )}
             {event.notes && !isUserAbsentTeacher && (
               <Box position="relative">
-                <Text fontSize="14px" fontWeight="500" mb="9px">
+                <Text textStyle="h4" mb="9px">
                   Notes
                 </Text>
 
@@ -177,7 +167,7 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                   sx={{
                     padding: '15px 15px 15px 15px',
                     borderRadius: '10px',
-                    background: '#F7F7F7',
+                    background: `${theme.colors.neutralGray[50]}`,
                   }}
                 >
                   {event.notes}
@@ -188,7 +178,7 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
             {/* Visibility Tag*/}
             {event.substituteTeacher &&
               (isUserAbsentTeacher || isUserSubstituteTeacher) && (
-                <Flex gap="10px" align="center" color="#373636" fontSize="12px">
+                <Flex gap="10px" align="center" textStyle="caption">
                   {isUserAbsentTeacher ? (
                     <>
                       <IoEyeOutline size="14px" />
@@ -196,7 +186,7 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                         {' '}
                         Only visible to{' '}
                         <Text as="span" fontWeight={700}>
-                          Me
+                          {event.absentTeacher.firstName}
                         </Text>{' '}
                         and{' '}
                         <Text as="span" fontWeight={700}>
@@ -212,7 +202,7 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                         {' '}
                         Only visible to{' '}
                         <Text as="span" fontWeight={700}>
-                          Me
+                          {event.substituteTeacher.firstName}
                         </Text>{' '}
                         and{' '}
                         <Text as="span" fontWeight={700}>
@@ -226,19 +216,17 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
               )}
 
             {/* Fill Absence Button*/}
-            {!event.substituteTeacher &&
-              !isUserAbsentTeacher &&
-              !isUserAdmin && (
-                <Button
-                  colorScheme="blue"
-                  width="full"
-                  height="44px"
-                  font-size="16px"
-                  fontWeight="500"
-                >
-                  Fill this Absence
-                </Button>
-              )}
+            {!event.substituteTeacher && !isUserAbsentTeacher && (
+              <Button
+                colorScheme="blue"
+                width="full"
+                height="44px"
+                fontSize="16px"
+                fontWeight="500"
+              >
+                Fill this Absence
+              </Button>
+            )}
           </VStack>
         </ModalBody>
       </ModalContent>
