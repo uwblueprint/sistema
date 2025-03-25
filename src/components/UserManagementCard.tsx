@@ -7,14 +7,14 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  useDisclosure,
   Text,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { Role, UserAPI } from '@utils/types';
 import { useEffect, useState } from 'react';
 import { UserManagementTable } from './UserManagementTable';
 
-const UserManagementSection = () => {
+const UserManagementCard = () => {
   const [users, setUsers] = useState<UserAPI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [absenceCap, setAbsenceCap] = useState<number>(10);
@@ -128,4 +128,4 @@ const UserManagementSection = () => {
   );
 };
 
-export default UserManagementSection;
+export default UserManagementCard;

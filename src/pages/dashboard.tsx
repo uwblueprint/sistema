@@ -1,9 +1,9 @@
-import { Box, Flex, Spinner } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
+import { useUserData } from '@utils/useUserData';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import DashboardHeader from '../components/DashboardHeader';
-import UserManagementSection from '../components/UserManagementSection';
-import { useUserData } from '@utils/useUserData';
+import UserManagementCard from '../components/UserManagementCard';
 
 export default function DashboardPage() {
   const userData = useUserData();
@@ -23,7 +23,7 @@ export default function DashboardPage() {
     <Box>
       <DashboardHeader userData={userData} />
       <Box px={8} pt={3} pb={8}>
-        <UserManagementSection />
+        <UserManagementCard />
       </Box>
     </Box>
   );
