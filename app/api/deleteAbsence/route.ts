@@ -4,7 +4,6 @@ import { prisma } from '../../../utils/prisma';
 // For DELETE requests
 export async function DELETE(req: Request) {
   try {
-    // For App Router, you need to get the body differently
     const body = await req.json();
     const absenceId = parseInt(body.absenceId);
 

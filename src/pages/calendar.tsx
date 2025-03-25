@@ -280,7 +280,6 @@ const Calendar: React.FC = () => {
   }, [searchQuery, events]);
 
   const handleDeleteAbsence = async (deletedId) => {
-    console.log('Deleted absence id:', deletedId);
     await fetchAbsences();
   };
 

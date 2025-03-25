@@ -32,11 +32,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, onDelete }) => {
   const router = useRouter();
 
   if (!event) return null;
-  console.log('Absent Teacher ID:', event.absentTeacher.id);
-  console.log(
-    'Substitute Teacher ID:',
-    event.substituteTeacher ? event.substituteTeacher.id : 'N/A'
-  );
 
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
   const isUserAbsentTeacher = userId === event.absentTeacher.id;
