@@ -91,6 +91,26 @@ export const useChangeManagement = ({
         if (subject) {
           // If this is a new subject without an ID, generate a temporary negative ID
           const subjectId = subject.id || generateTempId();
+
+          // Check if the subject is being reverted to its original state
+          if (subjectId > 0) {
+            // Only check for existing subjects (positive IDs)
+            const originalSubject = initialSubjects.find(
+              (s) => s.id === subjectId
+            );
+            if (
+              originalSubject &&
+              originalSubject.name === subject.name &&
+              originalSubject.abbreviation === subject.abbreviation &&
+              originalSubject.colorGroupId === subject.colorGroupId &&
+              originalSubject.archived === subject.archived
+            ) {
+              // If equal to original, remove from pending changes instead of adding
+              newMap.delete(subjectId);
+              return newMap;
+            }
+          }
+
           newMap.set(subjectId, { ...subject, id: subjectId });
         } else if (subject === null && id !== undefined) {
           // Delete case: set to null to mark for deletion
@@ -99,7 +119,7 @@ export const useChangeManagement = ({
         return newMap;
       });
     },
-    [generateTempId]
+    [generateTempId, initialSubjects]
   );
 
   /**
@@ -113,6 +133,25 @@ export const useChangeManagement = ({
         if (location) {
           // If this is a new location without an ID, generate a temporary negative ID
           const locationId = location.id || generateTempId();
+
+          // Check if the location is being reverted to its original state
+          if (locationId > 0) {
+            // Only check for existing locations (positive IDs)
+            const originalLocation = initialLocations.find(
+              (l) => l.id === locationId
+            );
+            if (
+              originalLocation &&
+              originalLocation.name === location.name &&
+              originalLocation.abbreviation === location.abbreviation &&
+              originalLocation.archived === location.archived
+            ) {
+              // If equal to original, remove from pending changes instead of adding
+              newMap.delete(locationId);
+              return newMap;
+            }
+          }
+
           newMap.set(locationId, { ...location, id: locationId });
         } else if (location === null && id !== undefined) {
           // Delete case: set to null to mark for deletion
@@ -121,18 +160,29 @@ export const useChangeManagement = ({
         return newMap;
       });
     },
-    [generateTempId]
+    [generateTempId, initialLocations]
   );
 
   /**
    * Handle updates to absence cap setting
    */
-  const handleUpdateAbsenceCap = useCallback((newAbsenceCap: number) => {
-    setPendingSettings((prev) => ({
-      ...prev,
-      absenceCap: newAbsenceCap,
-    }));
-  }, []);
+  const handleUpdateAbsenceCap = useCallback(
+    (newAbsenceCap: number) => {
+      setPendingSettings((prev) => {
+        // If new absence cap equals original, remove it from pending settings
+        if (newAbsenceCap === initialAbsenceCap) {
+          const { absenceCap, ...rest } = prev;
+          return rest;
+        }
+
+        return {
+          ...prev,
+          absenceCap: newAbsenceCap,
+        };
+      });
+    },
+    [initialAbsenceCap]
+  );
 
   // Update local state based on pending entity changes
   useEffect(() => {
