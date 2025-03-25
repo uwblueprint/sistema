@@ -3,9 +3,14 @@ import { SubjectAPI, Location } from '@utils/types';
 import { Change } from '../components/SystemChangesConfirmationDialog';
 
 /**
- * This hook is used to manage pending changes to the system as they are applied in the System Options Modal.
- * It stores pending changes in the local state and applies them to the backend when the user confirms the changes.
- * It returns updated subjects, locations, and absence cap which are used to update the UI with the changed values.
+ * This hook manages pending changes to system entities (subjects, locations) and settings.
+ * It tracks changes in local state until they are confirmed and applied to the backend.
+ *
+ * Key features:
+ * - Tracks additions, updates, deletions, and archive/unarchive operations
+ * - Handles conflict resolution when multiple changes affect the same entity
+ * - Provides preview of changes through updated entity lists
+ * - Applies changes to the backend when confirmed
  */
 
 interface UseChangeManagementProps {
@@ -47,105 +52,231 @@ export const useChangeManagement = ({
     setAbsenceCap(initialAbsenceCap);
   }, [initialSubjects, initialLocations, initialAbsenceCap]);
 
+  /**
+   * Captures original values before an update to support change reversal
+   */
+  const captureOriginalValues = (
+    change: Change,
+    entityList: any[]
+  ): Record<string, any> => {
+    if (change.type !== 'update') return {};
+
+    const entity = entityList.find((e) => e.id === change.id);
+    if (!entity) return {};
+
+    const originalValues: Record<string, any> = {};
+
+    if (change.data?.abbreviation !== undefined) {
+      originalValues.originalAbbreviation = entity.abbreviation;
+    }
+
+    if (change.data?.name !== undefined) {
+      originalValues.originalName = entity.name;
+    }
+
+    if (
+      change.data?.colorGroupId !== undefined &&
+      change.entity === 'subject'
+    ) {
+      originalValues.originalColorGroupId = (entity as SubjectAPI).colorGroupId;
+    }
+
+    return originalValues;
+  };
+
+  /**
+   * Merges an update change with an existing add change
+   */
+  const mergeUpdateIntoAdd = (
+    existingChanges: Change[],
+    change: Change,
+    addChangesForSameEntityType: Change[]
+  ) => {
+    // Find the newly added entity with the same ID
+    const matchingAddChange = addChangesForSameEntityType.find(
+      (c) =>
+        (change.id && change.id < 0 && c.id === change.id) ||
+        (c.id === undefined && change.id === undefined)
+    );
+
+    if (!matchingAddChange) return null;
+
+    return existingChanges.map((c) => {
+      if (c === matchingAddChange) {
+        // Merge the data from the update into the add operation
+        const mergedData = { ...c.data };
+
+        // Apply updates
+        if (change.data?.name !== undefined) {
+          mergedData.name = change.data.name;
+        }
+        if (change.data?.abbreviation !== undefined) {
+          mergedData.abbreviation = change.data.abbreviation;
+        }
+        if (
+          change.data?.colorGroupId !== undefined &&
+          change.entity === 'subject'
+        ) {
+          mergedData.colorGroupId = change.data.colorGroupId;
+        }
+
+        return {
+          ...c,
+          data: mergedData,
+          id: change.id || c.id,
+          displayText: `Added ${change.entity === 'subject' ? 'Subject' : 'Location'} "${mergedData.name}"`,
+        };
+      }
+      return c;
+    });
+  };
+
+  /**
+   * Merges multiple update changes on the same entity
+   */
+  const mergeUpdateChanges = (
+    existingChanges: Change[],
+    change: Change,
+    existingUpdate: Change
+  ) => {
+    // Merge this update with the existing update, but preserve original values
+    const mergedData = { ...existingUpdate.data, ...change.data };
+
+    // Extract original values
+    const originalName =
+      existingUpdate.data?.originalName || change.data?.originalName;
+    const originalAbbreviation =
+      existingUpdate.data?.originalAbbreviation ||
+      change.data?.originalAbbreviation;
+    const originalColorGroupId =
+      existingUpdate.data?.originalColorGroupId ||
+      change.data?.originalColorGroupId;
+
+    // Check if all changed values now match their original values
+    let allChangesReverted = true;
+
+    // If name was changed
+    if (mergedData.name !== undefined) {
+      allChangesReverted =
+        allChangesReverted && mergedData.name === originalName;
+    }
+
+    // If abbreviation was changed
+    if (mergedData.abbreviation !== undefined) {
+      allChangesReverted =
+        allChangesReverted && mergedData.abbreviation === originalAbbreviation;
+    }
+
+    // If colorGroupId was changed (only applies to subjects)
+    if (change.entity === 'subject' && mergedData.colorGroupId !== undefined) {
+      allChangesReverted =
+        allChangesReverted && mergedData.colorGroupId === originalColorGroupId;
+    }
+
+    // If all changes have been reverted, remove this change entirely
+    if (allChangesReverted) {
+      return existingChanges.filter((c) => c !== existingUpdate);
+    }
+
+    // Otherwise, merge the changes
+    return existingChanges.map((c) => {
+      if (c === existingUpdate) {
+        // Extract any original values from both changes
+        const preservedOriginalValues: Record<string, any> = {};
+
+        // Keep original values from the existing update
+        if (c.data?.originalName) {
+          preservedOriginalValues.originalName = c.data.originalName;
+        }
+        if (c.data?.originalAbbreviation) {
+          preservedOriginalValues.originalAbbreviation =
+            c.data.originalAbbreviation;
+        }
+        if (change.entity === 'subject' && c.data?.originalColorGroupId) {
+          preservedOriginalValues.originalColorGroupId =
+            c.data.originalColorGroupId;
+        }
+
+        // Only use new original values if the existing update doesn't have them
+        if (!c.data?.originalName && change.data?.originalName) {
+          preservedOriginalValues.originalName = change.data.originalName;
+        }
+        if (
+          !c.data?.originalAbbreviation &&
+          change.data?.originalAbbreviation
+        ) {
+          preservedOriginalValues.originalAbbreviation =
+            change.data.originalAbbreviation;
+        }
+        if (
+          change.entity === 'subject' &&
+          !c.data?.originalColorGroupId &&
+          change.data?.originalColorGroupId
+        ) {
+          preservedOriginalValues.originalColorGroupId =
+            change.data.originalColorGroupId;
+        }
+
+        return {
+          ...c,
+          data: {
+            ...c.data,
+            ...change.data,
+            ...preservedOriginalValues,
+          },
+          displayText: c.displayText,
+        };
+      }
+      return c;
+    });
+  };
+
+  /**
+   * Handles add/delete conflict for newly added entities
+   */
+  const handleAddDeleteConflict = (change: Change) => {
+    // For newly added and then deleted entities, remove from UI immediately
+    if (change.entity === 'subject') {
+      setSubjects((prevSubjects) =>
+        prevSubjects.filter((subject) => subject.id !== change.id)
+      );
+    } else if (change.entity === 'location') {
+      setLocations((prevLocations) =>
+        prevLocations.filter((location) => location.id !== change.id)
+      );
+    }
+
+    // Remove all changes for this entity
+    return true;
+  };
+
   const handleAddChange = useCallback(
     (change: Change) => {
-      // For display name/abbreviation changes, ensure we store the original values
+      // Capture original values for update operations
       if (change.type === 'update') {
-        // Find the entity to get its current values before changes
         const entityList = change.entity === 'subject' ? subjects : locations;
-        const entity = entityList.find((e) => e.id === change.id);
+        const originalValues = captureOriginalValues(change, entityList);
 
-        if (entity) {
-          const originalValues: Record<string, any> = {};
-
-          // Store original values for each field being changed
-          if (change.data?.abbreviation !== undefined) {
-            originalValues.originalAbbreviation = entity.abbreviation;
-          }
-
-          if (change.data?.name !== undefined) {
-            originalValues.originalName = entity.name;
-          }
-
-          // ColorGroupId only exists on Subject entities
-          if (
-            change.data?.colorGroupId !== undefined &&
-            change.entity === 'subject'
-          ) {
-            // Safe type cast since we've verified this is a subject
-            originalValues.originalColorGroupId = (
-              entity as SubjectAPI
-            ).colorGroupId;
-          }
-
-          // Add original values to the change data
-          change = {
-            ...change,
-            data: {
-              ...change.data,
-              ...originalValues,
-            },
-          };
-        }
+        // Add original values to the change data
+        change = {
+          ...change,
+          data: {
+            ...change.data,
+            ...originalValues,
+          },
+        };
       }
 
       setPendingChanges((prevChanges) => {
-        // Check if this is a newly added entity being updated
-        // Look for any 'add' changes for the same entity type
+        // Create a unique key to track changes by entity type and ID
+        const changeKey = `${change.entity}-${change.id || 'new'}`;
+
+        // Check for newly added entities being updated
         const addChangesForSameEntityType = prevChanges.filter(
           (c) => c.type === 'add' && c.entity === change.entity
         );
 
-        // For update changes, check if we're updating a newly added entity
-        if (
-          change.type === 'update' &&
-          addChangesForSameEntityType.length > 0
-        ) {
-          // Find the newly added entity with the same ID (for negative IDs which indicate new entities)
-          // or find newly added entities with no ID
-          const matchingAddChange = addChangesForSameEntityType.find(
-            (c) =>
-              (change.id && change.id < 0 && c.id === change.id) ||
-              (c.id === undefined && change.id === undefined)
-          );
-
-          if (matchingAddChange) {
-            // We found a matching add change - update it instead of creating a new change
-            return prevChanges.map((c) => {
-              if (c === matchingAddChange) {
-                // Merge the data from the update into the add operation
-                const mergedData = { ...c.data };
-
-                // Apply updates
-                if (change.data?.name !== undefined) {
-                  mergedData.name = change.data.name;
-                }
-                if (change.data?.abbreviation !== undefined) {
-                  mergedData.abbreviation = change.data.abbreviation;
-                }
-                if (
-                  change.data?.colorGroupId !== undefined &&
-                  change.entity === 'subject'
-                ) {
-                  mergedData.colorGroupId = change.data.colorGroupId;
-                }
-
-                return {
-                  ...c,
-                  data: mergedData,
-                  id: change.id || c.id, // Ensure ID is consistent
-                  displayText: `Added ${change.entity === 'subject' ? 'Subject' : 'Location'} "${mergedData.name}"`,
-                };
-              }
-              return c;
-            });
-          }
-        }
-
-        // Create a unique key to track changes by entity type and ID
-        const changeKey = `${change.entity}-${change.id || 'new'}`;
-
-        // Group existing changes by this key for easier processing
+        // Group existing changes by entity for easier processing
         const changesByKey = new Map<string, Change[]>();
         prevChanges.forEach((c) => {
           const key = `${c.entity}-${c.id || 'new'}`;
@@ -163,29 +294,15 @@ export const useChangeManagement = ({
           existingChanges.some((c) => c.type === 'add') &&
           (change.id === undefined || change.id < 0)
         ) {
-          // For newly added and then deleted entities, we need to ensure they're removed from the UI
-          // Add a special flag to immediately remove from state
-          if (change.entity === 'subject') {
-            // Immediately update subjects state to remove this entity
-            setSubjects((prevSubjects) =>
-              prevSubjects.filter((subject) => subject.id !== change.id)
-            );
-          } else if (change.entity === 'location') {
-            // Immediately update locations state to remove this entity
-            setLocations((prevLocations) =>
-              prevLocations.filter((location) => location.id !== change.id)
+          if (handleAddDeleteConflict(change)) {
+            return prevChanges.filter(
+              (c) => !(c.entity === change.entity && c.id === change.id)
             );
           }
-
-          // Remove all changes for this entity
-          return prevChanges.filter(
-            (c) => !(c.entity === change.entity && c.id === change.id)
-          );
         }
 
         // Case 2: Entity is changed and then deleted - keep only the delete
         if (change.type === 'delete') {
-          // Filter out any previous changes for this entity, keeping only the delete
           return [
             ...prevChanges.filter(
               (c) => !(c.entity === change.entity && c.id === change.id)
@@ -194,123 +311,30 @@ export const useChangeManagement = ({
           ];
         }
 
-        // Case 3: Entity is updated multiple times - merge the update operations
+        // Case 3: For update changes on newly added entities, merge with add operation
+        if (
+          change.type === 'update' &&
+          addChangesForSameEntityType.length > 0
+        ) {
+          const mergedChanges = mergeUpdateIntoAdd(
+            prevChanges,
+            change,
+            addChangesForSameEntityType
+          );
+
+          if (mergedChanges) {
+            return mergedChanges;
+          }
+        }
+
+        // Case 4: Entity is updated multiple times - merge the update operations
         if (change.type === 'update') {
           const existingUpdate = existingChanges.find(
             (c) => c.type === 'update'
           );
 
           if (existingUpdate) {
-            // Merge this update with the existing update, but preserve original values
-            // First, calculate what the merged data would look like
-            const mergedData = { ...existingUpdate.data, ...change.data };
-
-            // Extract original values
-            const originalName =
-              existingUpdate.data?.originalName || change.data?.originalName;
-            const originalAbbreviation =
-              existingUpdate.data?.originalAbbreviation ||
-              change.data?.originalAbbreviation;
-            const originalColorGroupId =
-              existingUpdate.data?.originalColorGroupId ||
-              change.data?.originalColorGroupId;
-
-            // Check if all changed values now match their original values
-            let allChangesReverted = true;
-
-            // If name was changed
-            if (mergedData.name !== undefined) {
-              allChangesReverted =
-                allChangesReverted && mergedData.name === originalName;
-            }
-
-            // If abbreviation was changed
-            if (mergedData.abbreviation !== undefined) {
-              allChangesReverted =
-                allChangesReverted &&
-                mergedData.abbreviation === originalAbbreviation;
-            }
-
-            // If colorGroupId was changed (only applies to subjects)
-            if (
-              change.entity === 'subject' &&
-              mergedData.colorGroupId !== undefined
-            ) {
-              allChangesReverted =
-                allChangesReverted &&
-                mergedData.colorGroupId === originalColorGroupId;
-            }
-
-            // If all changes have been reverted, remove this change entirely
-            if (allChangesReverted) {
-              return prevChanges.filter((c) => c !== existingUpdate);
-            }
-
-            // Otherwise, merge the changes as usual
-            return prevChanges.map((c) => {
-              if (c === existingUpdate) {
-                // Extract any original values from both changes
-                const preservedOriginalValues: Record<string, any> = {};
-
-                // Keep original values from the existing update
-                if (c.data?.originalName) {
-                  preservedOriginalValues.originalName = c.data.originalName;
-                }
-                if (c.data?.originalAbbreviation) {
-                  preservedOriginalValues.originalAbbreviation =
-                    c.data.originalAbbreviation;
-                }
-                // ColorGroupId is only applicable for subjects
-                if (
-                  change.entity === 'subject' &&
-                  c.data?.originalColorGroupId
-                ) {
-                  preservedOriginalValues.originalColorGroupId =
-                    c.data.originalColorGroupId;
-                }
-
-                // Only use new original values if the existing update doesn't have them
-                if (!c.data?.originalName && change.data?.originalName) {
-                  preservedOriginalValues.originalName =
-                    change.data.originalName;
-                }
-                if (
-                  !c.data?.originalAbbreviation &&
-                  change.data?.originalAbbreviation
-                ) {
-                  preservedOriginalValues.originalAbbreviation =
-                    change.data.originalAbbreviation;
-                }
-                // ColorGroupId is only applicable for subjects
-                if (
-                  change.entity === 'subject' &&
-                  !c.data?.originalColorGroupId &&
-                  change.data?.originalColorGroupId
-                ) {
-                  preservedOriginalValues.originalColorGroupId =
-                    change.data.originalColorGroupId;
-                }
-
-                // Create a new data object that ensures we preserve both
-                // the original values and all previously changed values
-                const newData = {
-                  // Start with all properties from the existing update
-                  ...c.data,
-                  // Apply the new changes
-                  ...change.data,
-                  // Ensure all original values are preserved
-                  ...preservedOriginalValues,
-                };
-
-                return {
-                  ...c,
-                  data: newData,
-                  // Keep the original displayText
-                  displayText: c.displayText,
-                };
-              }
-              return c;
-            });
+            return mergeUpdateChanges(prevChanges, change, existingUpdate);
           }
         }
 
@@ -333,7 +357,9 @@ export const useChangeManagement = ({
     [subjects, locations]
   );
 
-  // Generic function to handle entity changes
+  /**
+   * Applies entity-specific changes to the given entity list
+   */
   const processEntityChanges = <T extends { id: number }>(
     entities: T[],
     changes: Change[],
@@ -344,59 +370,73 @@ export const useChangeManagement = ({
     let updatedEntities = [...entities];
 
     changes.forEach((change) => {
-      if (change.type === 'add') {
-        const newEntity = {
-          id: change.id || -Date.now(),
-          name: change.data.name,
-          abbreviation: change.data.abbreviation,
-          ...(isSubject && {
-            colorGroupId: change.data.colorGroupId,
-            colorGroup: colorGroups.find(
-              (cg) => cg.id === change.data.colorGroupId
-            ) || {
-              name: 'Default',
-              colorCodes: ['#000000', '#000000', '#000000'],
-            },
-          }),
-          archived: false,
-        } as unknown as T;
+      switch (change.type) {
+        case 'add':
+          // Create new entity with provided data
+          const newEntity = {
+            id: change.id || -Date.now(),
+            name: change.data.name,
+            abbreviation: change.data.abbreviation,
+            ...(isSubject && {
+              colorGroupId: change.data.colorGroupId,
+              colorGroup: colorGroups.find(
+                (cg) => cg.id === change.data.colorGroupId
+              ) || {
+                name: 'Default',
+                colorCodes: ['#000000', '#000000', '#000000'],
+              },
+            }),
+            archived: false,
+          } as unknown as T;
 
-        const existingIndex = updatedEntities.findIndex(
-          (e) => e.id === newEntity.id
-        );
-        if (existingIndex === -1) {
-          updatedEntities.push(newEntity);
-        }
-      } else if (change.type === 'update') {
-        updatedEntities = updatedEntities.map((entity) =>
-          entity.id === change.id
-            ? {
-                ...entity,
-                ...(change.data.name && { name: change.data.name }),
-                ...(change.data.abbreviation && {
-                  abbreviation: change.data.abbreviation,
-                }),
-                ...(isSubject &&
-                  change.data.colorGroupId && {
-                    colorGroupId: change.data.colorGroupId,
-                    colorGroup:
-                      colorGroups.find(
-                        (cg) => cg.id === change.data.colorGroupId
-                      ) || (entity as any).colorGroup,
+          // Add entity if not already present
+          const existingIndex = updatedEntities.findIndex(
+            (e) => e.id === newEntity.id
+          );
+          if (existingIndex === -1) {
+            updatedEntities.push(newEntity);
+          }
+          break;
+
+        case 'update':
+          // Update entity properties
+          updatedEntities = updatedEntities.map((entity) =>
+            entity.id === change.id
+              ? {
+                  ...entity,
+                  ...(change.data.name && { name: change.data.name }),
+                  ...(change.data.abbreviation && {
+                    abbreviation: change.data.abbreviation,
                   }),
-              }
-            : entity
-        );
-      } else if (change.type === 'delete') {
-        updatedEntities = updatedEntities.filter(
-          (entity) => entity.id !== change.id
-        );
-      } else if (change.type === 'archive' || change.type === 'unarchive') {
-        updatedEntities = updatedEntities.map((entity) =>
-          entity.id === change.id
-            ? { ...entity, archived: change.data.archived }
-            : entity
-        );
+                  ...(isSubject &&
+                    change.data.colorGroupId && {
+                      colorGroupId: change.data.colorGroupId,
+                      colorGroup:
+                        colorGroups.find(
+                          (cg) => cg.id === change.data.colorGroupId
+                        ) || (entity as any).colorGroup,
+                    }),
+                }
+              : entity
+          );
+          break;
+
+        case 'delete':
+          // Remove entity
+          updatedEntities = updatedEntities.filter(
+            (entity) => entity.id !== change.id
+          );
+          break;
+
+        case 'archive':
+        case 'unarchive':
+          // Change archived status
+          updatedEntities = updatedEntities.map((entity) =>
+            entity.id === change.id
+              ? { ...entity, archived: change.data.archived }
+              : entity
+          );
+          break;
       }
     });
 
@@ -405,7 +445,7 @@ export const useChangeManagement = ({
 
   // Update local state based on pending changes
   useEffect(() => {
-    // Update the subjects state when a subject is added or modified
+    // Process subject changes
     const subjectChanges = pendingChanges.filter(
       (change) => change.entity === 'subject'
     );
@@ -421,7 +461,7 @@ export const useChangeManagement = ({
       }
     }
 
-    // Update the locations state when a location is added or modified
+    // Process location changes
     const locationChanges = pendingChanges.filter(
       (change) => change.entity === 'location'
     );
@@ -437,7 +477,7 @@ export const useChangeManagement = ({
       }
     }
 
-    // Update the allowed absences when changed
+    // Process settings changes
     const settingChanges = pendingChanges.filter(
       (change) => change.entity === 'setting'
     );
@@ -454,7 +494,9 @@ export const useChangeManagement = ({
     }
   }, [pendingChanges, subjects, locations, colorGroups]);
 
-  // Apply changes to backend
+  /**
+   * Applies all pending changes to the backend via API calls
+   */
   const applyChanges = async (): Promise<boolean> => {
     if (pendingChanges.length === 0) return true;
 
@@ -463,12 +505,12 @@ export const useChangeManagement = ({
 
     for (const change of pendingChanges) {
       try {
-        // Determine API endpoint, method, and body based on entity and change type
+        // Configure API request based on entity and change type
         let endpoint = '';
         let method = '';
         let body = null;
 
-        // Set endpoint based on entity type
+        // Determine API endpoint
         switch (change.entity) {
           case 'subject':
             endpoint =
@@ -487,7 +529,7 @@ export const useChangeManagement = ({
             break;
         }
 
-        // Set method and body based on change type
+        // Determine request method and body
         switch (change.type) {
           case 'add':
             method = 'POST';
@@ -529,7 +571,7 @@ export const useChangeManagement = ({
       }
     }
 
-    // Show toast notifications if the toast function was provided
+    // Show status notification
     if (toast) {
       if (hasErrors) {
         toast({
@@ -563,6 +605,9 @@ export const useChangeManagement = ({
     return !hasErrors;
   };
 
+  /**
+   * Clears all pending changes and resets to initial state
+   */
   const clearChanges = () => {
     setPendingChanges([]);
     // Reset local state to original values
