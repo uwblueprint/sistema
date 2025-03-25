@@ -171,15 +171,39 @@ const SystemChangesConfirmationDialog: React.FC<
           const entityList = change.entity === 'subject' ? subjects : locations;
           const entity = entityList.find((e) => e.id === change.id);
           const originalAbbr =
-            change.data.originalAbbreviation ||
-            entity?.abbreviation ||
+            change.data.originalAbbreviation || entity?.abbreviation || '';
+          const newAbbr = change.data.abbreviation;
+
+          // For updated abbreviations, we need the entity name
+          // If the name was also changed in this update, use that as priority
+          const entityName =
+            // First try to use the name that's also being updated in this change
+            change.data.name ||
+            // Then try the original name stored with this abbreviation change
+            change.data.originalName ||
+            // Finally fall back to the current entity name from the subjects/locations list
+            entity?.name ||
             'Unknown';
+
+          let label = 'Updated Display';
+          let details = `"${originalAbbr}" → "${newAbbr}"`;
+
+          // Handle empty to value case: "Added Display"
+          if (originalAbbr === '') {
+            label = 'Added Display';
+            details = `"${newAbbr}" to "${entityName}"`;
+          }
+          // Handle value to empty case: "Removed Display"
+          else if (newAbbr === '') {
+            label = 'Removed Display';
+            details = `"${originalAbbr}" from "${entityName}"`;
+          }
 
           displayChanges.push({
             icon: getChangeIcon(change),
-            label: `Updated Display`,
+            label,
             color: 'blue.500',
-            details: `"${originalAbbr}" → "${change.data.abbreviation}"`,
+            details,
           });
         }
 

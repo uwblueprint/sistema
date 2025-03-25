@@ -90,10 +90,14 @@ const EntityTable: React.FC<EntityTableProps> = ({
   };
 
   const handleSaveEditedItem = () => {
-    if (!editingItem || !editingItem.name || !editingItem.abbreviation) return;
+    // Only require name to be present, abbreviation is now optional
+    if (!editingItem || !editingItem.name) return;
 
-    // Validate abbreviation length
-    if (editingItem.abbreviation.length > maxAbbreviationLength) {
+    // Validate abbreviation length if it exists
+    if (
+      editingItem.abbreviation &&
+      editingItem.abbreviation.length > maxAbbreviationLength
+    ) {
       // Toast handling would go here
       return;
     }
@@ -155,10 +159,14 @@ const EntityTable: React.FC<EntityTableProps> = ({
   };
 
   const handleAddItem = () => {
-    if (!newItem.name || !newItem.abbreviation) return;
+    // Only require name to be present, abbreviation is now optional
+    if (!newItem.name) return;
 
-    // Validate abbreviation length
-    if (newItem.abbreviation.length > maxAbbreviationLength) {
+    // Validate abbreviation length if it exists
+    if (
+      newItem.abbreviation &&
+      newItem.abbreviation.length > maxAbbreviationLength
+    ) {
       // Toast handling would go here
       return;
     }

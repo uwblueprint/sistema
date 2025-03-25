@@ -378,103 +378,111 @@ export const useChangeManagement = ({
     changes: Change[],
     isSubject: boolean
   ): T[] => {
-    if (changes.length === 0) return entities;
+    let result = [...entities];
 
-    let updatedEntities = [...entities];
+    // First handle additions
+    const addChanges = changes.filter(
+      (c) =>
+        c.type === 'add' && c.entity === (isSubject ? 'subject' : 'location')
+    );
 
-    changes.forEach((change) => {
-      switch (change.type) {
-        case 'add':
-          // Create new entity with provided data
-          const newEntity = {
-            id: change.id || -Date.now(),
-            name: change.data.name,
-            abbreviation: change.data.abbreviation,
-            ...(isSubject && {
-              colorGroupId: change.data.colorGroupId,
-              colorGroup: colorGroups.find(
-                (cg) => cg.id === change.data.colorGroupId
-              ) || {
-                name: 'Default',
-                colorCodes: ['#000000', '#000000', '#000000'],
-              },
-            }),
-            archived: false,
-            // Add tempId for tracking newly added entities
-            ...(change.tempId && { tempId: change.tempId }),
-          } as unknown as T;
+    // Add new entities to the list
+    addChanges.forEach((change) => {
+      if (!change.data) return;
 
-          // Add entity if not already present
-          const existingIndex = updatedEntities.findIndex(
-            (e) =>
-              e.id === newEntity.id ||
-              ((e as any).tempId &&
-                (e as any).tempId === (newEntity as any).tempId)
-          );
-          if (existingIndex === -1) {
-            updatedEntities.push(newEntity);
-          } else {
-            // Update existing entity with same tempId
-            updatedEntities[existingIndex] = newEntity;
-          }
-          break;
+      // Create a new entity object with the required fields
+      const newEntity: any = {
+        id: change.id || -Date.now(), // Use provided ID or generate a temp one
+        name: change.data.name || '',
+        abbreviation:
+          change.data.abbreviation !== undefined
+            ? change.data.abbreviation
+            : '',
+        archived: change.data.archived || false,
+      };
 
-        case 'update':
-          // Update entity properties
-          updatedEntities = updatedEntities.map((entity) => {
-            // Match by ID or tempId
-            if (
-              entity.id === change.id ||
-              ((entity as any).tempId &&
-                (entity as any).tempId === change.tempId)
-            ) {
-              return {
-                ...entity,
-                ...(change.data.name && { name: change.data.name }),
-                ...(change.data.abbreviation && {
-                  abbreviation: change.data.abbreviation,
-                }),
-                ...(isSubject &&
-                  change.data.colorGroupId && {
-                    colorGroupId: change.data.colorGroupId,
-                    colorGroup:
-                      colorGroups.find(
-                        (cg) => cg.id === change.data.colorGroupId
-                      ) || (entity as any).colorGroup,
-                  }),
-              };
-            }
-            return entity;
-          });
-          break;
+      // Add subject-specific properties
+      if (isSubject && change.data.colorGroupId) {
+        newEntity.colorGroupId = change.data.colorGroupId;
 
-        case 'delete':
-          // Remove entity by id or tempId
-          updatedEntities = updatedEntities.filter(
-            (entity) =>
-              entity.id !== change.id &&
-              (!change.tempId || (entity as any).tempId !== change.tempId)
-          );
-          break;
-
-        case 'archive':
-        case 'unarchive':
-          // Change archived status
-          updatedEntities = updatedEntities.map((entity) => {
-            if (
-              entity.id === change.id ||
-              ((entity as any).tempId &&
-                (entity as any).tempId === change.tempId)
-            ) {
-              return { ...entity, archived: change.data.archived };
-            }
-            return entity;
-          });
-          break;
+        // Find and add the color group object
+        const colorGroup = colorGroups.find(
+          (cg) => cg.id === change.data.colorGroupId
+        );
+        if (colorGroup) {
+          newEntity.colorGroup = colorGroup;
+        }
       }
+
+      result.push(newEntity as T);
     });
 
-    return updatedEntities;
+    // Handle updates
+    const updateChanges = changes.filter(
+      (c) =>
+        (c.type === 'update' ||
+          c.type === 'archive' ||
+          c.type === 'unarchive') &&
+        c.entity === (isSubject ? 'subject' : 'location')
+    );
+
+    // Apply updates to existing entities
+    result = result.map((entity) => {
+      const entityUpdates = updateChanges.filter((c) => c.id === entity.id);
+      if (entityUpdates.length === 0) return entity;
+
+      // Clone the entity before modification
+      const updatedEntity = { ...entity } as any;
+
+      // Apply each update
+      entityUpdates.forEach((change) => {
+        if (!change.data) return;
+
+        // Update name if provided
+        if (change.data.name !== undefined) {
+          updatedEntity.name = change.data.name;
+        }
+
+        // Update abbreviation if provided (including empty string)
+        if (change.data.abbreviation !== undefined) {
+          updatedEntity.abbreviation = change.data.abbreviation;
+        }
+
+        // Update archive status
+        if (change.data.archived !== undefined) {
+          updatedEntity.archived = change.data.archived;
+        }
+
+        // Update color group (subjects only)
+        if (isSubject && change.data.colorGroupId !== undefined) {
+          updatedEntity.colorGroupId = change.data.colorGroupId;
+
+          // Find and update the color group object
+          const colorGroup = colorGroups.find(
+            (cg) => cg.id === change.data.colorGroupId
+          );
+          if (colorGroup) {
+            updatedEntity.colorGroup = colorGroup;
+          }
+        }
+      });
+
+      return updatedEntity as T;
+    });
+
+    // Handle deletions
+    const deleteChanges = changes.filter(
+      (c) =>
+        c.type === 'delete' && c.entity === (isSubject ? 'subject' : 'location')
+    );
+
+    // Remove deleted entities
+    if (deleteChanges.length > 0) {
+      const deletedIds = deleteChanges.map((c) => c.id);
+      result = result.filter((entity) => !deletedIds.includes(entity.id));
+    }
+
+    return result;
   };
 
   // Update local state based on pending changes
