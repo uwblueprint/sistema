@@ -1,5 +1,5 @@
 import { useTheme } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Accordion, { AccordionItem } from './Accordion';
 
 interface ArchivedAccordionProps {
@@ -23,7 +23,7 @@ export default function ArchivedAccordion({
     { id: 1, name: 'Locations' },
   ];
 
-  useEffect(() => {
+  const updateFilters = useCallback(() => {
     setFilter(selectedArchiveIds);
 
     const showArchivedSubjects = selectedArchiveIds.includes(0);
@@ -31,19 +31,23 @@ export default function ArchivedAccordion({
     onArchivedToggle(showArchivedSubjects, showArchivedLocations);
   }, [selectedArchiveIds, setFilter, onArchivedToggle]);
 
-  const toggleArchive = (archiveId: number) => {
-    let newSelection: number[];
-    if (selectedArchiveIds.includes(archiveId)) {
-      newSelection = selectedArchiveIds.filter((s) => s !== archiveId);
-    } else {
-      newSelection = [...selectedArchiveIds, archiveId];
-    }
-    setSelectedArchiveIds(newSelection);
-  };
+  useEffect(() => {
+    updateFilters();
+  }, [updateFilters]);
 
-  const toggleOpen = () => {
-    setIsOpen((prev) => !prev);
-  };
+  const toggleArchive = useCallback((archiveId: number) => {
+    setSelectedArchiveIds((prevSelected) => {
+      let newSelection;
+      if (prevSelected.includes(archiveId)) {
+        newSelection = prevSelected.filter((s) => s !== archiveId);
+      } else {
+        newSelection = [...prevSelected, archiveId];
+      }
+      return newSelection;
+    });
+  }, []);
+
+  const toggleOpen = () => setIsOpen((prev) => !prev);
 
   const accordionItems: AccordionItem[] = archives.map((archive) => ({
     id: archive.id,

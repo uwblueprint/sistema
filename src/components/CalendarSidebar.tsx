@@ -32,13 +32,29 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   const [showArchivedSubjects, setShowArchivedSubjects] = useState(false);
   const [showArchivedLocations, setShowArchivedLocations] = useState(false);
 
-  useEffect(() => {
+  const handleSetSubjectIds = useCallback((ids: number[]) => {
+    setSubjectIds(ids);
+  }, []);
+
+  const handleSetLocationIds = useCallback((ids: number[]) => {
+    setLocationIds(ids);
+  }, []);
+
+  const handleSetArchiveIds = useCallback((ids: number[]) => {
+    setArchiveIds(ids);
+  }, []);
+
+  const memoizedSetSearchQuery = useCallback(() => {
     setSearchQuery({
       subjectIds,
       locationIds,
       archiveIds,
     });
   }, [subjectIds, locationIds, archiveIds, setSearchQuery]);
+
+  useEffect(() => {
+    memoizedSetSearchQuery();
+  }, [memoizedSetSearchQuery]);
 
   const handleArchivedToggle = useCallback(
     (subjectsArchived: boolean, locationsArchived: boolean) => {
@@ -78,15 +94,15 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         selectDate={selectDate}
       />
       <SubjectAccordion
-        setFilter={setSubjectIds}
+        setFilter={handleSetSubjectIds}
         showArchived={showArchivedSubjects}
       />
       <LocationAccordion
-        setFilter={setLocationIds}
+        setFilter={handleSetLocationIds}
         showArchived={showArchivedLocations}
       />
       <ArchivedAccordion
-        setFilter={setArchiveIds}
+        setFilter={handleSetArchiveIds}
         onArchivedToggle={handleArchivedToggle}
       />
     </Flex>
