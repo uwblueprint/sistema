@@ -362,7 +362,9 @@ const SystemChangesConfirmationDialog: React.FC<
       >
         <ModalHeader fontSize="lg" fontWeight="bold" pb={4} pt={0} px={0}>
           {isConfirmingClose ? (
-            'Discard Changes?'
+            <Text textStyle="h3" fontWeight="600">
+              Discard Changes?
+            </Text>
           ) : (
             <Box>
               <HStack spacing={2} alignItems="center" mb={1}>
@@ -380,10 +382,25 @@ const SystemChangesConfirmationDialog: React.FC<
 
         <ModalBody pb={2} px={0}>
           {isConfirmingClose ? (
-            <Text>
-              You have unsaved changes. Are you sure you want to close without
-              saving?
-            </Text>
+            <VStack
+              spacing={4}
+              align="stretch"
+              p={4}
+              borderWidth="1px"
+              borderRadius="md"
+              borderStyle="dotted"
+              mb={2}
+            >
+              <HStack spacing={3} align="center">
+                <Box w="40px" textAlign="center">
+                  <Icon as={IoWarning} color="orange.400" boxSize={5} />
+                </Box>
+                <Text textStyle="cellBody">
+                  You have unsaved changes. Are you sure you want to close
+                  without saving?
+                </Text>
+              </HStack>
+            </VStack>
           ) : (
             <>
               <VStack
@@ -448,7 +465,7 @@ const SystemChangesConfirmationDialog: React.FC<
             height="35px"
             textStyle="button"
           >
-            Back
+            {isConfirmingClose ? 'Keep Editing' : 'Back'}
           </Button>
           <Button
             colorScheme="blue"
@@ -459,7 +476,7 @@ const SystemChangesConfirmationDialog: React.FC<
             height="35px"
             textStyle="button"
           >
-            Proceed
+            {isConfirmingClose ? 'Discard' : 'Proceed'}
           </Button>
         </ModalFooter>
       </ModalContent>
