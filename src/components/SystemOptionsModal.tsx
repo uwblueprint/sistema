@@ -310,13 +310,31 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
               />
             </VStack>
           </ModalBody>
-          <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button colorScheme="blue" onClick={handleSave}>
-              Save
-            </Button>
+          <ModalFooter width="100%" padding={0} marginTop="37px">
+            <HStack spacing={4} width="100%">
+              <Button
+                variant="outline"
+                size="lg"
+                flex="1"
+                height="35px"
+                borderRadius="md"
+                textStyle="button"
+                onClick={handleClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                colorScheme="blue"
+                size="lg"
+                flex="1"
+                height="35px"
+                borderRadius="md"
+                textStyle="button"
+                onClick={handleSave}
+              >
+                Save
+              </Button>
+            </HStack>
           </ModalFooter>
         </ModalContent>
       </Modal>
