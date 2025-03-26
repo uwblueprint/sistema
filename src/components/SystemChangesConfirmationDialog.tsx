@@ -344,76 +344,75 @@ const SystemChangesConfirmationDialog: React.FC<
     >
       <AlertDialogOverlay>
         <AlertDialogContent>
-          <AlertDialogHeader
-            fontSize="lg"
-            fontWeight="bold"
-            textAlign="center"
-            p={4}
-          >
+          <AlertDialogHeader fontSize="lg" fontWeight="bold" p={4}>
             {isConfirmingClose ? (
               'Discard Changes?'
             ) : (
-              <Box>
-                <Center mb={2}>
-                  <Icon
-                    as={IoAlertCircleSharp}
-                    color="orange.400"
-                    boxSize={6}
-                  />
-                </Center>
-                <Text>You are making the following changes.</Text>
-                <Text>Do you wish to proceed?</Text>
-              </Box>
+              <HStack spacing={2} justify="center" alignItems="flex-start">
+                <Icon
+                  as={IoAlertCircleSharp}
+                  color="orange.400"
+                  boxSize={6}
+                  mt="2px"
+                />
+                <VStack spacing={0} align="center">
+                  <Text>You are making the following changes.</Text>
+                  <Text>Do you wish to proceed?</Text>
+                </VStack>
+              </HStack>
             )}
           </AlertDialogHeader>
 
-          <AlertDialogBody pb={6}>
+          <AlertDialogBody pb={2}>
             {isConfirmingClose ? (
               <Text>
                 You have unsaved changes. Are you sure you want to close without
                 saving?
               </Text>
             ) : (
-              <VStack
-                spacing={4}
-                align="stretch"
-                p={2}
-                borderWidth="1px"
-                borderRadius="md"
-                borderStyle="dotted"
-              >
-                {getDisplayableChanges().map((change, index) => (
-                  <HStack key={index} spacing={3} align="center">
-                    <Box w="40px" textAlign="center">
-                      {change.icon}
-                    </Box>
-                    <VStack align="start" spacing={0}>
-                      <Text fontWeight="bold" color={change.color}>
-                        {change.label}
-                      </Text>
-                      {typeof change.details === 'string' ? (
-                        <Text fontSize="sm">{change.details}</Text>
-                      ) : (
-                        change.details
-                      )}
-                    </VStack>
-                  </HStack>
-                ))}
+              <>
+                <VStack
+                  spacing={4}
+                  align="stretch"
+                  p={2}
+                  borderWidth="1px"
+                  borderRadius="md"
+                  borderStyle="dotted"
+                  mb={4}
+                >
+                  {getDisplayableChanges().map((change, index) => (
+                    <HStack key={index} spacing={3} align="center">
+                      <Box w="40px" textAlign="center">
+                        {change.icon}
+                      </Box>
+                      <VStack align="start" spacing={0}>
+                        <Text fontWeight="bold" color={change.color}>
+                          {change.label}
+                        </Text>
+                        {typeof change.details === 'string' ? (
+                          <Text fontSize="sm">{change.details}</Text>
+                        ) : (
+                          change.details
+                        )}
+                      </VStack>
+                    </HStack>
+                  ))}
+                </VStack>
 
                 {hasDeletedItems && (
-                  <Flex
-                    mt={4}
+                  <HStack
+                    spacing={2}
                     color="red.500"
+                    mb={2}
                     alignItems="center"
-                    justifyContent="center"
                   >
-                    <Icon as={IoWarning} mr={2} />
+                    <Icon as={IoWarning} boxSize={5} />
                     <Text fontSize="sm">
                       Deleted subjects/locations cannot be restored.
                     </Text>
-                  </Flex>
+                  </HStack>
                 )}
-              </VStack>
+              </>
             )}
           </AlertDialogBody>
 
@@ -425,6 +424,7 @@ const SystemChangesConfirmationDialog: React.FC<
               size="lg"
               colorScheme="blue"
               variant="outline"
+              height="35px"
             >
               Back
             </Button>
@@ -434,6 +434,7 @@ const SystemChangesConfirmationDialog: React.FC<
               ml={3}
               flex="1"
               size="lg"
+              height="35px"
             >
               Proceed
             </Button>
