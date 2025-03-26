@@ -74,7 +74,7 @@ export default function SubjectAccordion({
 
     setSelectedSubjectsIds([...newSelectedIds, ...newVisibleIds]);
     setFilter([...newSelectedIds, ...newVisibleIds]);
-  }, [showArchived, allSubjects, selectedSubjectsIds, setFilter]);
+  }, [showArchived, allSubjects]);
 
   const toggleSubject = (subjectId: number) => {
     let newSelection: number[];

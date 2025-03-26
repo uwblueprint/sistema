@@ -71,7 +71,7 @@ export default function LocationAccordion({
 
     setSelectedLocationIds([...newSelectedIds, ...newVisibleIds]);
     setFilter([...newSelectedIds, ...newVisibleIds]);
-  }, [showArchived, allLocations, selectedLocationIds, setFilter]);
+  }, [showArchived, allLocations]);
 
   const toggleLocation = (locationId: number) => {
     let newSelection: number[];
