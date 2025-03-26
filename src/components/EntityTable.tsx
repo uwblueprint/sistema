@@ -14,6 +14,7 @@ import {
   Tooltip,
   useTheme,
   Spacer,
+  Icon,
 } from '@chakra-ui/react';
 import {
   IoEllipsisHorizontal,
@@ -24,6 +25,7 @@ import {
   IoCheckmark,
   IoCloseOutline,
   IoBookOutline,
+  IoLinkOutline,
 } from 'react-icons/io5';
 import { FiType, FiArchive, FiMapPin } from 'react-icons/fi';
 import { LuInfo } from 'react-icons/lu';
@@ -54,6 +56,7 @@ export interface EntityTableProps {
   itemsInUse: number[];
   handleUpdateEntity: (entity: EntityTableItem | null, id?: number) => void;
   maxAbbreviationLength: number;
+  maxFullNameLength?: number; // Optional max length for full names
   leftColumnWidth?: string; // Make column width configurable
 }
 
@@ -65,6 +68,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
   itemsInUse,
   handleUpdateEntity,
   maxAbbreviationLength,
+  maxFullNameLength,
   leftColumnWidth = '60%', // Default to 60% if not specified
 }) => {
   const COLOR_CODE_INDEX = 1;
@@ -139,6 +143,12 @@ const EntityTable: React.FC<EntityTableProps> = ({
       return;
     }
 
+    // Validate full name length if maxFullNameLength is defined
+    if (maxFullNameLength && editingItem.name.length > maxFullNameLength) {
+      // Toast handling would go here
+      return;
+    }
+
     // Store the current editing state
     const currentEditingItem = { ...editingItem };
 
@@ -172,6 +182,12 @@ const EntityTable: React.FC<EntityTableProps> = ({
       newItem.abbreviation &&
       newItem.abbreviation.length > maxAbbreviationLength
     ) {
+      // Toast handling would go here
+      return;
+    }
+
+    // Validate full name length if maxFullNameLength is defined
+    if (maxFullNameLength && newItem.name.length > maxFullNameLength) {
       // Toast handling would go here
       return;
     }
@@ -248,9 +264,39 @@ const EntityTable: React.FC<EntityTableProps> = ({
             </Text>
             <Spacer />
             <Tooltip
-              label={`The full ${entityType} name`}
+              label={
+                <Box>
+                  <Text>
+                    The{' '}
+                    <Text as="span" color="primaryBlue.300" fontWeight="bold">
+                      full
+                    </Text>{' '}
+                    {entityType} name; shown
+                    <Text as="span" color="primaryBlue.300" fontWeight="bold">
+                      {' '}
+                      everywhere except
+                    </Text>{' '}
+                    widget titles.
+                    {maxFullNameLength && (
+                      <>
+                        {' '}
+                        Max{' '}
+                        <Text
+                          as="span"
+                          color="primaryBlue.300"
+                          fontWeight="bold"
+                        >
+                          {maxFullNameLength}
+                        </Text>{' '}
+                        characters.
+                      </>
+                    )}
+                  </Text>
+                </Box>
+              }
               placement="top"
               hasArrow
+              width="300px"
             >
               <Box as="span" ml={1} color="primaryBlue.300" cursor="help">
                 <LuInfo />
@@ -270,9 +316,40 @@ const EntityTable: React.FC<EntityTableProps> = ({
             </Text>
             <Spacer />
             <Tooltip
-              label={`The abbreviated ${entityType} name (max ${maxAbbreviationLength} characters)`}
+              label={
+                <Box>
+                  <Text>
+                    An{' '}
+                    <Text as="span" color="primaryBlue.300" fontWeight="bold">
+                      abbreviated
+                    </Text>{' '}
+                    version of the {entityType} name; shown in{' '}
+                    <Text as="span" color="primaryBlue.300" fontWeight="bold">
+                      widget titles
+                    </Text>
+                    . Max{' '}
+                    <Text as="span" color="primaryBlue.300" fontWeight="bold">
+                      {maxAbbreviationLength}
+                    </Text>{' '}
+                    characters.
+                  </Text>
+                  <Box mt={3} bg="blue.50" p={4} borderRadius="md">
+                    <HStack spacing={2}>
+                      <Text fontWeight="bold" color="blue.800" fontSize="md">
+                        Strings & Orch
+                      </Text>
+                      <Spacer />
+                      <Icon as={IoLinkOutline} color="blue.300" boxSize={5} />
+                    </HStack>
+                    <Text color="gray.600" mt={1} fontSize="md">
+                      Yorkwood
+                    </Text>
+                  </Box>
+                </Box>
+              }
               placement="top"
               hasArrow
+              width="300px"
             >
               <Box as="span" ml={1} color="primaryBlue.300" cursor="help">
                 <LuInfo />
@@ -366,6 +443,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                     }
                     size="sm"
                     flex="1"
+                    maxLength={maxFullNameLength}
                   />
                 </HStack>
               </Box>
@@ -642,6 +720,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                 placeholder={`${title} name`}
                 size="sm"
                 flex="1"
+                maxLength={maxFullNameLength}
               />
             </HStack>
           </Box>

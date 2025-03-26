@@ -39,7 +39,22 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({
             <Tooltip
               hasArrow
               placement="top"
-              label="Maximum allowed absences per teacher per school year"
+              label={
+                <Box>
+                  <Text>
+                    The{' '}
+                    <Text as="span" color="primaryBlue.300" fontWeight="bold">
+                      recommended
+                    </Text>{' '}
+                    maximum absences for teachers. Appears in a teacher&apos;s{' '}
+                    <Text as="span" color="primaryBlue.300" fontWeight="bold">
+                      user profile
+                    </Text>{' '}
+                    and acts as a guideline.
+                  </Text>
+                </Box>
+              }
+              width="300px"
             >
               <span style={{ display: 'flex', alignItems: 'center' }}>
                 <Icon as={LuInfo} color="blue.500" />
