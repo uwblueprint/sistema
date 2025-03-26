@@ -234,6 +234,9 @@ const EntityTable: React.FC<EntityTableProps> = ({
   };
 
   const handleDeleteItem = (item: EntityTableItem) => {
+    // Log the item being deleted
+    console.log(`Deleting ${entityType} with ID: ${item.id}`, item);
+
     // Mark item for deletion
     handleUpdateEntity(null, item.id);
   };

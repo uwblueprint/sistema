@@ -113,8 +113,14 @@ export const useChangeManagement = ({
 
           newMap.set(subjectId, { ...subject, id: subjectId });
         } else if (subject === null && id !== undefined) {
-          // Delete case: set to null to mark for deletion
-          newMap.set(id, null);
+          // Delete case
+          if (id < 0) {
+            // If deleting a newly added entity (negative ID), remove it from pending changes completely
+            newMap.delete(id);
+          } else {
+            // If deleting an existing entity (positive ID), mark for deletion
+            newMap.set(id, null);
+          }
         }
         return newMap;
       });
@@ -154,8 +160,14 @@ export const useChangeManagement = ({
 
           newMap.set(locationId, { ...location, id: locationId });
         } else if (location === null && id !== undefined) {
-          // Delete case: set to null to mark for deletion
-          newMap.set(id, null);
+          // Delete case
+          if (id < 0) {
+            // If deleting a newly added entity (negative ID), remove it from pending changes completely
+            newMap.delete(id);
+          } else {
+            // If deleting an existing entity (positive ID), mark for deletion
+            newMap.set(id, null);
+          }
         }
         return newMap;
       });
