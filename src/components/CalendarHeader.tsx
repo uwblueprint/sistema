@@ -56,8 +56,13 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   const isAdmin = userData?.role === 'ADMIN';
 
   return (
-    <Flex marginBottom={theme.space[4]} alignItems="center" width="100%">
-      <HStack spacing={theme.space[4]}>
+    <Flex
+      ml={theme.space[2]}
+      marginBottom={theme.space[4]}
+      alignItems="center"
+      width="100%"
+    >
+      <HStack spacing={theme.space[6]}>
         <HStack spacing={1}>
           <IconButton
             onClick={onPrevClick}
@@ -82,7 +87,9 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             variant="outline"
           />
         </HStack>
-        <Text textStyle="h1">{currentMonthYear}</Text>
+        <Text textStyle="h1" whiteSpace="nowrap" overflow="hidden">
+          {currentMonthYear}
+        </Text>
       </HStack>
       <Spacer />
       <HStack spacing={theme.space[4]} mr={theme.space[4]}>

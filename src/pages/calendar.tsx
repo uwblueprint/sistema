@@ -37,6 +37,14 @@ const Calendar: React.FC = () => {
     }
   }, [userData.isLoading, userData.isAuthenticated, router]);
 
+  const formatMonthYear = (date: Date): string => {
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'long',
+      year: 'numeric',
+    };
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  };
+
   const calendarRef = useRef<FullCalendar>(null);
   const [events, setEvents] = useState<EventInput[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
@@ -49,7 +57,9 @@ const Calendar: React.FC = () => {
     locationIds: [],
     archiveIds: [],
   });
-  const [currentMonthYear, setCurrentMonthYear] = useState('');
+  const [currentMonthYear, setCurrentMonthYear] = useState(
+    formatMonthYear(new Date())
+  );
   const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
     'explore'
   );
@@ -157,14 +167,6 @@ const Calendar: React.FC = () => {
   useEffect(() => {
     fetchAbsences();
   }, [fetchAbsences]);
-
-  const formatMonthYear = (date: Date): string => {
-    const options: Intl.DateTimeFormatOptions = {
-      month: 'long',
-      year: 'numeric',
-    };
-    return new Intl.DateTimeFormat('en-US', options).format(date);
-  };
 
   const updateMonthYearTitle = useCallback(() => {
     if (calendarRef.current) {
