@@ -74,7 +74,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       height="100vh"
       overflowY="auto"
     >
-      <Box width="150px">
+      <Box width="110px">
         <TacetLogo />
       </Box>
       <HStack>

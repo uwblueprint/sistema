@@ -92,7 +92,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
         </Text>
       </HStack>
       <Spacer />
-      <HStack spacing={theme.space[4]} mr={theme.space[4]}>
+      <HStack spacing={theme.space[4]} mr={theme.space[6]}>
         {isAdmin && (
           <>
             {isAdminMode && (

@@ -351,7 +351,10 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                     mb={0.5}
                   >
                     <TagLabel>
-                      <Text textStyle="label" color="text.body">
+                      <Text
+                        textStyle="label"
+                        color={isSelected ? colors[0] : 'text.body'}
+                      >
                         {tag}
                       </Text>
                     </TagLabel>
