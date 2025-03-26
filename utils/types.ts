@@ -30,6 +30,7 @@ export interface AbsenceAPI {
   location: {
     id: number;
     name: string;
+    abbreviation: string;
   };
   subject: {
     id: number;

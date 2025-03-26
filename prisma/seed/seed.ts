@@ -152,10 +152,13 @@ const main = async () => {
           probability: 0.5,
         }
       );
+      const randomLessonPlan = faker.helpers.maybe(() => faker.internet.url(), {
+        probability: 0.5,
+      });
 
       return {
         lessonDate: generateWeekdayFutureDate(),
-        lessonPlan: faker.internet.url(),
+        lessonPlan: randomLessonPlan ?? null,
         reasonOfAbsence: faker.lorem.sentence(),
         notes: maybeNotes ?? null,
         roomNumber: faker.helpers.arrayElement([

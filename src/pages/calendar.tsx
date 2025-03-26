@@ -50,7 +50,12 @@ const Calendar: React.FC = () => {
       substituteTeacherDisplayName,
       colors,
       location,
+      lessonPlan,
     } = eventInfo.event.extendedProps;
+
+    const eventDate = new Date(eventInfo.event.startStr);
+    const isPastEvent = eventDate < new Date();
+    const opacity = isPastEvent ? 0.5 : 1;
 
     const createdByUser = absentTeacherFullName === userData?.name;
 
@@ -78,6 +83,8 @@ const Calendar: React.FC = () => {
         textColor={colors.text}
         highlightText={highlightText}
         highlightColor={colors.medium}
+        lessonPlan={lessonPlan}
+        opacity={opacity}
       />
     );
   }, []);
@@ -90,53 +97,60 @@ const Calendar: React.FC = () => {
     textColor,
     highlightText,
     highlightColor,
-  }) => (
-    <Box
-      sx={{
-        padding: (theme) => `${theme.space[1]} ${theme.space[1]}`,
-        margin: (theme) => `${theme.space[2]} 0`,
-        borderRadius: (theme) => `${theme.radii.md}`,
-        backgroundColor,
-        textColor,
-        border: '0.1rem solid',
-        borderLeft: '5px solid',
-        borderColor,
-        position: 'relative',
-      }}
-    >
-      <FiPaperclip
-        style={{
-          position: 'absolute',
-          inset: '0 0 auto auto',
-          margin: '0.5rem',
-          color: textColor,
-          transform: 'rotate(180deg)',
+    lessonPlan,
+    opacity,
+  }) => {
+    return (
+      <Box
+        sx={{
+          padding: (theme) => `${theme.space[1]} ${theme.space[1]}`,
+          margin: (theme) => `${theme.space[2]} 0`,
+          borderRadius: (theme) => `${theme.radii.md}`,
+          backgroundColor,
+          textColor,
+          border: '0.1rem solid',
+          borderLeft: '5px solid',
+          borderColor,
+          position: 'relative',
+          opacity,
         }}
-      />
-      <Box className="fc-event-title-container">
-        <Box className="fc-event-title fc-sticky" sx={{ fontWeight: 'bold' }}>
-          {title}
+      >
+        {lessonPlan && (
+          <FiPaperclip
+            style={{
+              position: 'absolute',
+              inset: '0 0 auto auto',
+              margin: '0.5rem',
+              color: textColor,
+              transform: 'rotate(180deg)',
+            }}
+          />
+        )}
+        <Box className="fc-event-title-container">
+          <Box className="fc-event-title fc-sticky" sx={{ fontWeight: 'bold' }}>
+            {title}
+          </Box>
         </Box>
-      </Box>
-      <Box className="fc-event-title fc-sticky" sx={{ fontSize: 'xs' }}>
-        {location}
-      </Box>
-      {highlightText && (
-        <Box
-          sx={{
-            width: 'fit-content',
-            padding: (theme) => `${theme.space[1]} ${theme.space[1]}`,
-            borderRadius: (theme) => `${theme.radii.md}`,
-            backgroundColor: highlightColor,
-            fontWeight: 'bold',
-            fontSize: 'xs',
-          }}
-        >
-          {highlightText}
+        <Box className="fc-event-title fc-sticky" sx={{ fontSize: 'xs' }}>
+          {location}
         </Box>
-      )}
-    </Box>
-  );
+        {highlightText && (
+          <Box
+            sx={{
+              width: 'fit-content',
+              padding: (theme) => `${theme.space[1]} ${theme.space[1]}`,
+              borderRadius: (theme) => `${theme.radii.md}`,
+              backgroundColor: highlightColor,
+              fontWeight: 'bold',
+              fontSize: 'xs',
+            }}
+          >
+            {highlightText}
+          </Box>
+        )}
+      </Box>
+    );
+  };
 
   const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
     title: absenceData.subject.name,
@@ -146,12 +160,14 @@ const Calendar: React.FC = () => {
     location: absenceData.location.name,
     subjectId: absenceData.subject.id,
     locationId: absenceData.location.id,
+    subjectAbbreviation: absenceData.subject.abbreviation,
+    locationAbbreviation: absenceData.location.abbreviation,
     colors: mapColorCodes(absenceData.subject.colorGroup.colorCodes),
     absentTeacherDisplayName: absenceData.absentTeacher.firstName,
     absentTeacherFullName: `${absenceData.absentTeacher.firstName} ${absenceData.absentTeacher.lastName}`,
     substituteTeacherDisplayName:
       absenceData.substituteTeacher?.firstName || undefined,
-      lessonPlan: absenceData.lessonPlan,
+    lessonPlan: absenceData.lessonPlan,
   });
 
   const handleAddAbsence = async (
