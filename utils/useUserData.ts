@@ -1,5 +1,6 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import { UserData, Role } from '@utils/types';
 
 interface UserData {
   id?: number;
@@ -9,37 +10,62 @@ interface UserData {
   usedAbsences: number;
   numOfAbsences: number;
 }
+interface UseUserDataReturn extends UserData {
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
 
-const useUserData = () => {
-  const [userData, setUserData] = useState<UserData | undefined>(undefined);
-  const { data: session } = useSession();
+export const useUserData = (): UseUserDataReturn => {
+  const { data: session, status } = useSession();
+  const [fetchedUserData, setFetchedUserData] = useState<null | {
+    id: number;
+    name: string;
+    email: string;
+    image?: string;
+    role: Role;
+    usedAbsences: number;
+  }>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (session?.user?.email) {
+    const fetchUser = async () => {
+      if (status === 'authenticated' && session?.user?.id) {
         try {
           const res = await fetch(
-            `/api/users/email/${session.user.email}?getAbsences=true`
+            `/api/users/${session.user.id}?getAbsences=true`
           );
-          const data = await res.json();
-          setUserData({
-            id: data.id, // Include the user's ID
-            name: session.user.name ?? '',
-            email: session.user.email,
-            image: session.user.image ?? undefined,
-            numOfAbsences: data.numOfAbsences,
-            usedAbsences: data.absences?.length ?? 0,
+          if (!res.ok) throw new Error('Failed to fetch user');
+          const user = await res.json();
+
+          setFetchedUserData({
+            id: user.id,
+            name: `${user.firstName} ${user.lastName}`,
+            email: user.email,
+            image: user.profilePicture ?? undefined,
+            role: user.role as Role,
+            usedAbsences: user.absences.length,
           });
-        } catch (err) {
-          console.error('Could not fetch user data:', err);
-          setUserData(undefined);
+        } catch (error) {
+          console.error('Failed to fetch user data:', error);
+        } finally {
+          setIsLoading(false);
         }
+      } else if (status !== 'loading') {
+        setIsLoading(false);
       }
     };
-    fetchUserData();
-  }, [session]);
 
-  return userData;
+    fetchUser();
+  }, [status, session?.user?.id]);
+
+  return {
+    id: fetchedUserData?.id ?? 0,
+    name: fetchedUserData?.name ?? '',
+    email: fetchedUserData?.email ?? '',
+    image: fetchedUserData?.image,
+    role: fetchedUserData?.role ?? (Role.TEACHER as Role),
+    usedAbsences: fetchedUserData?.usedAbsences ?? 0,
+    isAuthenticated: status === 'authenticated',
+    isLoading,
+  };
 };
-
-export default useUserData;

@@ -5,17 +5,17 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Text,
   Textarea,
   VStack,
-  useToast,
   useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
+  useToast,
 } from '@chakra-ui/react';
 
 import { Absence, Prisma } from '@prisma/client';
@@ -30,12 +30,16 @@ interface InputFormProps {
   onAddAbsence: (
     absence: Prisma.AbsenceCreateManyInput
   ) => Promise<Absence | null>;
+  userId: number;
+  onTabChange: (tab: 'explore' | 'declared') => void;
   initialDate: Date;
 }
 
 const InputForm: React.FC<InputFormProps> = ({
   onClose,
   onAddAbsence,
+  userId,
+  onTabChange,
   initialDate,
 }) => {
   const toast = useToast();
@@ -155,6 +159,13 @@ const InputForm: React.FC<InputFormProps> = ({
           duration: 5000,
           isClosable: true,
         });
+
+        if (
+          parseInt(formData.substituteTeacherId, 10) === userId ||
+          parseInt(formData.absentTeacherId, 10) === userId
+        ) {
+          onTabChange('declared');
+        }
 
         if (onClose) {
           onClose();

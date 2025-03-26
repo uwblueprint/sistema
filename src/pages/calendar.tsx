@@ -12,35 +12,63 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
-import { EventContentArg, EventInput } from '@fullcalendar/core';
+import { EventInput, EventContentArg, EventClickArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { Absence, Prisma } from '@prisma/client';
 import { AbsenceAPI } from '@utils/types';
-import useUserData from '@utils/useUserData';
+import { useUserData } from '@utils/useUserData';
+import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import CalendarHeader from '../components/CalendarHeader';
-import InputForm from '../components/InputForm';
 import CalendarSidebar from '../components/CalendarSidebar';
+import { CalendarTabs } from '../components/CalendarTabs';
+import InputForm from '../components/InputForm';
+import AbsenceDetails from '../components/AbsenceDetails';
 
 const Calendar: React.FC = () => {
+  const userData = useUserData();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!userData.isLoading && !userData.isAuthenticated) {
+      router.push('/');
+    }
+  }, [userData.isLoading, userData.isAuthenticated, router]);
+
   const calendarRef = useRef<FullCalendar>(null);
   const [events, setEvents] = useState<EventInput[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
   const [searchQuery, setSearchQuery] = useState<{
     subjectIds: number[];
     locationIds: number[];
+    archiveIds: number[];
   }>({
     subjectIds: [],
     locationIds: [],
+    archiveIds: [],
   });
   const [currentMonthYear, setCurrentMonthYear] = useState('');
+  const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
+    'explore'
+  );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
   const toast = useToast();
   const theme = useTheme();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const userData = useUserData();
+  const {
+    isOpen: isAbsenceDetailsOpen,
+    onOpen: onAbsenceDetailsOpen,
+    onClose: onAbsenceDetailsClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isInputFormOpen,
+    onOpen: onInputFormOpen,
+    onClose: onInputFormClose,
+  } = useDisclosure();
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => (
@@ -63,9 +91,22 @@ const Calendar: React.FC = () => {
     start: absenceData.lessonDate,
     allDay: true,
     display: 'auto',
+
     location: absenceData.location.name,
+    absentTeacher: absenceData.absentTeacher,
+    substituteTeacher: absenceData.substituteTeacher,
     subjectId: absenceData.subject.id,
     locationId: absenceData.location.id,
+    archivedLocation: absenceData.location.archived,
+    archivedSubject: absenceData.subject.archived,
+    absentTeacherFullName: `${absenceData.absentTeacher.firstName} ${absenceData.absentTeacher.lastName}`,
+    roomNumber: absenceData.roomNumber || undefined,
+    substituteTeacherFullName: absenceData.substituteTeacher
+      ? `${absenceData.substituteTeacher.firstName} ${absenceData.substituteTeacher.lastName}`
+      : undefined,
+    lessonPlan: absenceData.lessonPlan,
+    reasonOfAbsence: absenceData.reasonOfAbsence,
+    notes: absenceData.notes,
   });
 
   const handleAddAbsence = async (
@@ -135,7 +176,7 @@ const Calendar: React.FC = () => {
 
   const handleDateClick = (arg: { date: Date }) => {
     setSelectedDate(arg.date);
-    onOpen();
+    onInputFormOpen();
   };
 
   const handleTodayClick = useCallback(() => {
@@ -198,26 +239,89 @@ const Calendar: React.FC = () => {
     return classes;
   };
 
+  const handleAbsenceClick = (clickInfo: EventClickArg) => {
+    setSelectedEvent({
+      title: clickInfo.event.title || 'Untitled Event',
+      start: clickInfo.event.start
+        ? new Date(clickInfo.event.start).toISOString().split('T')[0]
+        : 'Unknown',
+      absentTeacher: clickInfo.event.extendedProps.absentTeacher || undefined,
+      absentTeacherFullName:
+        clickInfo.event.extendedProps.absentTeacherFullName || '',
+      substituteTeacher:
+        clickInfo.event.extendedProps.substituteTeacher || undefined,
+      substituteTeacherFullName:
+        clickInfo.event.extendedProps.substituteTeacherFullName || undefined,
+      location: clickInfo.event.extendedProps.location || '',
+      classType: clickInfo.event.extendedProps.classType || '',
+      lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
+      roomNumber: clickInfo.event.extendedProps.roomNumber || '',
+      reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
+      notes: clickInfo.event.extendedProps.notes || '',
+    });
+    onAbsenceDetailsOpen();
+  };
+
   const handleDeclareAbsenceClick = () => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       const today = calendarApi.getDate();
       setSelectedDate(today);
-      onOpen();
+      onInputFormOpen();
     }
   };
   useEffect(() => {
-    const { subjectIds, locationIds } = searchQuery;
+    const { subjectIds, locationIds, archiveIds } = searchQuery;
 
-    const filtered = events.filter((event) => {
-      const subjectIdMatch = subjectIds.includes(event.subjectId);
-      const locationIdMatch = locationIds.includes(event.locationId);
-      return subjectIdMatch && locationIdMatch;
+    let filtered = events.filter((event) => {
+      const subjectMatch = subjectIds.includes(event.subjectId);
+
+      const locationMatch = locationIds.includes(event.locationId);
+
+      let archiveMatch = true;
+
+      if (archiveIds.length === 0) {
+        archiveMatch = !event.archivedSubject && !event.archivedLocation;
+      } else {
+        const includeArchivedSubjects = archiveIds.includes(0);
+        const includeArchivedLocations = archiveIds.includes(1);
+
+        const subjectArchiveMatch =
+          includeArchivedSubjects || !event.archivedSubject;
+        const locationArchiveMatch =
+          includeArchivedLocations || !event.archivedLocation;
+
+        archiveMatch = subjectArchiveMatch && locationArchiveMatch;
+      }
+
+      return subjectMatch && locationMatch && archiveMatch;
     });
 
-    setFilteredEvents(filtered);
-  }, [searchQuery, events]);
+    if (!isAdminMode) {
+      if (activeTab === 'explore') {
+        filtered = filtered.filter(
+          (event) =>
+            event.absentTeacher.id !== userData.id && !event.substituteTeacher
+        );
+      } else if (activeTab === 'declared') {
+        filtered = filtered.filter(
+          (event) =>
+            event.absentTeacher.id === userData.id ||
+            event.substituteTeacher?.id === userData.id
+        );
+      }
+    }
 
+    setFilteredEvents(filtered);
+  }, [searchQuery, events, activeTab, userData.id, isAdminMode]);
+
+  if (userData.isLoading) {
+    return null;
+  }
+
+  if (!userData.isAuthenticated) {
+    return null;
+  }
   return (
     <>
       <Global
@@ -301,9 +405,14 @@ const Calendar: React.FC = () => {
             onPrevClick={handlePrevClick}
             onNextClick={handleNextClick}
             userData={userData}
+            isAdminMode={isAdminMode}
+            setIsAdminMode={setIsAdminMode}
           />
 
-          <Box flex={1} overflow="hidden" paddingRight={theme.space[2]}>
+          <Box flex={1} overflow="hidden" pr={theme.space[2]}>
+            {!isAdminMode && (
+              <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
+            )}
             <FullCalendar
               ref={calendarRef}
               headerToolbar={false}
@@ -316,13 +425,20 @@ const Calendar: React.FC = () => {
               datesSet={updateMonthYearTitle}
               fixedWeekCount={false}
               dayCellClassNames={({ date }) => addSquareClasses(date)}
+              eventClick={handleAbsenceClick}
               dateClick={handleDateClick}
             />
           </Box>
         </Box>
       </Flex>
 
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <AbsenceDetails
+        isOpen={isAbsenceDetailsOpen}
+        onClose={onAbsenceDetailsClose}
+        event={selectedEvent}
+      />
+
+      <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>
         <ModalOverlay />
         <ModalContent
           width={362}
@@ -335,9 +451,11 @@ const Calendar: React.FC = () => {
           <ModalCloseButton />
           <ModalBody p={0}>
             <InputForm
-              onClose={onClose}
+              onClose={onInputFormClose}
               onAddAbsence={handleAddAbsence}
               initialDate={selectedDate!!}
+              userId={userData.id}
+              onTabChange={setActiveTab}
             />
           </ModalBody>
         </ModalContent>

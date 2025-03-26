@@ -1,13 +1,18 @@
 import { AddIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { TacetLogo } from '../components/SistemaLogoColour';
-import LocationDropdown from './LocationDropdown';
+import ArchivedAccordion from './ArchivedAccordion';
+import LocationAccordion from './LocationAccordion';
 import MiniCalendar from './MiniCalendar';
-import SubjectDropdown from './SubjectDropdown';
+import SubjectAccordion from './SubjectAccordion';
 
 interface CalendarSidebarProps {
-  setSearchQuery;
+  setSearchQuery: (query: {
+    subjectIds: number[];
+    locationIds: number[];
+    archiveIds: number[];
+  }) => void;
   onDateSelect: (date: Date) => void;
   onDeclareAbsenceClick: () => void;
   selectDate: Date | null;
@@ -19,26 +24,28 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   onDeclareAbsenceClick,
   selectDate,
 }) => {
+  const [subjectIds, setSubjectIds] = useState<number[]>([]);
+  const [locationIds, setLocationIds] = useState<number[]>([]);
+  const [archiveIds, setArchiveIds] = useState<number[]>([]);
+
   const theme = useTheme();
+  const [showArchivedSubjects, setShowArchivedSubjects] = useState(false);
+  const [showArchivedLocations, setShowArchivedLocations] = useState(false);
 
-  const setSubjectIdFilter = useCallback(
-    (subjectIds: number[]) => {
-      setSearchQuery((prev) => ({
-        ...prev,
-        subjectIds,
-      }));
-    },
-    [setSearchQuery]
-  );
+  useEffect(() => {
+    setSearchQuery({
+      subjectIds,
+      locationIds,
+      archiveIds,
+    });
+  }, [subjectIds, locationIds, archiveIds, setSearchQuery]);
 
-  const setLocationIdFilter = useCallback(
-    (locationIds: number[]) => {
-      setSearchQuery((prev) => ({
-        ...prev,
-        locationIds,
-      }));
+  const handleArchivedToggle = useCallback(
+    (subjectsArchived: boolean, locationsArchived: boolean) => {
+      setShowArchivedSubjects(subjectsArchived);
+      setShowArchivedLocations(locationsArchived);
     },
-    [setSearchQuery]
+    []
   );
 
   return (
@@ -70,8 +77,18 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         onDateSelect={onDateSelect}
         selectDate={selectDate}
       />
-      <SubjectDropdown setFilter={setSubjectIdFilter} />
-      <LocationDropdown setFilter={setLocationIdFilter} />
+      <SubjectAccordion
+        setFilter={setSubjectIds}
+        showArchived={showArchivedSubjects}
+      />
+      <LocationAccordion
+        setFilter={setLocationIds}
+        showArchived={showArchivedLocations}
+      />
+      <ArchivedAccordion
+        setFilter={setArchiveIds}
+        onArchivedToggle={handleArchivedToggle}
+      />
     </Flex>
   );
 };

@@ -102,6 +102,7 @@ const colors = {
     inactiveButtonText: '#ACACAC',
   },
   outline: '#C5C8D8',
+  icon: '#1E1E1E',
 };
 
 const textStyles = {
