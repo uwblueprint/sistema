@@ -230,138 +230,132 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   };
 
   return (
-    <>
-      <Modal
-        isOpen={isOpen}
-        onClose={handleClose}
-        size="md"
-        scrollBehavior="outside"
-        isCentered={false}
-        motionPreset="slideInBottom"
-      >
-        <ModalOverlay
-          bg="rgba(0, 0, 0, 0.4)"
-          backdropFilter="blur(3px)"
-          transition="all 0.3s ease"
-        />
-        <ModalContent
-          minHeight={['90vh', '95vh', '100vh']}
-          maxHeight="none"
-          maxWidth="lg"
-          position="relative"
-          overflow="visible"
-          paddingX="43px"
-          paddingY="42px"
-          transform={isOpen ? 'translateY(0)' : 'translateY(20px)'}
-          opacity={isOpen ? 1 : 0}
-          transition="transform 0.3s ease, opacity 0.3s ease"
-        >
-          <ModalHeader padding={0}>
-            <HStack spacing={0} width="100%">
-              <IoSettingsOutline
-                size={29}
-                color={theme.colors.neutralGray[600]}
-              />
-              <Box width="16px" />
-              <Box>
-                <Text textStyle="h2">System Options</Text>
-              </Box>
-              <Spacer />
-              <IconButton
-                aria-label="Close"
-                icon={<IoCloseOutline size={40} />}
-                variant="ghost"
-                onClick={handleClose}
-                size="sm"
-                transition="background-color 0.2s ease"
-              />
-            </HStack>
-          </ModalHeader>
-          <ModalBody
-            flex="1"
-            position="relative"
-            width="100%"
-            overflow="visible"
-            padding={0}
-          >
-            <VStack
-              align="stretch"
-              spacing="37px"
-              width="100%"
-              marginTop="37px"
-            >
-              {/* Subjects Section */}
-              <Box>
-                <SubjectsTable
-                  subjects={updatedSubjects}
-                  colorGroups={colorGroups}
-                  subjectsInUse={subjectsInUse}
-                  handleUpdateSubject={handleUpdateSubject}
-                  maxAbbreviationLength={MAX_SUBJECT_ABBREVIATION_LENGTH}
-                />
-              </Box>
-
-              {/* Locations Section */}
-              <Box>
-                <LocationsTable
-                  locations={updatedLocations}
-                  locationsInUse={locationsInUse}
-                  handleUpdateLocation={handleUpdateLocation}
-                  maxAbbreviationLength={MAX_LOCATION_ABBREVIATION_LENGTH}
-                />
-              </Box>
-
-              {/* Settings Section */}
-              <SystemSettings
-                allowedAbsences={updatedAbsenceCap}
-                originalAbsenceCap={absenceCap}
-                handleUpdateAbsenceCap={handleUpdateAbsenceCap}
-              />
-            </VStack>
-          </ModalBody>
-          <ModalFooter width="100%" padding={0} marginTop="37px">
-            <HStack spacing={4} width="100%">
-              <Button
-                variant="outline"
-                size="lg"
-                flex="1"
-                height="35px"
-                borderRadius="md"
-                textStyle="button"
-                onClick={handleClose}
-                transition="background-color 0.2s ease"
-              >
-                Cancel
-              </Button>
-              <Button
-                colorScheme="blue"
-                size="lg"
-                flex="1"
-                height="35px"
-                borderRadius="md"
-                textStyle="button"
-                onClick={handleSave}
-                transition="background-color 0.2s ease"
-              >
-                Save
-              </Button>
-            </HStack>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      <SystemChangesConfirmationDialog
-        isOpen={confirmationDialog.isOpen}
-        onClose={confirmationDialog.onClose}
-        onConfirm={isConfirmingClose ? handleCloseConfirmed : applyChanges}
-        pendingEntities={pendingEntities}
-        isConfirmingClose={isConfirmingClose}
-        subjects={subjects}
-        locations={locations}
-        colorGroups={colorGroups}
-        absenceCap={absenceCap}
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="md"
+      scrollBehavior="outside"
+      isCentered={false}
+      motionPreset="slideInBottom"
+    >
+      <ModalOverlay
+        bg="rgba(0, 0, 0, 0.4)"
+        backdropFilter="blur(3px)"
+        transition="all 0.3s ease"
       />
-    </>
+      <ModalContent
+        minHeight={['90vh', '95vh', '100vh']}
+        maxHeight="none"
+        maxWidth="lg"
+        position="relative"
+        overflow="visible"
+        paddingX="43px"
+        paddingY="42px"
+        transform={isOpen ? 'translateY(0)' : 'translateY(20px)'}
+        opacity={isOpen ? 1 : 0}
+        transition="transform 0.3s ease, opacity 0.3s ease"
+      >
+        <ModalHeader padding={0}>
+          <HStack spacing={0} width="100%">
+            <IoSettingsOutline
+              size={29}
+              color={theme.colors.neutralGray[600]}
+            />
+            <Box width="16px" />
+            <Box>
+              <Text textStyle="h2">System Options</Text>
+            </Box>
+            <Spacer />
+            <IconButton
+              aria-label="Close"
+              icon={<IoCloseOutline size={40} />}
+              variant="ghost"
+              onClick={handleClose}
+              size="sm"
+              transition="background-color 0.2s ease"
+            />
+          </HStack>
+        </ModalHeader>
+        <ModalBody
+          flex="1"
+          position="relative"
+          width="100%"
+          overflow="visible"
+          padding={0}
+        >
+          <VStack align="stretch" spacing="37px" width="100%" marginTop="37px">
+            {/* Subjects Section */}
+            <Box>
+              <SubjectsTable
+                subjects={updatedSubjects}
+                colorGroups={colorGroups}
+                subjectsInUse={subjectsInUse}
+                handleUpdateSubject={handleUpdateSubject}
+                maxAbbreviationLength={MAX_SUBJECT_ABBREVIATION_LENGTH}
+              />
+            </Box>
+
+            {/* Locations Section */}
+            <Box>
+              <LocationsTable
+                locations={updatedLocations}
+                locationsInUse={locationsInUse}
+                handleUpdateLocation={handleUpdateLocation}
+                maxAbbreviationLength={MAX_LOCATION_ABBREVIATION_LENGTH}
+              />
+            </Box>
+
+            {/* Settings Section */}
+            <SystemSettings
+              allowedAbsences={updatedAbsenceCap}
+              originalAbsenceCap={absenceCap}
+              handleUpdateAbsenceCap={handleUpdateAbsenceCap}
+            />
+          </VStack>
+
+          {/* SystemChangesConfirmationDialog moved inside ModalBody */}
+          <SystemChangesConfirmationDialog
+            isOpen={confirmationDialog.isOpen}
+            onClose={confirmationDialog.onClose}
+            onConfirm={isConfirmingClose ? handleCloseConfirmed : applyChanges}
+            pendingEntities={pendingEntities}
+            isConfirmingClose={isConfirmingClose}
+            subjects={subjects}
+            locations={locations}
+            colorGroups={colorGroups}
+            absenceCap={absenceCap}
+          />
+        </ModalBody>
+        <ModalFooter width="100%" padding={0} marginTop="37px">
+          <HStack spacing={4} width="100%">
+            <Button
+              variant="outline"
+              size="lg"
+              flex="1"
+              height="35px"
+              borderRadius="md"
+              textStyle="button"
+              onClick={handleClose}
+              transition="background-color 0.2s ease"
+            >
+              Cancel
+            </Button>
+            <Button
+              colorScheme="blue"
+              size="lg"
+              flex="1"
+              height="35px"
+              borderRadius="md"
+              textStyle="button"
+              onClick={handleSave}
+              transition="background-color 0.2s ease"
+            >
+              Save
+            </Button>
+          </HStack>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 

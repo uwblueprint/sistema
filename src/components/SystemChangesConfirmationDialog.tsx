@@ -14,6 +14,12 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   Center,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from '@chakra-ui/react';
 import React from 'react';
 import { FiTrash2, FiArchive, FiFolder, FiEdit2 } from 'react-icons/fi';
@@ -337,128 +343,127 @@ const SystemChangesConfirmationDialog: React.FC<
     Array.from(pendingEntities.locations.values()).some((l) => l === null);
 
   return (
-    <AlertDialog
+    <Modal
       isOpen={isOpen}
-      leastDestructiveRef={cancelRef}
       onClose={onClose}
+      isCentered
+      blockScrollOnMount={false}
+      motionPreset="scale"
+      closeOnOverlayClick={false}
+      preserveScrollBarGap
     >
-      <AlertDialogOverlay>
-        <AlertDialogContent p={8} width="sm">
-          <AlertDialogHeader
-            fontSize="lg"
-            fontWeight="bold"
-            pb={4}
-            pt={0}
-            px={0}
-          >
-            {isConfirmingClose ? (
-              'Discard Changes?'
-            ) : (
-              <Box>
-                <HStack spacing={2} alignItems="center" mb={1}>
-                  <Icon
-                    as={IoAlertCircleSharp}
-                    color="orange.400"
-                    boxSize={6}
-                  />
-                  <Text textStyle="h4" fontWeight="500">
-                    You are making the following changes.
+      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" backdropFilter="blur(3px)" />
+      <ModalContent
+        p={8}
+        width="sm"
+        maxHeight="80vh"
+        boxShadow="2xl"
+        zIndex={1500}
+      >
+        <ModalHeader fontSize="lg" fontWeight="bold" pb={4} pt={0} px={0}>
+          {isConfirmingClose ? (
+            'Discard Changes?'
+          ) : (
+            <Box>
+              <HStack spacing={2} alignItems="center" mb={1}>
+                <Icon as={IoAlertCircleSharp} color="orange.400" boxSize={6} />
+                <Text textStyle="h4" fontWeight="500">
+                  You are making the following changes.
+                </Text>
+              </HStack>
+              <Text textStyle="h3" fontWeight="600" ml="32px">
+                Do you wish to proceed?
+              </Text>
+            </Box>
+          )}
+        </ModalHeader>
+
+        <ModalBody pb={2} px={0}>
+          {isConfirmingClose ? (
+            <Text>
+              You have unsaved changes. Are you sure you want to close without
+              saving?
+            </Text>
+          ) : (
+            <>
+              <VStack
+                spacing={4}
+                align="stretch"
+                p={4}
+                borderWidth="1px"
+                borderRadius="md"
+                borderStyle="dotted"
+                mb={4}
+                maxH="236px"
+                overflowY="auto"
+              >
+                {getDisplayableChanges().map((change, index) => (
+                  <HStack key={index} spacing={3} align="center">
+                    <Box w="40px" textAlign="center">
+                      {change.icon}
+                    </Box>
+                    <VStack align="start" spacing={0}>
+                      <Text fontWeight="bold" color={change.color}>
+                        {change.label}
+                      </Text>
+                      {typeof change.details === 'string' ? (
+                        <Text fontSize="sm">{change.details}</Text>
+                      ) : (
+                        change.details
+                      )}
+                    </VStack>
+                  </HStack>
+                ))}
+              </VStack>
+
+              {hasDeletedItems && (
+                <HStack
+                  spacing={3}
+                  color="errorRed.200"
+                  mb={2}
+                  alignItems="center"
+                >
+                  <Icon as={IoWarning} boxSize={5} />
+                  <Text
+                    textStyle="subtitle"
+                    fontWeight="600"
+                    textColor="errorRed.200"
+                  >
+                    Deleted subjects/locations cannot be restored.
                   </Text>
                 </HStack>
-                <Text textStyle="h3" fontWeight="600" ml="32px">
-                  Do you wish to proceed?
-                </Text>
-              </Box>
-            )}
-          </AlertDialogHeader>
+              )}
+            </>
+          )}
+        </ModalBody>
 
-          <AlertDialogBody pb={2} px={0}>
-            {isConfirmingClose ? (
-              <Text>
-                You have unsaved changes. Are you sure you want to close without
-                saving?
-              </Text>
-            ) : (
-              <>
-                <VStack
-                  spacing={4}
-                  align="stretch"
-                  p={4}
-                  borderWidth="1px"
-                  borderRadius="md"
-                  borderStyle="dotted"
-                  mb={4}
-                  maxH="236px"
-                  overflowY="auto"
-                >
-                  {getDisplayableChanges().map((change, index) => (
-                    <HStack key={index} spacing={3} align="center">
-                      <Box w="40px" textAlign="center">
-                        {change.icon}
-                      </Box>
-                      <VStack align="start" spacing={0}>
-                        <Text fontWeight="bold" color={change.color}>
-                          {change.label}
-                        </Text>
-                        {typeof change.details === 'string' ? (
-                          <Text fontSize="sm">{change.details}</Text>
-                        ) : (
-                          change.details
-                        )}
-                      </VStack>
-                    </HStack>
-                  ))}
-                </VStack>
-
-                {hasDeletedItems && (
-                  <HStack
-                    spacing={3}
-                    color="errorRed.200"
-                    mb={2}
-                    alignItems="center"
-                  >
-                    <Icon as={IoWarning} boxSize={5} />
-                    <Text
-                      textStyle="subtitle"
-                      fontWeight="600"
-                      textColor="errorRed.200"
-                    >
-                      Deleted subjects/locations cannot be restored.
-                    </Text>
-                  </HStack>
-                )}
-              </>
-            )}
-          </AlertDialogBody>
-
-          <AlertDialogFooter p={0}>
-            <Button
-              ref={cancelRef}
-              onClick={onClose}
-              flex="1"
-              size="lg"
-              colorScheme="blue"
-              variant="outline"
-              height="35px"
-              textStyle="button"
-            >
-              Back
-            </Button>
-            <Button
-              colorScheme="blue"
-              onClick={onConfirm}
-              ml={3}
-              flex="1"
-              size="lg"
-              height="35px"
-              textStyle="button"
-            >
-              Proceed
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialogOverlay>
-    </AlertDialog>
+        <ModalFooter p={0}>
+          <Button
+            ref={cancelRef}
+            onClick={onClose}
+            flex="1"
+            size="lg"
+            colorScheme="blue"
+            variant="outline"
+            height="35px"
+            textStyle="button"
+          >
+            Back
+          </Button>
+          <Button
+            colorScheme="blue"
+            onClick={onConfirm}
+            ml={3}
+            flex="1"
+            size="lg"
+            height="35px"
+            textStyle="button"
+          >
+            Proceed
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 
