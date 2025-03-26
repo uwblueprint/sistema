@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
 import { SubjectAPI } from '@utils/types';
-import Dropdown, { DropdownItem } from './Dropdown';
+import { useEffect, useState } from 'react';
+import Accordion, { AccordionItem } from './Accordion';
 
-interface SubjectDropdownProps {
+interface SubjectAccordionProps {
   setFilter: (subjects: number[]) => void;
 }
 
@@ -12,7 +12,7 @@ interface SubjectItem {
   color: string;
 }
 
-export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
+export default function SubjectAccordion({ setFilter }: SubjectAccordionProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [subjects, setSubjects] = useState<SubjectItem[]>([]);
   const [selectedSubjectsIds, setSelectedSubjectsIds] = useState<number[]>([]);
@@ -63,16 +63,16 @@ export default function SubjectDropdown({ setFilter }: SubjectDropdownProps) {
     setIsOpen((prev) => !prev);
   };
 
-  const dropdownItems: DropdownItem[] = subjects.map((subject) => ({
+  const accordionItems: AccordionItem[] = subjects.map((subject) => ({
     id: subject.id,
     name: subject.name,
     color: subject.color,
   }));
 
   return (
-    <Dropdown
+    <Accordion
       title="Subject"
-      items={dropdownItems}
+      items={accordionItems}
       selectedItems={selectedSubjectsIds}
       isOpen={isOpen}
       toggleOpen={toggleOpen}

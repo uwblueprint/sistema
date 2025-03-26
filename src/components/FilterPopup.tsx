@@ -14,21 +14,14 @@ import {
   useDisclosure,
   useOutsideClick,
 } from '@chakra-ui/react';
-import { Role } from '@utils/types';
+import { FilterOptions, Role } from '@utils/types';
 import React, { useMemo, useRef, useState } from 'react';
 import { BiRevision } from 'react-icons/bi';
 import { IoFilterOutline } from 'react-icons/io5';
 import OperatorMenu from './OperatorMenu';
+
 // Define comparison operators for numeric filters
 export type ComparisonOperator = 'greater_than' | 'less_than' | 'equal_to';
-
-export type FilterOptions = {
-  role?: Role | null;
-  absencesOperator?: ComparisonOperator;
-  absencesValue?: number | null;
-  tags?: string[] | null;
-};
-
 interface FilterPopupProps {
   filters: FilterOptions;
   setFilters: (filters: FilterOptions) => void;

@@ -18,14 +18,25 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { Absence, Prisma } from '@prisma/client';
 import { AbsenceAPI, mapColorCodes } from '@utils/types';
-import useUserData from '@utils/useUserData';
+import { useUserData } from '@utils/useUserData';
+import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import CalendarHeader from '../components/CalendarHeader';
 import { FiPaperclip } from 'react-icons/fi';
-import InputForm from '../components/InputForm';
+import CalendarHeader from '../components/CalendarHeader';
 import CalendarSidebar from '../components/CalendarSidebar';
+import { CalendarTabs } from '../components/CalendarTabs';
+import InputForm from '../components/InputForm';
 
 const Calendar: React.FC = () => {
+  const userData = useUserData();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!userData.isLoading && !userData.isAuthenticated) {
+      router.push('/');
+    }
+  }, [userData.isLoading, userData.isAuthenticated, router]);
+
   const calendarRef = useRef<FullCalendar>(null);
   const [events, setEvents] = useState<EventInput[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
@@ -37,11 +48,14 @@ const Calendar: React.FC = () => {
     locationIds: [],
   });
   const [currentMonthYear, setCurrentMonthYear] = useState('');
+  const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
+    'explore'
+  );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
   const toast = useToast();
   const theme = useTheme();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const userData = useUserData();
 
   const renderEventContent = useCallback((eventInfo: EventContentArg) => {
     const {
@@ -158,6 +172,8 @@ const Calendar: React.FC = () => {
     allDay: true,
     display: 'auto',
     location: absenceData.location.name,
+    absentTeacher: absenceData.absentTeacher,
+    substituteTeacher: absenceData.substituteTeacher,
     subjectId: absenceData.subject.id,
     locationId: absenceData.location.id,
     subjectAbbreviation: absenceData.subject.abbreviation,
@@ -311,15 +327,37 @@ const Calendar: React.FC = () => {
   useEffect(() => {
     const { subjectIds, locationIds } = searchQuery;
 
-    const filtered = events.filter((event) => {
+    let filtered = events.filter((event) => {
       const subjectIdMatch = subjectIds.includes(event.subjectId);
       const locationIdMatch = locationIds.includes(event.locationId);
       return subjectIdMatch && locationIdMatch;
     });
 
-    setFilteredEvents(filtered);
-  }, [searchQuery, events]);
+    if (!isAdminMode) {
+      if (activeTab === 'explore') {
+        filtered = filtered.filter(
+          (event) =>
+            event.absentTeacher.id !== userData.id && !event.substituteTeacher
+        );
+      } else if (activeTab === 'declared') {
+        filtered = filtered.filter(
+          (event) =>
+            event.absentTeacher.id === userData.id ||
+            event.substituteTeacher?.id === userData.id
+        );
+      }
+    }
 
+    setFilteredEvents(filtered);
+  }, [searchQuery, events, activeTab, userData.id, isAdminMode]);
+
+  if (userData.isLoading) {
+    return null;
+  }
+
+  if (!userData.isAuthenticated) {
+    return null;
+  }
   return (
     <>
       <Global
@@ -402,9 +440,14 @@ const Calendar: React.FC = () => {
             onPrevClick={handlePrevClick}
             onNextClick={handleNextClick}
             userData={userData}
+            isAdminMode={isAdminMode}
+            setIsAdminMode={setIsAdminMode}
           />
 
           <Box flex={1} overflow="hidden" paddingRight={theme.space[2]}>
+            {!isAdminMode && (
+              <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
+            )}
             <FullCalendar
               ref={calendarRef}
               headerToolbar={false}
@@ -439,6 +482,8 @@ const Calendar: React.FC = () => {
               onClose={onClose}
               onAddAbsence={handleAddAbsence}
               initialDate={selectedDate!!}
+              userId={userData.id}
+              onTabChange={setActiveTab}
             />
           </ModalBody>
         </ModalContent>
