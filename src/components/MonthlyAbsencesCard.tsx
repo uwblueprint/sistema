@@ -71,7 +71,7 @@ export default function MonthlyAbsencesCard({
       height="100%"
     >
       <CardHeader pb={0} display="flex" alignItems="center">
-        <Heading fontSize="22px" lineHeight="33px" fontWeight={700} pb="13px">
+        <Heading fontSize="18px" lineHeight="33px" fontWeight={700} pb="13px">
           Monthly Absences
         </Heading>
       </CardHeader>
@@ -135,13 +135,13 @@ export default function MonthlyAbsencesCard({
           <VStack align="flex-start" pr="10px">
             <HStack>
               <Box w="16px" h="16px" borderRadius="full" bg={unfilledColor} />
-              <Text fontSize="13px" fontStyle="normal" fontWeight="400">
+              <Text color="text.body" textStyle="subtitle">
                 Unfilled
               </Text>
             </HStack>
             <HStack>
               <Box w="16px" h="16px" borderRadius="full" bg={filledColor} />
-              <Text fontSize="13px" fontStyle="normal" fontWeight="400">
+              <Text color="text.body" textStyle="subtitle">
                 Filled
               </Text>
             </HStack>

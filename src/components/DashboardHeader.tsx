@@ -54,10 +54,10 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       width="100%"
       borderBottom="1px solid"
       borderColor="neutralGray.300"
-      px={theme.space[8]}
-      py={theme.space[3]}
+      px={theme.space[16]}
+      py={theme.space[4]}
     >
-      <HStack spacing={theme.space[4]}>
+      <HStack spacing={theme.space[8]}>
         <IconButton
           aria-label="Go back"
           icon={
@@ -66,7 +66,13 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           variant="outline"
           onClick={() => router.push('/calendar')}
         />
-        <Text textStyle="h1" flex="1" textAlign="center">
+        <Text
+          textStyle="h1"
+          flexShrink={0}
+          whiteSpace="nowrap"
+          overflow="hidden"
+          textAlign="center"
+        >
           Admin Dashboard
         </Text>
       </HStack>
