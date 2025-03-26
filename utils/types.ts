@@ -30,10 +30,12 @@ export interface AbsenceAPI {
   location: {
     id: number;
     name: string;
+    archived: boolean;
   };
   subject: {
     id: number;
     name: string;
+    archived: boolean;
     abbreviation: string;
     colorGroup: {
       colorCodes: string[];
@@ -71,6 +73,7 @@ export interface UserAPI {
 export interface Location {
   id: number;
   name: string;
+  archived: boolean;
   abbreviation: string;
 }
 
@@ -84,6 +87,7 @@ export interface MailingListWithRelations {
 export interface Subject {
   id: number;
   name: string;
+  archived: boolean;
   abbreviation: string;
   colorGroupId: number;
 }
@@ -93,6 +97,7 @@ export interface SubjectAPI {
   name: string;
   abbreviation: string;
   colorGroupId: number;
+  archived: boolean;
   colorGroup: {
     name: string;
     colorCodes: string[];

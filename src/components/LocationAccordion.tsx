@@ -2,8 +2,10 @@ import { useTheme } from '@chakra-ui/react';
 import type { Location } from '@utils/types';
 import { useEffect, useState } from 'react';
 import Accordion, { AccordionItem } from './Accordion';
+
 interface LocationAccordionProps {
   setFilter: (location: number[]) => void;
+  showArchived: boolean;
 }
 
 interface LocationAccordionItem extends Location {
@@ -12,11 +14,13 @@ interface LocationAccordionItem extends Location {
 
 export default function LocationAccordion({
   setFilter,
+  showArchived,
 }: LocationAccordionProps) {
+  const theme = useTheme();
   const [isOpen, setIsOpen] = useState(true);
   const [locations, setLocations] = useState<LocationAccordionItem[]>([]);
+  const [allLocations, setAllLocations] = useState<LocationAccordionItem[]>([]);
   const [selectedLocationIds, setSelectedLocationIds] = useState<number[]>([]);
-  const theme = useTheme();
 
   useEffect(() => {
     async function fetchLocations() {
@@ -29,11 +33,17 @@ export default function LocationAccordion({
         if (data.locations) {
           const fetchedLocations = data.locations.map((location: Location) => ({
             ...location,
-            color: `${theme.colors.primaryBlue[300]}`,
+            color: theme.colors.primaryBlue[300],
           }));
-          setLocations(fetchedLocations);
+          setAllLocations(fetchedLocations);
+
+          const visibleLocations = showArchived
+            ? fetchedLocations
+            : fetchedLocations.filter((location) => !location.archived);
+
+          setLocations(visibleLocations);
           setSelectedLocationIds(
-            fetchedLocations.map((location) => location.id)
+            visibleLocations.map((location) => location.id)
           );
         }
       } catch (error) {
@@ -42,11 +52,26 @@ export default function LocationAccordion({
     }
 
     fetchLocations();
-  }, [theme.colors.primaryBlue]);
+  }, [theme.colors.primaryBlue, showArchived]);
 
   useEffect(() => {
-    setFilter(selectedLocationIds);
-  }, [setFilter, selectedLocationIds]);
+    const visibleLocations = showArchived
+      ? allLocations
+      : allLocations.filter((location) => !location.archived);
+
+    setLocations(visibleLocations);
+
+    const newSelectedIds = selectedLocationIds.filter((id) =>
+      visibleLocations.some((location) => location.id === id)
+    );
+
+    const newVisibleIds = visibleLocations
+      .filter((location) => !selectedLocationIds.includes(location.id))
+      .map((location) => location.id);
+
+    setSelectedLocationIds([...newSelectedIds, ...newVisibleIds]);
+    setFilter([...newSelectedIds, ...newVisibleIds]);
+  }, [showArchived, allLocations, selectedLocationIds, setFilter]);
 
   const toggleLocation = (locationId: number) => {
     let newSelection: number[];
@@ -67,6 +92,7 @@ export default function LocationAccordion({
     id: location.id,
     name: location.name,
     color: location.color,
+    archived: location.archived,
   }));
 
   return (

@@ -62,6 +62,7 @@ const Accordion = ({
                   width="20px"
                   height="20px"
                   mr={2}
+                  flexShrink={0}
                   display="flex"
                   alignItems="center"
                   justifyContent="center"

@@ -43,9 +43,11 @@ const Calendar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<{
     subjectIds: number[];
     locationIds: number[];
+    archiveIds: number[];
   }>({
     subjectIds: [],
     locationIds: [],
+    archiveIds: [],
   });
   const [currentMonthYear, setCurrentMonthYear] = useState('');
   const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
@@ -95,6 +97,8 @@ const Calendar: React.FC = () => {
     substituteTeacher: absenceData.substituteTeacher,
     subjectId: absenceData.subject.id,
     locationId: absenceData.location.id,
+    archivedLocation: absenceData.location.archived,
+    archivedSubject: absenceData.subject.archived,
     absentTeacherFullName: `${absenceData.absentTeacher.firstName} ${absenceData.absentTeacher.lastName}`,
     roomNumber: absenceData.roomNumber || undefined,
     substituteTeacherFullName: absenceData.substituteTeacher
@@ -267,12 +271,30 @@ const Calendar: React.FC = () => {
     }
   };
   useEffect(() => {
-    const { subjectIds, locationIds } = searchQuery;
+    const { subjectIds, locationIds, archiveIds } = searchQuery;
 
     let filtered = events.filter((event) => {
-      const subjectIdMatch = subjectIds.includes(event.subjectId);
-      const locationIdMatch = locationIds.includes(event.locationId);
-      return subjectIdMatch && locationIdMatch;
+      const subjectMatch = subjectIds.includes(event.subjectId);
+
+      const locationMatch = locationIds.includes(event.locationId);
+
+      let archiveMatch = true;
+
+      if (archiveIds.length === 0) {
+        archiveMatch = !event.archivedSubject && !event.archivedLocation;
+      } else {
+        const includeArchivedSubjects = archiveIds.includes(0);
+        const includeArchivedLocations = archiveIds.includes(1);
+
+        const subjectArchiveMatch =
+          includeArchivedSubjects || !event.archivedSubject;
+        const locationArchiveMatch =
+          includeArchivedLocations || !event.archivedLocation;
+
+        archiveMatch = subjectArchiveMatch && locationArchiveMatch;
+      }
+
+      return subjectMatch && locationMatch && archiveMatch;
     });
 
     if (!isAdminMode) {

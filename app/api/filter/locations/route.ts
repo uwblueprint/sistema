@@ -9,6 +9,7 @@ export async function GET() {
         id: true,
         name: true,
         abbreviation: true,
+        archived: true,
       },
     });
 
