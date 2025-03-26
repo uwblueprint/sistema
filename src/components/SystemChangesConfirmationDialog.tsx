@@ -344,22 +344,31 @@ const SystemChangesConfirmationDialog: React.FC<
     >
       <AlertDialogOverlay>
         <AlertDialogContent p={8} width="sm">
-          <AlertDialogHeader fontSize="lg" fontWeight="bold" py={4} px={0}>
+          <AlertDialogHeader
+            fontSize="lg"
+            fontWeight="bold"
+            pb={4}
+            pt={0}
+            px={0}
+          >
             {isConfirmingClose ? (
               'Discard Changes?'
             ) : (
-              <HStack spacing={2} justify="center" alignItems="flex-start">
-                <Icon
-                  as={IoAlertCircleSharp}
-                  color="orange.400"
-                  boxSize={6}
-                  mt="2px"
-                />
-                <VStack spacing={0} align="start">
-                  <Text>You are making the following changes.</Text>
-                  <Text>Do you wish to proceed?</Text>
-                </VStack>
-              </HStack>
+              <Box>
+                <HStack spacing={2} alignItems="center" mb={1}>
+                  <Icon
+                    as={IoAlertCircleSharp}
+                    color="orange.400"
+                    boxSize={6}
+                  />
+                  <Text textStyle="h4" fontWeight="500">
+                    You are making the following changes.
+                  </Text>
+                </HStack>
+                <Text textStyle="h3" fontWeight="600" ml="32px">
+                  Do you wish to proceed?
+                </Text>
+              </Box>
             )}
           </AlertDialogHeader>
 
@@ -374,11 +383,13 @@ const SystemChangesConfirmationDialog: React.FC<
                 <VStack
                   spacing={4}
                   align="stretch"
-                  p={2}
+                  p={4}
                   borderWidth="1px"
                   borderRadius="md"
                   borderStyle="dotted"
                   mb={4}
+                  maxH="236px"
+                  overflowY="auto"
                 >
                   {getDisplayableChanges().map((change, index) => (
                     <HStack key={index} spacing={3} align="center">
@@ -401,13 +412,17 @@ const SystemChangesConfirmationDialog: React.FC<
 
                 {hasDeletedItems && (
                   <HStack
-                    spacing={2}
-                    color="red.500"
+                    spacing={3}
+                    color="errorRed.200"
                     mb={2}
                     alignItems="center"
                   >
                     <Icon as={IoWarning} boxSize={5} />
-                    <Text fontSize="sm">
+                    <Text
+                      textStyle="subtitle"
+                      fontWeight="600"
+                      textColor="errorRed.200"
+                    >
                       Deleted subjects/locations cannot be restored.
                     </Text>
                   </HStack>
@@ -416,7 +431,7 @@ const SystemChangesConfirmationDialog: React.FC<
             )}
           </AlertDialogBody>
 
-          <AlertDialogFooter>
+          <AlertDialogFooter p={0}>
             <Button
               ref={cancelRef}
               onClick={onClose}
@@ -425,6 +440,7 @@ const SystemChangesConfirmationDialog: React.FC<
               colorScheme="blue"
               variant="outline"
               height="35px"
+              textStyle="button"
             >
               Back
             </Button>
@@ -435,6 +451,7 @@ const SystemChangesConfirmationDialog: React.FC<
               flex="1"
               size="lg"
               height="35px"
+              textStyle="button"
             >
               Proceed
             </Button>
