@@ -25,7 +25,7 @@ import {
   IoCloseOutline,
   IoBookOutline,
 } from 'react-icons/io5';
-import { FiType, FiArchive } from 'react-icons/fi';
+import { FiType, FiArchive, FiMapPin } from 'react-icons/fi';
 import { LuInfo } from 'react-icons/lu';
 
 export interface EntityTableItem {
@@ -234,7 +234,11 @@ const EntityTable: React.FC<EntityTableProps> = ({
       >
         <Box width={leftColumnWidth} pr={4}>
           <HStack spacing={2}>
-            <IoBookOutline size={18} color={theme.colors.text.subtitle} />
+            {entityType === 'subject' ? (
+              <IoBookOutline size={18} color={theme.colors.text.subtitle} />
+            ) : (
+              <FiMapPin size={18} color={theme.colors.text.subtitle} />
+            )}
             <Text
               textStyle="h4"
               fontWeight="500"
