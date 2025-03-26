@@ -1,15 +1,15 @@
 import React from 'react';
 import {
   Box,
+  HStack,
   VStack,
-  FormControl,
-  FormLabel,
+  Text,
   NumberInput,
   NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
+  Icon,
+  Tooltip,
 } from '@chakra-ui/react';
+import { LuInfo } from 'react-icons/lu';
 
 interface SystemSettingsProps {
   allowedAbsences: number;
@@ -29,24 +29,49 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({
   };
 
   return (
-    <Box>
-      <VStack align="stretch" spacing={3}>
-        <FormControl>
-          <FormLabel>Allowed Absences</FormLabel>
-          <NumberInput
-            value={allowedAbsences}
-            onChange={(_, value) => handleChange(value)}
-            min={1}
-            max={100}
-          >
-            <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
-        </FormControl>
-      </VStack>
+    <Box py={4}>
+      <HStack justify="space-between" alignItems="flex-start">
+        <VStack align="start" spacing={1}>
+          <HStack spacing={2} alignItems="center">
+            <Text textStyle="h4" fontWeight="500">
+              Allowed Absences
+            </Text>
+            <Tooltip
+              hasArrow
+              placement="top"
+              label="Maximum allowed absences per teacher per school year"
+            >
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                <Icon as={LuInfo} color="blue.500" />
+              </span>
+            </Tooltip>
+          </HStack>
+          <Text textStyle="subtitle" color="text.subtitle">
+            Per teacher per school year
+          </Text>
+        </VStack>
+        <NumberInput
+          value={allowedAbsences}
+          onChange={(_, value) => handleChange(value)}
+          width="83px"
+          variant="unstyled"
+          // paddingX={2}
+          // paddingY={3}
+          // padding={2}
+        >
+          <NumberInputField
+            textAlign="left"
+            borderRadius="md"
+            border="1px solid"
+            borderColor="gray.200"
+            textStyle="subtitle"
+            fontSize="13px"
+            color="text.body"
+            paddingX={3}
+            paddingY={3}
+          />
+        </NumberInput>
+      </HStack>
     </Box>
   );
 };
