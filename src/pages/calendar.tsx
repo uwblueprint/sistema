@@ -17,10 +17,11 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { Absence, Prisma } from '@prisma/client';
-import { AbsenceAPI } from '@utils/types';
+import { AbsenceAPI, mapColorCodes } from '@utils/types';
 import { useUserData } from '@utils/useUserData';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FiPaperclip } from 'react-icons/fi';
 import CalendarHeader from '../components/CalendarHeader';
 import CalendarSidebar from '../components/CalendarSidebar';
 import { CalendarTabs } from '../components/CalendarTabs';
@@ -70,20 +71,99 @@ const Calendar: React.FC = () => {
     onClose: onInputFormClose,
   } = useDisclosure();
 
-  const renderEventContent = useCallback(
-    (eventInfo: EventContentArg) => (
-      <Box>
-        <Box className="fc-event-title-container">
-          <Box className="fc-event-title fc-sticky">
-            {eventInfo.event.title}
-          </Box>
-        </Box>
-        <Box className="fc-event-title fc-sticky">
-          {eventInfo.event.extendedProps.location}
+  const renderEventContent = useCallback((eventInfo: EventContentArg) => {
+    const {
+      absentTeacherFullName,
+      absentTeacherDisplayName,
+      substituteTeacherDisplayName,
+      colors,
+      location,
+    } = eventInfo.event.extendedProps;
+
+    const createdByUser = absentTeacherFullName === userData?.name;
+
+    const highlightText = createdByUser
+      ? substituteTeacherDisplayName
+        ? `${absentTeacherDisplayName} -> ${substituteTeacherDisplayName}`
+        : `${absentTeacherDisplayName} -> Unfilled`
+      : null;
+
+    // filled and not created by current user
+    if (!createdByUser && substituteTeacherDisplayName) {
+      return null;
+    }
+
+    return (
+      <AbsenceBox
+        title={eventInfo.event.title}
+        location={location}
+        backgroundColor={
+          substituteTeacherDisplayName || !createdByUser
+            ? colors.light
+            : 'white'
+        }
+        borderColor={createdByUser ? colors.dark : 'transparent'}
+        textColor={colors.text}
+        highlightText={highlightText}
+        highlightColor={colors.medium}
+      />
+    );
+  }, []);
+
+  const AbsenceBox = ({
+    title,
+    location,
+    backgroundColor,
+    borderColor,
+    textColor,
+    highlightText,
+    highlightColor,
+  }) => (
+    <Box
+      sx={{
+        padding: (theme) => `${theme.space[1]} ${theme.space[1]}`,
+        margin: (theme) => `${theme.space[2]} 0`,
+        borderRadius: (theme) => `${theme.radii.md}`,
+        backgroundColor,
+        textColor,
+        border: '0.1rem solid',
+        borderLeft: '5px solid',
+        borderColor,
+        position: 'relative',
+      }}
+    >
+      <FiPaperclip
+        style={{
+          position: 'absolute',
+          inset: '0 0 auto auto',
+          margin: '0.5rem',
+          color: textColor,
+          transform: 'rotate(180deg)',
+        }}
+      />
+      <Box className="fc-event-title-container">
+        <Box className="fc-event-title fc-sticky" sx={{ fontWeight: 'bold' }}>
+          {title}
         </Box>
       </Box>
-    ),
-    []
+      <Box className="fc-event-title fc-sticky" sx={{ fontSize: 'xs' }}>
+        {location}
+      </Box>
+      {highlightText && (
+        <Box
+          sx={{
+            width: 'fit-content',
+            padding: (theme) => `${theme.space[1]} ${theme.space[1]}`,
+            borderRadius: (theme) => `${theme.radii.md}`,
+            backgroundColor: highlightColor,
+            fontWeight: 'bold',
+            fontSize: 'xs',
+          }}
+        >
+          {highlightText}
+        </Box>
+      )}
+    </Box>
   );
 
   const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
@@ -107,6 +187,10 @@ const Calendar: React.FC = () => {
     lessonPlan: absenceData.lessonPlan,
     reasonOfAbsence: absenceData.reasonOfAbsence,
     notes: absenceData.notes,
+    colors: mapColorCodes(absenceData.subject.colorGroup.colorCodes),
+    absentTeacherDisplayName: absenceData.absentTeacher.firstName,
+    substituteTeacherDisplayName:
+      absenceData.substituteTeacher?.firstName || undefined,
   });
 
   const handleAddAbsence = async (
@@ -362,9 +446,8 @@ const Calendar: React.FC = () => {
             background-color: rgba(0, 0, 0, 0.05) !important;
           }
           .fc-event {
-            padding: ${theme.space[2]} ${theme.space[3]};
-            margin: ${theme.space[2]} 0;
-            border-radius: ${theme.radii.md};
+            border: 0px;
+            background-color: transparent;
           }
           .fc-event-title {
             overflow: hidden;
