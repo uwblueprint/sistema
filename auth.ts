@@ -17,9 +17,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         throw new Error('MissingCredentials');
       }
 
-      if (!user.email.endsWith(`@${allowedDomain}`)) {
-        throw new Error('InvalidEmailDomain');
-      }
+      // if (!user.email.endsWith(`@${allowedDomain}`)) {
+      //   throw new Error('InvalidEmailDomain');
+      // }
 
       try {
         const existingUser = await prisma.user.findUnique({

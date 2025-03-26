@@ -18,11 +18,11 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [startYear, endYear] = selectedYearRange.split(' - ');
 
-  useEffect(() => {
-    if (!userData.isLoading && !userData.isAuthenticated) {
-      router.push('/');
-    }
-  }, [userData.isLoading, userData.isAuthenticated, router]);
+  // useEffect(() => {
+  //   if (!userData.isLoading && !userData.isAuthenticated) {
+  //     router.push('/');
+  //   }
+  // }, [userData.isLoading, userData.isAuthenticated, router]);
 
   useEffect(() => {
     const fetchAbsenceDates = async (): Promise<void> => {
