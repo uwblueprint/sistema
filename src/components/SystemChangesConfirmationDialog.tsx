@@ -343,8 +343,8 @@ const SystemChangesConfirmationDialog: React.FC<
       onClose={onClose}
     >
       <AlertDialogOverlay>
-        <AlertDialogContent>
-          <AlertDialogHeader fontSize="lg" fontWeight="bold" p={4}>
+        <AlertDialogContent p={8} width="sm">
+          <AlertDialogHeader fontSize="lg" fontWeight="bold" py={4} px={0}>
             {isConfirmingClose ? (
               'Discard Changes?'
             ) : (
@@ -355,7 +355,7 @@ const SystemChangesConfirmationDialog: React.FC<
                   boxSize={6}
                   mt="2px"
                 />
-                <VStack spacing={0} align="center">
+                <VStack spacing={0} align="start">
                   <Text>You are making the following changes.</Text>
                   <Text>Do you wish to proceed?</Text>
                 </VStack>
@@ -363,7 +363,7 @@ const SystemChangesConfirmationDialog: React.FC<
             )}
           </AlertDialogHeader>
 
-          <AlertDialogBody pb={2}>
+          <AlertDialogBody pb={2} px={0}>
             {isConfirmingClose ? (
               <Text>
                 You have unsaved changes. Are you sure you want to close without
