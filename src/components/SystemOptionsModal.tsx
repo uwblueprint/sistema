@@ -237,8 +237,13 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         size="md"
         scrollBehavior="outside"
         isCentered={false}
+        motionPreset="slideInBottom"
       >
-        <ModalOverlay />
+        <ModalOverlay
+          bg="rgba(0, 0, 0, 0.4)"
+          backdropFilter="blur(3px)"
+          transition="all 0.3s ease"
+        />
         <ModalContent
           minHeight={['90vh', '95vh', '100vh']}
           maxHeight="none"
@@ -247,6 +252,9 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
           overflow="visible"
           paddingX="43px"
           paddingY="42px"
+          transform={isOpen ? 'translateY(0)' : 'translateY(20px)'}
+          opacity={isOpen ? 1 : 0}
+          transition="transform 0.3s ease, opacity 0.3s ease"
         >
           <ModalHeader padding={0}>
             <HStack spacing={0} width="100%">
@@ -265,6 +273,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                 variant="ghost"
                 onClick={handleClose}
                 size="sm"
+                transition="background-color 0.2s ease"
               />
             </HStack>
           </ModalHeader>
@@ -320,6 +329,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                 borderRadius="md"
                 textStyle="button"
                 onClick={handleClose}
+                transition="background-color 0.2s ease"
               >
                 Cancel
               </Button>
@@ -331,6 +341,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                 borderRadius="md"
                 textStyle="button"
                 onClick={handleSave}
+                transition="background-color 0.2s ease"
               >
                 Save
               </Button>

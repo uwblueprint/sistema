@@ -373,6 +373,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
           role="group"
           alignItems="center"
           key={item.id}
+          transition="background-color 0.3s ease"
         >
           {editingItem && editingItem.id === item.id ? (
             <>
@@ -387,6 +388,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
                         }
                         cursor="pointer"
                         onClick={() => setColorPickerOpen(item.id)}
+                        transition="transform 0.2s ease"
+                        _hover={{ transform: 'scale(1.1)' }}
                       />
                       {colorPickerOpen === item.id && (
                         <Box
@@ -400,6 +403,9 @@ const EntityTable: React.FC<EntityTableProps> = ({
                           boxShadow="md"
                           p={2}
                           width="auto"
+                          opacity={1}
+                          transform="translateY(0)"
+                          transition="opacity 0.3s ease, transform 0.3s ease"
                         >
                           <Box
                             display="grid"
@@ -426,6 +432,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
                                   });
                                   setColorPickerOpen(null);
                                 }}
+                                transition="transform 0.2s ease"
+                                _hover={{ transform: 'scale(1.1)' }}
                               />
                             ))}
                           </Box>
@@ -473,6 +481,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                     size="sm"
                     borderRadius="md"
                     p={0}
+                    transition="background-color 0.2s ease"
                   >
                     <IoCheckmark size={20} color={theme.colors.gray[600]} />
                   </Button>
@@ -482,6 +491,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                     size="sm"
                     borderRadius="md"
                     p={0}
+                    transition="background-color 0.2s ease"
                   >
                     <IoCloseOutline size={20} color={theme.colors.gray[600]} />
                   </Button>
@@ -502,6 +512,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
                       <Circle
                         size="20px"
                         bg={item.colorGroup?.colorCodes[COLOR_CODE_INDEX]}
+                        transition="transform 0.2s ease"
+                        _hover={{ transform: 'scale(1.1)' }}
                       />
                       <Box width={3} />
                     </>
@@ -536,6 +548,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                         position="relative"
                         pr="30px"
                         textStyle="cellBody"
+                        transition="color 0.3s ease"
                       >
                         {item.name}
                       </Text>
@@ -548,6 +561,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                         background={`linear-gradient(to right, transparent, ${item.archived ? 'var(--chakra-colors-neutralGray-100)' : 'white'})`}
                         zIndex="1"
                         pointerEvents="none"
+                        transition="background 0.3s ease"
                       />
                     </Box>
                   </Tooltip>
@@ -563,6 +577,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                 <Text
                   color={item.archived ? 'text.inactiveButtonText' : 'inherit'}
                   textStyle="cellBody"
+                  transition="color 0.3s ease"
                 >
                   {item.abbreviation}
                 </Text>
@@ -570,6 +585,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                   className="menu-button"
                   opacity={openMenuId === item.id ? '1' : '0'}
                   _groupHover={{ opacity: '1' }}
+                  transition="opacity 0.3s ease"
                 >
                   <Menu
                     isOpen={openMenuId === item.id}
@@ -582,17 +598,20 @@ const EntityTable: React.FC<EntityTableProps> = ({
                       icon={<IoEllipsisHorizontal />}
                       variant="ghost"
                       size="sm"
+                      transition="opacity 0.2s ease"
                     />
                     <MenuList>
                       <MenuItem
                         icon={<IoCreateOutline />}
                         onClick={() => handleEditItem(item)}
+                        transition="background-color 0.2s ease"
                       >
                         Edit
                       </MenuItem>
                       <MenuItem
                         icon={<IoArchiveOutline />}
                         onClick={() => handleArchiveItem(item)}
+                        transition="background-color 0.2s ease"
                       >
                         {item.archived ? 'Unarchive' : 'Archive'}
                       </MenuItem>
@@ -625,6 +644,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                               ? 'not-allowed'
                               : 'pointer'
                           }
+                          transition="background-color 0.2s ease"
                         >
                           Delete
                         </MenuItem>
@@ -646,6 +666,13 @@ const EntityTable: React.FC<EntityTableProps> = ({
           display="flex"
           width="100%"
           ref={editingRowRef}
+          animation="fadeIn 0.3s ease"
+          sx={{
+            '@keyframes fadeIn': {
+              '0%': { opacity: 0, transform: 'translateY(-10px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' },
+            },
+          }}
         >
           <Box width={leftColumnWidth} pl={2}>
             <HStack>
@@ -663,6 +690,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
                     }
                     cursor="pointer"
                     onClick={() => setColorPickerOpen(-1)}
+                    transition="transform 0.2s ease"
+                    _hover={{ transform: 'scale(1.1)' }}
                   />
                   {colorPickerOpen === -1 && (
                     <Box
@@ -676,6 +705,9 @@ const EntityTable: React.FC<EntityTableProps> = ({
                       boxShadow="md"
                       p={2}
                       width="auto"
+                      opacity={1}
+                      transform="translateY(0)"
+                      transition="opacity 0.3s ease, transform 0.3s ease"
                     >
                       <Box
                         display="grid"
@@ -702,6 +734,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
                               });
                               setColorPickerOpen(null);
                             }}
+                            transition="transform 0.2s ease"
+                            _hover={{ transform: 'scale(1.1)' }}
                           />
                         ))}
                       </Box>
@@ -750,6 +784,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                 size="sm"
                 borderRadius="md"
                 p={0}
+                transition="background-color 0.2s ease"
               >
                 <IoCheckmark size={20} color={theme.colors.gray[600]} />
               </Button>
@@ -759,6 +794,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                 size="sm"
                 borderRadius="md"
                 p={0}
+                transition="background-color 0.2s ease"
               >
                 <IoCloseOutline size={20} color={theme.colors.gray[600]} />
               </Button>
@@ -781,6 +817,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
           variant="ghost"
           onClick={() => setIsAddingItem(true)}
           p={0}
+          transition="background-color 0.2s ease"
         >
           <Text
             textStyle="h4"
