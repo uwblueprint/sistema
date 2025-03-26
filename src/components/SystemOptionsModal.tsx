@@ -23,6 +23,7 @@ import React from 'react';
 import SystemChangesConfirmationDialog, {
   PendingEntities,
 } from './SystemChangesConfirmationDialog';
+import UnsavedChangesDialog from './UnsavedChangesDialog';
 import SubjectsTable from './SubjectsTable';
 import LocationsTable from './LocationsTable';
 import SystemSettings from './SystemSettings';
@@ -48,6 +49,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   const [subjectsInUse, setSubjectsInUse] = useState<number[]>([]);
   const [locationsInUse, setLocationsInUse] = useState<number[]>([]);
   const confirmationDialog = useDisclosure();
+  const unsavedChangesDialog = useDisclosure();
   const toast = useToast();
   const theme = useTheme();
   const [colorGroups, setColorGroups] = useState<
@@ -198,14 +200,14 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
 
     if (hasChanges) {
       setIsConfirmingClose(true);
-      confirmationDialog.onOpen();
+      unsavedChangesDialog.onOpen();
     } else {
       onClose();
     }
   };
 
   const handleCloseConfirmed = () => {
-    confirmationDialog.onClose();
+    unsavedChangesDialog.onClose();
     setIsConfirmingClose(false);
     // Clear any pending changes
     clearChanges();
@@ -317,13 +319,19 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
           <SystemChangesConfirmationDialog
             isOpen={confirmationDialog.isOpen}
             onClose={confirmationDialog.onClose}
-            onConfirm={isConfirmingClose ? handleCloseConfirmed : applyChanges}
+            onConfirm={applyChanges}
             pendingEntities={pendingEntities}
-            isConfirmingClose={isConfirmingClose}
             subjects={subjects}
             locations={locations}
             colorGroups={colorGroups}
             absenceCap={absenceCap}
+          />
+
+          {/* UnsavedChangesDialog for confirming closing with unsaved changes */}
+          <UnsavedChangesDialog
+            isOpen={unsavedChangesDialog.isOpen}
+            onClose={unsavedChangesDialog.onClose}
+            onConfirm={handleCloseConfirmed}
           />
         </ModalBody>
         <ModalFooter width="100%" padding={0} marginTop="37px">

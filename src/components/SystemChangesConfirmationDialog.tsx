@@ -38,7 +38,6 @@ interface SystemChangesConfirmationDialogProps {
   onClose: () => void;
   onConfirm: () => void;
   pendingEntities: PendingEntities;
-  isConfirmingClose?: boolean;
   subjects: SubjectAPI[];
   locations: Location[];
   colorGroups: any[];
@@ -52,7 +51,6 @@ const SystemChangesConfirmationDialog: React.FC<
   onClose,
   onConfirm,
   pendingEntities,
-  isConfirmingClose = false,
   subjects,
   locations,
   colorGroups,
@@ -361,96 +359,61 @@ const SystemChangesConfirmationDialog: React.FC<
         zIndex={1500}
       >
         <ModalHeader fontSize="lg" fontWeight="bold" pb={4} pt={0} px={0}>
-          {isConfirmingClose ? (
-            <Text textStyle="h3" fontWeight="600">
-              Discard Changes?
-            </Text>
-          ) : (
-            <Box>
-              <HStack spacing={2} alignItems="center" mb={1}>
-                <Icon as={IoAlertCircleSharp} color="orange.400" boxSize={6} />
-                <Text textStyle="h4" fontWeight="500">
-                  You are making the following changes.
-                </Text>
-              </HStack>
-              <Text textStyle="h3" fontWeight="600" ml="32px">
-                Do you wish to proceed?
+          <Box>
+            <HStack spacing={2} alignItems="center" mb={1}>
+              <Icon as={IoAlertCircleSharp} color="orange.400" boxSize={6} />
+              <Text textStyle="h4" fontWeight="500">
+                You are making the following changes.
               </Text>
-            </Box>
-          )}
+            </HStack>
+            <Text textStyle="h3" fontWeight="600" ml="32px">
+              Do you wish to proceed?
+            </Text>
+          </Box>
         </ModalHeader>
 
         <ModalBody pb={2} px={0}>
-          {isConfirmingClose ? (
-            <VStack
-              spacing={4}
-              align="stretch"
-              p={4}
-              borderWidth="1px"
-              borderRadius="md"
-              borderStyle="dotted"
-              mb={2}
-            >
-              <HStack spacing={3} align="center">
+          <VStack
+            spacing={4}
+            align="stretch"
+            p={4}
+            borderWidth="1px"
+            borderRadius="md"
+            borderStyle="dotted"
+            mb={4}
+            maxH="236px"
+            overflowY="auto"
+          >
+            {getDisplayableChanges().map((change, index) => (
+              <HStack key={index} spacing={3} align="center">
                 <Box w="40px" textAlign="center">
-                  <Icon as={IoWarning} color="orange.400" boxSize={5} />
+                  {change.icon}
                 </Box>
-                <Text textStyle="cellBody">
-                  You have unsaved changes. Are you sure you want to close
-                  without saving?
-                </Text>
-              </HStack>
-            </VStack>
-          ) : (
-            <>
-              <VStack
-                spacing={4}
-                align="stretch"
-                p={4}
-                borderWidth="1px"
-                borderRadius="md"
-                borderStyle="dotted"
-                mb={4}
-                maxH="236px"
-                overflowY="auto"
-              >
-                {getDisplayableChanges().map((change, index) => (
-                  <HStack key={index} spacing={3} align="center">
-                    <Box w="40px" textAlign="center">
-                      {change.icon}
-                    </Box>
-                    <VStack align="start" spacing={0}>
-                      <Text fontWeight="bold" color={change.color}>
-                        {change.label}
-                      </Text>
-                      {typeof change.details === 'string' ? (
-                        <Text fontSize="sm">{change.details}</Text>
-                      ) : (
-                        change.details
-                      )}
-                    </VStack>
-                  </HStack>
-                ))}
-              </VStack>
-
-              {hasDeletedItems && (
-                <HStack
-                  spacing={3}
-                  color="errorRed.200"
-                  mb={2}
-                  alignItems="center"
-                >
-                  <Icon as={IoWarning} boxSize={5} />
-                  <Text
-                    textStyle="subtitle"
-                    fontWeight="600"
-                    textColor="errorRed.200"
-                  >
-                    Deleted subjects/locations cannot be restored.
+                <VStack align="start" spacing={0}>
+                  <Text fontWeight="bold" color={change.color}>
+                    {change.label}
                   </Text>
-                </HStack>
-              )}
-            </>
+                  {typeof change.details === 'string' ? (
+                    <Text fontSize="sm">{change.details}</Text>
+                  ) : (
+                    change.details
+                  )}
+                </VStack>
+              </HStack>
+            ))}
+          </VStack>
+
+          {hasDeletedItems && (
+            <HStack spacing={3} color="errorRed.200" mb={2} alignItems="center">
+              <Icon as={IoWarning} boxSize={5} />
+              <Text
+                textStyle="subtitle"
+                fontWeight="600"
+                textColor="errorRed.200"
+              >
+                Deleted subjects/locations cannot be restored.
+              </Text>
+            </HStack>
           )}
         </ModalBody>
 
@@ -465,7 +428,7 @@ const SystemChangesConfirmationDialog: React.FC<
             height="35px"
             textStyle="button"
           >
-            {isConfirmingClose ? 'Keep Editing' : 'Back'}
+            Back
           </Button>
           <Button
             colorScheme="blue"
@@ -476,7 +439,7 @@ const SystemChangesConfirmationDialog: React.FC<
             height="35px"
             textStyle="button"
           >
-            {isConfirmingClose ? 'Discard' : 'Proceed'}
+            Proceed
           </Button>
         </ModalFooter>
       </ModalContent>
