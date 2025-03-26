@@ -444,7 +444,6 @@ const EntityTable: React.FC<EntityTableProps> = ({
                     <Box
                       position="relative"
                       width="100%"
-                      maxWidth="200px"
                       overflow="hidden"
                       flex={1}
                     >
