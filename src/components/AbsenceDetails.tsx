@@ -178,6 +178,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode }) => {
 
             {/* Visibility Tag*/}
             {event.substituteTeacher &&
+              !isAdminMode &&
               (isUserAbsentTeacher || isUserSubstituteTeacher) && (
                 <Flex gap="10px" align="center" textStyle="caption">
                   {isUserAbsentTeacher ? (
