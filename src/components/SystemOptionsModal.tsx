@@ -183,9 +183,11 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   // Create a wrapper for applyChanges that also closes the modal
   const applyChanges = async () => {
     try {
-      await applyChangesOriginal();
-      confirmationDialog.onClose();
-      onClose();
+      const result = await applyChangesOriginal();
+      if (result) {
+        confirmationDialog.onClose();
+        onClose();
+      }
     } catch (error) {
       console.error('Error applying changes:', error);
     }
