@@ -457,6 +457,7 @@ const Calendar: React.FC = () => {
               initialDate={selectedDate!!}
               userId={userData.id}
               onTabChange={setActiveTab}
+              isAdminMode={isAdminMode}
             />
           </ModalBody>
         </ModalContent>
