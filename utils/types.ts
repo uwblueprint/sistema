@@ -100,7 +100,6 @@ export interface Location {
   name: string;
   archived: boolean;
   abbreviation: string;
-  archived: boolean;
 }
 
 export interface MailingListWithRelations {
