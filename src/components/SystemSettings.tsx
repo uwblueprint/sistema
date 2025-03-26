@@ -29,13 +29,11 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({
   };
 
   return (
-    <Box py={4}>
+    <Box py={0}>
       <HStack justify="space-between" alignItems="flex-start">
         <VStack align="start" spacing={1}>
           <HStack spacing={2} alignItems="center">
-            <Text textStyle="h4" fontWeight="500">
-              Allowed Absences
-            </Text>
+            <Text textStyle="h4">Allowed Absences</Text>
             <Tooltip
               hasArrow
               placement="top"
