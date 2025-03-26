@@ -436,6 +436,7 @@ const Calendar: React.FC = () => {
         isOpen={isAbsenceDetailsOpen}
         onClose={onAbsenceDetailsClose}
         event={selectedEvent}
+        isAdminMode={isAdminMode}
       />
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>

@@ -20,7 +20,7 @@ import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
 
-const AbsenceDetails = ({ isOpen, onClose, event }) => {
+const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode }) => {
   const theme = useTheme();
   const userData = useUserData();
   if (!event) return null;
@@ -28,7 +28,6 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
   const userId = userData.id;
   const isUserAbsentTeacher = userId === event.absentTeacher.id;
   const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
-  const isUserAdmin = userData.role === Role.ADMIN;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
@@ -43,11 +42,11 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
             <AbsenceStatusTag
               isUserAbsentTeacher={isUserAbsentTeacher}
               isUserSubstituteTeacher={isUserSubstituteTeacher}
-              isUserAdmin={isUserAdmin}
+              isAdminMode={isAdminMode}
               substituteTeacherFullName={event.substituteTeacherFullName}
             />
             <Flex position="absolute" right="0">
-              {isUserAdmin && (
+              {isAdminMode && (
                 <IconButton
                   aria-label="Edit Absence"
                   icon={<FiEdit2 size="15px" color={theme.colors.text.body} />}
@@ -56,7 +55,7 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                 />
               )}
 
-              {(isUserAdmin ||
+              {(isAdminMode ||
                 (isUserAbsentTeacher && !event.substituteTeacher)) && (
                 <IconButton
                   aria-label="Delete Absence"
@@ -117,9 +116,10 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                 absentTeacherFirstName={event.absentTeacher.firstName}
                 isUserAbsentTeacher={isUserAbsentTeacher}
                 isUserSubstituteTeacher={isUserSubstituteTeacher}
+                isAdminMode={isAdminMode}
               />
             </Box>
-            {(isUserAdmin || isUserAbsentTeacher) && (
+            {(isAdminMode || isUserAbsentTeacher) && (
               <Box>
                 <Text textStyle="h4" mb="9px">
                   Reason of Absence
@@ -133,7 +133,7 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                 </Box>
               </Box>
             )}
-            {isUserAbsentTeacher && (
+            {isUserAbsentTeacher && !isAdminMode && (
               <Box position="relative">
                 <Text textStyle="h4" mb="9px">
                   Notes
@@ -157,7 +157,7 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                 />
               </Box>
             )}
-            {event.notes && !isUserAbsentTeacher && (
+            {event.notes && (!isUserAbsentTeacher || isAdminMode) && (
               <Box position="relative">
                 <Text textStyle="h4" mb="9px">
                   Notes
@@ -217,17 +217,19 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
               )}
 
             {/* Fill Absence Button*/}
-            {!event.substituteTeacher && !isUserAbsentTeacher && (
-              <Button
-                colorScheme="blue"
-                width="full"
-                height="44px"
-                fontSize="16px"
-                fontWeight="500"
-              >
-                Fill this Absence
-              </Button>
-            )}
+            {!event.substituteTeacher &&
+              !isUserAbsentTeacher &&
+              !isAdminMode && (
+                <Button
+                  colorScheme="blue"
+                  width="full"
+                  height="44px"
+                  fontSize="16px"
+                  fontWeight="500"
+                >
+                  Fill this Absence
+                </Button>
+              )}
           </VStack>
         </ModalBody>
       </ModalContent>
