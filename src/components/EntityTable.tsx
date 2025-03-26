@@ -807,21 +807,17 @@ const EntityTable: React.FC<EntityTableProps> = ({
       ) : null}
 
       {/* Add Button */}
-      <HStack
-        px={4}
-        py={2}
-        spacing={2}
-        justify="flex-start"
+      <Box
+        as="button"
+        width="100%"
+        onClick={() => setIsAddingItem(true)}
+        _hover={{ bg: 'gray.50' }}
+        transition="background-color 0.2s ease"
+        textAlign="left"
         borderTopWidth={items.length > 0 ? '1px' : '0'}
       >
-        <Button
-          leftIcon={<IoAdd size={20} color={theme.colors.text.subtitle} />}
-          size="sm"
-          variant="ghost"
-          onClick={() => setIsAddingItem(true)}
-          p={0}
-          transition="background-color 0.2s ease"
-        >
+        <HStack px={4} py={2} spacing={2} justify="flex-start">
+          <Icon as={IoAdd} size={20} color={theme.colors.text.subtitle} />
           <Text
             textStyle="h4"
             fontWeight="500"
@@ -829,8 +825,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
           >
             Add
           </Text>
-        </Button>
-      </HStack>
+        </HStack>
+      </Box>
     </Box>
   );
 };
