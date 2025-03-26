@@ -1,6 +1,6 @@
 import { useTheme } from '@chakra-ui/react';
 import type { Location } from '@utils/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Accordion, { AccordionItem } from './Accordion';
 
 interface LocationAccordionProps {
@@ -36,15 +36,6 @@ export default function LocationAccordion({
             color: theme.colors.primaryBlue[300],
           }));
           setAllLocations(fetchedLocations);
-
-          const visibleLocations = showArchived
-            ? fetchedLocations
-            : fetchedLocations.filter((location) => !location.archived);
-
-          setLocations(visibleLocations);
-          setSelectedLocationIds(
-            visibleLocations.map((location) => location.id)
-          );
         }
       } catch (error) {
         console.error('Error fetching locations:', error);
@@ -52,7 +43,7 @@ export default function LocationAccordion({
     }
 
     fetchLocations();
-  }, [theme.colors.primaryBlue, showArchived]);
+  }, [theme.colors.primaryBlue]);
 
   useEffect(() => {
     const visibleLocations = showArchived
@@ -69,26 +60,37 @@ export default function LocationAccordion({
       .filter((location) => !selectedLocationIds.includes(location.id))
       .map((location) => location.id);
 
-    setSelectedLocationIds([...newSelectedIds, ...newVisibleIds]);
-    setFilter([...newSelectedIds, ...newVisibleIds]);
+    const updatedSelection = [...newSelectedIds, ...newVisibleIds];
+
+    if (
+      updatedSelection.length !== selectedLocationIds.length ||
+      !updatedSelection.every((id, idx) => id === selectedLocationIds[idx])
+    ) {
+      setSelectedLocationIds(updatedSelection);
+      setFilter(updatedSelection);
+    }
   }, [showArchived, allLocations]);
 
-  const toggleLocation = (locationId: number) => {
-    let newSelection: number[];
-    if (selectedLocationIds.includes(locationId)) {
-      newSelection = selectedLocationIds.filter((s) => s !== locationId);
-    } else {
-      newSelection = [...selectedLocationIds, locationId];
-    }
-    setSelectedLocationIds(newSelection);
-    setFilter(newSelection);
-  };
+  const toggleLocation = useCallback(
+    (locationId: number) => {
+      setSelectedLocationIds((prevSelected) => {
+        let newSelection;
+        if (prevSelected.includes(locationId)) {
+          newSelection = prevSelected.filter((s) => s !== locationId);
+        } else {
+          newSelection = [...prevSelected, locationId];
+        }
 
-  const toggleOpen = () => {
-    setIsOpen((prev) => !prev);
-  };
+        setFilter(newSelection);
+        return newSelection;
+      });
+    },
+    [setFilter]
+  );
 
-  const AccordionItems: AccordionItem[] = locations.map((location) => ({
+  const toggleOpen = () => setIsOpen((prev) => !prev);
+
+  const accordionItems: AccordionItem[] = locations.map((location) => ({
     id: location.id,
     name: location.name,
     color: location.color,
@@ -98,7 +100,7 @@ export default function LocationAccordion({
   return (
     <Accordion
       title="Location"
-      items={AccordionItems}
+      items={accordionItems}
       selectedItems={selectedLocationIds}
       isOpen={isOpen}
       toggleOpen={toggleOpen}
