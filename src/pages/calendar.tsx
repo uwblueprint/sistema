@@ -18,24 +18,24 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { Absence, Prisma } from '@prisma/client';
 import { AbsenceAPI } from '@utils/types';
-import useUserData from '@utils/useUserData';
-import { useSession } from 'next-auth/react';
+import { useUserData } from '@utils/useUserData';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import CalendarHeader from '../components/CalendarHeader';
 import CalendarSidebar from '../components/CalendarSidebar';
+import { CalendarTabs } from '../components/CalendarTabs';
 import InputForm from '../components/InputForm';
 import AbsenceDetails from '../components/AbsenceDetails';
 
 const Calendar: React.FC = () => {
-  const { data: session, status } = useSession();
+  const userData = useUserData();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (!userData.isLoading && !userData.isAuthenticated) {
       router.push('/');
     }
-  }, [status, router]);
+  }, [userData.isLoading, userData.isAuthenticated, router]);
 
   const calendarRef = useRef<FullCalendar>(null);
   const [events, setEvents] = useState<EventInput[]>([]);
@@ -48,10 +48,12 @@ const Calendar: React.FC = () => {
     locationIds: [],
   });
   const [currentMonthYear, setCurrentMonthYear] = useState('');
+  const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
+    'explore'
+  );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [absenceToEdit, setAbsenceToEdit] = useState<EventInput | null>(null);
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
   const toast = useToast();
   const theme = useTheme();
   const {
@@ -65,7 +67,6 @@ const Calendar: React.FC = () => {
     onOpen: onInputFormOpen,
     onClose: onInputFormClose,
   } = useDisclosure();
-  const userData = useUserData();
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => (
@@ -90,11 +91,11 @@ const Calendar: React.FC = () => {
     display: 'auto',
 
     location: absenceData.location.name,
+    absentTeacher: absenceData.absentTeacher,
+    substituteTeacher: absenceData.substituteTeacher,
     subjectId: absenceData.subject.id,
     locationId: absenceData.location.id,
-    absentTeacher: absenceData.absentTeacher,
     absentTeacherFullName: `${absenceData.absentTeacher.firstName} ${absenceData.absentTeacher.lastName}`,
-    substituteTeacher: absenceData.substituteTeacher || undefined,
     roomNumber: absenceData.roomNumber || undefined,
     substituteTeacherFullName: absenceData.substituteTeacher
       ? `${absenceData.substituteTeacher.firstName} ${absenceData.substituteTeacher.lastName}`
@@ -270,19 +271,41 @@ const Calendar: React.FC = () => {
   useEffect(() => {
     const { subjectIds, locationIds } = searchQuery;
 
-    const filtered = events.filter((event) => {
+    let filtered = events.filter((event) => {
       const subjectIdMatch = subjectIds.includes(event.subjectId);
       const locationIdMatch = locationIds.includes(event.locationId);
       return subjectIdMatch && locationIdMatch;
     });
 
+    if (!isAdminMode) {
+      if (activeTab === 'explore') {
+        filtered = filtered.filter(
+          (event) =>
+            event.absentTeacher.id !== userData.id && !event.substituteTeacher
+        );
+      } else if (activeTab === 'declared') {
+        filtered = filtered.filter(
+          (event) =>
+            event.absentTeacher.id === userData.id ||
+            event.substituteTeacher?.id === userData.id
+        );
+      }
+    }
+
     setFilteredEvents(filtered);
-  }, [searchQuery, events]);
+  }, [searchQuery, events, activeTab, userData.id, isAdminMode]);
 
   const handleDeleteAbsence = async (deletedId) => {
     await fetchAbsences();
   };
 
+  if (userData.isLoading) {
+    return null;
+  }
+
+  if (!userData.isAuthenticated) {
+    return null;
+  }
   return (
     <>
       <Global
@@ -366,9 +389,14 @@ const Calendar: React.FC = () => {
             onPrevClick={handlePrevClick}
             onNextClick={handleNextClick}
             userData={userData}
+            isAdminMode={isAdminMode}
+            setIsAdminMode={setIsAdminMode}
           />
 
-          <Box flex={1} overflow="hidden" paddingRight={theme.space[2]}>
+          <Box flex={1} overflow="hidden" pr={theme.space[2]}>
+            {!isAdminMode && (
+              <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
+            )}
             <FullCalendar
               ref={calendarRef}
               headerToolbar={false}
@@ -411,6 +439,8 @@ const Calendar: React.FC = () => {
               onClose={onInputFormClose}
               onAddAbsence={handleAddAbsence}
               initialDate={selectedDate!!}
+              userId={userData.id}
+              onTabChange={setActiveTab}
             />
           </ModalBody>
         </ModalContent>

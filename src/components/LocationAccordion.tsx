@@ -1,18 +1,20 @@
 import { useTheme } from '@chakra-ui/react';
 import type { Location } from '@utils/types';
 import { useEffect, useState } from 'react';
-import Dropdown, { DropdownItem } from './Dropdown';
-interface LocationDropdownProps {
+import Accordion, { AccordionItem } from './Accordion';
+interface LocationAccordionProps {
   setFilter: (location: number[]) => void;
 }
 
-interface LocationItem extends Location {
+interface LocationAccordionItem extends Location {
   color: string;
 }
 
-export default function LocationDropdown({ setFilter }: LocationDropdownProps) {
+export default function LocationAccordion({
+  setFilter,
+}: LocationAccordionProps) {
   const [isOpen, setIsOpen] = useState(true);
-  const [locations, setLocations] = useState<LocationItem[]>([]);
+  const [locations, setLocations] = useState<LocationAccordionItem[]>([]);
   const [selectedLocationIds, setSelectedLocationIds] = useState<number[]>([]);
   const theme = useTheme();
 
@@ -61,16 +63,16 @@ export default function LocationDropdown({ setFilter }: LocationDropdownProps) {
     setIsOpen((prev) => !prev);
   };
 
-  const dropdownItems: DropdownItem[] = locations.map((location) => ({
+  const AccordionItems: AccordionItem[] = locations.map((location) => ({
     id: location.id,
     name: location.name,
     color: location.color,
   }));
 
   return (
-    <Dropdown
+    <Accordion
       title="Location"
-      items={dropdownItems}
+      items={AccordionItems}
       selectedItems={selectedLocationIds}
       isOpen={isOpen}
       toggleOpen={toggleOpen}

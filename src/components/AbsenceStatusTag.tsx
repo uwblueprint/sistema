@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Flex, useTheme } from '@chakra-ui/react';
+import { useEffect, useRef, useState } from 'react';
 import { FiCheckCircle, FiClock } from 'react-icons/fi';
 
 interface AbsenceStatusTagProps {
@@ -15,6 +15,7 @@ const AbsenceStatusTag = ({
   isUserAdmin,
   substituteTeacherFullName,
 }: AbsenceStatusTagProps) => {
+  const theme = useTheme();
   const textRef = useRef<HTMLDivElement | null>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -37,24 +38,24 @@ const AbsenceStatusTag = ({
 
   if (substituteTeacherFullName && isUserSubstituteTeacher) {
     tagText = `Filled by Me`;
-    tagColor = '#2D4F12';
-    tagBg = '#D8F5C1';
-    tagIcon = <FiCheckCircle size="20px" />;
+    tagColor = theme.colors.positiveGreen[300];
+    tagBg = theme.colors.positiveGreen[100];
+    tagIcon = <FiCheckCircle size="20px" color={tagColor} />;
   } else if (substituteTeacherFullName) {
     tagText = `Filled by ${substituteTeacherFullName}`;
-    tagColor = '#2D4F12';
-    tagBg = '#D8F5C1';
-    tagIcon = <FiCheckCircle size="20px" />;
+    tagColor = theme.colors.positiveGreen[300];
+    tagBg = theme.colors.positiveGreen[100];
+    tagIcon = <FiCheckCircle size="20px" color={tagColor} />;
   } else if (isUserAbsentTeacher) {
     tagText = 'Unfilled';
-    tagColor = '#9B520E';
-    tagBg = '#FEEED5';
-    tagIcon = <FiClock size="20px" />;
+    tagColor = theme.colors.warningOrange[300];
+    tagBg = theme.colors.warningOrange[100];
+    tagIcon = <FiClock size="20px" color={tagColor} />;
   } else {
     tagText = 'Open to fill';
-    tagColor = '#2248AF';
-    tagBg = '#E4F3FF';
-    tagIcon = <FiClock size="20px" />;
+    tagColor = theme.colors.primaryBlue[400];
+    tagBg = theme.colors.primaryBlue[50];
+    tagIcon = <FiClock size="20px" color={tagColor} />;
   }
 
   return (
@@ -70,14 +71,14 @@ const AbsenceStatusTag = ({
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      zIndex={isHovered ? 10 : 'auto'} // overlay on top of buttons
+      zIndex={isHovered ? 10 : 'auto'}
     >
       <Flex gap="7px" align="center">
         {tagIcon}
         <Box
           ref={textRef}
-          fontWeight="500"
-          fontSize="12px"
+          fontWeight={theme.textStyles.label.fontWeight}
+          fontSize={theme.textStyles.label.fontSize}
           whiteSpace="nowrap"
           overflow="hidden"
           maxWidth={isHovered ? 'none' : isUserAdmin ? '150px' : '210px'}
