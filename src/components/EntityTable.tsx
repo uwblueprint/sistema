@@ -75,6 +75,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
   const [editingItem, setEditingItem] = useState<EntityTableItem | null>(null);
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState<number | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [newItem, setNewItem] = useState<EntityTableItem>({
     id: 0,
     name: '',
@@ -439,7 +440,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                     <Box
                       position="relative"
                       width="100%"
-                      maxWidth="170px"
+                      maxWidth="200px"
                       overflow="hidden"
                       flex={1}
                     >
@@ -486,10 +487,14 @@ const EntityTable: React.FC<EntityTableProps> = ({
                 </Text>
                 <Box
                   className="menu-button"
-                  opacity="0"
+                  opacity={openMenuId === item.id ? '1' : '0'}
                   _groupHover={{ opacity: '1' }}
                 >
-                  <Menu>
+                  <Menu
+                    isOpen={openMenuId === item.id}
+                    onOpen={() => setOpenMenuId(item.id)}
+                    onClose={() => setOpenMenuId(null)}
+                  >
                     <MenuButton
                       as={IconButton}
                       aria-label="Options"
@@ -682,18 +687,26 @@ const EntityTable: React.FC<EntityTableProps> = ({
 
       {/* Add Button */}
       <HStack
-        p={3}
+        px={4}
+        py={2}
+        spacing={2}
         justify="flex-start"
         borderTopWidth={items.length > 0 ? '1px' : '0'}
-        bg="gray.50"
       >
         <Button
-          leftIcon={<IoAdd />}
+          leftIcon={<IoAdd size={20} color={theme.colors.text.subtitle} />}
           size="sm"
           variant="ghost"
           onClick={() => setIsAddingItem(true)}
+          p={0}
         >
-          Add
+          <Text
+            textStyle="h4"
+            fontWeight="500"
+            color={theme.colors.text.subtitle}
+          >
+            Add
+          </Text>
         </Button>
       </HStack>
     </Box>
