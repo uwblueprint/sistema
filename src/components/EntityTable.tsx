@@ -18,16 +18,13 @@ import {
 } from '@chakra-ui/react';
 import {
   IoEllipsisHorizontal,
-  IoCreateOutline,
-  IoArchiveOutline,
-  IoTrashOutline,
   IoAdd,
   IoCheckmark,
   IoCloseOutline,
   IoBookOutline,
   IoLinkOutline,
 } from 'react-icons/io5';
-import { FiType, FiArchive, FiMapPin } from 'react-icons/fi';
+import { FiType, FiArchive, FiMapPin, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { LuInfo } from 'react-icons/lu';
 
 export interface EntityTableItem {
@@ -603,18 +600,34 @@ const EntityTable: React.FC<EntityTableProps> = ({
                       size="sm"
                       transition="opacity 0.2s ease"
                     />
-                    <MenuList>
+                    <MenuList minW="120px">
                       <MenuItem
-                        icon={<IoCreateOutline />}
+                        icon={
+                          <FiEdit2
+                            color={theme.colors.neutralGray[600]}
+                            size={15}
+                          />
+                        }
                         onClick={() => handleEditItem(item)}
                         transition="background-color 0.2s ease"
+                        textStyle="label"
+                        color="body"
+                        py={2}
                       >
                         Edit
                       </MenuItem>
                       <MenuItem
-                        icon={<IoArchiveOutline />}
+                        icon={
+                          <FiArchive
+                            color={theme.colors.neutralGray[600]}
+                            size={15}
+                          />
+                        }
                         onClick={() => handleArchiveItem(item)}
                         transition="background-color 0.2s ease"
+                        textStyle="label"
+                        color="body"
+                        py={2}
                       >
                         {item.archived ? 'Unarchive' : 'Archive'}
                       </MenuItem>
@@ -628,9 +641,13 @@ const EntityTable: React.FC<EntityTableProps> = ({
                         hasArrow
                       >
                         <MenuItem
-                          icon={<IoTrashOutline />}
+                          icon={
+                            <FiTrash2
+                              color={theme.colors.neutralGray[600]}
+                              size={15}
+                            />
+                          }
                           onClick={() => handleDeleteItem(item)}
-                          color="red.500"
                           isDisabled={itemsInUse.includes(item.id)}
                           bg={
                             itemsInUse.includes(item.id)
@@ -648,6 +665,9 @@ const EntityTable: React.FC<EntityTableProps> = ({
                               : 'pointer'
                           }
                           transition="background-color 0.2s ease"
+                          textStyle="label"
+                          color="body"
+                          py={2}
                         >
                           Delete
                         </MenuItem>
