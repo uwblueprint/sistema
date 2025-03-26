@@ -14,6 +14,7 @@ import {
   useDisclosure,
   useToast,
   useTheme,
+  Spacer,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
 import { IoSettingsOutline, IoCloseOutline } from 'react-icons/io5';
@@ -241,24 +242,26 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         <ModalContent
           minHeight={['90vh', '95vh', '100vh']}
           maxHeight="none"
-          maxWidth="md"
+          maxWidth="lg"
           position="relative"
           overflow="visible"
+          paddingX="43px"
+          paddingY="42px"
         >
-          <ModalHeader>
-            <HStack justifyContent="space-between" width="100%">
-              <HStack>
-                <IoSettingsOutline
-                  size={20}
-                  color={theme.colors.neutralGray[600]}
-                />
-                <Box>
-                  <Text>System Options</Text>
-                </Box>
-              </HStack>
+          <ModalHeader padding={0}>
+            <HStack spacing={0} width="100%">
+              <IoSettingsOutline
+                size={29}
+                color={theme.colors.neutralGray[600]}
+              />
+              <Box width="16px" />
+              <Box>
+                <Text textStyle="h2">System Options</Text>
+              </Box>
+              <Spacer />
               <IconButton
                 aria-label="Close"
-                icon={<IoCloseOutline size={20} />}
+                icon={<IoCloseOutline size={40} />}
                 variant="ghost"
                 onClick={handleClose}
                 size="sm"
@@ -266,13 +269,18 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
             </HStack>
           </ModalHeader>
           <ModalBody
-            padding={4}
             flex="1"
             position="relative"
             width="100%"
             overflow="visible"
+            padding={0}
           >
-            <VStack align="stretch" spacing={6} width="100%">
+            <VStack
+              align="stretch"
+              spacing="37px"
+              width="100%"
+              marginTop="37px"
+            >
               {/* Subjects Section */}
               <Box>
                 <SubjectsTable

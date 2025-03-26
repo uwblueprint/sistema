@@ -13,6 +13,7 @@ import {
   MenuList,
   Tooltip,
   useTheme,
+  Spacer,
 } from '@chakra-ui/react';
 import {
   IoEllipsisHorizontal,
@@ -24,8 +25,8 @@ import {
   IoCloseOutline,
   IoBookOutline,
 } from 'react-icons/io5';
-import { FiType } from 'react-icons/fi';
-import { LuInfo, LuArchive } from 'react-icons/lu';
+import { FiType, FiArchive } from 'react-icons/fi';
+import { LuInfo } from 'react-icons/lu';
 
 export interface EntityTableItem {
   id: number;
@@ -53,6 +54,7 @@ export interface EntityTableProps {
   itemsInUse: number[];
   handleUpdateEntity: (entity: EntityTableItem | null, id?: number) => void;
   maxAbbreviationLength: number;
+  leftColumnWidth?: string; // Make column width configurable
 }
 
 const EntityTable: React.FC<EntityTableProps> = ({
@@ -63,10 +65,12 @@ const EntityTable: React.FC<EntityTableProps> = ({
   itemsInUse,
   handleUpdateEntity,
   maxAbbreviationLength,
+  leftColumnWidth = '60%', // Default to 60% if not specified
 }) => {
   const COLOR_CODE_INDEX = 1;
   const theme = useTheme();
   const editingRowRef = useRef<HTMLDivElement>(null);
+  const rightColumnWidth = `${100 - parseInt(leftColumnWidth)}%`; // Calculate right column width
 
   const [editingItem, setEditingItem] = useState<EntityTableItem | null>(null);
   const [isAddingItem, setIsAddingItem] = useState(false);
@@ -221,19 +225,26 @@ const EntityTable: React.FC<EntityTableProps> = ({
     <Box borderWidth="1px" borderRadius="md" overflow="hidden">
       {/* Table Header */}
       <Box
-        p={3}
+        p={4}
         bg="gray.50"
         borderBottomWidth="1px"
         display="flex"
         width="100%"
       >
-        <Box width="70%" pl={2}>
-          <HStack spacing={1}>
-            <IoBookOutline />
-            <Text fontWeight="medium">{title}</Text>
+        <Box width={leftColumnWidth} pr={4}>
+          <HStack spacing={2}>
+            <IoBookOutline size={18} color={theme.colors.text.subtitle} />
+            <Text
+              textStyle="h4"
+              fontWeight="500"
+              color={theme.colors.text.subtitle}
+            >
+              {title}
+            </Text>
+            <Spacer />
             <Tooltip
               label={`The full ${entityType} name`}
-              placement="bottom"
+              placement="top"
               hasArrow
             >
               <Box as="span" ml={1} color="primaryBlue.300" cursor="help">
@@ -242,13 +253,20 @@ const EntityTable: React.FC<EntityTableProps> = ({
             </Tooltip>
           </HStack>
         </Box>
-        <Box width="30%">
-          <HStack spacing={1}>
-            <FiType />
-            <Text fontWeight="medium">Display</Text>
+        <Box width={rightColumnWidth} pl={4}>
+          <HStack spacing={2}>
+            <FiType size={18} color={theme.colors.text.subtitle} />
+            <Text
+              textStyle="h4"
+              fontWeight="500"
+              color={theme.colors.text.subtitle}
+            >
+              Display
+            </Text>
+            <Spacer />
             <Tooltip
               label={`The abbreviated ${entityType} name (max ${maxAbbreviationLength} characters)`}
-              placement="bottom"
+              placement="top"
               hasArrow
             >
               <Box as="span" ml={1} color="primaryBlue.300" cursor="help">
@@ -262,7 +280,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
       {/* Table Rows */}
       {sortedItems.map((item) => (
         <Box
-          p={3}
+          px={4}
+          py={2}
           borderBottomWidth="1px"
           _last={{ borderBottomWidth: 0 }}
           ref={editingItem?.id === item.id ? editingRowRef : undefined}
@@ -270,16 +289,17 @@ const EntityTable: React.FC<EntityTableProps> = ({
           display="flex"
           width="100%"
           role="group"
+          alignItems="center"
           key={item.id}
         >
           {editingItem && editingItem.id === item.id ? (
             <>
-              <Box width="70%" pl={2}>
-                <HStack>
+              <Box width={leftColumnWidth} pr={4}>
+                <HStack spacing={5}>
                   {entityType === 'subject' && (
                     <Box position="relative">
                       <Circle
-                        size="24px"
+                        size="20px"
                         bg={
                           editingItem.colorGroup?.colorCodes[COLOR_CODE_INDEX]
                         }
@@ -307,7 +327,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                             {colorGroups.map((group) => (
                               <Circle
                                 key={group.id}
-                                size="24px"
+                                size="20px"
                                 bg={group.colorCodes[COLOR_CODE_INDEX]}
                                 border="2px solid"
                                 borderColor={
@@ -345,7 +365,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
                 </HStack>
               </Box>
               <Box
-                width="30%"
+                width={rightColumnWidth}
+                pl={4}
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
@@ -386,18 +407,26 @@ const EntityTable: React.FC<EntityTableProps> = ({
             </>
           ) : (
             <>
-              <Box width="70%" pl={2}>
-                <HStack>
+              <Box
+                width={leftColumnWidth}
+                pr={4}
+                alignItems="center"
+                flexShrink={0}
+              >
+                <HStack spacing={2}>
                   {entityType === 'subject' && (
-                    <Circle
-                      size="24px"
-                      bg={item.colorGroup?.colorCodes[COLOR_CODE_INDEX]}
-                    />
+                    <>
+                      <Circle
+                        size="20px"
+                        bg={item.colorGroup?.colorCodes[COLOR_CODE_INDEX]}
+                      />
+                      <Box width={3} />
+                    </>
                   )}
                   {item.archived && (
-                    <LuArchive
+                    <FiArchive
                       color={theme.colors.text.inactiveButtonText}
-                      size={16}
+                      size={15}
                     />
                   )}
                   <Tooltip
@@ -412,6 +441,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                       width="100%"
                       maxWidth="170px"
                       overflow="hidden"
+                      flex={1}
                     >
                       <Text
                         color={
@@ -423,6 +453,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                         whiteSpace="nowrap"
                         position="relative"
                         pr="30px"
+                        textStyle="cellBody"
                       >
                         {item.name}
                       </Text>
@@ -440,9 +471,16 @@ const EntityTable: React.FC<EntityTableProps> = ({
                   </Tooltip>
                 </HStack>
               </Box>
-              <Box width="30%" display="flex" justifyContent="space-between">
+              <Box
+                width={rightColumnWidth}
+                pl={4}
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+              >
                 <Text
                   color={item.archived ? 'text.inactiveButtonText' : 'inherit'}
+                  textStyle="cellBody"
                 >
                   {item.abbreviation}
                 </Text>
@@ -523,12 +561,12 @@ const EntityTable: React.FC<EntityTableProps> = ({
           width="100%"
           ref={editingRowRef}
         >
-          <Box width="70%" pl={2}>
+          <Box width={leftColumnWidth} pl={2}>
             <HStack>
               {entityType === 'subject' && (
                 <Box position="relative">
                   <Circle
-                    size="24px"
+                    size="20px"
                     bg={
                       newItem.colorGroupId
                         ? colorGroups.find(
@@ -561,7 +599,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                         {colorGroups.map((group) => (
                           <Circle
                             key={group.id}
-                            size="24px"
+                            size="20px"
                             bg={group.colorCodes[COLOR_CODE_INDEX]}
                             border="2px solid"
                             borderColor={
@@ -600,7 +638,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
             </HStack>
           </Box>
           <Box
-            width="30%"
+            width={rightColumnWidth}
             display="flex"
             justifyContent="space-between"
             alignItems="center"
