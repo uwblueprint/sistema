@@ -9,17 +9,18 @@ import {
   ModalOverlay,
   useDisclosure,
   useTheme,
-  useToast,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
+import { useAbsences } from '@hooks/useAbsences';
 import { useUserData } from '@hooks/useUserData';
 import { Absence, Prisma } from '@prisma/client';
+import { formatMonthYear } from '@utils/formatMonthYear';
 import { getCalendarStyles } from '@utils/getCalendarStyles';
-import { AbsenceAPI } from '@utils/types';
+import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import AbsenceDetails from '../components/AbsenceDetails';
@@ -38,16 +39,9 @@ const Calendar: React.FC = () => {
     }
   }, [userData.isLoading, userData.isAuthenticated, router]);
 
-  const formatMonthYear = (date: Date): string => {
-    const options: Intl.DateTimeFormatOptions = {
-      month: 'long',
-      year: 'numeric',
-    };
-    return new Intl.DateTimeFormat('en-US', options).format(date);
-  };
+  const { events, fetchAbsences } = useAbsences();
 
   const calendarRef = useRef<FullCalendar>(null);
-  const [events, setEvents] = useState<EventInput[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
   const [searchQuery, setSearchQuery] = useState<{
     subjectIds: number[];
@@ -67,7 +61,6 @@ const Calendar: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
-  const toast = useToast();
   const theme = useTheme();
   const {
     isOpen: isAbsenceDetailsOpen,
@@ -97,29 +90,6 @@ const Calendar: React.FC = () => {
     []
   );
 
-  const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
-    title: absenceData.subject.name,
-    start: absenceData.lessonDate,
-    allDay: true,
-    display: 'auto',
-
-    location: absenceData.location.name,
-    absentTeacher: absenceData.absentTeacher,
-    substituteTeacher: absenceData.substituteTeacher,
-    subjectId: absenceData.subject.id,
-    locationId: absenceData.location.id,
-    archivedLocation: absenceData.location.archived,
-    archivedSubject: absenceData.subject.archived,
-    absentTeacherFullName: `${absenceData.absentTeacher.firstName} ${absenceData.absentTeacher.lastName}`,
-    roomNumber: absenceData.roomNumber || undefined,
-    substituteTeacherFullName: absenceData.substituteTeacher
-      ? `${absenceData.substituteTeacher.firstName} ${absenceData.substituteTeacher.lastName}`
-      : undefined,
-    lessonPlan: absenceData.lessonPlan,
-    reasonOfAbsence: absenceData.reasonOfAbsence,
-    notes: absenceData.notes,
-  });
-
   const handleAddAbsence = async (
     absence: Prisma.AbsenceCreateManyInput
   ): Promise<Absence | null> => {
@@ -142,28 +112,6 @@ const Calendar: React.FC = () => {
       return null;
     }
   };
-
-  const fetchAbsences = useCallback(async () => {
-    try {
-      const res = await fetch('/api/getAbsences/');
-      if (!res.ok) {
-        throw new Error(`Failed to fetch: ${res.statusText}`);
-      }
-      const data = await res.json();
-      const formattedEvents = data.events.map(convertAbsenceToEvent);
-      setEvents(formattedEvents);
-    } catch (error) {
-      console.error('Error fetching absences:', error);
-      toast({
-        title: 'Failed to fetch absences',
-        description:
-          'There was an error loading the absence data. Please try again later.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  }, [toast]);
 
   useEffect(() => {
     fetchAbsences();
@@ -219,28 +167,6 @@ const Calendar: React.FC = () => {
   useEffect(() => {
     updateMonthYearTitle();
   }, [updateMonthYearTitle]);
-
-  const addSquareClasses = (date: Date): string => {
-    const day = date.getDay();
-    let classes = day === 0 || day === 6 ? 'fc-weekend' : '';
-
-    const today = new Date();
-    const isToday = date.toDateString() === today.toDateString();
-
-    if (isToday) {
-      classes += ' fc-today';
-    }
-
-    if (
-      selectedDate &&
-      date.toDateString() === selectedDate.toDateString() &&
-      !isToday
-    ) {
-      classes += ' fc-selected-date';
-    }
-
-    return classes;
-  };
 
   const handleAbsenceClick = (clickInfo: EventClickArg) => {
     setSelectedEvent({
@@ -368,7 +294,9 @@ const Calendar: React.FC = () => {
               timeZone="local"
               datesSet={updateMonthYearTitle}
               fixedWeekCount={false}
-              dayCellClassNames={({ date }) => addSquareClasses(date)}
+              dayCellClassNames={({ date }) =>
+                getDayCellClassNames(date, selectedDate)
+              }
               eventClick={handleAbsenceClick}
               dateClick={handleDateClick}
             />
