@@ -93,6 +93,71 @@ const UserManagementCard = () => {
     }
   };
 
+  const updateUserSubscriptions = async (
+    userId: number,
+    subjectIds: number[]
+  ) => {
+    const originalUsers = [...users];
+
+    // Optimistically update UI
+    setUsers((prevUsers) =>
+      prevUsers.map((user) => {
+        if (user.id === userId) {
+          // Create new mailingLists with the updated subject IDs
+          const updatedMailingLists = subjectIds.map((subjectId) => {
+            // Find existing mailing list for this subject if it exists
+            const existingMailingList = user.mailingLists?.find(
+              (ml) => ml.subject.id === subjectId
+            );
+
+            // If it exists, keep its data, otherwise create a new entry
+            return (
+              existingMailingList || {
+                subject: {
+                  id: subjectId,
+                  name: '', // Will be updated when we refresh data
+                  colorGroup: { colorCodes: [] },
+                },
+              }
+            );
+          });
+
+          return { ...user, mailingLists: updatedMailingLists };
+        }
+        return user;
+      })
+    );
+
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mailingListSubjectIds: subjectIds }),
+      });
+
+      if (!response.ok) {
+        setUsers(originalUsers);
+        throw new Error(response.statusText);
+      }
+
+      // Refresh users data to get updated mailing lists with complete information
+      const usersResponse = await fetch(
+        '/api/users?getAbsences=true&getMailingLists=true'
+      );
+      if (usersResponse.ok) {
+        const updatedUsers = await usersResponse.json();
+        setUsers(updatedUsers);
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error updating user subscriptions:', error.message);
+      }
+      setUsers(originalUsers);
+    }
+  };
+
   return loading ? null : (
     <Box
       height="100%"
@@ -104,6 +169,7 @@ const UserManagementCard = () => {
       <UserManagementTable
         users={users}
         updateUserRole={handleConfirmRoleChange}
+        updateUserSubscriptions={updateUserSubscriptions}
         absenceCap={absenceCap}
       />
 
