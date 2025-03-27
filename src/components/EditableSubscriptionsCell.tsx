@@ -12,11 +12,11 @@ import {
 } from '@chakra-ui/react';
 import { FiChevronDown, FiChevronUp, FiEdit2 } from 'react-icons/fi';
 import { IoCheckmark, IoCloseOutline } from 'react-icons/io5';
-import { MailingList, Subject } from '../types/apiTypes';
+import { SubjectAPI } from '@utils/types';
 
 interface EditableSubscriptionsCellProps {
-  mailingLists: MailingList[];
-  allSubjects: Subject[];
+  mailingLists: SubjectAPI[];
+  allSubjects: SubjectAPI[];
   onSubscriptionsChange: (subjectIds: number[]) => void;
 }
 
@@ -32,7 +32,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
 
   // Initialize selected subjects from current mailing lists
   useEffect(() => {
-    setSelectedSubjectIds(mailingLists.map((list) => list.subject.id));
+    setSelectedSubjectIds(mailingLists.map((list) => list.id));
   }, [mailingLists]);
 
   const handleEditClick = () => {
@@ -63,7 +63,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
 
   const handleCancelClick = () => {
     // Reset to original selection
-    setSelectedSubjectIds(mailingLists.map((list) => list.subject.id));
+    setSelectedSubjectIds(mailingLists.map((list) => list.id));
     setIsEditing(false);
     setIsHovered(false);
     setIsDropdownOpen(false);
@@ -71,7 +71,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
 
   // Check if there are any changes
   const hasChanges = () => {
-    const originalIds = mailingLists.map((list) => list.subject.id).sort();
+    const originalIds = mailingLists.map((list) => list.id).sort();
     const newIds = [...selectedSubjectIds].sort();
 
     if (originalIds.length !== newIds.length) return true;
@@ -109,15 +109,15 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
               <Tag
                 size="lg"
                 variant="subtle"
-                bg={list.subject.colorGroup.colorCodes[3]}
+                bg={list.colorGroup.colorCodes[3]}
               >
                 <TagLabel>
                   <Text
-                    color={list.subject.colorGroup.colorCodes[0]}
+                    color={list.colorGroup.colorCodes[0]}
                     fontWeight="600"
                     textStyle="label"
                   >
-                    {list.subject.name}
+                    {list.name}
                   </Text>
                 </TagLabel>
               </Tag>
