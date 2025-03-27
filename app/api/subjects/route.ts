@@ -8,7 +8,6 @@ export async function GET() {
         colorGroup: true,
       },
     });
-
     return NextResponse.json(subjects);
   } catch (error) {
     console.error('Error fetching subjects:', error);
