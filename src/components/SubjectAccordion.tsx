@@ -1,5 +1,5 @@
 import { SubjectAPI } from '@utils/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Accordion, { AccordionItem } from './Accordion';
 
 interface SubjectAccordionProps {
@@ -41,13 +41,6 @@ export default function SubjectAccordion({
             })
           );
           setAllSubjects(fetchedSubjects);
-
-          const visibleSubjects = showArchived
-            ? fetchedSubjects
-            : fetchedSubjects.filter((subject) => !subject.archived);
-
-          setSubjects(visibleSubjects);
-          setSelectedSubjectsIds(visibleSubjects.map((subject) => subject.id));
         }
       } catch (error) {
         console.error('Error fetching subjects:', error);
@@ -55,7 +48,7 @@ export default function SubjectAccordion({
     }
 
     fetchSubjects();
-  }, [showArchived]);
+  }, []);
 
   useEffect(() => {
     const visibleSubjects = showArchived
@@ -72,19 +65,35 @@ export default function SubjectAccordion({
       .filter((subject) => !selectedSubjectsIds.includes(subject.id))
       .map((subject) => subject.id);
 
-    setSelectedSubjectsIds([...newSelectedIds, ...newVisibleIds]);
-    setFilter([...newSelectedIds, ...newVisibleIds]);
+    const updatedSelection = [...newSelectedIds, ...newVisibleIds];
+
+    if (
+      updatedSelection.length !== selectedSubjectsIds.length ||
+      !updatedSelection.every((id, idx) => id === selectedSubjectsIds[idx])
+    ) {
+      setSelectedSubjectsIds(updatedSelection);
+      setFilter(updatedSelection);
+    }
   }, [showArchived, allSubjects]);
 
   const toggleSubject = (subjectId: number) => {
-    let newSelection: number[];
-    if (selectedSubjectsIds.includes(subjectId)) {
-      newSelection = selectedSubjectsIds.filter((s) => s !== subjectId);
-    } else {
-      newSelection = [...selectedSubjectsIds, subjectId];
-    }
-    setSelectedSubjectsIds(newSelection);
-    setFilter(newSelection);
+    setSelectedSubjectsIds((prevSelected) => {
+      let newSelection;
+      if (prevSelected.includes(subjectId)) {
+        newSelection = prevSelected.filter((s) => s !== subjectId);
+      } else {
+        newSelection = [...prevSelected, subjectId];
+      }
+
+      if (
+        newSelection.length !== prevSelected.length ||
+        !newSelection.every((id, idx) => id === prevSelected[idx])
+      ) {
+        setFilter(newSelection);
+      }
+
+      return newSelection;
+    });
   };
 
   const toggleOpen = () => {

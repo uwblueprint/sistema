@@ -126,23 +126,23 @@ export default function DashboardPage() {
         hasData={hasAbsenceData}
       />
       <Box
-        px={8}
+        px={14}
         py={3}
         display="flex"
         flexDirection="column"
         flex="1"
         minHeight="0"
       >
-        <HStack mb={3} spacing={3} height="220px">
+        <HStack mb={3} spacing={3} height="215px">
           <TotalAbsencesCard
-            width="35%"
+            width="40%"
             filled={yearlyAbsencesFilled}
             total={totalAbsenceCount}
             startYear={startYear}
             endYear={endYear}
           />
           <MonthlyAbsencesCard
-            width="65%"
+            width="60%"
             monthlyData={selectedYearData.yearlyData}
             highestMonthlyAbsence={highestMonthlyAbsence}
           />
