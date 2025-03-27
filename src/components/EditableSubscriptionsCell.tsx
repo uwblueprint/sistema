@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import {
   Box,
   Button,
@@ -54,6 +54,8 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
+  const [localMailingLists, setLocalMailingLists] =
+    useState<MailingList[]>(mailingLists);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState({
@@ -64,7 +66,31 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
   // Initialize selected subjects from current mailing lists
   useEffect(() => {
     setSelectedSubjectIds(mailingLists.map((list) => list.subjectId));
+    setLocalMailingLists(mailingLists);
   }, [mailingLists]);
+
+  // Update local mailing lists when selection changes
+  useEffect(() => {
+    // Create new mailing lists based on selected subject IDs
+    const newMailingLists = selectedSubjectIds
+      .map((id) => {
+        // Try to find existing mailing list first
+        const existingList = mailingLists.find((list) => list.subjectId === id);
+        if (existingList) return existingList;
+
+        // If not, create a new one based on the subject
+        const subject = allSubjects.find((s) => s.id === id);
+        if (!subject) return null;
+
+        return {
+          subjectId: subject.id,
+          subject: subject,
+        } as MailingList;
+      })
+      .filter(Boolean) as MailingList[];
+
+    setLocalMailingLists(newMailingLists);
+  }, [selectedSubjectIds, allSubjects, mailingLists]);
 
   // Update dropdown position when it opens
   useEffect(() => {
@@ -160,7 +186,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
         width="100%"
       >
         <Wrap spacing={2}>
-          {mailingLists.map((list, index) => (
+          {localMailingLists.map((list, index) => (
             <WrapItem key={index}>
               <SubjectTag subject={list.subject} />
             </WrapItem>
@@ -175,7 +201,12 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
               onClick={toggleDropdown}
             />
           ) : (
-            isHovered && <Icon as={FiEdit2} color="neutralGray.600" />
+            <Icon
+              as={FiEdit2}
+              color="neutralGray.600"
+              opacity={isHovered ? 1 : 0}
+              transition="opacity 0.2s"
+            />
           )}
         </Box>
       </Box>
