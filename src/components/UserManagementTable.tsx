@@ -24,7 +24,7 @@ import {
 
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { FilterOptions, Role, UserAPI } from '@utils/types';
-import useUserFiltering from '@utils/useUserFiltering';
+import useUserFiltering from '@hooks/useUserFiltering';
 import React, { useEffect, useState } from 'react';
 import {
   FiClock,

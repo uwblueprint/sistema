@@ -11,7 +11,24 @@ export interface Absence {
   subjectId: number;
 }
 
+export interface EventDetails {
+  title: string;
+  start: Date | null;
+  absentTeacher: { id: number; firstName: string; lastName: string } | null;
+  absentTeacherFullName: string;
+  substituteTeacher: { id: number; firstName: string; lastName: string } | null;
+  substituteTeacherFullName: string | null;
+  location: string;
+  classType: string;
+  lessonPlan: string | null;
+  roomNumber: string | null;
+  reasonOfAbsence: string;
+  notes: string;
+  absenceId: number;
+}
+
 export interface AbsenceAPI {
+  id: number;
   lessonDate: Date;
   lessonPlan?: string | null;
   reasonOfAbsence: string;
