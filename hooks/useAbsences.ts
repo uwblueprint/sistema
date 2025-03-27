@@ -24,6 +24,7 @@ const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
   lessonPlan: absenceData.lessonPlan,
   reasonOfAbsence: absenceData.reasonOfAbsence,
   notes: absenceData.notes,
+  absenceId: absenceData.id,
 });
 
 export const useAbsences = () => {

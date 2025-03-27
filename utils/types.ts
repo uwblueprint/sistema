@@ -24,6 +24,7 @@ export interface EventDetails {
   roomNumber: string | null;
   reasonOfAbsence: string;
   notes: string;
+  absenceId: number;
 }
 
 export interface AbsenceAPI {

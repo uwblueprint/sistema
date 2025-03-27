@@ -343,11 +343,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
             <Button onClick={handleDeleteCancel} mr={3}>
               Cancel
             </Button>
-            <Button
-              colorScheme="red"
-              onClick={handleDeleteConfirm}
-              isLoading={isDeleting}
-            >
+            <Button onClick={handleDeleteConfirm} isLoading={isDeleting}>
               Delete
             </Button>
           </ModalFooter>
