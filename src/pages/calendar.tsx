@@ -186,6 +186,7 @@ const Calendar: React.FC = () => {
       roomNumber: clickInfo.event.extendedProps.roomNumber || '',
       reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
       notes: clickInfo.event.extendedProps.notes || '',
+      absenceId: clickInfo.event.extendedProps.absenceId,
     });
     onAbsenceDetailsOpen();
   };
@@ -242,6 +243,10 @@ const Calendar: React.FC = () => {
 
     setFilteredEvents(filtered);
   }, [searchQuery, events, activeTab, userData.id, isAdminMode]);
+
+  const handleDeleteAbsence = async (deletedId) => {
+    await fetchAbsences();
+  };
 
   if (userData.isLoading) {
     return null;
@@ -307,6 +312,7 @@ const Calendar: React.FC = () => {
         isOpen={isAbsenceDetailsOpen}
         onClose={onAbsenceDetailsClose}
         event={selectedEvent}
+        onDelete={handleDeleteAbsence}
         isAdminMode={isAdminMode}
       />
 
