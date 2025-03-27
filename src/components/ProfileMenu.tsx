@@ -3,21 +3,19 @@ import {
   Box,
   Button,
   Flex,
+  HStack,
   Menu,
   MenuButton,
   MenuList,
   Text,
-  VStack,
-  Divider,
   useTheme,
   useToast,
-  HStack,
 } from '@chakra-ui/react';
 import { NEXT_PUBLIC_PROD_URL } from '@utils/config';
 import { getAbsenceColor } from '@utils/getAbsenceColor';
-import { UserData } from '@utils/types';
+import { Role, UserData } from '@utils/types';
 import { signOut } from 'next-auth/react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { IoLinkOutline } from 'react-icons/io5';
 
 interface ProfileMenuProps {
@@ -31,16 +29,9 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
     : getAbsenceColor(0, absenceCap);
   const theme = useTheme();
   const toast = useToast();
-  const [baseUrl, setBaseUrl] = useState('');
-
-  // Set the base URL when the component mounts
-  useEffect(() => {
-    // Use NEXT_PUBLIC_PROD_URL if defined, otherwise use current origin
-    setBaseUrl(NEXT_PUBLIC_PROD_URL || window.location.origin);
-  }, []);
 
   const handleCopyICal = async () => {
-    const iCalURL = `${baseUrl}/api/ics/calendar.ics`;
+    const iCalURL = `${NEXT_PUBLIC_PROD_URL}/api/ics/calendar.ics`;
     try {
       await navigator.clipboard.writeText(iCalURL);
       toast({
@@ -58,7 +49,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
   const handleCopyPersonalICal = async () => {
     if (!userData?.id) return;
 
-    const iCalURL = `${baseUrl}/api/ics/user-${userData.id}.ics`;
+    const iCalURL = `${NEXT_PUBLIC_PROD_URL}/api/ics/user-${userData.id}.ics`;
     try {
       await navigator.clipboard.writeText(iCalURL);
       toast({
@@ -104,8 +95,6 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
           </Flex>
         </Box>
 
-        {/* Calendar subscription options */}
-
         <HStack spacing={2} align="center" justifyContent="center" mb={4}>
           {userData?.id && (
             <Flex
@@ -121,18 +110,20 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
               <IoLinkOutline size={16} color={theme.colors.neutralGray[600]} />
             </Flex>
           )}
-          <Flex
-            alignItems="center"
-            gap={2}
-            justifyContent="center"
-            cursor="pointer"
-            onClick={handleCopyICal}
-          >
-            <Text textStyle="caption" color="text.subtitle">
-              Sistema iCal
-            </Text>
-            <IoLinkOutline size={16} color={theme.colors.neutralGray[600]} />
-          </Flex>
+          {userData?.role === Role.ADMIN && (
+            <Flex
+              alignItems="center"
+              gap={2}
+              justifyContent="center"
+              cursor="pointer"
+              onClick={handleCopyICal}
+            >
+              <Text textStyle="caption" color="text.subtitle">
+                Sistema iCal
+              </Text>
+              <IoLinkOutline size={16} color={theme.colors.neutralGray[600]} />
+            </Flex>
+          )}
         </HStack>
 
         <Button
