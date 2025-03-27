@@ -115,7 +115,12 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
               {isAdminMode && (
                 <IconButton
                   aria-label="Edit Absence"
-                  icon={<FiEdit2 size="15px" color={theme.colors.text.body} />}
+                  icon={
+                    <FiEdit2
+                      size="15px"
+                      color={theme.colors.neutralGray[600]}
+                    />
+                  }
                   size="sm"
                   variant="ghost"
                 />
@@ -125,7 +130,12 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                 (isUserAbsentTeacher && !event.substituteTeacher)) && (
                 <IconButton
                   aria-label="Delete Absence"
-                  icon={<FiTrash2 size="15px" color={theme.colors.text.body} />}
+                  icon={
+                    <FiTrash2
+                      size="15px"
+                      color={theme.colors.neutralGray[600]}
+                    />
+                  }
                   size="sm"
                   variant="ghost"
                   onClick={handleDeleteClick}
@@ -221,7 +231,12 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
 
                 <IconButton
                   aria-label="Edit Notes"
-                  icon={<FiEdit2 size="15px" color={theme.colors.text.body} />}
+                  icon={
+                    <FiEdit2
+                      size="15px"
+                      color={theme.colors.neutralGray[600]}
+                    />
+                  }
                   size="sm"
                   variant="ghost"
                   position="absolute"
