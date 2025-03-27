@@ -244,8 +244,8 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                     size="sm"
                     variant="ghost"
                     position="absolute"
-                    bottom="5px"
-                    right="5px"
+                    bottom="8px"
+                    right="16px"
                   />
                 </Box>
               )}
