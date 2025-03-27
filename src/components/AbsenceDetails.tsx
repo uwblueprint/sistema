@@ -12,8 +12,7 @@ import {
   VStack,
   useTheme,
 } from '@chakra-ui/react';
-import { Role } from '@utils/types';
-import { useUserData } from '@utils/useUserData';
+import { useUserData } from '@hooks/useUserData';
 import { Buildings, Calendar } from 'iconsax-react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';

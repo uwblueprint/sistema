@@ -320,3 +320,4 @@ const theme = extendTheme({
 });
 
 export default theme;
+export type CustomTheme = typeof theme;
