@@ -111,8 +111,13 @@ const UserManagementCard = () => {
             );
 
             // If it exists, keep its data, otherwise create a new entry
-            return (
-              existingMailingList || {
+            if (existingMailingList) {
+              return existingMailingList;
+            } else {
+              return {
+                userId: userId,
+                subjectId: subjectId,
+                user: user,
                 subject: {
                   id: subjectId,
                   name: '', // Will be updated when we refresh data
@@ -121,8 +126,8 @@ const UserManagementCard = () => {
                   archived: false,
                   colorGroup: { name: '', colorCodes: [] as string[] },
                 },
-              }
-            );
+              };
+            }
           });
 
           return { ...user, mailingLists: updatedMailingLists };

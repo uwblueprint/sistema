@@ -23,7 +23,7 @@ import {
 } from '@chakra-ui/react';
 
 import { getAbsenceColor } from '@utils/getAbsenceColor';
-import { FilterOptions, Role, UserAPI } from '@utils/types';
+import { FilterOptions, Role, SubjectAPI, UserAPI } from '@utils/types';
 import useUserFiltering from '@utils/useUserFiltering';
 import React, { useEffect, useState } from 'react';
 import {
@@ -37,14 +37,6 @@ import {
 import EditableRoleCell from './EditableRoleCell';
 import FilterPopup from './FilterPopup';
 import EditableSubscriptionsCell from './EditableSubscriptionsCell';
-
-interface Subject {
-  id: number;
-  name: string;
-  colorGroup?: {
-    colorCodes: string[];
-  };
-}
 
 type SortField = 'name' | 'email' | 'absences' | 'role';
 
@@ -74,7 +66,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [tagColors, setTagColors] = useState<Record<string, string[]>>({});
-  const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
+  const [allSubjects, setAllSubjects] = useState<SubjectAPI[]>([]);
 
   useEffect(() => {
     // Fetch all available subjects
