@@ -48,7 +48,12 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode }) => {
               {isAdminMode && (
                 <IconButton
                   aria-label="Edit Absence"
-                  icon={<FiEdit2 size="15px" color={theme.colors.text.body} />}
+                  icon={
+                    <FiEdit2
+                      size="15px"
+                      color={theme.colors.neutralGray[600]}
+                    />
+                  }
                   size="sm"
                   variant="ghost"
                 />
@@ -58,7 +63,12 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode }) => {
                 (isUserAbsentTeacher && !event.substituteTeacher)) && (
                 <IconButton
                   aria-label="Delete Absence"
-                  icon={<FiTrash2 size="15px" color={theme.colors.text.body} />}
+                  icon={
+                    <FiTrash2
+                      size="15px"
+                      color={theme.colors.neutralGray[600]}
+                    />
+                  }
                   size="sm"
                   variant="ghost"
                 />
@@ -125,7 +135,10 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode }) => {
                 </Text>
                 <Box
                   fontSize="12px"
-                  sx={{ padding: '15px 15px 33px 15px', borderRadius: '10px' }}
+                  sx={{
+                    padding: '15px 15px 33px 15px',
+                    borderRadius: '10px',
+                  }}
                   background={theme.colors.neutralGray[50]}
                 >
                   {event.reasonOfAbsence}
@@ -139,7 +152,10 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode }) => {
                 </Text>
                 <Box
                   fontSize="12px"
-                  sx={{ padding: '15px 15px 33px 15px', borderRadius: '10px' }}
+                  sx={{
+                    padding: '15px 15px 33px 15px',
+                    borderRadius: '10px',
+                  }}
                   background={theme.colors.neutralGray[50]}
                 >
                   {event.notes}
@@ -147,7 +163,12 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode }) => {
 
                 <IconButton
                   aria-label="Edit Notes"
-                  icon={<FiEdit2 size="15px" color={theme.colors.text.body} />}
+                  icon={
+                    <FiEdit2
+                      size="15px"
+                      color={theme.colors.neutralGray[600]}
+                    />
+                  }
                   size="sm"
                   variant="ghost"
                   position="absolute"
