@@ -77,20 +77,6 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     }
   }, [isDropdownOpen]);
 
-  // Check if there are any changes
-  const hasChanges = () => {
-    const originalIds = mailingLists.map((list) => list.subjectId).sort();
-    const newIds = [...selectedSubjectIds].sort();
-
-    if (originalIds.length !== newIds.length) return true;
-
-    for (let i = 0; i < originalIds.length; i++) {
-      if (originalIds[i] !== newIds[i]) return true;
-    }
-
-    return false;
-  };
-
   // Handle clicks outside the component
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -102,10 +88,8 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
           containerRef.current && !containerRef.current.contains(target);
 
         if (isOutsideDropdown && isOutsideContainer) {
-          // If there are changes, apply them before closing
-          if (hasChanges()) {
-            onSubscriptionsChange(selectedSubjectIds);
-          }
+          // Always apply changes when closing the dropdown
+          onSubscriptionsChange(selectedSubjectIds);
           setIsEditing(false);
           setIsDropdownOpen(false);
           setIsHovered(false);
@@ -117,16 +101,14 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [
-    isDropdownOpen,
-    isEditing,
-    hasChanges,
-    onSubscriptionsChange,
-    selectedSubjectIds,
-  ]);
+  }, [isDropdownOpen, isEditing, onSubscriptionsChange, selectedSubjectIds]);
 
   const handleEditClick = () => {
     if (isEditing) {
+      // Commit changes when closing the dropdown by clicking the cell
+      if (isDropdownOpen) {
+        onSubscriptionsChange(selectedSubjectIds);
+      }
       toggleDropdown();
     } else {
       setIsEditing(true);
@@ -137,7 +119,13 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
 
   const toggleDropdown = (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setIsDropdownOpen((prev) => !prev);
+    if (isDropdownOpen) {
+      // Commit changes when closing the dropdown
+      onSubscriptionsChange(selectedSubjectIds);
+      setIsDropdownOpen(false);
+    } else {
+      setIsDropdownOpen(true);
+    }
   };
 
   const handleSubjectChange = (subjectId: number) => {
@@ -148,19 +136,6 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
         return [...prev, subjectId];
       }
     });
-  };
-
-  const handleConfirmClick = () => {
-    onSubscriptionsChange(selectedSubjectIds);
-    setIsEditing(false);
-  };
-
-  const handleCancelClick = () => {
-    // Reset to original selection
-    setSelectedSubjectIds(mailingLists.map((list) => list.subjectId));
-    setIsEditing(false);
-    setIsHovered(false);
-    setIsDropdownOpen(false);
   };
 
   return (
@@ -243,34 +218,6 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
             </Box>
           ))}
         </Box>
-      )}
-
-      {isEditing && hasChanges() && (
-        <Button
-          variant="outline"
-          onClick={handleConfirmClick}
-          position="absolute"
-          right={'-70px'}
-          size="sm"
-          borderRadius="md"
-          p={0}
-        >
-          <IoCheckmark size={20} color="neutralGray.600" />
-        </Button>
-      )}
-
-      {isEditing && (
-        <Button
-          variant="outline"
-          onClick={handleCancelClick}
-          position="absolute"
-          right={'-35px'}
-          size="sm"
-          borderRadius="md"
-          p={0}
-        >
-          <IoCloseOutline size={20} color="neutralGray.600" />
-        </Button>
       )}
     </Box>
   );
