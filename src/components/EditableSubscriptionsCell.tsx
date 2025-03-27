@@ -52,6 +52,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownClosing, setIsDropdownClosing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
   const [localMailingLists, setLocalMailingLists] =
@@ -149,13 +150,19 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
           containerRef.current && !containerRef.current.contains(target);
 
         if (isOutsideDropdown && isOutsideContainer) {
-          // Immediately close UI elements
-          setIsEditing(false);
-          setIsDropdownOpen(false);
-          setIsHovered(false);
+          // Start closing animation
+          setIsDropdownClosing(true);
 
-          // Save changes in the background
-          saveSubscriptions();
+          // Actually close the dropdown after animation completes
+          setTimeout(() => {
+            setIsEditing(false);
+            setIsDropdownOpen(false);
+            setIsDropdownClosing(false);
+            setIsHovered(false);
+
+            // Save changes in the background
+            saveSubscriptions();
+          }, 300);
         }
       }
     };
@@ -207,11 +214,17 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
   const toggleDropdown = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (isDropdownOpen) {
-      // Immediately close dropdown
-      setIsDropdownOpen(false);
+      // Start closing animation
+      setIsDropdownClosing(true);
 
-      // Save changes in the background
-      saveSubscriptions();
+      // Actually close the dropdown after animation completes
+      setTimeout(() => {
+        setIsDropdownOpen(false);
+        setIsDropdownClosing(false);
+
+        // Save changes in the background
+        saveSubscriptions();
+      }, 300);
     } else {
       setIsDropdownOpen(true);
     }
@@ -236,6 +249,28 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
       onMouseEnter={() => !isEditing && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       ref={containerRef}
+      sx={{
+        '@keyframes slideUp': {
+          '0%': {
+            opacity: 0,
+            transform: 'translateY(-90%)',
+          },
+          '100%': {
+            opacity: 1,
+            transform: 'translateY(-100%)',
+          },
+        },
+        '@keyframes slideDown': {
+          '0%': {
+            opacity: 1,
+            transform: 'translateY(-100%)',
+          },
+          '100%': {
+            opacity: 0,
+            transform: 'translateY(-90%)',
+          },
+        },
+      }}
     >
       <Box
         display="flex"
@@ -247,6 +282,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
         p={2}
         borderRadius="md"
         width="100%"
+        transition="background-color 0.3s ease-in-out"
       >
         <Wrap spacing={2}>
           {localMailingLists.map((list, index) => (
@@ -258,23 +294,28 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
 
         <Box display="flex" alignItems="center" ml={2}>
           {isEditing ? (
-            <Icon
-              as={isDropdownOpen ? FiChevronUp : FiChevronDown}
-              color="neutralGray.600"
-              onClick={toggleDropdown}
-            />
+            <Box
+              transform={isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)'}
+              transition="transform 0.3s ease-in-out"
+            >
+              <Icon
+                as={FiChevronDown}
+                color="neutralGray.600"
+                onClick={toggleDropdown}
+              />
+            </Box>
           ) : (
             <Icon
               as={FiEdit2}
               color="neutralGray.600"
               opacity={isHovered ? 1 : 0}
-              transition="opacity 0.2s"
+              transition="opacity 0.3s ease-in-out"
             />
           )}
         </Box>
       </Box>
 
-      {isDropdownOpen && (
+      {(isDropdownOpen || isDropdownClosing) && (
         <Box
           position="fixed" // Allows it to appear above other elements
           bg="white"
@@ -292,25 +333,47 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
             position: 'fixed',
             top: dropdownPosition.top,
             left: dropdownPosition.left,
-            transform: 'translateY(-100%)', // Move it up by its full height
           }}
+          transform="translateY(-100%)"
+          animation={
+            isDropdownClosing
+              ? 'slideDown 0.3s ease-in-out'
+              : 'slideUp 0.3s ease-in-out'
+          }
         >
-          {sortedSubjects.map((subject) => (
-            <Box
-              key={subject.id}
-              p={2}
-              display="flex"
-              alignItems="center"
-              _hover={{ bg: 'primaryBlue.50' }}
-            >
-              <Checkbox
-                isChecked={selectedSubjectIds.includes(subject.id)}
-                onChange={() => handleSubjectChange(subject.id)}
-                mr={2}
-              />
-              <SubjectTag subject={subject} />
-            </Box>
-          ))}
+          {sortedSubjects.map((subject) => {
+            const isSelected = selectedSubjectIds.includes(subject.id);
+
+            return (
+              <Box
+                key={subject.id}
+                p={2}
+                display="flex"
+                alignItems="center"
+                _hover={{ bg: 'primaryBlue.50' }}
+                transition="all 0.3s ease"
+                borderRadius="md"
+                bg="transparent"
+              >
+                <Checkbox
+                  isChecked={isSelected}
+                  onChange={() => handleSubjectChange(subject.id)}
+                  mr={2}
+                  sx={{
+                    '.chakra-checkbox__control': {
+                      transition: 'all 0.3s ease',
+                    },
+                    '.chakra-checkbox__label': {
+                      transition: 'all 0.3s ease',
+                    },
+                  }}
+                />
+                <Box>
+                  <SubjectTag subject={subject} />
+                </Box>
+              </Box>
+            );
+          })}
         </Box>
       )}
     </Box>
