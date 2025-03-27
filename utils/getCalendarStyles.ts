@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { CustomTheme } from '../src/theme';
+import { CustomTheme } from '../theme/theme';
 
 export const getCalendarStyles = (theme: CustomTheme) => css`
   .fc .fc-daygrid-day-top {
