@@ -62,24 +62,49 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     top: 'auto',
     left: 'auto',
   });
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Create a map of subjects by ID for quick lookup
+  const subjectsById = useMemo(() => {
+    const map: Record<number, SubjectAPI> = {};
+    allSubjects.forEach((subject) => {
+      map[subject.id] = subject;
+    });
+    return map;
+  }, [allSubjects]);
+
+  // Get sorted subjects for dropdown display
+  const sortedSubjects = useMemo(() => {
+    return [...allSubjects].sort((a, b) => {
+      // First sort by archived status (unarchived first)
+      if (a.archived !== b.archived) {
+        return a.archived ? 1 : -1;
+      }
+      // Then sort by ID
+      return a.id - b.id;
+    });
+  }, [allSubjects]);
 
   // Initialize selected subjects from current mailing lists
   useEffect(() => {
-    setSelectedSubjectIds(mailingLists.map((list) => list.subjectId));
-    setLocalMailingLists(mailingLists);
-  }, [mailingLists]);
+    if (!isSaving) {
+      setSelectedSubjectIds(mailingLists.map((list) => list.subjectId));
+      setLocalMailingLists(mailingLists);
+    }
+  }, [mailingLists, isSaving]);
 
   // Update local mailing lists when selection changes
   useEffect(() => {
     // Create new mailing lists based on selected subject IDs
-    const newMailingLists = selectedSubjectIds
+    const newMailingListsUnsorted = selectedSubjectIds
       .map((id) => {
         // Try to find existing mailing list first
         const existingList = mailingLists.find((list) => list.subjectId === id);
         if (existingList) return existingList;
 
-        // If not, create a new one based on the subject
-        const subject = allSubjects.find((s) => s.id === id);
+        // If not, create a new one based on the subject from our full subjects list
+        const subject = subjectsById[id];
+
         if (!subject) return null;
 
         return {
@@ -89,8 +114,18 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
       })
       .filter(Boolean) as MailingList[];
 
-    setLocalMailingLists(newMailingLists);
-  }, [selectedSubjectIds, allSubjects, mailingLists]);
+    // Sort the new mailing lists by archived status and ID
+    const sortedMailingLists = [...newMailingListsUnsorted].sort((a, b) => {
+      // First sort by archived status (unarchived first)
+      if (a.subject.archived !== b.subject.archived) {
+        return a.subject.archived ? 1 : -1;
+      }
+      // Then sort by ID
+      return a.subjectId - b.subjectId;
+    });
+
+    setLocalMailingLists(sortedMailingLists);
+  }, [selectedSubjectIds, mailingLists, subjectsById]);
 
   // Update dropdown position when it opens
   useEffect(() => {
@@ -114,11 +149,13 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
           containerRef.current && !containerRef.current.contains(target);
 
         if (isOutsideDropdown && isOutsideContainer) {
-          // Always apply changes when closing the dropdown
-          onSubscriptionsChange(selectedSubjectIds);
+          // Immediately close UI elements
           setIsEditing(false);
           setIsDropdownOpen(false);
           setIsHovered(false);
+
+          // Save changes in the background
+          saveSubscriptions();
         }
       }
     };
@@ -127,15 +164,39 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDropdownOpen, isEditing, onSubscriptionsChange, selectedSubjectIds]);
+  }, [isDropdownOpen, isEditing, selectedSubjectIds]);
+
+  const saveSubscriptions = () => {
+    // Don't save if nothing has changed
+    const currentIds = new Set(mailingLists.map((list) => list.subjectId));
+    const selectedIds = new Set(selectedSubjectIds);
+
+    // Check if the sets are identical - converted to arrays to avoid linter error
+    const currentIdsArray = Array.from(currentIds);
+    const selectedIdsArray = Array.from(selectedIds);
+    if (
+      currentIds.size === selectedIds.size &&
+      currentIdsArray.every((id) => selectedIds.has(id))
+    ) {
+      return;
+    }
+
+    setIsSaving(true);
+    // Initiate the save but don't wait for it to complete
+    Promise.resolve(onSubscriptionsChange(selectedSubjectIds)).finally(() => {
+      setIsSaving(false);
+    });
+  };
 
   const handleEditClick = () => {
     if (isEditing) {
-      // Commit changes when closing the dropdown by clicking the cell
+      // Immediately close dropdown
+      setIsDropdownOpen(false);
+
+      // If dropdown was open, save changes
       if (isDropdownOpen) {
-        onSubscriptionsChange(selectedSubjectIds);
+        saveSubscriptions();
       }
-      toggleDropdown();
     } else {
       setIsEditing(true);
       setIsDropdownOpen(false);
@@ -146,9 +207,11 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
   const toggleDropdown = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (isDropdownOpen) {
-      // Commit changes when closing the dropdown
-      onSubscriptionsChange(selectedSubjectIds);
+      // Immediately close dropdown
       setIsDropdownOpen(false);
+
+      // Save changes in the background
+      saveSubscriptions();
     } else {
       setIsDropdownOpen(true);
     }
@@ -187,7 +250,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
       >
         <Wrap spacing={2}>
           {localMailingLists.map((list, index) => (
-            <WrapItem key={index}>
+            <WrapItem key={`${list.subjectId}-${index}`}>
               <SubjectTag subject={list.subject} />
             </WrapItem>
           ))}
@@ -232,7 +295,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
             transform: 'translateY(-100%)', // Move it up by its full height
           }}
         >
-          {allSubjects.map((subject) => (
+          {sortedSubjects.map((subject) => (
             <Box
               key={subject.id}
               p={2}

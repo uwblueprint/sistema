@@ -47,6 +47,7 @@ interface UserManagementTableProps {
   updateUserRole: (userId: number, newRole: Role) => void;
   updateUserSubscriptions: (userId: number, subjectIds: number[]) => void;
   absenceCap: number;
+  allSubjects?: SubjectAPI[];
 }
 
 export const UserManagementTable: React.FC<UserManagementTableProps> = ({
@@ -54,6 +55,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   updateUserRole,
   updateUserSubscriptions,
   absenceCap,
+  allSubjects: propSubjects,
 }) => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -69,23 +71,28 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const [allSubjects, setAllSubjects] = useState<SubjectAPI[]>([]);
 
   useEffect(() => {
-    // Fetch all available subjects
-    const fetchSubjects = async () => {
-      try {
-        const response = await fetch('/api/subjects');
-        if (response.ok) {
-          const data = await response.json();
-          setAllSubjects(data);
-        } else {
-          console.error('Failed to fetch subjects');
+    // Use subjects from props if available, otherwise fetch them
+    if (propSubjects && propSubjects.length > 0) {
+      setAllSubjects(propSubjects);
+    } else {
+      // Fetch all available subjects
+      const fetchSubjects = async () => {
+        try {
+          const response = await fetch('/api/subjects');
+          if (response.ok) {
+            const data = await response.json();
+            setAllSubjects(data);
+          } else {
+            console.error('Failed to fetch subjects');
+          }
+        } catch (error) {
+          console.error('Error fetching subjects:', error);
         }
-      } catch (error) {
-        console.error('Error fetching subjects:', error);
-      }
-    };
+      };
 
-    fetchSubjects();
-  }, []);
+      fetchSubjects();
+    }
+  }, [propSubjects]);
 
   // Extract unique tags and their colors from users' mailing lists
   useEffect(() => {
