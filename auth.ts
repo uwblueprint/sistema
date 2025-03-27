@@ -18,6 +18,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       if (!user.email.endsWith(`@${allowedDomain}`)) {
+        console.error(
+          `Email domain check failed: user.email=${user.email}, SISTEMA_EMAIL_DOMAIN=${allowedDomain}`
+        );
         throw new Error('InvalidEmailDomain');
       }
 
