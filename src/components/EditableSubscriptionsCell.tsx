@@ -103,19 +103,20 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
         borderRadius="md"
         width="100%"
       >
-        <Wrap spacing={2} width="100%">
+        <Wrap spacing={2}>
           {mailingLists.map((list, index) => (
             <WrapItem key={index}>
               <Tag
-                size="lg"
+                height="28px"
                 variant="subtle"
                 bg={list.subject.colorGroup.colorCodes[3]}
               >
                 <TagLabel>
                   <Text
                     color={list.subject.colorGroup.colorCodes[0]}
-                    fontWeight="600"
                     textStyle="label"
+                    whiteSpace="nowrap"
+                    overflow="hidden"
                   >
                     {list.subject.name}
                   </Text>

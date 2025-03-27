@@ -290,59 +290,59 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           </Thead>
 
           <Tbody>
-            {sortedUsers.length > 0 ? (
-              sortedUsers.map((user, index) => (
-                <Tr
-                  key={index}
-                  sx={{
-                    ':last-child td': { borderBottom: 'none' },
-                  }}
-                >
-                  <Td>
-                    <HStack spacing={3}>
-                      <Avatar size="sm" name={user.name} />
-                      <Text>{user.name}</Text>
-                    </HStack>
-                  </Td>
-                  <Td>{user.email}</Td>
-                  <Td textAlign="center">
-                    <Tag
-                      size="sm"
-                      variant="subtle"
-                      colorScheme={getAbsenceColor(
-                        user.absences?.length || 0,
-                        absenceCap
-                      )}
-                    >
-                      {user.absences?.length || 0}
-                    </Tag>
-                  </Td>
-                  <Td>
-                    <EditableRoleCell
-                      role={user.role}
-                      onRoleChange={(newRole) =>
-                        updateUserRole(user.id, newRole as Role)
-                      }
-                    />
-                  </Td>
-                  <Td>
-                    <EditableSubscriptionsCell
-                      mailingLists={user.mailingLists}
-                      allSubjects={allSubjects}
-                      onSubscriptionsChange={(subjectIds) =>
-                        updateUserSubscriptions(user.id, subjectIds)
-                      }
-                    />
-                  </Td>
-                </Tr>
-              ))
-            ) : (
-              <Tr>
-                <Td colSpan={5} textAlign="center">
-                  No users found
-                </Td>
-              </Tr>
-            )}
+            {sortedUsers.length > 0
+              ? sortedUsers.map((user, index) => (
+                  <Tr
+                    key={index}
+                    sx={{
+                      ':last-child td': { borderBottom: 'none' },
+                    }}
+                  >
+                    <Td py="6px">
+                      <HStack spacing={5}>
+                        <Avatar
+                          size="sm"
+                          name={`${user.firstName} ${user.lastName}`}
+                          src={user.profilePicture || undefined}
+                        />
+                        <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
+                      </HStack>
+                    </Td>
+                    <Td color="gray.600">
+                      <Text textStyle="cellBody">{user.email}</Text>
+                    </Td>
+                    <Td textAlign="center" py="6px">
+                      <Text
+                        textStyle="cellBold"
+                        color={getAbsenceColor(
+                          user.absences?.length || 0,
+                          absenceCap
+                        )}
+                      >
+                        {user.absences?.length || 0}
+                      </Text>
+                    </Td>
+                    <Td py="6px">
+                      <EditableRoleCell
+                        key={`role-cell-${user.id}`}
+                        role={user.role}
+                        onRoleChange={(newRole) =>
+                          updateUserRole(user.id, newRole as Role)
+                        }
+                      />
+                    </Td>
+                    <Td py="6px">
+                      <EditableSubscriptionsCell
+                        mailingLists={user.mailingLists || []}
+                        allSubjects={allSubjects}
+                        onSubscriptionsChange={(subjectIds) =>
+                          updateUserSubscriptions(user.id, subjectIds)
+                        }
+                      />
+                    </Td>
+                  </Tr>
+                ))
+              : null}
           </Tbody>
         </Table>
       </Box>
