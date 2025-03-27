@@ -116,7 +116,10 @@ const UserManagementCard = () => {
                 subject: {
                   id: subjectId,
                   name: '', // Will be updated when we refresh data
-                  colorGroup: { colorCodes: [] },
+                  abbreviation: '',
+                  colorGroupId: 0,
+                  archived: false,
+                  colorGroup: { name: '', colorCodes: [] as string[] },
                 },
               }
             );
