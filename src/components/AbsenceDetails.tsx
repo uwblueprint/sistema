@@ -191,6 +191,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                   absentTeacherFirstName={event.absentTeacher.firstName}
                   isUserAbsentTeacher={isUserAbsentTeacher}
                   isUserSubstituteTeacher={isUserSubstituteTeacher}
+                  isAdminMode={isAdminMode}
                 />
               </Box>
               {(isAdminMode || isUserAbsentTeacher) && (
