@@ -1,5 +1,3 @@
-import { useSession } from 'next-auth/react';
-import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -9,24 +7,25 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
+  ModalFooter,
   ModalHeader,
+  ModalOverlay,
   Text,
   VStack,
   useTheme,
   useToast,
-  ModalFooter,
-  ModalOverlay,
 } from '@chakra-ui/react';
 import { Role } from '@utils/types';
 import { useUserData } from '@utils/useUserData';
 import { Buildings, Calendar } from 'iconsax-react';
+import { useRouter } from 'next/router';
+import React, { useState } from 'react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
-import { useRouter } from 'next/router';
 
-const AbsenceDetails = ({ isOpen, onClose, event, onDelete }) => {
+const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
   const theme = useTheme();
   const userData = useUserData();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -110,11 +109,11 @@ const AbsenceDetails = ({ isOpen, onClose, event, onDelete }) => {
               <AbsenceStatusTag
                 isUserAbsentTeacher={isUserAbsentTeacher}
                 isUserSubstituteTeacher={isUserSubstituteTeacher}
-                isUserAdmin={isUserAdmin}
+                isAdminMode={isAdminMode}
                 substituteTeacherFullName={event.substituteTeacherFullName}
               />
               <Flex position="absolute" right="0">
-                {isUserAdmin && (
+                {isAdminMode && (
                   <IconButton
                     aria-label="Edit Absence"
                     icon={
@@ -125,7 +124,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, onDelete }) => {
                   />
                 )}
 
-                {(isUserAdmin ||
+                {(isAdminMode ||
                   (isUserAbsentTeacher && !event.substituteTeacher)) && (
                   <IconButton
                     aria-label="Delete Absence"
@@ -194,7 +193,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, onDelete }) => {
                   isUserSubstituteTeacher={isUserSubstituteTeacher}
                 />
               </Box>
-              {(isUserAdmin || isUserAbsentTeacher) && (
+              {(isAdminMode || isUserAbsentTeacher) && (
                 <Box>
                   <Text textStyle="h4" mb="9px">
                     Reason of Absence

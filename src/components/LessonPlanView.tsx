@@ -15,6 +15,7 @@ const LessonPlanDisplay = ({
   fileName,
   fileSize,
   isUserAbsentTeacher,
+  isAdminMode,
 }) => {
   const theme = useTheme();
 
@@ -47,7 +48,7 @@ const LessonPlanDisplay = ({
         </Flex>
       </Link>
 
-      {isUserAbsentTeacher && (
+      {isUserAbsentTeacher && !isAdminMode && (
         <IconButton
           aria-label="Swap Lesson Plan"
           icon={
@@ -118,6 +119,7 @@ const LessonPlanView = ({
   absentTeacherFirstName,
   isUserAbsentTeacher,
   isUserSubstituteTeacher,
+  isAdminMode,
 }) => {
   const getFileName = (url) => (url ? 'File name' : '');
   const getFileSize = (url) => (url ? 'File size' : '');
@@ -128,8 +130,9 @@ const LessonPlanView = ({
       fileName={getFileName(lessonPlan)}
       fileSize={getFileSize(lessonPlan)}
       isUserAbsentTeacher={isUserAbsentTeacher}
+      isAdminMode={isAdminMode}
     />
-  ) : isUserAbsentTeacher ? (
+  ) : isUserAbsentTeacher && !isAdminMode ? (
     <NoLessonPlanDeclaredDisplay />
   ) : (
     <NoLessonPlanViewingDisplay

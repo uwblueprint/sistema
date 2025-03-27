@@ -445,6 +445,7 @@ const Calendar: React.FC = () => {
         onClose={onAbsenceDetailsClose}
         event={selectedEvent}
         onDelete={handleDeleteAbsence}
+        isAdminMode={isAdminMode}
       />
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>
@@ -465,6 +466,7 @@ const Calendar: React.FC = () => {
               initialDate={selectedDate!!}
               userId={userData.id}
               onTabChange={setActiveTab}
+              isAdminMode={isAdminMode}
             />
           </ModalBody>
         </ModalContent>
