@@ -69,7 +69,7 @@ export default function LocationAccordion({
       setSelectedLocationIds(updatedSelection);
       setFilter(updatedSelection);
     }
-  }, [showArchived, allLocations]);
+  }, [showArchived, allLocations, selectedLocationIds, setFilter]);
 
   const toggleLocation = useCallback(
     (locationId: number) => {
