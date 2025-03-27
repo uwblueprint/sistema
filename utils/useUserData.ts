@@ -2,14 +2,6 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { UserData, Role } from '@utils/types';
 
-interface UserData {
-  id?: number;
-  name: string;
-  email: string;
-  image?: string;
-  usedAbsences: number;
-  numOfAbsences: number;
-}
 interface UseUserDataReturn extends UserData {
   isAuthenticated: boolean;
   isLoading: boolean;
