@@ -882,7 +882,7 @@
       ],
       "uniqueConstraints": [
         {
-          "name": "_MailingLists_AB_unique",
+          "name": "_MailingLists_AB_pkey",
           "fields": ["A", "B"],
           "nullNotDistinct": false
         }
