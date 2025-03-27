@@ -1,9 +1,11 @@
 import { useTheme } from '@chakra-ui/react';
 import type { Location } from '@utils/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Accordion, { AccordionItem } from './Accordion';
+
 interface LocationAccordionProps {
   setFilter: (location: number[]) => void;
+  showArchived: boolean;
 }
 
 interface LocationAccordionItem extends Location {
@@ -12,11 +14,13 @@ interface LocationAccordionItem extends Location {
 
 export default function LocationAccordion({
   setFilter,
+  showArchived,
 }: LocationAccordionProps) {
+  const theme = useTheme();
   const [isOpen, setIsOpen] = useState(true);
   const [locations, setLocations] = useState<LocationAccordionItem[]>([]);
+  const [allLocations, setAllLocations] = useState<LocationAccordionItem[]>([]);
   const [selectedLocationIds, setSelectedLocationIds] = useState<number[]>([]);
-  const theme = useTheme();
 
   useEffect(() => {
     async function fetchLocations() {
@@ -29,12 +33,9 @@ export default function LocationAccordion({
         if (data.locations) {
           const fetchedLocations = data.locations.map((location: Location) => ({
             ...location,
-            color: `${theme.colors.primaryBlue[300]}`,
+            color: theme.colors.primaryBlue[300],
           }));
-          setLocations(fetchedLocations);
-          setSelectedLocationIds(
-            fetchedLocations.map((location) => location.id)
-          );
+          setAllLocations(fetchedLocations);
         }
       } catch (error) {
         console.error('Error fetching locations:', error);
@@ -45,34 +46,61 @@ export default function LocationAccordion({
   }, [theme.colors.primaryBlue]);
 
   useEffect(() => {
-    setFilter(selectedLocationIds);
-  }, [setFilter, selectedLocationIds]);
+    const visibleLocations = showArchived
+      ? allLocations
+      : allLocations.filter((location) => !location.archived);
 
-  const toggleLocation = (locationId: number) => {
-    let newSelection: number[];
-    if (selectedLocationIds.includes(locationId)) {
-      newSelection = selectedLocationIds.filter((s) => s !== locationId);
-    } else {
-      newSelection = [...selectedLocationIds, locationId];
+    setLocations(visibleLocations);
+
+    const newSelectedIds = selectedLocationIds.filter((id) =>
+      visibleLocations.some((location) => location.id === id)
+    );
+
+    const newVisibleIds = visibleLocations
+      .filter((location) => !selectedLocationIds.includes(location.id))
+      .map((location) => location.id);
+
+    const updatedSelection = [...newSelectedIds, ...newVisibleIds];
+
+    if (
+      updatedSelection.length !== selectedLocationIds.length ||
+      !updatedSelection.every((id, idx) => id === selectedLocationIds[idx])
+    ) {
+      setSelectedLocationIds(updatedSelection);
+      setFilter(updatedSelection);
     }
-    setSelectedLocationIds(newSelection);
-    setFilter(newSelection);
-  };
+  }, [showArchived, allLocations]);
 
-  const toggleOpen = () => {
-    setIsOpen((prev) => !prev);
-  };
+  const toggleLocation = useCallback(
+    (locationId: number) => {
+      setSelectedLocationIds((prevSelected) => {
+        let newSelection;
+        if (prevSelected.includes(locationId)) {
+          newSelection = prevSelected.filter((s) => s !== locationId);
+        } else {
+          newSelection = [...prevSelected, locationId];
+        }
 
-  const AccordionItems: AccordionItem[] = locations.map((location) => ({
+        setFilter(newSelection);
+        return newSelection;
+      });
+    },
+    [setFilter]
+  );
+
+  const toggleOpen = () => setIsOpen((prev) => !prev);
+
+  const accordionItems: AccordionItem[] = locations.map((location) => ({
     id: location.id,
     name: location.name,
     color: location.color,
+    archived: location.archived,
   }));
 
   return (
     <Accordion
       title="Location"
-      items={AccordionItems}
+      items={accordionItems}
       selectedItems={selectedLocationIds}
       isOpen={isOpen}
       toggleOpen={toggleOpen}
