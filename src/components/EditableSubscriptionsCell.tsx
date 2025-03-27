@@ -86,6 +86,29 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     });
   }, [allSubjects]);
 
+  // Define saveSubscriptions with useCallback so it can be used in dependency arrays
+  const saveSubscriptions = React.useCallback(() => {
+    // Don't save if nothing has changed
+    const currentIds = new Set(mailingLists.map((list) => list.subjectId));
+    const selectedIds = new Set(selectedSubjectIds);
+
+    // Check if the sets are identical - converted to arrays to avoid linter error
+    const currentIdsArray = Array.from(currentIds);
+    const selectedIdsArray = Array.from(selectedIds);
+    if (
+      currentIds.size === selectedIds.size &&
+      currentIdsArray.every((id) => selectedIds.has(id))
+    ) {
+      return;
+    }
+
+    setIsSaving(true);
+    // Initiate the save but don't wait for it to complete
+    Promise.resolve(onSubscriptionsChange(selectedSubjectIds)).finally(() => {
+      setIsSaving(false);
+    });
+  }, [mailingLists, selectedSubjectIds, onSubscriptionsChange]);
+
   // Initialize selected subjects from current mailing lists
   useEffect(() => {
     if (!isSaving) {
@@ -141,96 +164,83 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
 
   // Handle clicks outside the component
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isDropdownOpen || isEditing) {
-        const target = event.target as Node;
-        const isOutsideDropdown =
-          dropdownRef.current && !dropdownRef.current.contains(target);
-        const isOutsideContainer =
-          containerRef.current && !containerRef.current.contains(target);
+    const handleDocumentClick = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const isClickInsideDropdown =
+        dropdownRef.current && dropdownRef.current.contains(target);
+      const isClickInsideContainer =
+        containerRef.current && containerRef.current.contains(target);
 
-        if (isOutsideDropdown && isOutsideContainer) {
-          // Start closing animation
-          setIsDropdownClosing(true);
+      // Only process clicks that are outside both the dropdown and the container
+      if (!isClickInsideDropdown && !isClickInsideContainer) {
+        if (isEditing) {
+          // If we're in edit mode and clicked outside, immediately exit edit mode
+          // This will also trigger the blue background fadeout
+          setIsEditing(false);
+          setIsHovered(false);
 
-          // Actually close the dropdown after animation completes
-          setTimeout(() => {
-            setIsEditing(false);
-            setIsDropdownOpen(false);
-            setIsDropdownClosing(false);
-            setIsHovered(false);
+          // If dropdown is open, start the closing animation
+          if (isDropdownOpen) {
+            setIsDropdownClosing(true);
 
-            // Save changes in the background
+            // Only close the dropdown after animation completes
+            setTimeout(() => {
+              setIsDropdownOpen(false);
+              setIsDropdownClosing(false);
+
+              // Save changes
+              saveSubscriptions();
+            }, 300);
+          } else {
+            // If dropdown is not open, just save changes
             saveSubscriptions();
-          }, 300);
+          }
         }
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    // Add the event listener to the document
+    document.addEventListener('mousedown', handleDocumentClick);
+
+    // Remove the event listener when the component unmounts
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('mousedown', handleDocumentClick);
     };
-  }, [isDropdownOpen, isEditing, selectedSubjectIds]);
-
-  const saveSubscriptions = () => {
-    // Don't save if nothing has changed
-    const currentIds = new Set(mailingLists.map((list) => list.subjectId));
-    const selectedIds = new Set(selectedSubjectIds);
-
-    // Check if the sets are identical - converted to arrays to avoid linter error
-    const currentIdsArray = Array.from(currentIds);
-    const selectedIdsArray = Array.from(selectedIds);
-    if (
-      currentIds.size === selectedIds.size &&
-      currentIdsArray.every((id) => selectedIds.has(id))
-    ) {
-      return;
-    }
-
-    setIsSaving(true);
-    // Initiate the save but don't wait for it to complete
-    Promise.resolve(onSubscriptionsChange(selectedSubjectIds)).finally(() => {
-      setIsSaving(false);
-    });
-  };
+  }, [isEditing, isDropdownOpen, saveSubscriptions]);
 
   const handleEditClick = () => {
-    if (isEditing) {
-      // Immediately close dropdown
-      setIsDropdownOpen(false);
+    setIsEditing(true);
+    setIsHovered(false);
+  };
 
-      // If dropdown was open, save changes
+  const handleEditAreaClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (isEditing) {
+      // If we're already in edit mode, toggle the dropdown
       if (isDropdownOpen) {
-        saveSubscriptions();
+        // If dropdown is open, close it, but keep edit mode on
+        setIsDropdownClosing(true);
+        setTimeout(() => {
+          setIsDropdownOpen(false);
+          setIsDropdownClosing(false);
+          saveSubscriptions();
+        }, 300);
+      } else {
+        // If dropdown is closed, open it
+        setIsDropdownOpen(true);
       }
     } else {
+      // If we're not in edit mode yet, enter edit mode
       setIsEditing(true);
-      setIsDropdownOpen(false);
       setIsHovered(false);
     }
   };
 
-  const toggleDropdown = (e?: React.MouseEvent) => {
+  const handleSubjectChange = (subjectId: number, e?: React.MouseEvent) => {
+    // Prevent this click from triggering document clicks
     e?.stopPropagation();
-    if (isDropdownOpen) {
-      // Start closing animation
-      setIsDropdownClosing(true);
 
-      // Actually close the dropdown after animation completes
-      setTimeout(() => {
-        setIsDropdownOpen(false);
-        setIsDropdownClosing(false);
-
-        // Save changes in the background
-        saveSubscriptions();
-      }, 300);
-    } else {
-      setIsDropdownOpen(true);
-    }
-  };
-
-  const handleSubjectChange = (subjectId: number) => {
     setSelectedSubjectIds((prev) => {
       if (prev.includes(subjectId)) {
         return prev.filter((id) => id !== subjectId);
@@ -277,7 +287,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
         alignItems="center"
         justifyContent="space-between"
         cursor="pointer"
-        onClick={handleEditClick}
+        onClick={handleEditAreaClick}
         bg={isEditing ? 'primaryBlue.50' : 'transparent'}
         p={2}
         borderRadius="md"
@@ -298,11 +308,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
               transform={isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)'}
               transition="transform 0.3s ease-in-out"
             >
-              <Icon
-                as={FiChevronDown}
-                color="neutralGray.600"
-                onClick={toggleDropdown}
-              />
+              <Icon as={FiChevronDown} color="neutralGray.600" />
             </Box>
           ) : (
             <Icon
@@ -354,10 +360,16 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
                 transition="all 0.3s ease"
                 borderRadius="md"
                 bg="transparent"
+                onClick={(e) => handleSubjectChange(subject.id, e)}
+                cursor="pointer"
               >
                 <Checkbox
                   isChecked={isSelected}
-                  onChange={() => handleSubjectChange(subject.id)}
+                  onChange={(e) => {
+                    // Prevent propagation from the native event
+                    e.nativeEvent.stopPropagation();
+                    handleSubjectChange(subject.id);
+                  }}
                   mr={2}
                   sx={{
                     '.chakra-checkbox__control': {
