@@ -17,10 +17,10 @@ const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
   archivedLocation: absenceData.location.archived,
   archivedSubject: absenceData.subject.archived,
   absentTeacherFullName: `${absenceData.absentTeacher.firstName} ${absenceData.absentTeacher.lastName}`,
-  roomNumber: absenceData.roomNumber || undefined,
+  roomNumber: absenceData.roomNumber || null,
   substituteTeacherFullName: absenceData.substituteTeacher
     ? `${absenceData.substituteTeacher.firstName} ${absenceData.substituteTeacher.lastName}`
-    : undefined,
+    : null,
   lessonPlan: absenceData.lessonPlan,
   reasonOfAbsence: absenceData.reasonOfAbsence,
   notes: absenceData.notes,

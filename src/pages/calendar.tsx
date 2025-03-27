@@ -21,6 +21,7 @@ import { Absence, Prisma } from '@prisma/client';
 import { formatMonthYear } from '@utils/formatMonthYear';
 import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
+import { EventDetails } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import AbsenceDetails from '../components/AbsenceDetails';
@@ -59,7 +60,7 @@ const Calendar: React.FC = () => {
     'explore'
   );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventDetails | null>(null);
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
   const theme = useTheme();
   const {
@@ -171,19 +172,17 @@ const Calendar: React.FC = () => {
   const handleAbsenceClick = (clickInfo: EventClickArg) => {
     setSelectedEvent({
       title: clickInfo.event.title || 'Untitled Event',
-      start: clickInfo.event.start
-        ? new Date(clickInfo.event.start).toISOString().split('T')[0]
-        : 'Unknown',
-      absentTeacher: clickInfo.event.extendedProps.absentTeacher || undefined,
+      start: clickInfo.event.start,
+      absentTeacher: clickInfo.event.extendedProps.absentTeacher || null,
       absentTeacherFullName:
         clickInfo.event.extendedProps.absentTeacherFullName || '',
       substituteTeacher:
-        clickInfo.event.extendedProps.substituteTeacher || undefined,
+        clickInfo.event.extendedProps.substituteTeacher || null,
       substituteTeacherFullName:
-        clickInfo.event.extendedProps.substituteTeacherFullName || undefined,
+        clickInfo.event.extendedProps.substituteTeacherFullName || '',
       location: clickInfo.event.extendedProps.location || '',
       classType: clickInfo.event.extendedProps.classType || '',
-      lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
+      lessonPlan: clickInfo.event.extendedProps.lessonPlan || '',
       roomNumber: clickInfo.event.extendedProps.roomNumber || '',
       reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
       notes: clickInfo.event.extendedProps.notes || '',

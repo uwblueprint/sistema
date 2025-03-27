@@ -84,7 +84,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode }) => {
               <Calendar size="20px" color={theme.colors.primaryBlue[300]} />
               <Text textStyle="subtitle" color={theme.colors.text.body}>
                 {event.start
-                  ? new Date(event.start).toLocaleDateString('en-US', {
+                  ? new Date(event.start).toLocaleDateString('en-CA', {
                       weekday: 'long',
                       month: 'long',
                       day: 'numeric',
