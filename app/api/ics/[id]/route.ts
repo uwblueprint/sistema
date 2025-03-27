@@ -18,7 +18,8 @@ const getICSFileById = async (id: string) => {
       );
 
       const events = userAbsences.map((absence) => {
-        const event = convertAbsenceToICSEvent(absence);
+        const event = convertAbsenceToICSEvent(absence, 'My Sistema Absences');
+
         event.calName = 'My Sistema Absences';
         return event;
       });
@@ -27,7 +28,9 @@ const getICSFileById = async (id: string) => {
     }
   }
 
-  const events = absences.map(convertAbsenceToICSEvent);
+  const events = absences.map((absence) =>
+    convertAbsenceToICSEvent(absence, 'Sistema Absences')
+  );
   return createCalendarFile(events);
 };
 
