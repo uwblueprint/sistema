@@ -76,51 +76,49 @@ const Calendar: React.FC = () => {
     onClose: onInputFormClose,
   } = useDisclosure();
 
-  const renderEventContent = useCallback((eventInfo: EventContentArg) => {
-    const {
-      absentTeacherFullName,
-      absentTeacherDisplayName,
-      substituteTeacherDisplayName,
-      colors,
-      location,
-      lessonPlan,
-    } = eventInfo.event.extendedProps;
+  const renderEventContent = useCallback(
+    (eventInfo: EventContentArg) => {
+      const {
+        absentTeacher,
+        absentTeacherDisplayName,
+        substituteTeacherDisplayName,
+        colors,
+        location,
+        lessonPlan,
+      } = eventInfo.event.extendedProps;
 
-    const eventDate = new Date(eventInfo.event.startStr);
-    const isPastEvent = eventDate < new Date();
-    const opacity = isPastEvent ? 0.5 : 1;
+      const eventDate = new Date(eventInfo.event.startStr);
+      const isPastEvent = eventDate < new Date();
+      const opacity = isPastEvent ? 0.5 : 1;
 
-    const createdByUser = absentTeacherFullName === userData?.name;
+      const createdByUser = absentTeacher.id === userData?.id;
 
-    const highlightText = createdByUser
-      ? substituteTeacherDisplayName
-        ? `${absentTeacherDisplayName} -> ${substituteTeacherDisplayName}`
-        : `${absentTeacherDisplayName} -> Unfilled`
-      : null;
+      const highlightText = createdByUser
+        ? substituteTeacherDisplayName
+          ? `${absentTeacherDisplayName} -> ${substituteTeacherDisplayName}`
+          : `${absentTeacherDisplayName} -> Unfilled`
+        : null;
 
-    // filled and not created by current user
-    if (!createdByUser && substituteTeacherDisplayName) {
-      return null;
-    }
-
-    return (
-      <AbsenceBox
-        title={eventInfo.event.title}
-        location={location}
-        backgroundColor={
-          substituteTeacherDisplayName || !createdByUser
-            ? colors.light
-            : 'white'
-        }
-        borderColor={createdByUser ? colors.dark : 'transparent'}
-        textColor={colors.text}
-        highlightText={highlightText}
-        highlightColor={colors.medium}
-        lessonPlan={lessonPlan}
-        opacity={opacity}
-      />
-    );
-  }, []);
+      return (
+        <AbsenceBox
+          title={eventInfo.event.title}
+          location={location}
+          backgroundColor={
+            substituteTeacherDisplayName || !createdByUser
+              ? colors.light
+              : 'white'
+          }
+          borderColor={createdByUser ? colors.dark : 'transparent'}
+          textColor={colors.text}
+          highlightText={highlightText}
+          highlightColor={colors.medium}
+          lessonPlan={lessonPlan}
+          opacity={opacity}
+        />
+      );
+    },
+    [userData?.id]
+  );
 
   const AbsenceBox = ({
     title,
