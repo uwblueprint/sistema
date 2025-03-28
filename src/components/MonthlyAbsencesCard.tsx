@@ -123,8 +123,8 @@ export default function MonthlyAbsencesCard({
                   tickCount={yAxisTicks.length}
                   interval={0}
                 />
-                <Tooltip
-                  content={<CustomTooltip />}
+                <Tooltip<number, string>
+                  content={(props) => <CustomTooltip {...props} />}
                   cursor={{ fill: 'transparent' }}
                 />
                 <Bar
