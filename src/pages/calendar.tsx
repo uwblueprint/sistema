@@ -244,7 +244,7 @@ const Calendar: React.FC = () => {
     setFilteredEvents(filtered);
   }, [searchQuery, events, activeTab, userData.id, isAdminMode]);
 
-  const handleDeleteAbsence = async (deletedId) => {
+  const handleDeleteAbsence = async () => {
     await fetchAbsences();
   };
 
