@@ -132,10 +132,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                   <IconButton
                     aria-label="Delete Absence"
                     icon={
-                      <FiTrash2
-                        size="15px"
-                        color={theme.colors.neutralGray[600]}
-                      />
+                      <FiTrash2 size="15px" color={theme.colors.text.body} />
                     }
                     size="sm"
                     variant="ghost"
@@ -314,7 +311,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                 !isUserAbsentTeacher &&
                 !isAdminMode && (
                   <Button
-                    colorScheme="blue"
                     width="full"
                     height="44px"
                     fontSize="16px"

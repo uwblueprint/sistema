@@ -39,10 +39,7 @@ const DualColorBar: React.FC<DualColorBarProps> = ({
   const shadow = isActive ? 'drop-shadow(0px 4px 6px rgba(0,0,0,0.2))' : 'none';
 
   return (
-    <g
-      filter={shadow}
-      key={`group-${payload.month}-${payload.filled}-${payload.unfilled}`}
-    >
+    <g filter={shadow}>
       <path
         d={`
             M${x},${y + height}

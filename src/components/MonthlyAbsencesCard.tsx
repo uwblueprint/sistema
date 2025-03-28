@@ -4,7 +4,6 @@ import {
   CardBody,
   CardHeader,
   Divider,
-  Flex,
   Heading,
   HStack,
   Text,
@@ -43,7 +42,15 @@ export default function MonthlyAbsencesCard({
 
   const yAxisBuffer = 1;
   const rawMax = highestMonthlyAbsence + yAxisBuffer;
-  const yAxisStep = rawMax <= 5 ? 1 : 5;
+
+  const maxTicks = 5;
+
+  let yAxisStep = Math.ceil(rawMax / maxTicks);
+  if (yAxisStep > 5) {
+    yAxisStep = Math.ceil(yAxisStep / 5) * 5;
+  }
+
+  yAxisStep = Math.max(yAxisStep, 1);
 
   const yAxisMax = Math.ceil(rawMax / yAxisStep) * yAxisStep;
 
@@ -85,7 +92,11 @@ export default function MonthlyAbsencesCard({
                 margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
                 onMouseMove={(state) => {
                   if (state.isTooltipActive) {
-                    setActiveIndex(state.activeTooltipIndex ?? null);
+                    setActiveIndex(
+                      typeof state.activeTooltipIndex === 'number'
+                        ? state.activeTooltipIndex
+                        : null
+                    );
                   } else {
                     setActiveIndex(null);
                   }
@@ -119,15 +130,17 @@ export default function MonthlyAbsencesCard({
                 <Bar
                   dataKey="total"
                   barSize={28}
-                  shape={(props) => (
-                    <DualColorBar
-                      key={`bar-${props.payload?.month}-${props.payload?.filled}-${props.payload?.unfilled}`}
-                      {...props}
-                      filledColor={filledColor}
-                      unfilledColor={unfilledColor}
-                      isActive={activeIndex === props.index}
-                    />
-                  )}
+                  shape={(props) => {
+                    return (
+                      <DualColorBar
+                        key={props.index}
+                        {...props}
+                        filledColor={filledColor}
+                        unfilledColor={unfilledColor}
+                        isActive={activeIndex === props.index}
+                      />
+                    );
+                  }}
                 />
               </BarChart>
             </ResponsiveContainer>
