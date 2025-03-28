@@ -91,11 +91,11 @@ const Calendar: React.FC = () => {
     []
   );
 
-  const handleAddAbsence = async (
+  const handleDeclareAbsence = async (
     absence: Prisma.AbsenceCreateManyInput
   ): Promise<Absence | null> => {
     try {
-      const res = await fetch('/api/addAbsence', {
+      const res = await fetch('/api/declareAbsence', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(absence),
@@ -330,7 +330,7 @@ const Calendar: React.FC = () => {
           <ModalBody p={0}>
             <InputForm
               onClose={onInputFormClose}
-              onAddAbsence={handleAddAbsence}
+              onDeclareAbsence={handleDeclareAbsence}
               initialDate={selectedDate!!}
               userId={userData.id}
               onTabChange={setActiveTab}

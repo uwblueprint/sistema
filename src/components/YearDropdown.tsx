@@ -73,7 +73,7 @@ export default function YearDropdown({
       </PopoverTrigger>
 
       <PopoverContent
-        width="207px"
+        width="200px"
         borderRadius="md"
         overflow="hidden"
         border="1px solid"
@@ -95,9 +95,7 @@ export default function YearDropdown({
                   textAlign: 'left',
                 }}
               >
-                <Text textStyle="h4" fontWeight={550}>
-                  {year}
-                </Text>
+                <Text textStyle="h4">{year}</Text>
               </Box>
               {index < yearRanges.length - 1 && (
                 <Divider borderColor="neutralGray.300" opacity={1} />

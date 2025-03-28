@@ -314,7 +314,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                 !isUserAbsentTeacher &&
                 !isAdminMode && (
                   <Button
-                    colorScheme="blue"
                     width="full"
                     height="44px"
                     fontSize="16px"

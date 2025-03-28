@@ -119,15 +119,17 @@ export default function MonthlyAbsencesCard({
                 <Bar
                   dataKey="total"
                   barSize={28}
-                  shape={(props) => (
-                    <DualColorBar
-                      key={`bar-${props.payload?.month}-${props.payload?.filled}-${props.payload?.unfilled}`}
-                      {...props}
-                      filledColor={filledColor}
-                      unfilledColor={unfilledColor}
-                      isActive={activeIndex === props.index}
-                    />
-                  )}
+                  shape={(props) => {
+                    return (
+                      <DualColorBar
+                        key={props.index}
+                        {...props}
+                        filledColor={filledColor}
+                        unfilledColor={unfilledColor}
+                        isActive={activeIndex === props.index}
+                      />
+                    );
+                  }}
                 />
               </BarChart>
             </ResponsiveContainer>

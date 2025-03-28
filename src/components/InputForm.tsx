@@ -27,7 +27,7 @@ import { SearchDropdown } from './SearchDropdown';
 
 interface InputFormProps {
   onClose?: () => void;
-  onAddAbsence: (
+  onDeclareAbsence: (
     absence: Prisma.AbsenceCreateManyInput
   ) => Promise<Absence | null>;
   userId: number;
@@ -38,7 +38,7 @@ interface InputFormProps {
 
 const InputForm: React.FC<InputFormProps> = ({
   onClose,
-  onAddAbsence,
+  onDeclareAbsence,
   userId,
   onTabChange,
   initialDate,
@@ -141,7 +141,7 @@ const InputForm: React.FC<InputFormProps> = ({
         roomNumber: formData.roomNumber || null,
       };
 
-      const response = await onAddAbsence(absenceData);
+      const response = await onDeclareAbsence(absenceData);
 
       if (response) {
         const options: Intl.DateTimeFormatOptions = {
@@ -370,7 +370,6 @@ const InputForm: React.FC<InputFormProps> = ({
 
         <Button
           type="submit"
-          colorScheme="blue"
           isLoading={isSubmitting}
           loadingText="Submitting"
           width="full"
@@ -404,11 +403,7 @@ const InputForm: React.FC<InputFormProps> = ({
             <Button onClick={closeModal} mr={3}>
               Cancel
             </Button>
-            <Button
-              colorScheme="blue"
-              onClick={handleConfirmSubmit}
-              isLoading={isSubmitting}
-            >
+            <Button onClick={handleConfirmSubmit} isLoading={isSubmitting}>
               Confirm
             </Button>
           </ModalFooter>
