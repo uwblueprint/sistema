@@ -24,7 +24,7 @@ import {
 
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { FilterOptions, Role, UserAPI } from '@utils/types';
-import useUserFiltering from '@utils/useUserFiltering';
+import useUserFiltering from '@hooks/useUserFiltering';
 import React, { useEffect, useState } from 'react';
 import {
   FiClock,
@@ -185,7 +185,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       height="100%"
     >
       <HStack justify="space-between" mx={5} my={3}>
-        <Text fontSize={'22px'} lineHeight="33px" fontWeight={700}>
+        <Text fontSize={'18px'} lineHeight="33px" fontWeight={700}>
           User Management
         </Text>
         <HStack spacing={4}>
@@ -222,7 +222,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           />
         </HStack>
       </HStack>
-      <Divider />
+      <Divider borderColor="neutralGray.300" />
 
       <Box flex="1" overflowY="auto">
         <Table variant="simple">
@@ -267,8 +267,8 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       ':last-child td': { borderBottom: 'none' },
                     }}
                   >
-                    <Td>
-                      <HStack spacing={3}>
+                    <Td py="6px">
+                      <HStack spacing={5}>
                         <Avatar
                           size="sm"
                           name={`${user.firstName} ${user.lastName}`}
@@ -280,7 +280,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                     <Td color="gray.600">
                       <Text textStyle="cellBody">{user.email}</Text>
                     </Td>
-                    <Td textAlign="center">
+                    <Td textAlign="center" py="6px">
                       <Text
                         textStyle="cellBold"
                         color={getAbsenceColor(
@@ -291,7 +291,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                         {user.absences?.length || 0}
                       </Text>
                     </Td>
-                    <Td>
+                    <Td py="6px">
                       <EditableRoleCell
                         key={`role-cell-${user.id}`}
                         role={user.role}
@@ -300,7 +300,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                         }
                       />
                     </Td>
-                    <Td>
+                    <Td py="6px">
                       <Wrap spacing={2}>
                         {user.mailingLists?.map((mailingList, index) => (
                           <WrapItem key={index}>
@@ -315,6 +315,8 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                                     mailingList.subject.colorGroup.colorCodes[0]
                                   }
                                   textStyle="label"
+                                  whiteSpace="nowrap"
+                                  overflow="hidden"
                                 >
                                   {mailingList.subject.name}
                                 </Text>
