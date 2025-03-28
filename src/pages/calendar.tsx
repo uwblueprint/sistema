@@ -100,10 +100,6 @@ const Calendar: React.FC = () => {
         return eventDate.toDateString() === info.date.toDateString();
       });
 
-      console.log(
-        `Date: ${info.date.toDateString()}, Has events: ${hasEventsOnDate}`
-      );
-
       if (hasEventsOnDate) {
         const badgeContainer = document.createElement('div');
         badgeContainer.style.position = 'absolute';
@@ -335,7 +331,6 @@ const Calendar: React.FC = () => {
   return (
     <>
       <Global styles={getCalendarStyles} />
-
       <Flex height="100vh">
         <CalendarSidebar
           setSearchQuery={setSearchQuery}
