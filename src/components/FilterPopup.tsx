@@ -14,33 +14,25 @@ import {
   useDisclosure,
   useOutsideClick,
 } from '@chakra-ui/react';
-import { Role } from '@utils/types';
+import { FilterOptions, Role } from '@utils/types';
 import React, { useMemo, useRef, useState } from 'react';
 import { BiRevision } from 'react-icons/bi';
 import { IoFilterOutline } from 'react-icons/io5';
 import OperatorMenu from './OperatorMenu';
-// Define comparison operators for numeric filters
-export type ComparisonOperator = 'greater_than' | 'less_than' | 'equal_to';
-
-export type FilterOptions = {
-  role?: Role | null;
-  absencesOperator?: ComparisonOperator;
-  absencesValue?: number | null;
-  tags?: string[] | null;
-};
+import { ComparisonOperator } from '@utils/types';
 
 interface FilterPopupProps {
   filters: FilterOptions;
   setFilters: (filters: FilterOptions) => void;
   availableTags: string[];
-  tagColors?: Record<string, string[]>; // Make tagColors optional
+  tagColors?: Record<string, string[]>;
 }
 
 export const FilterPopup: React.FC<FilterPopupProps> = ({
   filters,
   setFilters,
   availableTags,
-  tagColors = {}, // Provide default empty object
+  tagColors = {},
 }) => {
   const { isOpen, onToggle, onClose } = useDisclosure();
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -203,9 +195,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
           </Button>
         </Flex>
 
-        {/* Filter Options */}
         <VStack align="stretch" spacing={4}>
-          {/* Role Filter */}
           <Flex justify="space-between" align="center" gap={2}>
             <Text textStyle="h4">Role</Text>
             <Spacer />
@@ -217,12 +207,32 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                 filters.role === Role.TEACHER ? 'primaryBlue.300' : 'white'
               }
               color={filters.role === Role.TEACHER ? 'white' : 'text.body'}
+              borderWidth="1px"
               borderColor={
                 filters.role === Role.TEACHER
                   ? 'primaryBlue.300'
                   : 'neutralGray.300'
               }
-              borderWidth="1px"
+              _hover={{
+                bg:
+                  filters.role === Role.TEACHER
+                    ? 'primaryBlue.500'
+                    : 'neutralGray.100',
+                borderColor:
+                  filters.role === Role.TEACHER
+                    ? 'primaryBlue.500'
+                    : 'neutralGray.300',
+              }}
+              _active={{
+                bg:
+                  filters.role === Role.TEACHER
+                    ? 'primaryBlue.600'
+                    : 'neutralGray.300',
+                borderColor:
+                  filters.role === Role.TEACHER
+                    ? 'primaryBlue.600'
+                    : 'neutralGray.300',
+              }}
               onClick={() => handleRoleSelect(Role.TEACHER)}
               width="auto"
               paddingX={2.5}
@@ -245,12 +255,32 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                 filters.role === Role.ADMIN ? 'primaryBlue.300' : 'white'
               }
               color={filters.role === Role.ADMIN ? 'white' : 'text.body'}
+              borderWidth="1px"
               borderColor={
                 filters.role === Role.ADMIN
                   ? 'primaryBlue.300'
                   : 'neutralGray.300'
               }
-              borderWidth="1px"
+              _hover={{
+                bg:
+                  filters.role === Role.ADMIN
+                    ? 'primaryBlue.500'
+                    : 'neutralGray.100',
+                borderColor:
+                  filters.role === Role.ADMIN
+                    ? 'primaryBlue.500'
+                    : 'neutralGray.300',
+              }}
+              _active={{
+                bg:
+                  filters.role === Role.ADMIN
+                    ? 'primaryBlue.600'
+                    : 'neutralGray.300',
+                borderColor:
+                  filters.role === Role.ADMIN
+                    ? 'primaryBlue.600'
+                    : 'neutralGray.300',
+              }}
               onClick={() => handleRoleSelect(Role.ADMIN)}
               width="auto"
               paddingX={2.5}
@@ -267,7 +297,6 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
             </Button>
           </Flex>
 
-          {/* Absences Filter */}
           <Flex justify="space-between" align="center" gap={2}>
             <Text textStyle="h4">Absences</Text>
             <Spacer />
@@ -297,7 +326,6 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
             </NumberInput>
           </Flex>
 
-          {/* Email Tags Filter */}
           <Box>
             <Text textStyle="h4">Email tags</Text>
             <Flex flexWrap="wrap" gap={1.5} mt={2}>
@@ -323,7 +351,10 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                     mb={0.5}
                   >
                     <TagLabel>
-                      <Text textStyle="label" color="text.body">
+                      <Text
+                        textStyle="label"
+                        color={isSelected ? colors[0] : 'text.body'}
+                      >
                         {tag}
                       </Text>
                     </TagLabel>

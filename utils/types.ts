@@ -11,29 +11,48 @@ export interface Absence {
   subjectId: number;
 }
 
+export interface EventDetails {
+  title: string;
+  start: Date | null;
+  absentTeacher: { id: number; firstName: string; lastName: string } | null;
+  absentTeacherFullName: string;
+  substituteTeacher: { id: number; firstName: string; lastName: string } | null;
+  substituteTeacherFullName: string | null;
+  location: string;
+  classType: string;
+  lessonPlan: string | null;
+  roomNumber: string | null;
+  reasonOfAbsence: string;
+  notes: string;
+  absenceId: number;
+}
+
 export interface AbsenceAPI {
+  id: number;
   lessonDate: Date;
   lessonPlan?: string | null;
   reasonOfAbsence: string;
   notes?: string | null;
   roomNumber?: string | null;
-  absentTeacherId: number;
-  substituteTeacherId: number | null;
   absentTeacher: {
+    id: number;
     firstName: string;
     lastName: string;
   };
   substituteTeacher?: {
+    id: number;
     firstName: string;
     lastName: string;
   } | null;
   location: {
     id: number;
     name: string;
+    archived: boolean;
   };
   subject: {
     id: number;
     name: string;
+    archived: boolean;
     abbreviation: string;
     colorGroup: {
       colorCodes: string[];
@@ -71,6 +90,7 @@ export interface UserAPI {
 export interface Location {
   id: number;
   name: string;
+  archived: boolean;
   abbreviation: string;
 }
 
@@ -84,6 +104,7 @@ export interface MailingListWithRelations {
 export interface Subject {
   id: number;
   name: string;
+  archived: boolean;
   abbreviation: string;
   colorGroupId: number;
 }
@@ -93,6 +114,7 @@ export interface SubjectAPI {
   name: string;
   abbreviation: string;
   colorGroupId: number;
+  archived: boolean;
   colorGroup: {
     name: string;
     colorCodes: string[];
@@ -116,9 +138,30 @@ export enum Role {
 }
 
 export interface UserData {
+  id: number;
   name: string;
   email: string;
   image?: string;
   usedAbsences: number;
-  numOfAbsences: number;
+  role: Role;
+}
+
+export interface MonthlyAbsenceData {
+  month: string;
+  filled: number;
+  unfilled: number;
+}
+
+export interface YearlyAbsenceData {
+  yearRange: string;
+  yearlyData: MonthlyAbsenceData[];
+}
+
+export type ComparisonOperator = 'greater_than' | 'less_than' | 'equal_to';
+
+export interface FilterOptions {
+  role: string | null | undefined;
+  absencesOperator: ComparisonOperator;
+  absencesValue: number | null;
+  tags: string[] | null;
 }
