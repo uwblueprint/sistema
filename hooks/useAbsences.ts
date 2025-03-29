@@ -1,8 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
-import { EventInput } from '@fullcalendar/core';
 import { useToast } from '@chakra-ui/react';
-import { AbsenceAPI } from '@utils/types';
-import { mapColorCodes } from '@utils/types';
+import { EventInput } from '@fullcalendar/core';
+import { AbsenceAPI, mapColorCodes } from '@utils/types';
+import { useCallback, useEffect, useState } from 'react';
 
 const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
   title: absenceData.subject.name,
