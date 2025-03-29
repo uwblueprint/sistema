@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { EventInput } from '@fullcalendar/core';
 import { useToast } from '@chakra-ui/react';
 import { AbsenceAPI } from '@utils/types';
+import { mapColorCodes } from '@utils/types';
 
 const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
   title: absenceData.subject.name,
@@ -16,11 +17,17 @@ const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
   locationId: absenceData.location.id,
   archivedLocation: absenceData.location.archived,
   archivedSubject: absenceData.subject.archived,
+  absentTeacherDisplayName: absenceData.absentTeacher.firstName,
   absentTeacherFullName: `${absenceData.absentTeacher.firstName} ${absenceData.absentTeacher.lastName}`,
-  roomNumber: absenceData.roomNumber || null,
   substituteTeacherFullName: absenceData.substituteTeacher
     ? `${absenceData.substituteTeacher.firstName} ${absenceData.substituteTeacher.lastName}`
     : null,
+  substituteTeacherDisplayName:
+    absenceData.substituteTeacher?.firstName || null,
+  subjectAbbreviation: absenceData.subject.abbreviation,
+  locationAbbreviation: absenceData.location.abbreviation,
+  colors: mapColorCodes(absenceData.subject.colorGroup.colorCodes),
+  roomNumber: absenceData.roomNumber || null,
   lessonPlan: absenceData.lessonPlan,
   reasonOfAbsence: absenceData.reasonOfAbsence,
   notes: absenceData.notes,

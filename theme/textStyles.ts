@@ -49,7 +49,7 @@ export const textStyles = {
     fontFamily: 'body',
   },
   label: {
-    fontWeight: 500,
+    fontWeight: 600,
     fontSize: '12px',
     lineHeight: '18px',
     color: 'text.header',

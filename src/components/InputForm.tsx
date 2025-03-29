@@ -353,7 +353,7 @@ const InputForm: React.FC<InputFormProps> = ({
         });
 
         if (
-          parseInt(formData.substituteTeacherId, 10) === userId ||
+          parseInt(String(formData.substituteTeacherId), 10) === userId ||
           parseInt(formData.absentTeacherId, 10) === userId
         ) {
           onTabChange('declared');

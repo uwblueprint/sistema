@@ -1,14 +1,15 @@
 import { Box, useTheme } from '@chakra-ui/react';
-import { type TooltipProps } from 'recharts';
+import { type TooltipContentProps } from 'recharts';
 
 export const CustomTooltip = ({
   active,
   payload,
   coordinate,
-}: TooltipProps<number, string>) => {
+}: TooltipContentProps<number, string>) => {
   const theme = useTheme();
   const primaryBlue = theme.colors.primaryBlue[300];
-  if (active && payload && payload.length) {
+
+  if (active && payload?.length) {
     const data = payload[0]?.payload;
 
     const filled = data?.filled ?? 0;
