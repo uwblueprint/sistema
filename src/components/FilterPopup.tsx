@@ -13,6 +13,10 @@ import {
   VStack,
   useDisclosure,
   useOutsideClick,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  PopoverArrow,
 } from '@chakra-ui/react';
 import { FilterOptions, Role } from '@utils/types';
 import React, { useMemo, useRef, useState } from 'react';
@@ -34,8 +38,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
   availableTags,
   tagColors = {},
 }) => {
-  const { isOpen, onToggle, onClose } = useDisclosure();
-  const popoverRef = useRef<HTMLDivElement>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const operatorMenuRef = useRef<HTMLDivElement>(null);
   const [operatorMenuOpen, setOperatorMenuOpen] = useState(false);
 
@@ -46,12 +49,6 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
     if (filters.tags && filters.tags.length > 0) count++;
     return count;
   }, [filters]);
-
-  // Handle clicks outside the popover to close it
-  useOutsideClick({
-    ref: popoverRef,
-    handler: () => isOpen && onClose(),
-  });
 
   // Handle clicks outside the operator menu to close it
   useOutsideClick({
@@ -124,64 +121,61 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
   };
 
   return (
-    <Box position="relative" ref={popoverRef}>
-      <Button
-        variant="outline"
-        leftIcon={<Icon as={IoFilterOutline} color={'neutralGray.600'} />}
-        flexGrow={0}
-        flexShrink={0}
-        onClick={onToggle}
-        position="relative"
-        justifyContent="space-between"
-        px={3}
-        transition="all 0.3s ease-in-out"
-      >
-        <HStack
-          spacing={activeFilterCount > 0 ? 2 : 1}
-          width="full"
+    <Popover
+      isOpen={isOpen}
+      onOpen={onOpen}
+      onClose={onClose}
+      placement="bottom-end"
+    >
+      <PopoverTrigger>
+        <Button
+          variant="outline"
+          leftIcon={<Icon as={IoFilterOutline} color={'neutralGray.600'} />}
+          flexGrow={0}
+          flexShrink={0}
+          position="relative"
           justifyContent="space-between"
+          px={3}
           transition="all 0.3s ease-in-out"
         >
-          <Text textStyle="h3">Filter</Text>
-          <Box
-            width={activeFilterCount > 0 ? '20px' : '0px'}
-            height="20px"
-            bg={activeFilterCount > 0 ? 'primaryBlue.50' : 'transparent'}
-            color="primaryBlue.300"
-            borderRadius="full"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            ml={activeFilterCount > 0 ? 'auto' : '0px'}
-            opacity={activeFilterCount > 0 ? 1 : 0}
-            transform={activeFilterCount > 0 ? 'scale(1)' : 'scale(0)'}
+          <HStack
+            spacing={activeFilterCount > 0 ? 2 : 1}
+            width="full"
+            justifyContent="space-between"
             transition="all 0.3s ease-in-out"
           >
-            {activeFilterCount > 0 && (
-              <Text textStyle="subtitle" color="primaryBlue.300">
-                {activeFilterCount}
-              </Text>
-            )}
-          </Box>
-        </HStack>
-      </Button>
+            <Text textStyle="h3">Filter</Text>
+            <Box
+              width={activeFilterCount > 0 ? '20px' : '0px'}
+              height="20px"
+              bg={activeFilterCount > 0 ? 'primaryBlue.50' : 'transparent'}
+              color="primaryBlue.300"
+              borderRadius="full"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              ml={activeFilterCount > 0 ? 'auto' : '0px'}
+              opacity={activeFilterCount > 0 ? 1 : 0}
+              transform={activeFilterCount > 0 ? 'scale(1)' : 'scale(0)'}
+              transition="all 0.3s ease-in-out"
+            >
+              {activeFilterCount > 0 && (
+                <Text textStyle="subtitle" color="primaryBlue.300">
+                  {activeFilterCount}
+                </Text>
+              )}
+            </Box>
+          </HStack>
+        </Button>
+      </PopoverTrigger>
 
-      <Box
-        position="absolute"
-        top="40px"
-        right="0"
-        zIndex={10}
+      <PopoverContent
         width="350px"
-        bg="white"
+        p={5}
         borderRadius="md"
         boxShadow="md"
         border="1px solid"
         borderColor="neutralGray.300"
-        p={5}
-        opacity={isOpen ? 1 : 0}
-        visibility={isOpen ? 'visible' : 'hidden'}
-        transform={isOpen ? 'translateY(0)' : 'translateY(-10px)'}
-        transition="all 0.3s ease-in-out"
       >
         <Flex justifyContent="space-between" alignItems="center" mb={5}>
           <Text textStyle="h3">Filter Options</Text>
@@ -364,8 +358,8 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
             </Flex>
           </Box>
         </VStack>
-      </Box>
-    </Box>
+      </PopoverContent>
+    </Popover>
   );
 };
 
