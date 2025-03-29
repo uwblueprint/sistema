@@ -259,7 +259,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           <Thead
             position="sticky"
             top={0}
-            zIndex={1}
+            zIndex={2000} // Make sure it's above the popover for editing email subscriptions
             bg="white"
             boxShadow="0 1px 1px rgba(227, 227, 227, 1)"
           >

@@ -333,8 +333,9 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
           opacity={isPopoverClosing ? 0 : 1}
           sx={{ transition: 'opacity 0.3s ease-in-out' }}
           ref={popoverRef}
+          zIndex={1}
         >
-          <PopoverBody p={2} maxHeight="300px" overflowY="auto">
+          <PopoverBody p={2} maxHeight="300px" overflowY="auto" zIndex={1}>
             {sortedSubjects.map((subject) => {
               const isSelected = selectedSubjectIds.includes(subject.id);
               const bgColor = subject.colorGroup.colorCodes[1];
