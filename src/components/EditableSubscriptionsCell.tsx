@@ -367,9 +367,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
                     }}
                     borderColor={borderColor}
                   />
-                  <Text textStyle="h4" fontWeight="500">
-                    {subject.name}
-                  </Text>
+                  <Text textStyle="label">{subject.name}</Text>
                 </Box>
               );
             })}
