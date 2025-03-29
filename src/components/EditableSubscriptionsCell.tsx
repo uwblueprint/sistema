@@ -9,6 +9,10 @@ import {
   Text,
   Wrap,
   WrapItem,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
 } from '@chakra-ui/react';
 import { FiChevronDown, FiChevronUp, FiEdit2 } from 'react-icons/fi';
 import { IoCheckmark, IoCloseOutline } from 'react-icons/io5';
@@ -51,18 +55,15 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
   onSubscriptionsChange,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isDropdownClosing, setIsDropdownClosing] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isPopoverClosing, setIsPopoverClosing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
   const [localMailingLists, setLocalMailingLists] =
     useState<MailingList[]>(mailingLists);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [dropdownPosition, setDropdownPosition] = useState({
-    top: 'auto',
-    left: 'auto',
-  });
+  const popoverRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLDivElement | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   // Create a map of subjects by ID for quick lookup
@@ -151,48 +152,34 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     setLocalMailingLists(sortedMailingLists);
   }, [selectedSubjectIds, mailingLists, subjectsById]);
 
-  // Update dropdown position when it opens
-  useEffect(() => {
-    if (isDropdownOpen && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: `${rect.top - 10}px`, // Position above the row with a small gap
-        left: `${rect.left}px`,
-      });
-    }
-  }, [isDropdownOpen]);
-
   // Handle clicks outside the component
   useEffect(() => {
     const handleDocumentClick = (event: MouseEvent) => {
       const target = event.target as Node;
-      const isClickInsideDropdown =
-        dropdownRef.current && dropdownRef.current.contains(target);
+      const isClickInsidePopover =
+        popoverRef.current && popoverRef.current.contains(target);
       const isClickInsideContainer =
         containerRef.current && containerRef.current.contains(target);
 
-      // Only process clicks that are outside both the dropdown and the container
-      if (!isClickInsideDropdown && !isClickInsideContainer) {
-        if (isEditing) {
-          // If we're in edit mode and clicked outside, immediately exit edit mode
-          // This will also trigger the blue background fadeout
+      // Only process clicks that are outside both the popover and the container
+      if (!isClickInsidePopover && !isClickInsideContainer) {
+        // If we're in edit mode and clicked outside, exit edit mode and close popover
+        if (isEditing || isPopoverOpen) {
           setIsEditing(false);
           setIsHovered(false);
 
-          // If dropdown is open, start the closing animation
-          if (isDropdownOpen) {
-            setIsDropdownClosing(true);
+          // If popover is open, start the closing animation
+          if (isPopoverOpen) {
+            setIsPopoverClosing(true);
 
-            // Only close the dropdown after animation completes
+            // Only close the popover after animation completes
             setTimeout(() => {
-              setIsDropdownOpen(false);
-              setIsDropdownClosing(false);
-
-              // Save changes
+              setIsPopoverOpen(false);
+              setIsPopoverClosing(false);
               saveSubscriptions();
             }, 300);
           } else {
-            // If dropdown is not open, just save changes
+            // If popover is not open, just save changes
             saveSubscriptions();
           }
         }
@@ -206,32 +193,37 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleDocumentClick);
     };
-  }, [isEditing, isDropdownOpen, saveSubscriptions]);
+  }, [isEditing, isPopoverOpen, saveSubscriptions]);
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-    setIsHovered(false);
+  // Separate edit icon click handler
+  const handleEditIconClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Only trigger if not already in edit mode
+    if (!isEditing) {
+      setIsEditing(true);
+      setIsHovered(false);
+    }
   };
 
+  // Main cell area click handler
   const handleEditAreaClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
+    // If already in edit mode, toggle popover
     if (isEditing) {
-      // If we're already in edit mode, toggle the dropdown
-      if (isDropdownOpen) {
-        // If dropdown is open, close it, but keep edit mode on
-        setIsDropdownClosing(true);
+      if (isPopoverOpen) {
+        // Close the popover but keep edit mode active
+        setIsPopoverClosing(true);
         setTimeout(() => {
-          setIsDropdownOpen(false);
-          setIsDropdownClosing(false);
-          saveSubscriptions();
+          setIsPopoverOpen(false);
+          setIsPopoverClosing(false);
         }, 300);
       } else {
-        // If dropdown is closed, open it
-        setIsDropdownOpen(true);
+        // Open the popover
+        setIsPopoverOpen(true);
       }
     } else {
-      // If we're not in edit mode yet, enter edit mode
+      // First click on cell, just enter edit mode
       setIsEditing(true);
       setIsHovered(false);
     }
@@ -250,6 +242,18 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     });
   };
 
+  const handleClose = () => {
+    // Start closing animation
+    setIsPopoverClosing(true);
+
+    // After animation completes
+    setTimeout(() => {
+      setIsPopoverOpen(false);
+      setIsPopoverClosing(false);
+      saveSubscriptions();
+    }, 300);
+  };
+
   return (
     <Box
       position="relative"
@@ -260,134 +264,117 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
       onMouseLeave={() => setIsHovered(false)}
       ref={containerRef}
       sx={{
-        '@keyframes slideUp': {
-          '0%': {
-            opacity: 0,
-            transform: 'translateY(-90%)',
-          },
-          '100%': {
-            opacity: 1,
-            transform: 'translateY(-100%)',
-          },
-        },
-        '@keyframes slideDown': {
-          '0%': {
-            opacity: 1,
-            transform: 'translateY(-100%)',
-          },
-          '100%': {
-            opacity: 0,
-            transform: 'translateY(-90%)',
-          },
+        '@keyframes fadeOut': {
+          '0%': { opacity: 1 },
+          '100%': { opacity: 0 },
         },
       }}
     >
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        cursor="pointer"
-        onClick={handleEditAreaClick}
-        bg={isEditing ? 'primaryBlue.50' : 'transparent'}
-        p={2}
-        borderRadius="md"
-        width="100%"
-        transition="background-color 0.3s ease-in-out"
+      <Popover
+        isOpen={isPopoverOpen || isPopoverClosing}
+        onClose={handleClose}
+        placement="bottom-start"
+        autoFocus={false}
+        closeOnBlur={false}
+        gutter={0}
       >
-        <Wrap spacing={2}>
-          {localMailingLists.map((list, index) => (
-            <WrapItem key={`${list.subjectId}-${index}`}>
-              <SubjectTag subject={list.subject} />
-            </WrapItem>
-          ))}
-        </Wrap>
+        <PopoverTrigger>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            cursor="pointer"
+            onClick={handleEditAreaClick}
+            bg={isEditing ? 'primaryBlue.50' : 'transparent'}
+            p={2}
+            borderRadius="md"
+            width="100%"
+            transition="background-color 0.3s ease-in-out"
+            ref={triggerRef}
+          >
+            <Wrap spacing={2}>
+              {localMailingLists.map((list, index) => (
+                <WrapItem key={`${list.subjectId}-${index}`}>
+                  <SubjectTag subject={list.subject} />
+                </WrapItem>
+              ))}
+            </Wrap>
 
-        <Box display="flex" alignItems="center" ml={2}>
-          {isEditing ? (
             <Box
-              transform={isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)'}
-              transition="transform 0.3s ease-in-out"
+              display="flex"
+              alignItems="center"
+              ml={2}
+              onClick={isEditing ? handleEditAreaClick : handleEditIconClick}
             >
-              <Icon as={FiChevronDown} color="neutralGray.600" />
-            </Box>
-          ) : (
-            <Icon
-              as={FiEdit2}
-              color="neutralGray.600"
-              opacity={isHovered ? 1 : 0}
-              transition="opacity 0.3s ease-in-out"
-            />
-          )}
-        </Box>
-      </Box>
-
-      {(isDropdownOpen || isDropdownClosing) && (
-        <Box
-          position="fixed" // Allows it to appear above other elements
-          bg="white"
-          border="1px solid"
-          borderColor="neutralGray.300"
-          borderRadius="md"
-          shadow="md"
-          zIndex="10"
-          width="250px"
-          p={2}
-          maxHeight="300px"
-          overflowY="auto"
-          ref={dropdownRef}
-          style={{
-            position: 'fixed',
-            top: dropdownPosition.top,
-            left: dropdownPosition.left,
-          }}
-          transform="translateY(-100%)"
-          animation={
-            isDropdownClosing
-              ? 'slideDown 0.3s ease-in-out'
-              : 'slideUp 0.3s ease-in-out'
-          }
-        >
-          {sortedSubjects.map((subject) => {
-            const isSelected = selectedSubjectIds.includes(subject.id);
-
-            return (
-              <Box
-                key={subject.id}
-                p={2}
-                display="flex"
-                alignItems="center"
-                _hover={{ bg: 'primaryBlue.50' }}
-                transition="all 0.3s ease"
-                borderRadius="md"
-                bg="transparent"
-                onClick={(e) => handleSubjectChange(subject.id, e)}
-                cursor="pointer"
-              >
-                <Checkbox
-                  isChecked={isSelected}
-                  onChange={(e) => {
-                    // Prevent propagation from the native event
-                    e.nativeEvent.stopPropagation();
-                    handleSubjectChange(subject.id);
-                  }}
-                  mr={2}
-                  sx={{
-                    '.chakra-checkbox__control': {
-                      transition: 'all 0.3s ease',
-                    },
-                    '.chakra-checkbox__label': {
-                      transition: 'all 0.3s ease',
-                    },
-                  }}
+              {isEditing ? (
+                <Icon
+                  as={isPopoverOpen ? FiChevronUp : FiChevronDown}
+                  color="neutralGray.600"
                 />
-                <Box>
-                  <SubjectTag subject={subject} />
+              ) : (
+                <Icon
+                  as={FiEdit2}
+                  color="neutralGray.600"
+                  opacity={isHovered ? 1 : 0}
+                  transition="opacity 0.3s ease-in-out"
+                />
+              )}
+            </Box>
+          </Box>
+        </PopoverTrigger>
+
+        <PopoverContent
+          width={
+            triggerRef.current?.offsetWidth
+              ? `${triggerRef.current.offsetWidth}px`
+              : '100%'
+          }
+          borderColor="neutralGray.300"
+          opacity={isPopoverClosing ? 0 : 1}
+          sx={{ transition: 'opacity 0.3s ease-in-out' }}
+          ref={popoverRef}
+        >
+          <PopoverBody p={2} maxHeight="300px" overflowY="auto">
+            {sortedSubjects.map((subject) => {
+              const isSelected = selectedSubjectIds.includes(subject.id);
+              const bgColor = subject.colorGroup.colorCodes[1];
+              const borderColor = subject.colorGroup.colorCodes[1];
+
+              return (
+                <Box
+                  key={subject.id}
+                  p={2}
+                  display="flex"
+                  alignItems="center"
+                  _hover={{ bg: 'neutralGray.100' }}
+                  borderRadius="md"
+                  onClick={(e) => handleSubjectChange(subject.id, e)}
+                  cursor="pointer"
+                >
+                  <Checkbox
+                    isChecked={isSelected}
+                    onChange={(e) => {
+                      e.nativeEvent.stopPropagation();
+                      handleSubjectChange(subject.id);
+                    }}
+                    mr={2}
+                    _checked={{
+                      '& .chakra-checkbox__control': {
+                        bg: bgColor,
+                        borderColor: borderColor,
+                      },
+                    }}
+                    borderColor={borderColor}
+                  />
+                  <Text textStyle="h4" fontWeight="500">
+                    {subject.name}
+                  </Text>
                 </Box>
-              </Box>
-            );
-          })}
-        </Box>
-      )}
+              );
+            })}
+          </PopoverBody>
+        </PopoverContent>
+      </Popover>
     </Box>
   );
 };
