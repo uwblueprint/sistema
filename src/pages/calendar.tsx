@@ -11,6 +11,7 @@ import {
   useTheme,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
+import AbsenceBox from '../components/AbsenceBox';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -24,6 +25,7 @@ import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FiPaperclip } from 'react-icons/fi';
 import AbsenceDetails from '../components/AbsenceDetails';
 import CalendarHeader from '../components/CalendarHeader';
 import CalendarSidebar from '../components/CalendarSidebar';
@@ -45,13 +47,15 @@ const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
   const [searchQuery, setSearchQuery] = useState<{
-    subjectIds: number[];
-    locationIds: number[];
-    archiveIds: number[];
+    activeSubjectIds: number[];
+    activeLocationIds: number[];
+    archivedSubjectIds: number[];
+    archivedLocationIds: number[];
   }>({
-    subjectIds: [],
-    locationIds: [],
-    archiveIds: [],
+    activeSubjectIds: [],
+    activeLocationIds: [],
+    archivedSubjectIds: [],
+    archivedLocationIds: [],
   });
   const [currentMonthYear, setCurrentMonthYear] = useState(
     formatMonthYear(new Date())
@@ -76,19 +80,47 @@ const Calendar: React.FC = () => {
   } = useDisclosure();
 
   const renderEventContent = useCallback(
-    (eventInfo: EventContentArg) => (
-      <Box>
-        <Box className="fc-event-title-container">
-          <Box className="fc-event-title fc-sticky">
-            {eventInfo.event.title}
-          </Box>
-        </Box>
-        <Box className="fc-event-title fc-sticky">
-          {eventInfo.event.extendedProps.location}
-        </Box>
-      </Box>
-    ),
-    []
+    (eventInfo: EventContentArg) => {
+      const {
+        absentTeacher,
+        absentTeacherDisplayName,
+        substituteTeacherDisplayName,
+        colors,
+        locationAbbreviation,
+        subjectAbbreviation,
+        lessonPlan,
+      } = eventInfo.event.extendedProps;
+
+      const eventDate = new Date(eventInfo.event.startStr);
+      const isPastEvent = eventDate < new Date();
+      const opacity = isPastEvent ? 0.7 : 1;
+      const createdByUser = absentTeacher.id === userData?.id;
+
+      const highlightText = createdByUser
+        ? substituteTeacherDisplayName
+          ? `${absentTeacherDisplayName} -> ${substituteTeacherDisplayName}`
+          : `${absentTeacherDisplayName} -> Unfilled`
+        : undefined;
+
+      return (
+        <AbsenceBox
+          title={subjectAbbreviation}
+          location={locationAbbreviation}
+          backgroundColor={
+            substituteTeacherDisplayName || !createdByUser
+              ? colors.light
+              : 'white'
+          }
+          borderColor={createdByUser ? colors.dark : 'transparent'}
+          textColor={colors.text}
+          highlightText={highlightText}
+          highlightColor={colors.medium}
+          lessonPlan={lessonPlan}
+          opacity={opacity}
+        />
+      );
+    },
+    [userData?.id]
   );
 
   const dayCellDidMount = useCallback(
@@ -272,30 +304,23 @@ const Calendar: React.FC = () => {
     }
   };
   useEffect(() => {
-    const { subjectIds, locationIds, archiveIds } = searchQuery;
+    const {
+      activeSubjectIds,
+      activeLocationIds,
+      archivedSubjectIds,
+      archivedLocationIds,
+    } = searchQuery;
 
     let filtered = events.filter((event) => {
-      const subjectMatch = subjectIds.includes(event.subjectId);
+      const subjectMatch =
+        activeSubjectIds.includes(event.subjectId) ||
+        archivedSubjectIds.includes(event.subjectId);
 
-      const locationMatch = locationIds.includes(event.locationId);
+      const locationMatch =
+        activeLocationIds.includes(event.locationId) ||
+        archivedLocationIds.includes(event.locationId);
 
-      let archiveMatch = true;
-
-      if (archiveIds.length === 0) {
-        archiveMatch = !event.archivedSubject && !event.archivedLocation;
-      } else {
-        const includeArchivedSubjects = archiveIds.includes(0);
-        const includeArchivedLocations = archiveIds.includes(1);
-
-        const subjectArchiveMatch =
-          includeArchivedSubjects || !event.archivedSubject;
-        const locationArchiveMatch =
-          includeArchivedLocations || !event.archivedLocation;
-
-        archiveMatch = subjectArchiveMatch && locationArchiveMatch;
-      }
-
-      return subjectMatch && locationMatch && archiveMatch;
+      return subjectMatch && locationMatch;
     });
 
     if (!isAdminMode) {
@@ -316,7 +341,7 @@ const Calendar: React.FC = () => {
     setFilteredEvents(filtered);
   }, [searchQuery, events, activeTab, userData.id, isAdminMode]);
 
-  const handleDeleteAbsence = async (deletedId) => {
+  const handleDeleteAbsence = async () => {
     await fetchAbsences();
   };
 

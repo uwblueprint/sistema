@@ -30,7 +30,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
   const userData = useUserData();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const cancelRef = React.useRef();
   const toast = useToast();
   const router = useRouter();
 
@@ -117,10 +116,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                   <IconButton
                     aria-label="Edit Absence"
                     icon={
-                      <FiEdit2
-                        size="15px"
-                        color={theme.colors.neutralGray[600]}
-                      />
+                      <FiEdit2 size="15px" color={theme.colors.text.body} />
                     }
                     size="sm"
                     variant="ghost"
@@ -132,10 +128,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                   <IconButton
                     aria-label="Delete Absence"
                     icon={
-                      <FiTrash2
-                        size="15px"
-                        color={theme.colors.neutralGray[600]}
-                      />
+                      <FiTrash2 size="15px" color={theme.colors.text.body} />
                     }
                     size="sm"
                     variant="ghost"

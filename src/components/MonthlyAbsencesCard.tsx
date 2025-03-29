@@ -4,7 +4,6 @@ import {
   CardBody,
   CardHeader,
   Divider,
-  Flex,
   Heading,
   HStack,
   Text,
@@ -43,7 +42,15 @@ export default function MonthlyAbsencesCard({
 
   const yAxisBuffer = 1;
   const rawMax = highestMonthlyAbsence + yAxisBuffer;
-  const yAxisStep = rawMax <= 5 ? 1 : 5;
+
+  const maxTicks = 5;
+
+  let yAxisStep = Math.ceil(rawMax / maxTicks);
+  if (yAxisStep > 5) {
+    yAxisStep = Math.ceil(yAxisStep / 5) * 5;
+  }
+
+  yAxisStep = Math.max(yAxisStep, 1);
 
   const yAxisMax = Math.ceil(rawMax / yAxisStep) * yAxisStep;
 
@@ -84,11 +91,8 @@ export default function MonthlyAbsencesCard({
                 data={combinedMonthlyData}
                 margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
                 onMouseMove={(state) => {
-                  if (state.isTooltipActive) {
-                    setActiveIndex(state.activeTooltipIndex ?? null);
-                  } else {
-                    setActiveIndex(null);
-                  }
+                  const newIndex = Number(state?.activeTooltipIndex);
+                  setActiveIndex(!isNaN(newIndex) ? newIndex : null);
                 }}
               >
                 <CartesianGrid
@@ -112,8 +116,8 @@ export default function MonthlyAbsencesCard({
                   tickCount={yAxisTicks.length}
                   interval={0}
                 />
-                <Tooltip
-                  content={<CustomTooltip />}
+                <Tooltip<number, string>
+                  content={(props) => <CustomTooltip {...props} />}
                   cursor={{ fill: 'transparent' }}
                 />
                 <Bar
