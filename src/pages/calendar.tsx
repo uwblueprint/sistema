@@ -347,10 +347,10 @@ const Calendar: React.FC = () => {
           sx={{ padding: '33px 31px' }}
           borderRadius="16px"
         >
-          <ModalHeader fontSize={22} sx={{ padding: '0 0 28px 0' }}>
+          <ModalHeader fontSize={22} p="0 0 28px 0">
             Declare Absence
           </ModalHeader>
-          <ModalCloseButton />
+          <ModalCloseButton top="33px" right="28px" color="text.header" />
           <ModalBody p={0}>
             <InputForm
               onClose={onInputFormClose}
