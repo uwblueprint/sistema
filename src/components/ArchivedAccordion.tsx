@@ -1,4 +1,5 @@
 import { useTheme } from '@chakra-ui/react';
+import type { Location, SubjectAPI } from '@utils/types';
 import { useEffect, useState, useCallback } from 'react';
 import Accordion, { AccordionItem } from './Accordion';
 
@@ -13,67 +14,85 @@ export default function ArchivedAccordion({
 }: ArchivedAccordionProps) {
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(true);
-  const [archivedLocations, setArchivedLocations] = useState<AccordionItem[]>(
-    []
-  );
-  const [archivedSubjects, setArchivedSubjects] = useState<AccordionItem[]>([]);
-  const [selectedArchivedSubjectIds, setSelectedArchivedSubjectIds] = useState<
-    number[]
-  >([]);
-  const [selectedArchivedLocationIds, setSelectedArchivedLocationIds] =
-    useState<number[]>([]);
+  const [subjects, setSubjects] = useState<AccordionItem[]>([]);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
+  const [locations, setLocations] = useState<AccordionItem[]>([]);
+  const [selectedLocationIds, setSelectedLocationIds] = useState<number[]>([]);
+  useEffect(() => {
+    async function fetchSubjects() {
+      try {
+        const subjectResponse = await fetch(
+          '/api/filter/subjects?archived=true'
+        );
+        if (!subjectResponse.ok) {
+          throw new Error('Failed to fetch subjects');
+        }
+        const subjectData = await subjectResponse.json();
+        if (subjectData.subjects) {
+          const fetchedSubjects = subjectData.subjects.map(
+            (subject: SubjectAPI) => ({
+              id: subject.id,
+              name: subject.name,
+              color: subject.colorGroup.colorCodes[1],
+            })
+          );
+          setSubjects(fetchedSubjects);
+
+          const subjectIds = fetchedSubjects.map((subject) => subject.id);
+          setSelectedSubjectIds(subjectIds);
+          setSubjectFilter(subjectIds);
+        }
+      } catch (error) {
+        console.error('Error fetching subjects:', error);
+      }
+    }
+
+    fetchSubjects();
+  }, [theme.colors.primaryBlue, setSubjectFilter]);
 
   useEffect(() => {
-    async function fetchArchivedData() {
+    async function fetchLocations() {
       try {
         const locationResponse = await fetch(
           '/api/filter/locations?archived=true'
         );
-        if (!locationResponse.ok)
-          throw new Error('Failed to fetch archived locations');
-        const locationData = await locationResponse.json();
-        if (locationData.locations) {
-          const fetchedLocations = locationData.locations.map(
-            (location: any) => ({
-              id: location.id,
-              name: location.name,
-              color: theme.colors.primaryBlue[300],
-            })
-          );
-          setArchivedLocations(fetchedLocations);
+        if (!locationResponse.ok) {
+          throw new Error('Failed to fetch locations');
         }
-
-        const subjectResponse = await fetch(
-          '/api/filter/subjects?archived=true'
-        );
-        if (!subjectResponse.ok)
-          throw new Error('Failed to fetch archived subjects');
-        const subjectData = await subjectResponse.json();
-        if (subjectData.subjects) {
-          const fetchedSubjects = subjectData.subjects.map((subject: any) => ({
-            id: subject.id,
-            name: subject.name,
-            color: subject.colorGroup.colorCodes[1],
+        const data = await locationResponse.json();
+        if (data.locations) {
+          const fetchedLocations = data.locations.map((location: Location) => ({
+            id: location.id,
+            name: location.name,
+            color: theme.colors.primaryBlue[300],
           }));
-          setArchivedSubjects(fetchedSubjects);
+
+          setLocations(fetchedLocations);
+
+          const allLocationIds = fetchedLocations.map(
+            (location) => location.id
+          );
+          setSelectedLocationIds(allLocationIds);
+          setLocationFilter(allLocationIds);
         }
       } catch (error) {
-        console.error('Error fetching archived data:', error);
+        console.error('Error fetching locations:', error);
       }
     }
 
-    fetchArchivedData();
-  }, [theme.colors.primaryBlue]);
+    fetchLocations();
+  }, [theme.colors.primaryBlue, setLocationFilter]);
 
-  const toggleArchivedSubject = useCallback(
+  const toggleSubject = useCallback(
     (subjectId: number) => {
-      setSelectedArchivedSubjectIds((prevSelected) => {
+      setSelectedSubjectIds((prevSelected) => {
         let newSelection;
         if (prevSelected.includes(subjectId)) {
-          newSelection = prevSelected.filter((id) => id !== subjectId);
+          newSelection = prevSelected.filter((s) => s !== subjectId);
         } else {
           newSelection = [...prevSelected, subjectId];
         }
+
         setSubjectFilter(newSelection);
         return newSelection;
       });
@@ -81,15 +100,16 @@ export default function ArchivedAccordion({
     [setSubjectFilter]
   );
 
-  const toggleArchivedLocation = useCallback(
+  const toggleLocation = useCallback(
     (locationId: number) => {
-      setSelectedArchivedLocationIds((prevSelected) => {
+      setSelectedLocationIds((prevSelected) => {
         let newSelection;
         if (prevSelected.includes(locationId)) {
-          newSelection = prevSelected.filter((id) => id !== locationId);
+          newSelection = prevSelected.filter((s) => s !== locationId);
         } else {
           newSelection = [...prevSelected, locationId];
         }
+
         setLocationFilter(newSelection);
         return newSelection;
       });
@@ -98,14 +118,15 @@ export default function ArchivedAccordion({
   );
 
   const toggleOpen = () => setIsOpen((prev) => !prev);
+
   const accordionItems: AccordionItem[] = [
-    ...archivedSubjects.map((subject) => ({
+    ...subjects.map((subject) => ({
       id: subject.id,
       name: subject.name,
       color: subject.color,
       subtitle: 'Subjects',
     })),
-    ...archivedLocations.map((location) => ({
+    ...locations.map((location) => ({
       id: location.id,
       name: location.name,
       color: location.color,
@@ -116,20 +137,17 @@ export default function ArchivedAccordion({
   return (
     <Accordion
       title="Archived"
+      items={accordionItems}
+      selectedItems={[...selectedSubjectIds, ...selectedLocationIds]}
       isOpen={isOpen}
       toggleOpen={toggleOpen}
-      selectedItems={[
-        ...selectedArchivedSubjectIds,
-        ...selectedArchivedLocationIds,
-      ]}
       toggleItem={(id: number) => {
-        if (archivedSubjects.some((subject) => subject.id === id)) {
-          toggleArchivedSubject(id);
+        if (subjects.some((subject) => subject.id === id)) {
+          toggleSubject(id);
         } else {
-          toggleArchivedLocation(id);
+          toggleLocation(id);
         }
       }}
-      items={accordionItems}
     />
   );
 }
