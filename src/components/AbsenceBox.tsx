@@ -25,7 +25,6 @@ const AbsenceBox: React.FC<AbsenceBoxProps> = ({
   lessonPlan,
   opacity,
 }) => {
-  const theme = useTheme();
   const textRef = useRef<HTMLDivElement | null>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -49,7 +48,7 @@ const AbsenceBox: React.FC<AbsenceBoxProps> = ({
     <Box
       sx={{
         padding: (theme) => `${theme.space[1]} ${theme.space[1]}`,
-        margin: (theme) => `${theme.space[2]} 0`,
+        margin: `4px 4px`,
         borderRadius: (theme) => `${theme.radii.md}`,
         backgroundColor,
         textColor,
