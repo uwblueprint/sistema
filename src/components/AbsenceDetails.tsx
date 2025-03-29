@@ -24,6 +24,7 @@ import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
 import { Role } from '@utils/types';
+import ClaimAbsenceToast from './ClaimAbsenceToast';
 
 const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
   const theme = useTheme();
@@ -307,10 +308,34 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                 !isUserAbsentTeacher &&
                 !isAdminMode && (
                   <Button
+                    colorScheme="blue"
                     width="full"
                     height="44px"
                     fontSize="16px"
                     fontWeight="500"
+                    onClick={() => {
+                      // toast modal is here for now
+                      const firstName = event.absentTeacher.firstName;
+                      const absenceDate = event.start
+                        ? new Date(event.start).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            month: 'long',
+                            day: 'numeric',
+                          })
+                        : 'N/A';
+                      toast({
+                        position: 'bottom',
+                        duration: 10000,
+                        isClosable: true,
+                        render: () => (
+                          <ClaimAbsenceToast
+                            firstName={firstName}
+                            date={absenceDate}
+                            success={false}
+                          />
+                        ),
+                      });
+                    }}
                   >
                     Fill this Absence
                   </Button>
