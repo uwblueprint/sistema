@@ -47,6 +47,7 @@ export interface AbsenceAPI {
   location: {
     id: number;
     name: string;
+    abbreviation: string;
     archived: boolean;
   };
   subject: {
@@ -125,6 +126,23 @@ export interface ColorGroup {
   id: number;
   name: string;
   colorCodes: string[];
+}
+
+export interface ColorCodes {
+  light: string;
+  medium: string;
+  dark: string;
+  text: string;
+}
+
+export function mapColorCodes(codesArr): ColorCodes {
+  let coded: ColorCodes = {
+    light: codesArr[3],
+    medium: codesArr[2],
+    dark: codesArr[1],
+    text: codesArr[0],
+  };
+  return coded;
 }
 
 export interface GlobalSettings {

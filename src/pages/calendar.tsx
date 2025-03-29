@@ -11,6 +11,7 @@ import {
   useTheme,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
+import AbsenceBox from '../components/AbsenceBox';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -24,6 +25,7 @@ import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FiPaperclip } from 'react-icons/fi';
 import AbsenceDetails from '../components/AbsenceDetails';
 import CalendarHeader from '../components/CalendarHeader';
 import CalendarSidebar from '../components/CalendarSidebar';
@@ -78,19 +80,46 @@ const Calendar: React.FC = () => {
   } = useDisclosure();
 
   const renderEventContent = useCallback(
-    (eventInfo: EventContentArg) => (
-      <Box>
-        <Box className="fc-event-title-container">
-          <Box className="fc-event-title fc-sticky">
-            {eventInfo.event.title}
-          </Box>
-        </Box>
-        <Box className="fc-event-title fc-sticky">
-          {eventInfo.event.extendedProps.location}
-        </Box>
-      </Box>
-    ),
-    []
+    (eventInfo: EventContentArg) => {
+      const {
+        absentTeacher,
+        absentTeacherDisplayName,
+        substituteTeacherDisplayName,
+        colors,
+        locationAbbreviation,
+        lessonPlan,
+      } = eventInfo.event.extendedProps;
+
+      const eventDate = new Date(eventInfo.event.startStr);
+      const isPastEvent = eventDate < new Date();
+      const opacity = isPastEvent ? 0.7 : 1;
+      const createdByUser = absentTeacher.id === userData?.id;
+
+      const highlightText = createdByUser
+        ? substituteTeacherDisplayName
+          ? `${absentTeacherDisplayName} -> ${substituteTeacherDisplayName}`
+          : `${absentTeacherDisplayName} -> Unfilled`
+        : undefined;
+
+      return (
+        <AbsenceBox
+          title={eventInfo.event.title}
+          location={locationAbbreviation}
+          backgroundColor={
+            substituteTeacherDisplayName || !createdByUser
+              ? colors.light
+              : 'white'
+          }
+          borderColor={createdByUser ? colors.dark : 'transparent'}
+          textColor={colors.text}
+          highlightText={highlightText}
+          highlightColor={colors.medium}
+          lessonPlan={lessonPlan}
+          opacity={opacity}
+        />
+      );
+    },
+    [userData?.id]
   );
 
   const handleDeclareAbsence = async (
