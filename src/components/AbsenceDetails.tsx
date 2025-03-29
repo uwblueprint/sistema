@@ -19,10 +19,13 @@ import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
+import { useToast } from '@chakra-ui/react';
+import ClaimAbsenceToast from './ClaimAbsenceToast';
 
 const AbsenceDetails = ({ isOpen, onClose, event }) => {
   const theme = useTheme();
   const userData = useUserData();
+  const toast = useToast();
   if (!event) return null;
 
   const userId = userData.id;
@@ -224,6 +227,29 @@ const AbsenceDetails = ({ isOpen, onClose, event }) => {
                 height="44px"
                 fontSize="16px"
                 fontWeight="500"
+                onClick={() => {
+                  // toast modal is here for now
+                  const firstName = event.absentTeacher.firstName;
+                  const absenceDate = event.start
+                    ? new Date(event.start).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric',
+                      })
+                    : 'N/A';
+                  toast({
+                    position: 'bottom',
+                    duration: 10000,
+                    isClosable: true,
+                    render: () => (
+                      <ClaimAbsenceToast
+                        firstName={firstName}
+                        date={absenceDate}
+                        success={false}
+                      />
+                    ),
+                  });
+                }}
               >
                 Fill this Absence
               </Button>
