@@ -91,15 +91,8 @@ export default function MonthlyAbsencesCard({
                 data={combinedMonthlyData}
                 margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
                 onMouseMove={(state) => {
-                  if (state.isTooltipActive) {
-                    setActiveIndex(
-                      typeof state.activeTooltipIndex === 'number'
-                        ? state.activeTooltipIndex
-                        : null
-                    );
-                  } else {
-                    setActiveIndex(null);
-                  }
+                  const newIndex = Number(state?.activeTooltipIndex);
+                  setActiveIndex(!isNaN(newIndex) ? newIndex : null);
                 }}
               >
                 <CartesianGrid
@@ -123,8 +116,8 @@ export default function MonthlyAbsencesCard({
                   tickCount={yAxisTicks.length}
                   interval={0}
                 />
-                <Tooltip
-                  content={<CustomTooltip />}
+                <Tooltip<number, string>
+                  content={(props) => <CustomTooltip {...props} />}
                   cursor={{ fill: 'transparent' }}
                 />
                 <Bar
