@@ -11,7 +11,6 @@ import {
   useTheme,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
-import AbsenceBox from '../components/AbsenceBox';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -25,7 +24,7 @@ import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiPaperclip } from 'react-icons/fi';
+import AbsenceBox from '../components/AbsenceBox';
 import AbsenceDetails from '../components/AbsenceDetails';
 import CalendarHeader from '../components/CalendarHeader';
 import CalendarSidebar from '../components/CalendarSidebar';
