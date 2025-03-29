@@ -70,6 +70,13 @@ export interface User {
   role: Role;
 }
 
+export interface MailingList {
+  userId: number;
+  subjectId: number;
+  user: UserAPI;
+  subject: SubjectAPI;
+}
+
 export interface UserAPI {
   id: number;
   email: string;
@@ -78,14 +85,7 @@ export interface UserAPI {
   profilePicture?: string;
   role: Role;
   absences: { id: number }[];
-  mailingLists: {
-    subject: {
-      name: string;
-      colorGroup: {
-        colorCodes: string[];
-      };
-    };
-  }[];
+  mailingLists: MailingList[];
 }
 
 export interface Location {

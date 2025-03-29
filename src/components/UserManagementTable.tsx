@@ -23,7 +23,7 @@ import {
 } from '@chakra-ui/react';
 
 import { getAbsenceColor } from '@utils/getAbsenceColor';
-import { FilterOptions, Role, UserAPI } from '@utils/types';
+import { FilterOptions, Role, SubjectAPI, UserAPI } from '@utils/types';
 import useUserFiltering from '@hooks/useUserFiltering';
 import React, { useEffect, useState } from 'react';
 import {
@@ -36,6 +36,7 @@ import {
 } from 'react-icons/fi';
 import EditableRoleCell from './EditableRoleCell';
 import FilterPopup from './FilterPopup';
+import EditableSubscriptionsCell from './EditableSubscriptionsCell';
 
 type SortField = 'name' | 'email' | 'absences' | 'role';
 
@@ -44,13 +45,17 @@ type SortDirection = 'asc' | 'desc';
 interface UserManagementTableProps {
   users: UserAPI[];
   updateUserRole: (userId: number, newRole: Role) => void;
+  updateUserSubscriptions: (userId: number, subjectIds: number[]) => void;
   absenceCap: number;
+  allSubjects?: SubjectAPI[];
 }
 
 export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   users,
   updateUserRole,
+  updateUserSubscriptions,
   absenceCap,
+  allSubjects: propSubjects,
 }) => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -63,6 +68,31 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [tagColors, setTagColors] = useState<Record<string, string[]>>({});
+  const [allSubjects, setAllSubjects] = useState<SubjectAPI[]>([]);
+
+  useEffect(() => {
+    // Use subjects from props if available, otherwise fetch them
+    if (propSubjects && propSubjects.length > 0) {
+      setAllSubjects(propSubjects);
+    } else {
+      // Fetch all available subjects
+      const fetchSubjects = async () => {
+        try {
+          const response = await fetch('/api/subjects');
+          if (response.ok) {
+            const data = await response.json();
+            setAllSubjects(data);
+          } else {
+            console.error('Failed to fetch subjects');
+          }
+        } catch (error) {
+          console.error('Error fetching subjects:', error);
+        }
+      };
+
+      fetchSubjects();
+    }
+  }, [propSubjects]);
 
   // Extract unique tags and their colors from users' mailing lists
   useEffect(() => {
@@ -229,7 +259,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           <Thead
             position="sticky"
             top={0}
-            zIndex={1}
+            zIndex={2000} // Make sure it's above the popover for editing email subscriptions
             bg="white"
             boxShadow="0 1px 1px rgba(227, 227, 227, 1)"
           >
@@ -301,30 +331,13 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       />
                     </Td>
                     <Td py="6px">
-                      <Wrap spacing={2}>
-                        {user.mailingLists?.map((mailingList, index) => (
-                          <WrapItem key={index}>
-                            <Tag
-                              height="28px"
-                              variant="subtle"
-                              bg={mailingList.subject.colorGroup.colorCodes[3]}
-                            >
-                              <TagLabel>
-                                <Text
-                                  color={
-                                    mailingList.subject.colorGroup.colorCodes[0]
-                                  }
-                                  textStyle="label"
-                                  whiteSpace="nowrap"
-                                  overflow="hidden"
-                                >
-                                  {mailingList.subject.name}
-                                </Text>
-                              </TagLabel>
-                            </Tag>
-                          </WrapItem>
-                        ))}
-                      </Wrap>
+                      <EditableSubscriptionsCell
+                        mailingLists={user.mailingLists || []}
+                        allSubjects={allSubjects}
+                        onSubscriptionsChange={(subjectIds) =>
+                          updateUserSubscriptions(user.id, subjectIds)
+                        }
+                      />
                     </Td>
                   </Tr>
                 ))
