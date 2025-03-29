@@ -5,17 +5,17 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Text,
   Textarea,
   VStack,
-  useToast,
   useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
+  useToast,
 } from '@chakra-ui/react';
 
 import { Absence, Prisma } from '@prisma/client';
@@ -31,10 +31,13 @@ interface InputFormProps {
   onAddAbsence: (
     absence: Prisma.AbsenceCreateManyInput
   ) => Promise<Absence | null>;
+  userId: number;
+  onTabChange: (tab: 'explore' | 'declared') => void;
   onEditAbsence?: (
     absence: AbsenceUpdate & { id: number }
   ) => Promise<Absence | null>;
   initialDate: Date;
+  isAdminMode: boolean;
   initialAbsence?: Partial<AbsenceAPI> | null;
   isEditMode?: boolean;
 }
@@ -42,8 +45,11 @@ interface InputFormProps {
 const InputForm: React.FC<InputFormProps> = ({
   onClose,
   onAddAbsence,
+  userId,
+  onTabChange,
   onEditAbsence,
   initialDate,
+  isAdminMode,
   initialAbsence = null,
   isEditMode = false,
 }) => {
@@ -58,8 +64,8 @@ const InputForm: React.FC<InputFormProps> = ({
   const [formData, setFormData] = useState({
     id: initialAbsence?.id || 0,
     reasonOfAbsence: initialAbsence?.reasonOfAbsence || '',
-    absentTeacherId: initialAbsence?.absentTeacherId || '',
-    substituteTeacherId: initialAbsence?.substituteTeacherId || '',
+    absentTeacherId: isAdminMode ? '' : String(userId),
+    substituteTeacherId: initialAbsence?.substituteTeacher?.id || '',
     locationId: initialAbsence?.location?.id || '',
     subjectId: initialAbsence?.subject?.id || '',
     roomNumber: initialAbsence?.roomNumber || '',
@@ -76,7 +82,7 @@ const InputForm: React.FC<InputFormProps> = ({
 
   const memoizedAbsentTeacher = useMemo(
     () => ({
-      id: initialAbsence?.absentTeacherId || 0,
+      id: initialAbsence?.absentTeacher?.id || 0,
       name:
         initialAbsence?.absentTeacher?.firstName +
           ' ' +
@@ -85,13 +91,13 @@ const InputForm: React.FC<InputFormProps> = ({
     [
       initialAbsence?.absentTeacher?.firstName,
       initialAbsence?.absentTeacher?.lastName,
-      initialAbsence?.absentTeacherId,
+      initialAbsence?.absentTeacher?.id,
     ]
   );
 
   const memoizedSubstituteTeacher = useMemo(
     () => ({
-      id: initialAbsence?.substituteTeacherId || 0,
+      id: initialAbsence?.substituteTeacher?.id || 0,
       name:
         initialAbsence?.substituteTeacher?.firstName +
           ' ' +
@@ -100,7 +106,7 @@ const InputForm: React.FC<InputFormProps> = ({
     [
       initialAbsence?.substituteTeacher?.firstName,
       initialAbsence?.substituteTeacher?.lastName,
-      initialAbsence?.substituteTeacherId,
+      initialAbsence?.substituteTeacher?.id,
     ]
   );
 
@@ -165,11 +171,11 @@ const InputForm: React.FC<InputFormProps> = ({
       setFormData({
         id: initialAbsence.id || 0,
         reasonOfAbsence: initialAbsence.reasonOfAbsence || '',
-        absentTeacherId: initialAbsence.absentTeacherId
-          ? String(initialAbsence.absentTeacherId)
+        absentTeacherId: initialAbsence.absentTeacher?.id
+          ? String(initialAbsence.absentTeacher?.id)
           : '',
-        substituteTeacherId: initialAbsence.substituteTeacherId
-          ? String(initialAbsence.substituteTeacherId)
+        substituteTeacherId: initialAbsence.substituteTeacher?.id
+          ? String(initialAbsence.substituteTeacher?.id)
           : '',
         locationId: initialAbsence.location?.id
           ? String(initialAbsence.location?.id)
@@ -346,6 +352,13 @@ const InputForm: React.FC<InputFormProps> = ({
           isClosable: true,
         });
 
+        if (
+          parseInt(formData.substituteTeacherId, 10) === userId ||
+          parseInt(formData.absentTeacherId, 10) === userId
+        ) {
+          onTabChange('declared');
+        }
+
         if (onClose) {
           onClose();
         }
@@ -408,58 +421,64 @@ const InputForm: React.FC<InputFormProps> = ({
       }}
     >
       <VStack sx={{ gap: '24px' }}>
-        <FormControl isRequired isInvalid={!!errors.absentTeacherId}>
-          <FormLabel sx={{ display: 'flex' }}>
-            <Text textStyle="h4">Teacher Absent</Text>
-          </FormLabel>
-          <SearchDropdown
-            label="Teacher"
-            type="user"
-            excludedId={String(formData.substituteTeacherId)}
-            initialValue={isEditMode ? memoizedAbsentTeacher : undefined}
-            onChange={(value) => {
-              setFormData((prev) => ({
-                ...prev,
-                absentTeacherId: value ? String(value.id) : '',
-              }));
-              // Clear error when user selects a value
-              if (errors.absentTeacherId) {
-                setErrors((prev) => ({
-                  ...prev,
-                  absentTeacherId: '',
-                }));
-              }
-            }}
-            options={dropdownOptions.userOptions}
-          />
-          <FormErrorMessage>{errors.absentTeacherId}</FormErrorMessage>
-        </FormControl>
+        {isAdminMode && (
+          <>
+            <FormControl isRequired isInvalid={!!errors.absentTeacherId}>
+              <FormLabel sx={{ display: 'flex' }}>
+                <Text textStyle="h4">Teacher Absent</Text>
+              </FormLabel>
+              <SearchDropdown
+                label="Teacher"
+                type="user"
+                excludedId={String(formData.substituteTeacherId)}
+                initialValue={isEditMode ? memoizedAbsentTeacher : undefined}
+                onChange={(value) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    absentTeacherId: value ? String(value.id) : '',
+                  }));
+                  // Clear error when user selects a value
+                  if (errors.absentTeacherId) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      absentTeacherId: '',
+                    }));
+                  }
+                }}
+                options={dropdownOptions.userOptions}
+              />
+              <FormErrorMessage>{errors.absentTeacherId}</FormErrorMessage>
+            </FormControl>
 
-        <FormControl>
-          <FormLabel sx={{ display: 'flex' }}>
-            <Text textStyle="h4">Substitute Teacher</Text>
-          </FormLabel>
-          <SearchDropdown
-            label="Teacher"
-            type="user"
-            excludedId={String(formData.absentTeacherId)}
-            initialValue={isEditMode ? memoizedSubstituteTeacher : undefined}
-            onChange={(value) => {
-              setFormData((prev) => ({
-                ...prev,
-                substituteTeacherId: value ? String(value.id) : '',
-              }));
-              // Clear error when user selects a value
-              if (errors.substituteTeacherId) {
-                setErrors((prev) => ({
-                  ...prev,
-                  substituteTeacherId: '',
-                }));
-              }
-            }}
-            options={dropdownOptions.userOptions}
-          />
-        </FormControl>
+            <FormControl>
+              <FormLabel sx={{ display: 'flex' }}>
+                <Text textStyle="h4">Substitute Teacher</Text>
+              </FormLabel>
+              <SearchDropdown
+                label="Teacher"
+                type="user"
+                excludedId={String(formData.absentTeacherId)}
+                initialValue={
+                  isEditMode ? memoizedSubstituteTeacher : undefined
+                }
+                onChange={(value) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    substituteTeacherId: value ? String(value.id) : '',
+                  }));
+                  // Clear error when user selects a value
+                  if (errors.substituteTeacherId) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      substituteTeacherId: '',
+                    }));
+                  }
+                }}
+                options={dropdownOptions.userOptions}
+              />
+            </FormControl>
+          </>
+        )}
 
         <FormControl isRequired isInvalid={!!errors.subjectId}>
           <FormLabel sx={{ display: 'flex' }}>

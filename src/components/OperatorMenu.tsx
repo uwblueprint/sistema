@@ -10,10 +10,9 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { ComparisonOperator } from '@utils/types';
 import { useRef, useState } from 'react';
 import { IoChevronDownOutline, IoChevronUpOutline } from 'react-icons/io5';
-
-export type ComparisonOperator = 'greater_than' | 'less_than' | 'equal_to';
 
 interface OperatorMenuProps {
   selectedOperator: ComparisonOperator;

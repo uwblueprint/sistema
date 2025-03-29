@@ -1,7 +1,5 @@
-// importing from next-auth/react instead of our root's auth.ts because of Client & Server component issues.
-// https://authjs.dev/getting-started/session-management/login
-import { signIn } from 'next-auth/react';
 import { Button } from '@chakra-ui/react';
+import { signIn } from 'next-auth/react';
 import { FcGoogle } from 'react-icons/fc';
 
 export function SignInButton(): JSX.Element {

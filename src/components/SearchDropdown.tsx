@@ -1,6 +1,7 @@
 import {
   Avatar,
   Box,
+  Divider,
   CloseButton,
   Input,
   InputGroup,
@@ -13,7 +14,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 export type Option = { name: string; id: number; profilePicture: string };
 
@@ -130,7 +131,11 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
         autoFocus={false}
       >
         {isSelected ? (
-          <InputGroup>
+          <InputGroup
+            border="1px solid"
+            borderColor="neutralGray.300"
+            borderRadius="md"
+          >
             <InputLeftElement>
               <Avatar
                 name={selectedOption?.name || searchQuery}
@@ -145,6 +150,8 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
               isReadOnly
               cursor="default"
               fontWeight="600"
+              border="none"
+              _focusVisible={{ outline: 'none' }}
             />
             <InputRightElement>
               <CloseButton
@@ -170,42 +177,50 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
         )}
 
         <PopoverContent
-          boxShadow="sm"
           width="300px"
           mt="-5px"
           borderRadius="md"
+          overflow="hidden"
+          border="1px solid"
+          borderColor="neutralGray.300"
         >
           <VStack align="stretch" spacing={0}>
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option, index) => (
-                <Box
-                  key={option.id}
-                  sx={{
-                    borderRadius:
-                      index === 0
-                        ? 'md md 0 0'
-                        : index === filteredOptions.length - 1
-                          ? '0 0 md md'
-                          : '0',
-                    bg: 'transparent',
-                    _hover: {
-                      bg: 'neutralGray.100',
-                    },
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                  cursor="pointer"
-                  onClick={() => handleOptionSelect(option)}
-                >
-                  <Avatar
-                    name={option.name}
-                    src={option.profilePicture}
-                    size="sm"
-                    m="4px"
-                    p="4px"
-                  />
-                  <Text textStyle="subtitle">{option.name}</Text>
-                </Box>
+                <React.Fragment key={option.id}>
+                  <Box
+                    sx={{
+                      borderRadius:
+                        index === 0
+                          ? 'md md 0 0'
+                          : index === filteredOptions.length - 1
+                            ? '0 0 md md'
+                            : '0',
+                      bg:
+                        selectedOption?.id === option.id
+                          ? 'primaryBlue.50'
+                          : 'transparent',
+                      _hover: { bg: 'neutralGray.100' },
+                      _active: { bg: 'neutralGray.300' },
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                    cursor="pointer"
+                    onClick={() => handleOptionSelect(option)}
+                  >
+                    <Avatar
+                      name={option.name}
+                      src={option.profilePicture}
+                      size="sm"
+                      m="4px"
+                      p="4px"
+                    />
+                    <Text textStyle="subtitle">{option.name}</Text>
+                  </Box>
+                  {index < filteredOptions.length - 1 && (
+                    <Divider borderColor="neutralGray.300" opacity={1} />
+                  )}
+                </React.Fragment>
               ))
             ) : (
               <Box p="6px" m="6px">

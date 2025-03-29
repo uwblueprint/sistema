@@ -9,42 +9,76 @@ import {
   ModalOverlay,
   useDisclosure,
   useTheme,
-  useToast,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
+import { useAbsences } from '@hooks/useAbsences';
+import { useUserData } from '@hooks/useUserData';
 import { Absence, Prisma } from '@prisma/client';
+import { formatMonthYear } from '@utils/formatMonthYear';
+import { getCalendarStyles } from '@utils/getCalendarStyles';
+import { getDayCellClassNames } from '@utils/getDayCellClassNames';
+import { EventDetails } from '@utils/types';
+import { useRouter } from 'next/navigation';
 import { AbsenceAPI, AbsenceUpdate } from '@utils/types';
-import useUserData from '@utils/useUserData';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import AbsenceDetails from '../components/AbsenceDetails';
 import CalendarHeader from '../components/CalendarHeader';
-import InputForm from '../components/InputForm';
 import CalendarSidebar from '../components/CalendarSidebar';
+import { CalendarTabs } from '../components/CalendarTabs';
+import InputForm from '../components/InputForm';
 
 const Calendar: React.FC = () => {
+  const userData = useUserData();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!userData.isLoading && !userData.isAuthenticated) {
+      router.push('/');
+    }
+  }, [userData.isLoading, userData.isAuthenticated, router]);
+
+  const { events, fetchAbsences } = useAbsences();
+
   const calendarRef = useRef<FullCalendar>(null);
-  const [events, setEvents] = useState<EventInput[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
   const [searchQuery, setSearchQuery] = useState<{
     subjectIds: number[];
     locationIds: number[];
+    archiveIds: number[];
   }>({
     subjectIds: [],
     locationIds: [],
+    archiveIds: [],
   });
-  const [currentMonthYear, setCurrentMonthYear] = useState('');
+  const [currentMonthYear, setCurrentMonthYear] = useState(
+    formatMonthYear(new Date())
+  );
+  const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
+    'explore'
+  );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const toast = useToast();
+  const [selectedEvent, setSelectedEvent] = useState<EventDetails | null>(null);
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
   const theme = useTheme();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isAbsenceDetailsOpen,
+    onOpen: onAbsenceDetailsOpen,
+    onClose: onAbsenceDetailsClose,
+  } = useDisclosure();
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedAbsence, setSelectedAbsence] = useState<AbsenceAPI | null>(
     null
   );
-  const userData = useUserData();
+  const {
+    isOpen: isInputFormOpen,
+    onOpen: onInputFormOpen,
+    onClose: onInputFormClose,
+  } = useDisclosure();
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => (
@@ -73,8 +107,8 @@ const Calendar: React.FC = () => {
       // Add other necessary properties here
       absenceId: absenceData.id,
       reasonOfAbsence: absenceData.reasonOfAbsence,
-      absentTeacherId: absenceData.absentTeacherId,
-      substituteTeacherId: absenceData.substituteTeacherId,
+      absentTeacherId: absenceData.absentTeacher.id,
+      substituteTeacherId: absenceData.substituteTeacher?.id,
       subject: absenceData.subject.name,
       subjectId: absenceData.subject.id,
       locationId: absenceData.location.id,
@@ -143,39 +177,9 @@ const Calendar: React.FC = () => {
     }
   };
 
-  const fetchAbsences = useCallback(async () => {
-    try {
-      const res = await fetch('/api/getAbsences/');
-      if (!res.ok) {
-        throw new Error(`Failed to fetch: ${res.statusText}`);
-      }
-      const data = await res.json();
-      const formattedEvents = data.events.map(convertAbsenceToEvent);
-      setEvents(formattedEvents);
-    } catch (error) {
-      console.error('Error fetching absences:', error);
-      toast({
-        title: 'Failed to fetch absences',
-        description:
-          'There was an error loading the absence data. Please try again later.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  }, [toast]);
-
   useEffect(() => {
     fetchAbsences();
   }, [fetchAbsences]);
-
-  const formatMonthYear = (date: Date): string => {
-    const options: Intl.DateTimeFormatOptions = {
-      month: 'long',
-      year: 'numeric',
-    };
-    return new Intl.DateTimeFormat('en-US', options).format(date);
-  };
 
   const updateMonthYearTitle = useCallback(() => {
     if (calendarRef.current) {
@@ -187,53 +191,9 @@ const Calendar: React.FC = () => {
 
   const handleDateClick = (arg: { date: Date }) => {
     setSelectedDate(arg.date);
+    onInputFormOpen();
     setIsEditMode(false);
     setSelectedAbsence(null);
-    onOpen();
-  };
-
-  const handleEventClick = (clickInfo: EventClickArg) => {
-    // Extract the existing absence details from the clicked event
-    const absenceId = clickInfo.event.extendedProps.absenceId;
-
-    if (!absenceId) {
-      // If there's no ID, this isn't a real absence event that can be edited
-      setIsEditMode(false);
-      setSelectedAbsence(null);
-      onOpen();
-      return;
-    }
-    const existingAbsence: AbsenceAPI = {
-      id: Number(clickInfo.event.id),
-      lessonDate: new Date(clickInfo.event.extendedProps.lessonDate),
-      subject: {
-        id: clickInfo.event.extendedProps.subjectId,
-        name: clickInfo.event.title,
-        abbreviation: '',
-        colorGroup: {
-          colorCodes: [],
-        },
-      },
-      location: {
-        id: clickInfo.event.extendedProps.locationId,
-        name: clickInfo.event.extendedProps.location,
-      },
-      reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence,
-      absentTeacherId: clickInfo.event.extendedProps.absentTeacherId,
-      substituteTeacherId: clickInfo.event.extendedProps.substituteTeacherId,
-      absentTeacher: {
-        firstName: clickInfo.event.extendedProps.absentTeacherFirstName,
-        lastName: clickInfo.event.extendedProps.absentTeacherLastName,
-      },
-      notes: clickInfo.event.extendedProps.notes,
-      lessonPlan: clickInfo.event.extendedProps.lessonPlan,
-    };
-    const hasExistingAbsenceData =
-      existingAbsence.subject.name !== '' ||
-      existingAbsence.location.name !== '';
-    setSelectedAbsence(existingAbsence);
-    setIsEditMode(hasExistingAbsenceData);
-    onOpen();
   };
 
   const handleTodayClick = useCallback(() => {
@@ -274,26 +234,26 @@ const Calendar: React.FC = () => {
     updateMonthYearTitle();
   }, [updateMonthYearTitle]);
 
-  const addSquareClasses = (date: Date): string => {
-    const day = date.getDay();
-    let classes = day === 0 || day === 6 ? 'fc-weekend' : '';
-
-    const today = new Date();
-    const isToday = date.toDateString() === today.toDateString();
-
-    if (isToday) {
-      classes += ' fc-today';
-    }
-
-    if (
-      selectedDate &&
-      date.toDateString() === selectedDate.toDateString() &&
-      !isToday
-    ) {
-      classes += ' fc-selected-date';
-    }
-
-    return classes;
+  const handleAbsenceClick = (clickInfo: EventClickArg) => {
+    setSelectedEvent({
+      title: clickInfo.event.title || 'Untitled Event',
+      start: clickInfo.event.start,
+      absentTeacher: clickInfo.event.extendedProps.absentTeacher || null,
+      absentTeacherFullName:
+        clickInfo.event.extendedProps.absentTeacherFullName || '',
+      substituteTeacher:
+        clickInfo.event.extendedProps.substituteTeacher || null,
+      substituteTeacherFullName:
+        clickInfo.event.extendedProps.substituteTeacherFullName || '',
+      location: clickInfo.event.extendedProps.location || '',
+      classType: clickInfo.event.extendedProps.classType || '',
+      lessonPlan: clickInfo.event.extendedProps.lessonPlan || '',
+      roomNumber: clickInfo.event.extendedProps.roomNumber || '',
+      reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
+      notes: clickInfo.event.extendedProps.notes || '',
+      absenceId: clickInfo.event.extendedProps.absenceId,
+    });
+    onAbsenceDetailsOpen();
   };
 
   const handleDeclareAbsenceClick = () => {
@@ -303,84 +263,68 @@ const Calendar: React.FC = () => {
       setSelectedDate(today);
       setIsEditMode(false);
       setSelectedAbsence(null);
-      onOpen();
+      onInputFormOpen();
     }
   };
   useEffect(() => {
-    const { subjectIds, locationIds } = searchQuery;
+    const { subjectIds, locationIds, archiveIds } = searchQuery;
 
-    const filtered = events.filter((event) => {
-      const subjectIdMatch = subjectIds.includes(event.subjectId);
-      const locationIdMatch = locationIds.includes(event.locationId);
-      return subjectIdMatch && locationIdMatch;
+    let filtered = events.filter((event) => {
+      const subjectMatch = subjectIds.includes(event.subjectId);
+
+      const locationMatch = locationIds.includes(event.locationId);
+
+      let archiveMatch = true;
+
+      if (archiveIds.length === 0) {
+        archiveMatch = !event.archivedSubject && !event.archivedLocation;
+      } else {
+        const includeArchivedSubjects = archiveIds.includes(0);
+        const includeArchivedLocations = archiveIds.includes(1);
+
+        const subjectArchiveMatch =
+          includeArchivedSubjects || !event.archivedSubject;
+        const locationArchiveMatch =
+          includeArchivedLocations || !event.archivedLocation;
+
+        archiveMatch = subjectArchiveMatch && locationArchiveMatch;
+      }
+
+      return subjectMatch && locationMatch && archiveMatch;
     });
 
-    setFilteredEvents(filtered);
-  }, [searchQuery, events]);
+    if (!isAdminMode) {
+      if (activeTab === 'explore') {
+        filtered = filtered.filter(
+          (event) =>
+            event.absentTeacher.id !== userData.id && !event.substituteTeacher
+        );
+      } else if (activeTab === 'declared') {
+        filtered = filtered.filter(
+          (event) =>
+            event.absentTeacher.id === userData.id ||
+            event.substituteTeacher?.id === userData.id
+        );
+      }
+    }
 
+    setFilteredEvents(filtered);
+  }, [searchQuery, events, activeTab, userData.id, isAdminMode]);
+
+  const handleDeleteAbsence = async (deletedId) => {
+    await fetchAbsences();
+  };
+
+  if (userData.isLoading) {
+    return null;
+  }
+
+  if (!userData.isAuthenticated) {
+    return null;
+  }
   return (
     <>
-      <Global
-        styles={`
-          .fc .fc-daygrid-day-top {
-            flex-direction: row;
-          }
-          .fc th {
-            text-transform: uppercase;
-            font-size: ${theme.fontSizes.sm};
-            font-weight: ${theme.fontWeights[600]};
-          }
-          .fc-day-today {
-            background-color: inherit !important;
-          }
-          .fc-daygrid-day-number {
-            margin-left: 6px;
-            margin-top: 6px;
-            font-size: ${theme.fontSizes.xs};
-            font-weight: ${theme.fontWeights[400]};
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          .fc-day-today .fc-daygrid-day-number {
-            background-color: ${theme.colors.primaryBlue[300]};
-            color: white;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          .fc-weekend {
-            background-color: rgba(0, 0, 0, 0.05) !important;
-          }
-          .fc-event {
-            padding: ${theme.space[2]} ${theme.space[3]};
-            margin: ${theme.space[2]} 0;
-            border-radius: ${theme.radii.md};
-            cursor: pointer;
-          }
-          .fc-event-title {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: ${theme.fontSizes.sm};
-            font-weight: ${theme.fontWeights.normal};
-          }
-          .fc-selected-date .fc-daygrid-day-number {
-            background-color: ${theme.colors.primaryBlue[50]};
-            color: ${theme.colors.primaryBlue[300]};
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            }
-        `}
-      />
+      <Global styles={getCalendarStyles} />
 
       <Flex height="100vh">
         <CalendarSidebar
@@ -402,9 +346,14 @@ const Calendar: React.FC = () => {
             onPrevClick={handlePrevClick}
             onNextClick={handleNextClick}
             userData={userData}
+            isAdminMode={isAdminMode}
+            setIsAdminMode={setIsAdminMode}
           />
 
-          <Box flex={1} overflow="hidden" paddingRight={theme.space[2]}>
+          <Box flex={1} overflow="hidden" pr={theme.space[2]}>
+            {!isAdminMode && (
+              <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
+            )}
             <FullCalendar
               ref={calendarRef}
               headerToolbar={false}
@@ -416,15 +365,25 @@ const Calendar: React.FC = () => {
               timeZone="local"
               datesSet={updateMonthYearTitle}
               fixedWeekCount={false}
-              dayCellClassNames={({ date }) => addSquareClasses(date)}
+              dayCellClassNames={({ date }) =>
+                getDayCellClassNames(date, selectedDate)
+              }
+              eventClick={handleAbsenceClick}
               dateClick={handleDateClick}
-              eventClick={handleEventClick}
             />
           </Box>
         </Box>
       </Flex>
 
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <AbsenceDetails
+        isOpen={isAbsenceDetailsOpen}
+        onClose={onAbsenceDetailsClose}
+        event={selectedEvent}
+        onDelete={handleDeleteAbsence}
+        isAdminMode={isAdminMode}
+      />
+
+      <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>
         <ModalOverlay />
         <ModalContent
           width={362}
@@ -438,7 +397,7 @@ const Calendar: React.FC = () => {
           <ModalBody p={0}>
             <InputForm
               onClose={() => {
-                onClose();
+                onInputFormClose();
                 setIsEditMode(false);
                 setSelectedAbsence(null);
               }}
@@ -447,6 +406,9 @@ const Calendar: React.FC = () => {
               initialDate={selectedDate || new Date()}
               initialAbsence={selectedAbsence}
               isEditMode={isEditMode}
+              userId={userData.id}
+              onTabChange={setActiveTab}
+              isAdminMode={isAdminMode}
             />
           </ModalBody>
         </ModalContent>
@@ -456,3 +418,12 @@ const Calendar: React.FC = () => {
 };
 
 export default Calendar;
+function toast(arg0: {
+  title: string;
+  description: string;
+  status: string;
+  duration: number;
+  isClosable: boolean;
+}) {
+  throw new Error('Function not implemented.');
+}

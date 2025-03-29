@@ -12,6 +12,7 @@ import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { IoChevronBack, IoChevronForward, IoStatsChart } from 'react-icons/io5';
+import { AdminTeacherToggle } from './AdminTeacherToggle';
 import ProfileMenu from './ProfileMenu';
 
 interface CalendarHeaderProps {
@@ -20,6 +21,8 @@ interface CalendarHeaderProps {
   onPrevClick: () => void;
   onNextClick: () => void;
   userData?: UserData;
+  isAdminMode: boolean;
+  setIsAdminMode: (mode: boolean) => void;
 }
 
 const CalendarHeader: React.FC<CalendarHeaderProps> = ({
@@ -28,6 +31,8 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onPrevClick,
   onNextClick,
   userData,
+  isAdminMode,
+  setIsAdminMode,
 }) => {
   const theme = useTheme();
   const router = useRouter();
@@ -48,10 +53,17 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
     fetchSettings();
   }, []);
 
+  const isAdmin = userData?.role === 'ADMIN';
+
   return (
-    <Flex marginBottom={theme.space[4]} alignItems="center" width="100%">
-      <HStack spacing={theme.space[4]}>
-        <HStack spacing={theme.space[0]}>
+    <Flex
+      ml={theme.space[2]}
+      marginBottom={theme.space[4]}
+      alignItems="center"
+      width="100%"
+    >
+      <HStack spacing={theme.space[6]}>
+        <HStack spacing={1}>
           <IconButton
             onClick={onPrevClick}
             icon={
@@ -75,19 +87,34 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             variant="outline"
           />
         </HStack>
-        <Text textStyle="h1">{currentMonthYear}</Text>
+        <Text textStyle="h1" whiteSpace="nowrap" overflow="hidden">
+          {currentMonthYear}
+        </Text>
       </HStack>
       <Spacer />
-      <HStack spacing={theme.space[4]} mr={theme.space[4]}>
-        <Button
-          leftIcon={
-            <IoStatsChart size={20} color={theme.colors.primaryBlue[300]} />
-          }
-          variant="outline"
-          onClick={() => router.push('/dashboard')}
-        >
-          Admin Dashboard
-        </Button>
+      <HStack spacing={theme.space[4]} mr={theme.space[6]}>
+        {isAdmin && (
+          <>
+            {isAdminMode && (
+              <Button
+                leftIcon={
+                  <IoStatsChart
+                    size={20}
+                    color={theme.colors.primaryBlue[300]}
+                  />
+                }
+                variant="outline"
+                onClick={() => router.push('/dashboard')}
+              >
+                Admin Dashboard
+              </Button>
+            )}
+            <AdminTeacherToggle
+              isAdminMode={isAdminMode}
+              onToggle={(mode) => setIsAdminMode(mode === 'admin')}
+            />
+          </>
+        )}
         <ProfileMenu userData={userData} absenceCap={absenceCap} />
       </HStack>
     </Flex>

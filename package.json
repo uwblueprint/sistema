@@ -29,10 +29,11 @@
     "@fullcalendar/react": "^6.1.15",
     "@mui/material": "^5.15.20",
     "@mui/system": "^5.15.20",
-    "@prisma/client": "^6.4.1",
+    "@prisma/client": "^6.5.0",
     "dotenv": "^16.4.5",
     "framer-motion": "^6.3.0",
     "googleapis": "^140.0.1",
+    "iconsax-react": "^0.0.8",
     "ics": "^3.8.1",
     "ionicons": "^7.4.0",
     "next": "^15.1.7",
@@ -43,7 +44,8 @@
     "react": "^18.2.0",
     "react-calendar": "^5.0.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^5.3.0"
+    "react-icons": "^5.3.0",
+    "recharts": "^2.15.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
