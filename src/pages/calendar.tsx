@@ -170,6 +170,12 @@ const Calendar: React.FC = () => {
   }, [updateMonthYearTitle]);
 
   const handleAbsenceClick = (clickInfo: EventClickArg) => {
+    // Get the click position from the event
+    const clickPosition = {
+      x: clickInfo.jsEvent.clientX,
+      y: clickInfo.jsEvent.clientY,
+    };
+
     setSelectedEvent({
       title: clickInfo.event.title || 'Untitled Event',
       start: clickInfo.event.start,
@@ -187,6 +193,8 @@ const Calendar: React.FC = () => {
       reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
       notes: clickInfo.event.extendedProps.notes || '',
       absenceId: clickInfo.event.extendedProps.absenceId,
+      // Add click position to the selected event data
+      clickPosition: clickPosition,
     });
     onAbsenceDetailsOpen();
   };

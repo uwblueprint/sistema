@@ -25,6 +25,7 @@ export interface EventDetails {
   reasonOfAbsence: string;
   notes: string;
   absenceId: number;
+  clickPosition?: { x: number; y: number };
 }
 
 export interface AbsenceAPI {
