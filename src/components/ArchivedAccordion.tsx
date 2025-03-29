@@ -18,6 +18,7 @@ export default function ArchivedAccordion({
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
   const [locations, setLocations] = useState<AccordionItem[]>([]);
   const [selectedLocationIds, setSelectedLocationIds] = useState<number[]>([]);
+
   useEffect(() => {
     async function fetchSubjects() {
       try {
@@ -37,10 +38,6 @@ export default function ArchivedAccordion({
             })
           );
           setSubjects(fetchedSubjects);
-
-          const subjectIds = fetchedSubjects.map((subject) => subject.id);
-          setSelectedSubjectIds(subjectIds);
-          setSubjectFilter(subjectIds);
         }
       } catch (error) {
         console.error('Error fetching subjects:', error);
@@ -48,7 +45,7 @@ export default function ArchivedAccordion({
     }
 
     fetchSubjects();
-  }, [theme.colors.primaryBlue, setSubjectFilter]);
+  }, [theme.colors.primaryBlue]);
 
   useEffect(() => {
     async function fetchLocations() {
@@ -68,12 +65,6 @@ export default function ArchivedAccordion({
           }));
 
           setLocations(fetchedLocations);
-
-          const allLocationIds = fetchedLocations.map(
-            (location) => location.id
-          );
-          setSelectedLocationIds(allLocationIds);
-          setLocationFilter(allLocationIds);
         }
       } catch (error) {
         console.error('Error fetching locations:', error);
@@ -81,7 +72,7 @@ export default function ArchivedAccordion({
     }
 
     fetchLocations();
-  }, [theme.colors.primaryBlue, setLocationFilter]);
+  }, [theme.colors.primaryBlue]);
 
   const toggleSubject = useCallback(
     (subjectId: number) => {
