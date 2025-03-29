@@ -38,9 +38,8 @@ export const getCalendarStyles = (theme: CustomTheme) => css`
     background-color: rgba(0, 0, 0, 0.05) !important;
   }
   .fc-event {
-    padding: ${theme.space[2]} ${theme.space[3]};
-    margin: ${theme.space[2]} 0;
-    border-radius: ${theme.radii.md};
+    border: 0px;
+    background-color: transparent;
   }
   .fc-event-title {
     overflow: hidden;

@@ -10,21 +10,17 @@ import {
   InputGroup,
   InputLeftElement,
   Table,
-  Tag,
-  TagLabel,
   Tbody,
   Td,
   Text,
   Th,
   Thead,
   Tr,
-  Wrap,
-  WrapItem,
 } from '@chakra-ui/react';
 
+import useUserFiltering from '@hooks/useUserFiltering';
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { FilterOptions, Role, SubjectAPI, UserAPI } from '@utils/types';
-import useUserFiltering from '@hooks/useUserFiltering';
 import React, { useEffect, useState } from 'react';
 import {
   FiClock,
@@ -35,8 +31,8 @@ import {
   FiUser,
 } from 'react-icons/fi';
 import EditableRoleCell from './EditableRoleCell';
-import FilterPopup from './FilterPopup';
 import EditableSubscriptionsCell from './EditableSubscriptionsCell';
+import FilterPopup from './FilterPopup';
 
 type SortField = 'name' | 'email' | 'absences' | 'role';
 
@@ -63,7 +59,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
     role: null,
     absencesOperator: 'greater_than',
     absencesValue: null,
-    tags: null,
+    disabledTags: [],
   });
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [availableTags, setAvailableTags] = useState<string[]>([]);

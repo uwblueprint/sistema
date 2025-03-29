@@ -1,9 +1,9 @@
 // src/theme/theme.ts
 import { extendTheme } from '@chakra-ui/react';
-import { fonts } from './fonts';
 import { colors } from './colors';
-import { textStyles } from './textStyles';
 import { components } from './components';
+import { fonts } from './fonts';
+import { textStyles } from './textStyles';
 
 const theme = extendTheme({
   fonts,

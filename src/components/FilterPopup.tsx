@@ -13,6 +13,10 @@ import {
   VStack,
   useDisclosure,
   useOutsideClick,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  PopoverArrow,
 } from '@chakra-ui/react';
 import { FilterOptions, Role } from '@utils/types';
 import React, { useMemo, useRef, useState } from 'react';
@@ -28,14 +32,16 @@ interface FilterPopupProps {
   tagColors?: Record<string, string[]>;
 }
 
+// Special tag identifier for users with no email tags
+export const NO_EMAIL_TAGS = 'No Email Tags';
+
 export const FilterPopup: React.FC<FilterPopupProps> = ({
   filters,
   setFilters,
   availableTags,
   tagColors = {},
 }) => {
-  const { isOpen, onToggle, onClose } = useDisclosure();
-  const popoverRef = useRef<HTMLDivElement>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const operatorMenuRef = useRef<HTMLDivElement>(null);
   const [operatorMenuOpen, setOperatorMenuOpen] = useState(false);
 
@@ -43,15 +49,12 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
     let count = 0;
     if (filters.role) count++;
     if (filters.absencesValue !== null) count++;
-    if (filters.tags && filters.tags.length > 0) count++;
+    if (filters.disabledTags && filters.disabledTags.length > 0) {
+      // Each disabled tag counts as one filter
+      count += filters.disabledTags.length;
+    }
     return count;
   }, [filters]);
-
-  // Handle clicks outside the popover to close it
-  useOutsideClick({
-    ref: popoverRef,
-    handler: () => isOpen && onClose(),
-  });
 
   // Handle clicks outside the operator menu to close it
   useOutsideClick({
@@ -94,11 +97,12 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
   };
 
   const handleTagToggle = (tag: string) => {
-    const newTags = filters.tags?.includes(tag)
-      ? filters.tags.filter((t) => t !== tag)
-      : [...(filters.tags || []), tag];
+    // Inverting the logic: now we track disabled tags instead of enabled ones
+    const newDisabledTags = filters.disabledTags?.includes(tag)
+      ? filters.disabledTags.filter((t) => t !== tag)
+      : [...(filters.disabledTags || []), tag];
 
-    setFilters({ ...filters, tags: newTags });
+    setFilters({ ...filters, disabledTags: newDisabledTags });
   };
 
   const handleReset = () => {
@@ -106,7 +110,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
       role: null,
       absencesOperator: 'greater_than',
       absencesValue: null,
-      tags: [],
+      disabledTags: [],
     });
   };
 
@@ -124,64 +128,61 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
   };
 
   return (
-    <Box position="relative" ref={popoverRef}>
-      <Button
-        variant="outline"
-        leftIcon={<Icon as={IoFilterOutline} color={'neutralGray.600'} />}
-        flexGrow={0}
-        flexShrink={0}
-        onClick={onToggle}
-        position="relative"
-        justifyContent="space-between"
-        px={3}
-        transition="all 0.3s ease-in-out"
-      >
-        <HStack
-          spacing={activeFilterCount > 0 ? 2 : 1}
-          width="full"
+    <Popover
+      isOpen={isOpen}
+      onOpen={onOpen}
+      onClose={onClose}
+      placement="bottom-end"
+    >
+      <PopoverTrigger>
+        <Button
+          variant="outline"
+          leftIcon={<Icon as={IoFilterOutline} color={'neutralGray.600'} />}
+          flexGrow={0}
+          flexShrink={0}
+          position="relative"
           justifyContent="space-between"
+          px={3}
           transition="all 0.3s ease-in-out"
         >
-          <Text textStyle="h3">Filter</Text>
-          <Box
-            width={activeFilterCount > 0 ? '20px' : '0px'}
-            height="20px"
-            bg={activeFilterCount > 0 ? 'primaryBlue.50' : 'transparent'}
-            color="primaryBlue.300"
-            borderRadius="full"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            ml={activeFilterCount > 0 ? 'auto' : '0px'}
-            opacity={activeFilterCount > 0 ? 1 : 0}
-            transform={activeFilterCount > 0 ? 'scale(1)' : 'scale(0)'}
+          <HStack
+            spacing={activeFilterCount > 0 ? 2 : 1}
+            width="full"
+            justifyContent="space-between"
             transition="all 0.3s ease-in-out"
           >
-            {activeFilterCount > 0 && (
-              <Text textStyle="subtitle" color="primaryBlue.300">
-                {activeFilterCount}
-              </Text>
-            )}
-          </Box>
-        </HStack>
-      </Button>
+            <Text textStyle="h3">Filter</Text>
+            <Box
+              width={activeFilterCount > 0 ? '20px' : '0px'}
+              height="20px"
+              bg={activeFilterCount > 0 ? 'primaryBlue.50' : 'transparent'}
+              color="primaryBlue.300"
+              borderRadius="full"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              ml={activeFilterCount > 0 ? 'auto' : '0px'}
+              opacity={activeFilterCount > 0 ? 1 : 0}
+              transform={activeFilterCount > 0 ? 'scale(1)' : 'scale(0)'}
+              transition="all 0.3s ease-in-out"
+            >
+              {activeFilterCount > 0 && (
+                <Text textStyle="subtitle" color="primaryBlue.300">
+                  {activeFilterCount}
+                </Text>
+              )}
+            </Box>
+          </HStack>
+        </Button>
+      </PopoverTrigger>
 
-      <Box
-        position="absolute"
-        top="40px"
-        right="0"
-        zIndex={10}
+      <PopoverContent
         width="350px"
-        bg="white"
+        p={5}
         borderRadius="md"
         boxShadow="md"
         border="1px solid"
         borderColor="neutralGray.300"
-        p={5}
-        opacity={isOpen ? 1 : 0}
-        visibility={isOpen ? 'visible' : 'hidden'}
-        transform={isOpen ? 'translateY(0)' : 'translateY(-10px)'}
-        transition="all 0.3s ease-in-out"
       >
         <Flex justifyContent="space-between" alignItems="center" mb={5}>
           <Text textStyle="h3">Filter Options</Text>
@@ -329,8 +330,44 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
           <Box>
             <Text textStyle="h4">Email tags</Text>
             <Flex flexWrap="wrap" gap={1.5} mt={2}>
+              {/* Special tag for users with no email subscriptions */}
+              <Tag
+                key={NO_EMAIL_TAGS}
+                height="28px"
+                variant="subtle"
+                cursor="pointer"
+                onClick={() => handleTagToggle(NO_EMAIL_TAGS)}
+                bg={
+                  !filters.disabledTags?.includes(NO_EMAIL_TAGS)
+                    ? 'gray.100'
+                    : 'white'
+                }
+                border="1px solid"
+                borderColor={
+                  !filters.disabledTags?.includes(NO_EMAIL_TAGS)
+                    ? 'gray.300'
+                    : 'neutralGray.300'
+                }
+                borderRadius="6px"
+                transition="all 0.3s ease"
+                mb={0.5}
+              >
+                <TagLabel>
+                  <Text
+                    textStyle="label"
+                    color={
+                      !filters.disabledTags?.includes(NO_EMAIL_TAGS)
+                        ? 'gray.600'
+                        : 'text.body'
+                    }
+                  >
+                    {NO_EMAIL_TAGS}
+                  </Text>
+                </TagLabel>
+              </Tag>
+
               {availableTags.map((tag) => {
-                const isSelected = filters.tags?.includes(tag);
+                const isDisabled = filters.disabledTags?.includes(tag);
                 const colors = tagColors[tag] || [
                   'primaryBlue.300',
                   'primaryBlue.50',
@@ -343,9 +380,9 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                     variant="subtle"
                     cursor="pointer"
                     onClick={() => handleTagToggle(tag)}
-                    bg={isSelected ? colors[3] : 'white'}
+                    bg={!isDisabled ? colors[3] : 'white'}
                     border="1px solid"
-                    borderColor={isSelected ? colors[1] : 'neutralGray.300'}
+                    borderColor={!isDisabled ? colors[1] : 'neutralGray.300'}
                     borderRadius="6px"
                     transition="all 0.3s ease"
                     mb={0.5}
@@ -353,7 +390,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                     <TagLabel>
                       <Text
                         textStyle="label"
-                        color={isSelected ? colors[0] : 'text.body'}
+                        color={!isDisabled ? colors[0] : 'text.body'}
                       >
                         {tag}
                       </Text>
@@ -364,8 +401,8 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
             </Flex>
           </Box>
         </VStack>
-      </Box>
-    </Box>
+      </PopoverContent>
+    </Popover>
   );
 };
 

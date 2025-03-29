@@ -7,14 +7,10 @@ interface SubjectAccordionProps {
   setFilter: (subjects: number[]) => void;
 }
 
-interface SubjectAccordionItem extends SubjectAPI {
-  color: string;
-}
-
 export default function SubjectAccordion({ setFilter }: SubjectAccordionProps) {
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(true);
-  const [subjects, setSubjects] = useState<SubjectAccordionItem[]>([]);
+  const [subjects, setSubjects] = useState<AccordionItem[]>([]);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
 
   useEffect(() => {

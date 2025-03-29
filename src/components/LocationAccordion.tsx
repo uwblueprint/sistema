@@ -7,16 +7,12 @@ interface LocationAccordionProps {
   setFilter: (location: number[]) => void;
 }
 
-interface LocationAccordionItem extends Location {
-  color: string;
-}
-
 export default function LocationAccordion({
   setFilter,
 }: LocationAccordionProps) {
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(true);
-  const [locations, setLocations] = useState<LocationAccordionItem[]>([]);
+  const [locations, setLocations] = useState<AccordionItem[]>([]);
   const [selectedLocationIds, setSelectedLocationIds] = useState<number[]>([]);
 
   useEffect(() => {
