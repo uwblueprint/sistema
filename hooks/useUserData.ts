@@ -1,6 +1,6 @@
+import { Role, UserData } from '@utils/types';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { UserData, Role } from '@utils/types';
 
 interface UseUserDataReturn extends UserData {
   isAuthenticated: boolean;

@@ -27,27 +27,29 @@ import { SearchDropdown } from './SearchDropdown';
 
 interface InputFormProps {
   onClose?: () => void;
-  onAddAbsence: (
+  onDeclareAbsence: (
     absence: Prisma.AbsenceCreateManyInput
   ) => Promise<Absence | null>;
   userId: number;
   onTabChange: (tab: 'explore' | 'declared') => void;
   initialDate: Date;
+  isAdminMode: boolean;
 }
 
 const InputForm: React.FC<InputFormProps> = ({
   onClose,
-  onAddAbsence,
+  onDeclareAbsence,
   userId,
   onTabChange,
   initialDate,
+  isAdminMode,
 }) => {
   const toast = useToast();
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     reasonOfAbsence: '',
-    absentTeacherId: '',
+    absentTeacherId: isAdminMode ? '' : String(userId),
     substituteTeacherId: '',
     locationId: '',
     subjectId: '',
@@ -139,7 +141,7 @@ const InputForm: React.FC<InputFormProps> = ({
         roomNumber: formData.roomNumber || null,
       };
 
-      const response = await onAddAbsence(absenceData);
+      const response = await onDeclareAbsence(absenceData);
 
       if (response) {
         const options: Intl.DateTimeFormatOptions = {
@@ -220,56 +222,60 @@ const InputForm: React.FC<InputFormProps> = ({
       }}
     >
       <VStack sx={{ gap: '24px' }}>
-        <FormControl isRequired isInvalid={!!errors.absentTeacherId}>
-          <FormLabel sx={{ display: 'flex' }}>
-            <Text textStyle="h4">Teacher Absent</Text>
-          </FormLabel>
-          <SearchDropdown
-            label="Teacher"
-            type="user"
-            excludedId={formData.substituteTeacherId}
-            onChange={(value) => {
-              // Handle selected subject
-              setFormData((prev) => ({
-                ...prev,
-                absentTeacherId: value ? String(value.id) : '',
-              }));
-              // Clear error when user selects a value
-              if (errors.absentTeacherId) {
-                setErrors((prev) => ({
-                  ...prev,
-                  absentTeacherId: '',
-                }));
-              }
-            }}
-          />
-          <FormErrorMessage>{errors.absentTeacherId}</FormErrorMessage>
-        </FormControl>
+        {isAdminMode && (
+          <>
+            <FormControl isRequired isInvalid={!!errors.absentTeacherId}>
+              <FormLabel sx={{ display: 'flex' }}>
+                <Text textStyle="h4">Teacher Absent</Text>
+              </FormLabel>
+              <SearchDropdown
+                label="Teacher"
+                type="user"
+                excludedId={formData.substituteTeacherId}
+                onChange={(value) => {
+                  // Handle selected subject
+                  setFormData((prev) => ({
+                    ...prev,
+                    absentTeacherId: value ? String(value.id) : '',
+                  }));
+                  // Clear error when user selects a value
+                  if (errors.absentTeacherId) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      absentTeacherId: '',
+                    }));
+                  }
+                }}
+              />
+              <FormErrorMessage>{errors.absentTeacherId}</FormErrorMessage>
+            </FormControl>
 
-        <FormControl>
-          <FormLabel sx={{ display: 'flex' }}>
-            <Text textStyle="h4">Substitute Teacher</Text>
-          </FormLabel>
-          <SearchDropdown
-            label="Teacher"
-            type="user"
-            excludedId={formData.absentTeacherId}
-            onChange={(value) => {
-              // Handle selected subject
-              setFormData((prev) => ({
-                ...prev,
-                substituteTeacherId: value ? String(value.id) : '',
-              }));
-              // Clear error when user selects a value
-              if (errors.substituteTeacherId) {
-                setErrors((prev) => ({
-                  ...prev,
-                  substituteTeacherId: '',
-                }));
-              }
-            }}
-          />
-        </FormControl>
+            <FormControl>
+              <FormLabel sx={{ display: 'flex' }}>
+                <Text textStyle="h4">Substitute Teacher</Text>
+              </FormLabel>
+              <SearchDropdown
+                label="Teacher"
+                type="user"
+                excludedId={formData.absentTeacherId}
+                onChange={(value) => {
+                  // Handle selected subject
+                  setFormData((prev) => ({
+                    ...prev,
+                    substituteTeacherId: value ? String(value.id) : '',
+                  }));
+                  // Clear error when user selects a value
+                  if (errors.substituteTeacherId) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      substituteTeacherId: '',
+                    }));
+                  }
+                }}
+              />
+            </FormControl>
+          </>
+        )}
 
         <FormControl isRequired isInvalid={!!errors.subjectId}>
           <FormLabel sx={{ display: 'flex' }}>
@@ -364,7 +370,6 @@ const InputForm: React.FC<InputFormProps> = ({
 
         <Button
           type="submit"
-          colorScheme="blue"
           isLoading={isSubmitting}
           loadingText="Submitting"
           width="full"
@@ -398,11 +403,7 @@ const InputForm: React.FC<InputFormProps> = ({
             <Button onClick={closeModal} mr={3}>
               Cancel
             </Button>
-            <Button
-              colorScheme="blue"
-              onClick={handleConfirmSubmit}
-              isLoading={isSubmitting}
-            >
+            <Button onClick={handleConfirmSubmit} isLoading={isSubmitting}>
               Confirm
             </Button>
           </ModalFooter>

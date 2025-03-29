@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '../../../utils/prisma';
+import { prisma } from '@utils/prisma';
 
 export async function POST(req: Request) {
   try {
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newAbsence, { status: 201 });
   } catch (err) {
-    console.error('Error in POST /api/addAbsence:', err.message || err);
+    console.error('Error in POST /api/declareAbsence:', err.message || err);
     return NextResponse.json(
       { error: 'Internal Server Error', details: err.message },
       { status: 500 }

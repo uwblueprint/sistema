@@ -215,9 +215,7 @@ const UserManagementCard = () => {
             <Button onClick={onClose} mr={3}>
               Cancel
             </Button>
-            <Button colorScheme="blue" onClick={confirmUpdateUserRole}>
-              Confirm
-            </Button>
+            <Button onClick={confirmUpdateUserRole}>Confirm</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

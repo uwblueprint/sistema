@@ -27,7 +27,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         if (!existingUser) {
-          await prisma.user.create({
+          const newUser = await prisma.user.create({
             data: {
               authId: user.id,
               email: user.email,
@@ -37,6 +37,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               profilePicture: user.image || null,
             },
           });
+
+          const subjects = await prisma.subject.findMany({
+            where: { archived: false },
+            select: { id: true },
+          });
+
+          if (subjects.length > 0) {
+            await prisma.mailingList.createMany({
+              data: subjects.map((subject) => ({
+                userId: newUser.id,
+                subjectId: subject.id,
+              })),
+            });
+          }
         }
       } catch (error) {
         console.error('Database error:', error);

@@ -3,66 +3,133 @@ import { useEffect, useState, useCallback } from 'react';
 import Accordion, { AccordionItem } from './Accordion';
 
 interface ArchivedAccordionProps {
-  setFilter: (archives: number[]) => void;
-  onArchivedToggle: (
-    subjectsArchived: boolean,
-    locationsArchived: boolean
-  ) => void;
+  setSubjectFilter: (subjectIds: number[]) => void;
+  setLocationFilter: (locationIds: number[]) => void;
 }
 
 export default function ArchivedAccordion({
-  setFilter,
-  onArchivedToggle,
+  setSubjectFilter,
+  setLocationFilter,
 }: ArchivedAccordionProps) {
   const theme = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedArchiveIds, setSelectedArchiveIds] = useState<number[]>([]);
-
-  const archives = [
-    { id: 0, name: 'Subjects' },
-    { id: 1, name: 'Locations' },
-  ];
-
-  const updateFilters = useCallback(() => {
-    setFilter(selectedArchiveIds);
-
-    const showArchivedSubjects = selectedArchiveIds.includes(0);
-    const showArchivedLocations = selectedArchiveIds.includes(1);
-    onArchivedToggle(showArchivedSubjects, showArchivedLocations);
-  }, [selectedArchiveIds, setFilter, onArchivedToggle]);
+  const [isOpen, setIsOpen] = useState(true);
+  const [archivedLocations, setArchivedLocations] = useState<AccordionItem[]>(
+    []
+  );
+  const [archivedSubjects, setArchivedSubjects] = useState<AccordionItem[]>([]);
+  const [selectedArchivedSubjectIds, setSelectedArchivedSubjectIds] = useState<
+    number[]
+  >([]);
+  const [selectedArchivedLocationIds, setSelectedArchivedLocationIds] =
+    useState<number[]>([]);
 
   useEffect(() => {
-    updateFilters();
-  }, [updateFilters]);
+    async function fetchArchivedData() {
+      try {
+        const locationResponse = await fetch(
+          '/api/filter/locations?archived=true'
+        );
+        if (!locationResponse.ok)
+          throw new Error('Failed to fetch archived locations');
+        const locationData = await locationResponse.json();
+        if (locationData.locations) {
+          const fetchedLocations = locationData.locations.map(
+            (location: any) => ({
+              id: location.id,
+              name: location.name,
+              color: theme.colors.primaryBlue[300],
+            })
+          );
+          setArchivedLocations(fetchedLocations);
+        }
 
-  const toggleArchive = useCallback((archiveId: number) => {
-    setSelectedArchiveIds((prevSelected) => {
-      let newSelection;
-      if (prevSelected.includes(archiveId)) {
-        newSelection = prevSelected.filter((s) => s !== archiveId);
-      } else {
-        newSelection = [...prevSelected, archiveId];
+        const subjectResponse = await fetch(
+          '/api/filter/subjects?archived=true'
+        );
+        if (!subjectResponse.ok)
+          throw new Error('Failed to fetch archived subjects');
+        const subjectData = await subjectResponse.json();
+        if (subjectData.subjects) {
+          const fetchedSubjects = subjectData.subjects.map((subject: any) => ({
+            id: subject.id,
+            name: subject.name,
+            color: subject.colorGroup.colorCodes[1],
+          }));
+          setArchivedSubjects(fetchedSubjects);
+        }
+      } catch (error) {
+        console.error('Error fetching archived data:', error);
       }
-      return newSelection;
-    });
-  }, []);
+    }
+
+    fetchArchivedData();
+  }, [theme.colors.primaryBlue]);
+
+  const toggleArchivedSubject = useCallback(
+    (subjectId: number) => {
+      setSelectedArchivedSubjectIds((prevSelected) => {
+        let newSelection;
+        if (prevSelected.includes(subjectId)) {
+          newSelection = prevSelected.filter((id) => id !== subjectId);
+        } else {
+          newSelection = [...prevSelected, subjectId];
+        }
+        setSubjectFilter(newSelection);
+        return newSelection;
+      });
+    },
+    [setSubjectFilter]
+  );
+
+  const toggleArchivedLocation = useCallback(
+    (locationId: number) => {
+      setSelectedArchivedLocationIds((prevSelected) => {
+        let newSelection;
+        if (prevSelected.includes(locationId)) {
+          newSelection = prevSelected.filter((id) => id !== locationId);
+        } else {
+          newSelection = [...prevSelected, locationId];
+        }
+        setLocationFilter(newSelection);
+        return newSelection;
+      });
+    },
+    [setLocationFilter]
+  );
 
   const toggleOpen = () => setIsOpen((prev) => !prev);
-
-  const accordionItems: AccordionItem[] = archives.map((archive) => ({
-    id: archive.id,
-    name: archive.name,
-    color: theme.colors.neutralGray[300],
-  }));
+  const accordionItems: AccordionItem[] = [
+    ...archivedSubjects.map((subject) => ({
+      id: subject.id,
+      name: subject.name,
+      color: subject.color,
+      subtitle: 'Subjects',
+    })),
+    ...archivedLocations.map((location) => ({
+      id: location.id,
+      name: location.name,
+      color: location.color,
+      subtitle: 'Locations',
+    })),
+  ];
 
   return (
     <Accordion
       title="Archived"
-      items={accordionItems}
-      selectedItems={selectedArchiveIds}
       isOpen={isOpen}
       toggleOpen={toggleOpen}
-      toggleItem={toggleArchive}
+      selectedItems={[
+        ...selectedArchivedSubjectIds,
+        ...selectedArchivedLocationIds,
+      ]}
+      toggleItem={(id: number) => {
+        if (archivedSubjects.some((subject) => subject.id === id)) {
+          toggleArchivedSubject(id);
+        } else {
+          toggleArchivedLocation(id);
+        }
+      }}
+      items={accordionItems}
     />
   );
 }

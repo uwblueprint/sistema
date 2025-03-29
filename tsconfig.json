@@ -22,7 +22,8 @@
     "strictNullChecks": true,
     "paths": {
       "auth": ["./auth"],
-      "@utils/*": ["./utils/*"]
+      "@utils/*": ["./utils/*"],
+      "@hooks/*": ["./hooks/*"]
     }
   },
   "include": [

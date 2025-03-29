@@ -5,14 +5,14 @@ import { FiCheckCircle, FiClock } from 'react-icons/fi';
 interface AbsenceStatusTagProps {
   isUserAbsentTeacher: boolean;
   isUserSubstituteTeacher: boolean;
-  isUserAdmin: boolean;
+  isAdminMode: boolean;
   substituteTeacherFullName?: string;
 }
 
 const AbsenceStatusTag = ({
   isUserAbsentTeacher,
   isUserSubstituteTeacher,
-  isUserAdmin,
+  isAdminMode,
   substituteTeacherFullName,
 }: AbsenceStatusTagProps) => {
   const theme = useTheme();
@@ -81,7 +81,7 @@ const AbsenceStatusTag = ({
           fontSize={theme.textStyles.label.fontSize}
           whiteSpace="nowrap"
           overflow="hidden"
-          maxWidth={isHovered ? 'none' : isUserAdmin ? '150px' : '210px'}
+          maxWidth={isHovered ? 'none' : isAdminMode ? '150px' : '210px'}
           sx={{
             maskImage:
               isOverflowing && !isHovered

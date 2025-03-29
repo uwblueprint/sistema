@@ -1,19 +1,21 @@
 import { Box, HStack } from '@chakra-ui/react';
-import { YearlyAbsenceData } from '@utils/types';
-import { useUserData } from '@utils/useUserData';
+import { useUserData } from '@hooks/useUserData';
+import { Role, YearlyAbsenceData } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import DashboardHeader from '../components/DashboardHeader';
 import MonthlyAbsencesCard from '../components/MonthlyAbsencesCard';
 import TotalAbsencesCard from '../components/TotalAbsencesCard';
 import UserManagementCard from '../components/UserManagementCard';
-import { Role } from '@utils/types';
 
 export default function DashboardPage() {
   const userData = useUserData();
   const router = useRouter();
+  const currentYear = new Date().getFullYear();
 
-  const [selectedYearRange, setSelectedYearRange] = useState('');
+  const [selectedYearRange, setSelectedYearRange] = useState(
+    `${currentYear - 1} - ${currentYear}`
+  );
   const [absenceData, setAbsenceData] = useState<YearlyAbsenceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [startYear, endYear] = selectedYearRange.split(' - ');
