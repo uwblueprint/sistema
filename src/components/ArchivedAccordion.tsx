@@ -13,7 +13,7 @@ export default function ArchivedAccordion({
   setLocationFilter,
 }: ArchivedAccordionProps) {
   const theme = useTheme();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [subjects, setSubjects] = useState<AccordionItem[]>([]);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
   const [locations, setLocations] = useState<AccordionItem[]>([]);
@@ -148,6 +148,7 @@ export default function ArchivedAccordion({
           toggleLocation(id);
         }
       }}
+      textColor={theme.colors.text.subtitle}
     />
   );
 }
