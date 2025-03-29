@@ -19,7 +19,7 @@ import {
   PopoverArrow,
 } from '@chakra-ui/react';
 import { FilterOptions, Role } from '@utils/types';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { BiRevision } from 'react-icons/bi';
 import { IoFilterOutline } from 'react-icons/io5';
 import OperatorMenu from './OperatorMenu';
@@ -42,13 +42,25 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
   const operatorMenuRef = useRef<HTMLDivElement>(null);
   const [operatorMenuOpen, setOperatorMenuOpen] = useState(false);
 
+  // Initialize all tags as active on first render
+  useEffect(() => {
+    if (!filters.tags || filters.tags.length === 0) {
+      setFilters({ ...filters, tags: [...availableTags] });
+    }
+  }, [availableTags]);
+
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (filters.role) count++;
     if (filters.absencesValue !== null) count++;
-    if (filters.tags && filters.tags.length > 0) count++;
+
+    // Count disabled tags as active filters
+    const disabledTagsCount =
+      availableTags.length - (filters.tags?.length || 0);
+    if (disabledTagsCount > 0) count += disabledTagsCount;
+
     return count;
-  }, [filters]);
+  }, [filters, availableTags]);
 
   // Handle clicks outside the operator menu to close it
   useOutsideClick({
@@ -91,6 +103,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
   };
 
   const handleTagToggle = (tag: string) => {
+    // Reverse the logic: removing a tag from the active list is now considered "disabling" it
     const newTags = filters.tags?.includes(tag)
       ? filters.tags.filter((t) => t !== tag)
       : [...(filters.tags || []), tag];
@@ -103,7 +116,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
       role: null,
       absencesOperator: 'greater_than',
       absencesValue: null,
-      tags: [],
+      tags: [...availableTags], // Reset to all tags active
     });
   };
 
