@@ -1,7 +1,7 @@
 import {
-  Alert,
   Box,
   Button,
+  HStack,
   Modal,
   ModalBody,
   ModalContent,
@@ -9,7 +9,9 @@ import {
   ModalHeader,
   ModalOverlay,
   Text,
+  useTheme,
   VStack,
+  Icon,
 } from '@chakra-ui/react';
 import { MdWarning } from 'react-icons/md';
 
@@ -32,6 +34,8 @@ export const ConfirmAbsenceModal: React.FC<ConfirmAbsenceModalProps> = ({
   hasLessonPlan,
   isWithin14Days,
 }) => {
+  const theme = useTheme();
+
   const formattedDate = new Date(lessonDate + 'T00:00:00').toLocaleDateString(
     'en-CA',
     {
@@ -44,48 +48,53 @@ export const ConfirmAbsenceModal: React.FC<ConfirmAbsenceModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent maxW="300px" borderRadius="lg">
+      <ModalContent
+        maxW="300px"
+        height={isWithin14Days ? '200px' : '160px'}
+        borderRadius="lg"
+      >
         <ModalHeader
           textAlign="center"
-          fontSize="17px"
-          fontWeight="600"
+          fontSize="16px"
+          fontWeight="700"
           pb={0}
-          px={0}
+          pt={5}
         >
           {hasLessonPlan ? 'Confirm Absence' : 'No Lesson Plan Added'}
         </ModalHeader>
         <ModalBody display="flex" justifyContent="center">
           <Box maxW="224px" w="100%">
-            <VStack spacing={2} fontSize="13px" align="start">
-              <Text pb={1}>
+            <VStack fontSize="13px" align="start" pl={1}>
+              <Text fontSize="12px">
                 {hasLessonPlan ? (
                   <>
-                    Confirm Absence on <strong>{formattedDate}</strong>.
+                    Please confirm your absence on{' '}
+                    <strong>{formattedDate}</strong>.
                   </>
                 ) : (
                   <>
-                    Declare absence on <strong>{formattedDate}</strong> without
+                    Declare absence on <strong>{formattedDate}</strong>, without
                     adding a lesson plan?
                   </>
                 )}
               </Text>
               {isWithin14Days && (
-                <Alert
-                  status="warning"
-                  bg="transparent"
-                  borderRadius="md"
-                  alignItems="start"
-                >
-                  <Box pt={0.5} pl={0}>
-                    <MdWarning size="30px" color="#DD6B20" />
-                  </Box>
-                  <Box pl={3}>
-                    <Text fontSize="12px" fontWeight="500" color="orange.600">
-                      You are submitting a late report. Please aim to report
-                      absences at least 14 days in advance.
-                    </Text>
-                  </Box>
-                </Alert>
+                <HStack align="center" spacing={3}>
+                  <Icon
+                    as={MdWarning}
+                    boxSize="25px"
+                    color={theme.colors.warningOrange[300]}
+                  />
+                  <Text
+                    fontSize="11px"
+                    fontWeight="400"
+                    lineHeight="normal"
+                    color={theme.colors.warningOrange[300]}
+                  >
+                    You are submitting a late report. Please aim to report
+                    absences at least 14 days in advance.
+                  </Text>
+                </HStack>
               )}
             </VStack>
           </Box>
@@ -93,9 +102,9 @@ export const ConfirmAbsenceModal: React.FC<ConfirmAbsenceModalProps> = ({
         <ModalFooter
           display="flex"
           justifyContent="center"
-          gap={4}
+          gap={5}
           px={0}
-          pt={2}
+          pt={0}
         >
           <Button
             onClick={onClose}
@@ -105,7 +114,7 @@ export const ConfirmAbsenceModal: React.FC<ConfirmAbsenceModalProps> = ({
             variant="outline"
             borderRadius="lg"
             borderColor="gray.300"
-            fontSize="lg"
+            fontSize="16px"
           >
             Back
           </Button>
@@ -117,7 +126,8 @@ export const ConfirmAbsenceModal: React.FC<ConfirmAbsenceModalProps> = ({
             maxW="104px"
             h="40px"
             borderRadius="lg"
-            fontSize="lg"
+            fontSize="16px"
+            font-weight="400"
           >
             Confirm
           </Button>
