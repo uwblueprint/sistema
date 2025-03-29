@@ -123,6 +123,78 @@ const Calendar: React.FC = () => {
     [userData?.id]
   );
 
+  const dayCellDidMount = useCallback(
+    (info: { el: HTMLElement; date: Date }) => {
+      const hasEventsOnDate = events.some((event) => {
+        if (!event.start) return false;
+
+        const eventDate = new Date(event.start as string);
+        return eventDate.toDateString() === info.date.toDateString();
+      });
+
+      if (hasEventsOnDate) {
+        const badgeContainer = document.createElement('div');
+        badgeContainer.style.position = 'absolute';
+        badgeContainer.style.top = '15px';
+        badgeContainer.style.right = '6px';
+        badgeContainer.style.display = 'flex';
+        badgeContainer.style.width = '68px';
+        badgeContainer.style.padding = '2px 5px';
+        badgeContainer.style.justifyContent = 'center';
+        badgeContainer.style.alignItems = 'center';
+        badgeContainer.style.gap = '5px';
+        badgeContainer.style.flexShrink = '0';
+        badgeContainer.style.borderRadius = '5px';
+        badgeContainer.style.border = '1px solid #D2D2D2';
+        badgeContainer.style.zIndex = '20';
+
+        const iconSvg = document.createElementNS(
+          'http://www.w3.org/2000/svg',
+          'svg'
+        );
+        iconSvg.setAttribute('width', '15');
+        iconSvg.setAttribute('height', '14');
+        iconSvg.setAttribute('viewBox', '0 0 15 14');
+        iconSvg.setAttribute('fill', 'none');
+
+        const path = document.createElementNS(
+          'http://www.w3.org/2000/svg',
+          'path'
+        );
+        path.setAttribute(
+          'd',
+          'M7.49995 4.45977L7.49995 6.90095M7.49995 9.34213L7.49385 9.34213M1.397 6.90095C1.397 3.53039 4.12939 0.798003 7.49996 0.798004C10.8705 0.798004 13.6029 3.53039 13.6029 6.90096C13.6029 10.2715 10.8705 13.0039 7.49995 13.0039C4.12939 13.0039 1.397 10.2715 1.397 6.90095Z'
+        );
+        path.setAttribute('stroke', '#BF3232');
+        path.setAttribute('stroke-width', '1.5');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+
+        iconSvg.appendChild(path);
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = 'Busy';
+        textSpan.style.color = '#141414';
+        textSpan.style.fontFamily = 'Inter, sans-serif';
+        textSpan.style.fontSize = '13px';
+        textSpan.style.fontWeight = '600';
+
+        badgeContainer.appendChild(iconSvg);
+        badgeContainer.appendChild(textSpan);
+
+        const topCell = info.el.querySelector('.fc-daygrid-day-top');
+        if (topCell) {
+          info.el.style.position = 'relative';
+          topCell.appendChild(badgeContainer);
+        } else {
+          info.el.style.position = 'relative';
+          info.el.appendChild(badgeContainer);
+        }
+      }
+    },
+    [events]
+  );
+
   const handleDeclareAbsence = async (
     absence: Prisma.AbsenceCreateManyInput
   ): Promise<Absence | null> => {
@@ -280,10 +352,10 @@ const Calendar: React.FC = () => {
   if (!userData.isAuthenticated) {
     return null;
   }
+
   return (
     <>
       <Global styles={getCalendarStyles} />
-
       <Flex height="100vh">
         <CalendarSidebar
           setSearchQuery={setSearchQuery}
@@ -320,6 +392,7 @@ const Calendar: React.FC = () => {
               height="100%"
               events={filteredEvents}
               eventContent={renderEventContent}
+              dayCellDidMount={dayCellDidMount}
               timeZone="local"
               datesSet={updateMonthYearTitle}
               fixedWeekCount={false}
