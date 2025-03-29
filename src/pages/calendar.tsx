@@ -45,13 +45,15 @@ const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
   const [searchQuery, setSearchQuery] = useState<{
-    subjectIds: number[];
-    locationIds: number[];
-    archiveIds: number[];
+    activeSubjectIds: number[];
+    activeLocationIds: number[];
+    archivedSubjectIds: number[];
+    archivedLocationIds: number[];
   }>({
-    subjectIds: [],
-    locationIds: [],
-    archiveIds: [],
+    activeSubjectIds: [],
+    activeLocationIds: [],
+    archivedSubjectIds: [],
+    archivedLocationIds: [],
   });
   const [currentMonthYear, setCurrentMonthYear] = useState(
     formatMonthYear(new Date())
@@ -200,30 +202,23 @@ const Calendar: React.FC = () => {
     }
   };
   useEffect(() => {
-    const { subjectIds, locationIds, archiveIds } = searchQuery;
+    const {
+      activeSubjectIds,
+      activeLocationIds,
+      archivedSubjectIds,
+      archivedLocationIds,
+    } = searchQuery;
 
     let filtered = events.filter((event) => {
-      const subjectMatch = subjectIds.includes(event.subjectId);
+      const subjectMatch =
+        activeSubjectIds.includes(event.subjectId) ||
+        archivedSubjectIds.includes(event.subjectId);
 
-      const locationMatch = locationIds.includes(event.locationId);
+      const locationMatch =
+        activeLocationIds.includes(event.locationId) ||
+        archivedLocationIds.includes(event.locationId);
 
-      let archiveMatch = true;
-
-      if (archiveIds.length === 0) {
-        archiveMatch = !event.archivedSubject && !event.archivedLocation;
-      } else {
-        const includeArchivedSubjects = archiveIds.includes(0);
-        const includeArchivedLocations = archiveIds.includes(1);
-
-        const subjectArchiveMatch =
-          includeArchivedSubjects || !event.archivedSubject;
-        const locationArchiveMatch =
-          includeArchivedLocations || !event.archivedLocation;
-
-        archiveMatch = subjectArchiveMatch && locationArchiveMatch;
-      }
-
-      return subjectMatch && locationMatch && archiveMatch;
+      return subjectMatch && locationMatch;
     });
 
     if (!isAdminMode) {
