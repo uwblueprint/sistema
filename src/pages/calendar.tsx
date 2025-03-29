@@ -87,6 +87,7 @@ const Calendar: React.FC = () => {
         substituteTeacherDisplayName,
         colors,
         locationAbbreviation,
+        subjectAbbreviation,
         lessonPlan,
       } = eventInfo.event.extendedProps;
 
@@ -103,7 +104,7 @@ const Calendar: React.FC = () => {
 
       return (
         <AbsenceBox
-          title={eventInfo.event.title}
+          title={subjectAbbreviation}
           location={locationAbbreviation}
           backgroundColor={
             substituteTeacherDisplayName || !createdByUser
