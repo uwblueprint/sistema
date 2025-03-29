@@ -127,7 +127,7 @@ export const ConfirmAbsenceModal: React.FC<ConfirmAbsenceModalProps> = ({
             h="40px"
             borderRadius="lg"
             fontSize="16px"
-            font-weight="400"
+            fontWeight="400"
           >
             Confirm
           </Button>
