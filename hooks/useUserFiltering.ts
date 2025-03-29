@@ -1,6 +1,7 @@
 import { UserAPI } from '@utils/types';
 import { useMemo } from 'react';
 import { FilterOptions } from '@utils/types';
+import { NO_EMAIL_TAGS } from '../src/components/FilterPopup';
 
 const useUserFiltering = (
   users: UserAPI[],
@@ -10,8 +11,18 @@ const useUserFiltering = (
   sortDirection: 'asc' | 'desc'
 ) => {
   const filteredUsers = useMemo(() => {
+    // We need to know how many tags exist in total
+    const allAvailableTags = new Set<string>();
+    users.forEach((user) => {
+      user.mailingLists?.forEach((list) => {
+        allAvailableTags.add(list.subject.name);
+      });
+    });
+    const totalTagCount = allAvailableTags.size;
+    const areAllTagsDisabled = filters.disabledTags?.length === totalTagCount;
+
     return users.filter((user: UserAPI) => {
-      const { role, absencesOperator, absencesValue, tags } = filters;
+      const { role, absencesOperator, absencesValue, disabledTags } = filters;
 
       if (searchTerm) {
         const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
@@ -41,12 +52,18 @@ const useUserFiltering = (
         }
       }
 
-      if (tags && tags.length > 0) {
+      if (disabledTags && disabledTags.length > 0) {
         const userTags =
           user.mailingLists?.map((list) => list.subject.name) || [];
-        if (!tags.some((tag) => userTags.includes(tag))) {
-          return false;
+
+        // Check if user has no subscriptions
+        if (userTags.length === 0) {
+          // Only show users with no subscriptions if the "No Email Tags" option is enabled
+          return !disabledTags.includes(NO_EMAIL_TAGS);
         }
+
+        // For users with subscriptions, check if they have any enabled tag
+        return userTags.some((tag) => !disabledTags.includes(tag));
       }
 
       return true;
