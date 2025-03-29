@@ -181,5 +181,5 @@ export interface FilterOptions {
   role: string | null | undefined;
   absencesOperator: ComparisonOperator;
   absencesValue: number | null;
-  tags: string[] | null;
+  disabledTags?: string[] | null;
 }

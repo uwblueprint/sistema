@@ -19,7 +19,7 @@ import {
   PopoverArrow,
 } from '@chakra-ui/react';
 import { FilterOptions, Role } from '@utils/types';
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { BiRevision } from 'react-icons/bi';
 import { IoFilterOutline } from 'react-icons/io5';
 import OperatorMenu from './OperatorMenu';
@@ -32,6 +32,9 @@ interface FilterPopupProps {
   tagColors?: Record<string, string[]>;
 }
 
+// Special tag identifier for users with no email tags
+export const NO_EMAIL_TAGS = 'No Email Tags';
+
 export const FilterPopup: React.FC<FilterPopupProps> = ({
   filters,
   setFilters,
@@ -42,25 +45,16 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
   const operatorMenuRef = useRef<HTMLDivElement>(null);
   const [operatorMenuOpen, setOperatorMenuOpen] = useState(false);
 
-  // Initialize all tags as active on first render
-  useEffect(() => {
-    if (!filters.tags || filters.tags.length === 0) {
-      setFilters({ ...filters, tags: [...availableTags] });
-    }
-  }, [availableTags]);
-
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (filters.role) count++;
     if (filters.absencesValue !== null) count++;
-
-    // Count disabled tags as active filters
-    const disabledTagsCount =
-      availableTags.length - (filters.tags?.length || 0);
-    if (disabledTagsCount > 0) count += disabledTagsCount;
-
+    if (filters.disabledTags && filters.disabledTags.length > 0) {
+      // Each disabled tag counts as one filter
+      count += filters.disabledTags.length;
+    }
     return count;
-  }, [filters, availableTags]);
+  }, [filters]);
 
   // Handle clicks outside the operator menu to close it
   useOutsideClick({
@@ -103,12 +97,12 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
   };
 
   const handleTagToggle = (tag: string) => {
-    // Reverse the logic: removing a tag from the active list is now considered "disabling" it
-    const newTags = filters.tags?.includes(tag)
-      ? filters.tags.filter((t) => t !== tag)
-      : [...(filters.tags || []), tag];
+    // Inverting the logic: now we track disabled tags instead of enabled ones
+    const newDisabledTags = filters.disabledTags?.includes(tag)
+      ? filters.disabledTags.filter((t) => t !== tag)
+      : [...(filters.disabledTags || []), tag];
 
-    setFilters({ ...filters, tags: newTags });
+    setFilters({ ...filters, disabledTags: newDisabledTags });
   };
 
   const handleReset = () => {
@@ -116,7 +110,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
       role: null,
       absencesOperator: 'greater_than',
       absencesValue: null,
-      tags: [...availableTags], // Reset to all tags active
+      disabledTags: [],
     });
   };
 
@@ -336,8 +330,44 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
           <Box>
             <Text textStyle="h4">Email tags</Text>
             <Flex flexWrap="wrap" gap={1.5} mt={2}>
+              {/* Special tag for users with no email subscriptions */}
+              <Tag
+                key={NO_EMAIL_TAGS}
+                height="28px"
+                variant="subtle"
+                cursor="pointer"
+                onClick={() => handleTagToggle(NO_EMAIL_TAGS)}
+                bg={
+                  !filters.disabledTags?.includes(NO_EMAIL_TAGS)
+                    ? 'gray.100'
+                    : 'white'
+                }
+                border="1px solid"
+                borderColor={
+                  !filters.disabledTags?.includes(NO_EMAIL_TAGS)
+                    ? 'gray.300'
+                    : 'neutralGray.300'
+                }
+                borderRadius="6px"
+                transition="all 0.3s ease"
+                mb={0.5}
+              >
+                <TagLabel>
+                  <Text
+                    textStyle="label"
+                    color={
+                      !filters.disabledTags?.includes(NO_EMAIL_TAGS)
+                        ? 'gray.600'
+                        : 'text.body'
+                    }
+                  >
+                    {NO_EMAIL_TAGS}
+                  </Text>
+                </TagLabel>
+              </Tag>
+
               {availableTags.map((tag) => {
-                const isSelected = filters.tags?.includes(tag);
+                const isDisabled = filters.disabledTags?.includes(tag);
                 const colors = tagColors[tag] || [
                   'primaryBlue.300',
                   'primaryBlue.50',
@@ -350,9 +380,9 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                     variant="subtle"
                     cursor="pointer"
                     onClick={() => handleTagToggle(tag)}
-                    bg={isSelected ? colors[3] : 'white'}
+                    bg={!isDisabled ? colors[3] : 'white'}
                     border="1px solid"
-                    borderColor={isSelected ? colors[1] : 'neutralGray.300'}
+                    borderColor={!isDisabled ? colors[1] : 'neutralGray.300'}
                     borderRadius="6px"
                     transition="all 0.3s ease"
                     mb={0.5}
@@ -360,7 +390,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                     <TagLabel>
                       <Text
                         textStyle="label"
-                        color={isSelected ? colors[0] : 'text.body'}
+                        color={!isDisabled ? colors[0] : 'text.body'}
                       >
                         {tag}
                       </Text>
