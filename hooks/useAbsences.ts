@@ -5,7 +5,7 @@ import { AbsenceAPI } from '@utils/types';
 import { mapColorCodes } from '@utils/types';
 
 const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
-  title: absenceData.subject.name,
+  title: absenceData.subject.abbreviation,
   start: absenceData.lessonDate,
   allDay: true,
   display: 'auto',

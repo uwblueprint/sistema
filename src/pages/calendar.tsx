@@ -11,6 +11,7 @@ import {
   useTheme,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
+import AbsenceBox from '../components/AbsenceBox';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -85,26 +86,25 @@ const Calendar: React.FC = () => {
         absentTeacherDisplayName,
         substituteTeacherDisplayName,
         colors,
-        location,
+        locationAbbreviation,
         lessonPlan,
       } = eventInfo.event.extendedProps;
 
       const eventDate = new Date(eventInfo.event.startStr);
       const isPastEvent = eventDate < new Date();
-      const opacity = isPastEvent ? 0.5 : 1;
-
+      const opacity = isPastEvent ? 0.7 : 1;
       const createdByUser = absentTeacher.id === userData?.id;
 
       const highlightText = createdByUser
         ? substituteTeacherDisplayName
           ? `${absentTeacherDisplayName} -> ${substituteTeacherDisplayName}`
           : `${absentTeacherDisplayName} -> Unfilled`
-        : null;
+        : undefined;
 
       return (
         <AbsenceBox
           title={eventInfo.event.title}
-          location={location}
+          location={locationAbbreviation}
           backgroundColor={
             substituteTeacherDisplayName || !createdByUser
               ? colors.light
@@ -121,69 +121,6 @@ const Calendar: React.FC = () => {
     },
     [userData?.id]
   );
-
-  const AbsenceBox = ({
-    title,
-    location,
-    backgroundColor,
-    borderColor,
-    textColor,
-    highlightText,
-    highlightColor,
-    lessonPlan,
-    opacity,
-  }) => {
-    return (
-      <Box
-        sx={{
-          padding: (theme) => `${theme.space[1]} ${theme.space[1]}`,
-          margin: (theme) => `${theme.space[2]} 0`,
-          borderRadius: (theme) => `${theme.radii.md}`,
-          backgroundColor,
-          textColor,
-          border: '0.1rem solid',
-          borderLeft: '5px solid',
-          borderColor,
-          position: 'relative',
-          opacity,
-        }}
-      >
-        {lessonPlan && (
-          <FiPaperclip
-            style={{
-              position: 'absolute',
-              inset: '0 0 auto auto',
-              margin: '0.5rem',
-              color: textColor,
-              transform: 'rotate(180deg)',
-            }}
-          />
-        )}
-        <Box className="fc-event-title-container">
-          <Box className="fc-event-title fc-sticky" sx={{ fontWeight: 'bold' }}>
-            {title}
-          </Box>
-        </Box>
-        <Box className="fc-event-title fc-sticky" sx={{ fontSize: 'xs' }}>
-          {location}
-        </Box>
-        {highlightText && (
-          <Box
-            sx={{
-              width: 'fit-content',
-              padding: (theme) => `${theme.space[1]} ${theme.space[1]}`,
-              borderRadius: (theme) => `${theme.radii.md}`,
-              backgroundColor: highlightColor,
-              fontWeight: 'bold',
-              fontSize: 'xs',
-            }}
-          >
-            {highlightText}
-          </Box>
-        )}
-      </Box>
-    );
-  };
 
   const handleDeclareAbsence = async (
     absence: Prisma.AbsenceCreateManyInput
