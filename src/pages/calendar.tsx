@@ -374,31 +374,33 @@ const Calendar: React.FC = () => {
           </Text>
         </Box>
 
-        {activeTab === 'explore' && claimedDays.has(eventDateString) && (
-          <Badge
-            border="1px solid"
-            borderColor="neutralGray.300"
-            bg="transparent"
-            color="neutralGray.900"
-            padding="2px 4px"
-            borderRadius="5px"
-            textTransform="none"
-            display="flex"
-            alignItems="center"
-            width="68px"
-            marginLeft="auto"
-          >
-            <Image
-              src="images/conflict.svg"
-              alt="Conflict"
-              boxSize="12px"
-              mx={1}
-            />
-            <Text textStyle="semibold" isTruncated>
-              Busy
-            </Text>
-          </Badge>
-        )}
+        {!isAdminMode &&
+          activeTab === 'explore' &&
+          claimedDays.has(eventDateString) && (
+            <Badge
+              border="1px solid"
+              borderColor="neutralGray.300"
+              bg="transparent"
+              color="neutralGray.900"
+              padding="2px 4px"
+              borderRadius="5px"
+              textTransform="none"
+              display="flex"
+              alignItems="center"
+              width="68px"
+              marginLeft="auto"
+            >
+              <Image
+                src="images/conflict.svg"
+                alt="Conflict"
+                boxSize="12px"
+                mx={1}
+              />
+              <Text textStyle="semibold" isTruncated>
+                Busy
+              </Text>
+            </Badge>
+          )}
       </Box>
     );
   };
