@@ -8,29 +8,49 @@ import {
   useTheme,
 } from '@chakra-ui/react';
 import { FiFileText } from 'react-icons/fi';
-import { VscArrowSwap } from 'react-icons/vsc';
+
+const formatFileSize = (sizeInBytes: number) => {
+  if (sizeInBytes === 0) return '0 B';
+
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let unitIndex = 0;
+  let size = sizeInBytes;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+
+  return `${size.toFixed(1)} ${units[unitIndex]}`;
+};
 
 const LessonPlanDisplay = ({
   href,
   fileName,
   fileSize,
   isUserAbsentTeacher,
+  isAdminMode,
 }) => {
   const theme = useTheme();
 
+  const handleSwap = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+  };
+
   return (
-    <Flex
-      width="100%"
-      height="48px"
-      borderColor={theme.colors.neutralGray[300]}
-      borderWidth="1px"
-      borderRadius="10px"
-      p="16px"
-      align="center"
-      bg={theme.colors.buttonBackground}
-      justify="space-between"
-    >
-      <Link href={href} isExternal width="100%">
+    <Link href={href} isExternal width="100%">
+      <Flex
+        width="100%"
+        height="48px"
+        borderColor={theme.colors.neutralGray[300]}
+        borderWidth="1px"
+        borderRadius="10px"
+        p="16px"
+        align="center"
+        bg={theme.colors.buttonBackground}
+        justify="space-between"
+      >
         <Flex align="center">
           <FiFileText size="24px" color={theme.colors.primaryBlue[300]} />
           <Box ml="12px">
@@ -40,24 +60,30 @@ const LessonPlanDisplay = ({
                 fontSize={theme.textStyles.body.fontSize}
                 color={theme.colors.text.subtitle}
               >
-                {fileSize}
+                {formatFileSize(fileSize)}
               </Text>
             )}
           </Box>
         </Flex>
-      </Link>
 
-      {isUserAbsentTeacher && (
-        <IconButton
-          aria-label="Swap Lesson Plan"
-          icon={
-            <VscArrowSwap size="15px" color={theme.colors.neutralGray[600]} />
-          }
-          size="sm"
-          variant="ghost"
-        />
-      )}
-    </Flex>
+        {isUserAbsentTeacher && !isAdminMode && (
+          <IconButton
+            aria-label="Swap Lesson Plan"
+            icon={
+              <Image
+                src="/images/arrow_swap.svg"
+                alt="Swap icon"
+                width="15px"
+                height="15px"
+              />
+            }
+            size="sm"
+            variant="ghost"
+            onClick={handleSwap}
+          />
+        )}
+      </Flex>
+    </Link>
   );
 };
 
@@ -118,18 +144,17 @@ const LessonPlanView = ({
   absentTeacherFirstName,
   isUserAbsentTeacher,
   isUserSubstituteTeacher,
+  isAdminMode,
 }) => {
-  const getFileName = (url) => (url ? 'File name' : '');
-  const getFileSize = (url) => (url ? 'File size' : '');
-
   return lessonPlan ? (
     <LessonPlanDisplay
-      href={lessonPlan}
-      fileName={getFileName(lessonPlan)}
-      fileSize={getFileSize(lessonPlan)}
+      href={lessonPlan.url}
+      fileName={lessonPlan.name}
+      fileSize={lessonPlan.size}
       isUserAbsentTeacher={isUserAbsentTeacher}
+      isAdminMode={isAdminMode}
     />
-  ) : isUserAbsentTeacher ? (
+  ) : isUserAbsentTeacher && !isAdminMode ? (
     <NoLessonPlanDeclaredDisplay />
   ) : (
     <NoLessonPlanViewingDisplay

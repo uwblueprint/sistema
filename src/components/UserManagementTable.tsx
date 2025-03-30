@@ -24,7 +24,7 @@ import {
 
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { FilterOptions, Role, UserAPI } from '@utils/types';
-import useUserFiltering from '@utils/useUserFiltering';
+import useUserFiltering from '@hooks/useUserFiltering';
 import React, { useEffect, useState } from 'react';
 import {
   FiClock,
@@ -35,7 +35,7 @@ import {
   FiUser,
 } from 'react-icons/fi';
 import EditableRoleCell from './EditableRoleCell';
-import FilterPopup from './FilterPopup';
+import FilterPopup, { NO_EMAIL_TAGS } from './FilterPopup';
 
 type SortField = 'name' | 'email' | 'absences' | 'role';
 
@@ -58,7 +58,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
     role: null,
     absencesOperator: 'greater_than',
     absencesValue: null,
-    tags: null,
+    disabledTags: [],
   });
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [availableTags, setAvailableTags] = useState<string[]>([]);

@@ -25,7 +25,7 @@ const ExportAbsencesButton = () => {
         return [
           absence.lessonDate,
           absence.subject?.name || '',
-          absence.lessonPlan || '',
+          absence.lessonPlan?.url || '',
           absence.reasonOfAbsence,
           absence.notes || '',
           `${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName}`,
