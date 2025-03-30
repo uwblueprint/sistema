@@ -27,6 +27,13 @@ export const textStyles = {
     color: 'text.header',
     fontFamily: 'heading',
   },
+  semibold: {
+    fontWeight: 700,
+    fontSize: '13px',
+    lineHeight: '15.73px',
+    color: 'text.body',
+    fontFamily: 'body',
+  },
   subtitle: {
     fontWeight: 400,
     fontSize: '13px',

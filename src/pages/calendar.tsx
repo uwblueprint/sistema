@@ -9,6 +9,9 @@ import {
   ModalOverlay,
   useDisclosure,
   useTheme,
+  Text,
+  Image,
+  Badge,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
@@ -42,6 +45,7 @@ const Calendar: React.FC = () => {
   }, [userData.isLoading, userData.isAuthenticated, router]);
 
   const { events, fetchAbsences } = useAbsences();
+  const [claimedDays, setClaimedDays] = useState<Set<string>>(new Set());
 
   const calendarRef = useRef<FullCalendar>(null);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
@@ -121,6 +125,30 @@ const Calendar: React.FC = () => {
     },
     [userData?.id]
   );
+
+  useEffect(() => {
+    const claimedAbsences = new Set<string>();
+
+    events.forEach((event) => {
+      if (event.start) {
+        let eventDate: Date;
+
+        if (Array.isArray(event.start)) {
+          eventDate = new Date(event.start[0], event.start[1], event.start[2]);
+        } else {
+          eventDate = new Date(event.start);
+        }
+
+        const eventDateString = `${eventDate.getFullYear()}-${(eventDate.getMonth() + 1).toString().padStart(2, '0')}-${eventDate.getDate().toString().padStart(2, '0')}`;
+
+        if (event.substituteTeacher?.id === userData?.id) {
+          claimedAbsences.add(eventDateString);
+        }
+      }
+    });
+
+    setClaimedDays(claimedAbsences);
+  }, [events, userData?.id]);
 
   const handleDeclareAbsence = async (
     absence: Prisma.AbsenceCreateManyInput
@@ -279,10 +307,50 @@ const Calendar: React.FC = () => {
   if (!userData.isAuthenticated) {
     return null;
   }
+
+  const dayCellContent = (args) => {
+    const eventDateString = `${args.date.getFullYear()}-${(args.date.getMonth() + 1).toString().padStart(2, '0')}-${args.date.getDate().toString().padStart(2, '0')}`;
+
+    return (
+      <Box position="relative" width="100%" height="100%" py={3}>
+        <Text position="absolute" top="11px" left="16px" textStyle="body">
+          {args.date.getDate()}
+        </Text>
+
+        {activeTab === 'explore' && claimedDays.has(eventDateString) && (
+          <Badge
+            position="absolute"
+            top="7px"
+            right="6px"
+            border="1px solid"
+            borderColor="neutralGray.300"
+            bg="transparent"
+            color="neutralGray.900"
+            padding="2px 4px"
+            borderRadius="5px"
+            textTransform="none"
+            display="flex"
+            alignItems="center"
+            width="68px"
+          >
+            <Image
+              src="images/conflict.svg"
+              alt="Conflict"
+              boxSize="12px"
+              mx={1}
+            />
+            <Text textStyle="semibold" isTruncated>
+              Busy
+            </Text>
+          </Badge>
+        )}
+      </Box>
+    );
+  };
+
   return (
     <>
       <Global styles={getCalendarStyles} />
-
       <Flex height="100vh">
         <CalendarSidebar
           setSearchQuery={setSearchQuery}
@@ -325,6 +393,7 @@ const Calendar: React.FC = () => {
               dayCellClassNames={({ date }) =>
                 getDayCellClassNames(date, selectedDate)
               }
+              dayCellContent={dayCellContent}
               eventClick={handleAbsenceClick}
               dateClick={handleDateClick}
             />
