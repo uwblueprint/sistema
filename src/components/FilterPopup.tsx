@@ -19,7 +19,7 @@ import {
   PopoverArrow,
 } from '@chakra-ui/react';
 import { FilterOptions, Role } from '@utils/types';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { BiRevision } from 'react-icons/bi';
 import { IoFilterOutline } from 'react-icons/io5';
 import OperatorMenu from './OperatorMenu';
@@ -42,8 +42,6 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
   tagColors = {},
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const operatorMenuRef = useRef<HTMLDivElement>(null);
-  const [operatorMenuOpen, setOperatorMenuOpen] = useState(false);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -56,19 +54,6 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
     return count;
   }, [filters]);
 
-  // Handle clicks outside the operator menu to close it
-  useOutsideClick({
-    ref: operatorMenuRef,
-    handler: (e) => {
-      if (
-        operatorMenuOpen &&
-        !operatorMenuRef.current?.contains(e.target as Node)
-      ) {
-        setOperatorMenuOpen(false);
-      }
-    },
-  });
-
   const handleRoleSelect = (role: Role | null) => {
     // Toggle selection: if the clicked role is already selected, deselect it
     if (filters.role === role) {
@@ -80,7 +65,6 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
 
   const handleAbsencesOperatorChange = (operator: ComparisonOperator) => {
     setFilters({ ...filters, absencesOperator: operator });
-    setOperatorMenuOpen(false);
   };
 
   const handleAbsencesValueChange = (value: string) => {
@@ -309,7 +293,6 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
 
             <NumberInput
               width="53px"
-              backgroundColor="neutralGray.100"
               borderRadius="5px"
               value={
                 filters.absencesValue === null ? '' : filters.absencesValue
@@ -317,12 +300,27 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
               onChange={handleAbsencesValueChange}
             >
               <NumberInputField
+                border="1px solid"
+                borderColor="neutralGray.300"
+                textStyle="label"
                 placeholder="e.g. 5"
                 fontSize="12px"
                 fontWeight="500"
                 height="32px"
+                _placeholder={{ color: 'text.inactiveButtonText' }}
                 paddingX={2.5}
                 paddingY={1.5}
+                _hover={{
+                  borderColor: 'outline',
+                }}
+                _focus={{
+                  borderColor: 'primaryBlue.300',
+                  boxShadow: '0 0 0 1px primaryBlue.300',
+                }}
+                _active={{
+                  borderColor: 'primaryBlue.300',
+                  boxShadow: '0 0 0 1px primaryBlue.300',
+                }}
               />
             </NumberInput>
           </Flex>
