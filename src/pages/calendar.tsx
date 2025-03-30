@@ -1,17 +1,17 @@
 import {
+  Badge,
   Box,
   Flex,
+  Image,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  Text,
   useDisclosure,
   useTheme,
-  Text,
-  Image,
-  Badge,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
@@ -25,7 +25,7 @@ import { formatMonthYear } from '@utils/formatMonthYear';
 import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import AbsenceBox from '../components/AbsenceBox';
 import AbsenceDetails from '../components/AbsenceDetails';
@@ -38,12 +38,21 @@ const Calendar: React.FC = () => {
   const userData = useUserData();
   const router = useRouter();
 
+  const searchParams = useSearchParams();
+
   useEffect(() => {
     if (!userData.isLoading && !userData.isAuthenticated) {
       router.push('/');
     }
   }, [userData.isLoading, userData.isAuthenticated, router]);
 
+  useEffect(() => {
+    if (searchParams && searchParams.get('isAdminMode') === 'true') {
+      setIsAdminMode(true);
+    } else {
+      setIsAdminMode(false);
+    }
+  }, [searchParams]);
   const { events, fetchAbsences } = useAbsences();
   const [claimedDays, setClaimedDays] = useState<Set<string>>(new Set());
 
