@@ -320,17 +320,58 @@ const Calendar: React.FC = () => {
   const dayCellContent = (args) => {
     const eventDateString = `${args.date.getFullYear()}-${(args.date.getMonth() + 1).toString().padStart(2, '0')}-${args.date.getDate().toString().padStart(2, '0')}`;
 
+    const isToday = (() => {
+      const today = new Date();
+      return (
+        args.date.getFullYear() === today.getFullYear() &&
+        args.date.getMonth() === today.getMonth() &&
+        args.date.getDate() === today.getDate()
+      );
+    })();
+
+    const isSelected =
+      selectedDate &&
+      args.date.getFullYear() === selectedDate.getFullYear() &&
+      args.date.getMonth() === selectedDate.getMonth() &&
+      args.date.getDate() === selectedDate.getDate();
+
     return (
-      <Box position="relative" width="100%" height="100%" py={3}>
-        <Text position="absolute" top="11px" left="16px" textStyle="body">
-          {args.date.getDate()}
-        </Text>
+      <Box
+        position="relative"
+        width="100%"
+        height="100%"
+        display="flex"
+        alignItems="center"
+        pt={1}
+        pr={1}
+      >
+        <Box
+          width="26px"
+          height="26px"
+          borderRadius="50%"
+          backgroundColor={
+            isToday
+              ? 'primaryBlue.300'
+              : isSelected
+                ? 'primaryBlue.50'
+                : 'transparent'
+          }
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Text
+            textStyle="body"
+            color={
+              isToday ? 'white' : isSelected ? 'primaryBlue.300' : 'text.body'
+            }
+          >
+            {args.date.getDate()}
+          </Text>
+        </Box>
 
         {activeTab === 'explore' && claimedDays.has(eventDateString) && (
           <Badge
-            position="absolute"
-            top="7px"
-            right="6px"
             border="1px solid"
             borderColor="neutralGray.300"
             bg="transparent"
@@ -341,6 +382,7 @@ const Calendar: React.FC = () => {
             display="flex"
             alignItems="center"
             width="68px"
+            marginLeft="auto"
           >
             <Image
               src="images/conflict.svg"

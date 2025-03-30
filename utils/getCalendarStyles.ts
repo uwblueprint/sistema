@@ -15,4 +15,8 @@ export const getCalendarStyles = (theme: CustomTheme) => css`
     font-size: ${theme.fontSizes.sm};
     font-weight: ${theme.fontWeights[400]};
   }
+
+  .fc .fc-daygrid-day-number {
+    width: 100%;
+  }
 `;
