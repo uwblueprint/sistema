@@ -14,7 +14,6 @@ export interface AccordionItem {
   id: number;
   name: string;
   color: string;
-  subtitle?: string;
 }
 
 export interface AccordionProps {
@@ -62,11 +61,6 @@ const Accordion = ({
           <Stack spacing={2} mt={0}>
             {items.map((item) => (
               <Box key={item.id}>
-                {item.subtitle && (
-                  <Text textStyle="subtitle" color={textColor} mb={2}>
-                    {item.subtitle}
-                  </Text>
-                )}
                 <Flex
                   align="center"
                   cursor="pointer"

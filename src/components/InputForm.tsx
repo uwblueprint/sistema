@@ -119,14 +119,31 @@ const InputForm: React.FC<InputFormProps> = ({
     try {
       const lessonDate = new Date(formData.lessonDate + 'T00:00:00');
 
-      let lessonPlanUrl: string | null = null;
+      let lessonPlanData: { url: string; name: string; size: number } | null =
+        null;
       if (lessonPlan) {
-        lessonPlanUrl = await uploadFile(lessonPlan);
+        const lessonPlanUrl = await uploadFile(lessonPlan);
+
+        if (lessonPlanUrl === null) {
+          toast({
+            title: 'Error',
+            description: 'Failed to upload the lesson plan file',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+          return;
+        }
+
+        lessonPlanData = {
+          url: lessonPlanUrl,
+          name: lessonPlan.name,
+          size: lessonPlan.size,
+        };
       }
 
-      const absenceData: Prisma.AbsenceCreateManyInput = {
+      const absenceData = {
         lessonDate: lessonDate,
-        lessonPlan: lessonPlanUrl,
         reasonOfAbsence: formData.reasonOfAbsence,
         absentTeacherId: parseInt(formData.absentTeacherId, 10),
         substituteTeacherId: formData.substituteTeacherId
@@ -136,6 +153,7 @@ const InputForm: React.FC<InputFormProps> = ({
         subjectId: parseInt(formData.subjectId, 10),
         notes: formData.notes,
         roomNumber: formData.roomNumber || null,
+        lessonPlanFile: lessonPlanData,
       };
 
       const response = await onDeclareAbsence(absenceData);
@@ -169,12 +187,20 @@ const InputForm: React.FC<InputFormProps> = ({
         if (onClose) {
           onClose();
         }
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to declare absence',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
       }
     } catch (error) {
       toast({
         title: 'Error',
         description:
-          error instanceof Error ? error.message : 'Failed to add absence',
+          error instanceof Error ? error.message : 'Failed to declare absence',
         status: 'error',
         duration: 5000,
         isClosable: true,
