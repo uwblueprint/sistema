@@ -194,6 +194,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
               <Icon as={FiSearch} color="neutralGray.600" boxSize={6} />
             </InputLeftElement>
             <Input
+              borderColor={'neutralGray.300'}
               paddingRight={0}
               color="black"
               value={searchTerm}

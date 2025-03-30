@@ -307,6 +307,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                 fontSize="12px"
                 fontWeight="500"
                 height="32px"
+                _placeholder={{ color: 'text.inactiveButtonText' }}
                 paddingX={2.5}
                 paddingY={1.5}
               />
