@@ -68,9 +68,6 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({
           onChange={(_, value) => handleChange(value)}
           width="83px"
           variant="unstyled"
-          // paddingX={2}
-          // paddingY={3}
-          // padding={2}
         >
           <NumberInputField
             textAlign="left"
