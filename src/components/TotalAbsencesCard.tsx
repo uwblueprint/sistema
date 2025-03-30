@@ -65,7 +65,12 @@ export default function TotalAbsencesCard({
         </Heading>
       </CardHeader>
       <Divider />
-      <CardBody display="flex" flexDirection="column" overflowY="auto">
+      <CardBody
+        display="flex"
+        flexDirection="column"
+        overflowX="auto"
+        overflowY="hidden"
+      >
         <HStack align="flex-start" justify="space-between" width="100%">
           <HStack align="flex-start" gap="28px">
             <CircularProgress
@@ -95,7 +100,7 @@ export default function TotalAbsencesCard({
                 </Text>
               )}
             </Box>
-            <VStack align="flex-start">
+            <VStack align="flex-start" pr="32px">
               <HStack>
                 <Box
                   w="16px"
