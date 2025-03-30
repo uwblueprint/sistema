@@ -389,6 +389,7 @@ const Calendar: React.FC = () => {
               alignItems="center"
               width="68px"
               marginLeft="auto"
+              cursor="default"
             >
               <Image
                 src="images/conflict.svg"
