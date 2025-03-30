@@ -179,6 +179,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       borderRadius="lg"
       bg="white"
       w="full"
+      minWidth="402px"
       border="1px solid"
       borderColor="neutralGray.300"
       height="100%"

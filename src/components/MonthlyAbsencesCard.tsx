@@ -69,6 +69,7 @@ export default function MonthlyAbsencesCard({
   return (
     <Card
       width={width}
+      minWidth={'210px'}
       borderRadius="lg"
       shadow="sm"
       overflow="hidden"
