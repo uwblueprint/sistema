@@ -1,6 +1,6 @@
 import { AddIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { TacetLogo } from '../components/SistemaLogoColour';
 import LocationAccordion from './LocationAccordion';
 import MiniCalendar from './MiniCalendar';
@@ -21,6 +21,9 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   selectDate,
 }) => {
   const theme = useTheme();
+
+  const [archivedSubjects, setArchivedSubjects] = useState([]);
+  const [archivedLocations, setArchivedLocations] = useState([]);
 
   const setActiveSubjectFilter = useCallback(
     (activeSubjectIds: number[]) => {
@@ -62,6 +65,26 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
     [setSearchQuery]
   );
 
+  useEffect(() => {
+    // Fetch archived subjects and locations
+    async function fetchArchivedData() {
+      try {
+        const subjectRes = await fetch('/api/filter/subjects?archived=true');
+        const locationRes = await fetch('/api/filter/locations?archived=true');
+
+        const subjectsData = await subjectRes.json();
+        const locationsData = await locationRes.json();
+
+        setArchivedSubjects(subjectsData.subjects);
+        setArchivedLocations(locationsData.locations);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    fetchArchivedData();
+  }, []);
+
   return (
     <Flex
       width="280px"
@@ -94,10 +117,12 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       <SubjectAccordion setFilter={setActiveSubjectFilter} />
       <LocationAccordion setFilter={setActiveLocationFilter} />
 
-      <ArchivedAccordion
-        setSubjectFilter={setArchivedSubjectFilter}
-        setLocationFilter={setArchivedLocationFilter}
-      />
+      {(archivedSubjects.length > 0 || archivedLocations.length > 0) && (
+        <ArchivedAccordion
+          setSubjectFilter={setArchivedSubjectFilter}
+          setLocationFilter={setArchivedLocationFilter}
+        />
+      )}
     </Flex>
   );
 };
