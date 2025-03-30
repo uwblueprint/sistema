@@ -213,7 +213,7 @@ const Calendar: React.FC = () => {
         clickInfo.event.extendedProps.substituteTeacherFullName || '',
       location: clickInfo.event.extendedProps.location || '',
       classType: clickInfo.event.extendedProps.classType || '',
-      lessonPlan: clickInfo.event.extendedProps.lessonPlan || '',
+      lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
       roomNumber: clickInfo.event.extendedProps.roomNumber || '',
       reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
       notes: clickInfo.event.extendedProps.notes || '',

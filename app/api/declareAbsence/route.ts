@@ -10,26 +10,38 @@ export async function POST(req: Request) {
       !body.reasonOfAbsence ||
       !body.absentTeacherId ||
       !body.locationId ||
-      !body.subjectId
+      !body.subjectId ||
+      !body.lessonPlanFile
     ) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
+    const newAbsence = await prisma.$transaction(async (prisma) => {
+      const lessonPlan = await prisma.lessonPlanFile.create({
+        data: {
+          name: body.lessonPlanFile.name,
+          url: body.lessonPlanFile.url,
+          size: body.lessonPlanFile.size,
+        },
+      });
 
-    const newAbsence = await prisma.absence.create({
-      data: {
-        lessonDate: new Date(body.lessonDate),
-        lessonPlan: body.lessonPlan || null,
-        reasonOfAbsence: body.reasonOfAbsence,
-        notes: body.notes || null,
-        absentTeacherId: body.absentTeacherId,
-        substituteTeacherId: body.substituteTeacherId || null,
-        locationId: body.locationId,
-        subjectId: body.subjectId,
-        roomNumber: body.roomNumber || null,
-      },
+      const absence = await prisma.absence.create({
+        data: {
+          lessonDate: new Date(body.lessonDate),
+          lessonPlanId: lessonPlan.id,
+          reasonOfAbsence: body.reasonOfAbsence,
+          notes: body.notes || null,
+          absentTeacherId: body.absentTeacherId,
+          substituteTeacherId: body.substituteTeacherId || null,
+          locationId: body.locationId,
+          subjectId: body.subjectId,
+          roomNumber: body.roomNumber || null,
+        },
+      });
+
+      return absence;
     });
 
     return NextResponse.json(newAbsence, { status: 201 });

@@ -27,7 +27,7 @@ const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
   locationAbbreviation: absenceData.location.abbreviation,
   colors: mapColorCodes(absenceData.subject.colorGroup.colorCodes),
   roomNumber: absenceData.roomNumber || null,
-  lessonPlan: absenceData.lessonPlan,
+  lessonPlan: absenceData.lessonPlan || null,
   reasonOfAbsence: absenceData.reasonOfAbsence,
   notes: absenceData.notes,
   absenceId: absenceData.id,
