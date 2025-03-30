@@ -9,6 +9,15 @@ export const getCalendarStyles = (theme: CustomTheme) => css`
     border: 0px;
     background-color: transparent;
   }
+  .fc th {
+    text-transform: uppercase;
+    font-size: ${theme.fontSizes.sm};
+    font-weight: ${theme.fontWeights[600]};
+  }
+
+  .fc-day-today {
+    background-color: inherit !important;
+  }
   .fc-event-title {
     overflow: hidden;
     text-overflow: ellipsis;
