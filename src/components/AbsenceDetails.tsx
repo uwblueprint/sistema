@@ -16,14 +16,14 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
+import { Role } from '@utils/types';
 import { Buildings, Calendar } from 'iconsax-react';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
-import { Role } from '@utils/types';
 
 const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
   const theme = useTheme();

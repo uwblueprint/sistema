@@ -11,7 +11,6 @@ import {
   useTheme,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
-import AbsenceBox from '../components/AbsenceBox';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -25,7 +24,7 @@ import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiPaperclip } from 'react-icons/fi';
+import AbsenceBox from '../components/AbsenceBox';
 import AbsenceDetails from '../components/AbsenceDetails';
 import CalendarHeader from '../components/CalendarHeader';
 import CalendarSidebar from '../components/CalendarSidebar';
@@ -286,7 +285,7 @@ const Calendar: React.FC = () => {
         clickInfo.event.extendedProps.substituteTeacherFullName || '',
       location: clickInfo.event.extendedProps.location || '',
       classType: clickInfo.event.extendedProps.classType || '',
-      lessonPlan: clickInfo.event.extendedProps.lessonPlan || '',
+      lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
       roomNumber: clickInfo.event.extendedProps.roomNumber || '',
       reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
       notes: clickInfo.event.extendedProps.notes || '',
@@ -421,10 +420,10 @@ const Calendar: React.FC = () => {
           sx={{ padding: '33px 31px' }}
           borderRadius="16px"
         >
-          <ModalHeader fontSize={22} sx={{ padding: '0 0 28px 0' }}>
+          <ModalHeader fontSize={22} p="0 0 28px 0">
             Declare Absence
           </ModalHeader>
-          <ModalCloseButton />
+          <ModalCloseButton top="33px" right="28px" color="text.header" />
           <ModalBody p={0}>
             <InputForm
               onClose={onInputFormClose}

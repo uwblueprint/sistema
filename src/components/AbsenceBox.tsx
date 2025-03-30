@@ -1,6 +1,7 @@
-import { Box, useTheme } from '@chakra-ui/react';
-import { FiPaperclip } from 'react-icons/fi';
+import { Box } from '@chakra-ui/react';
+import { LessonPlanFile } from '@utils/types';
 import { useEffect, useRef, useState } from 'react';
+import { FiPaperclip } from 'react-icons/fi';
 
 interface AbsenceBoxProps {
   title: string;
@@ -10,7 +11,7 @@ interface AbsenceBoxProps {
   textColor: string;
   highlightText?: string;
   highlightColor?: string;
-  lessonPlan?: string;
+  lessonPlan?: LessonPlanFile;
   opacity: number;
 }
 

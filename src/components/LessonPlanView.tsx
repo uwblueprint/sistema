@@ -9,6 +9,21 @@ import {
 } from '@chakra-ui/react';
 import { FiFileText } from 'react-icons/fi';
 
+const formatFileSize = (sizeInBytes: number) => {
+  if (sizeInBytes === 0) return '0 B';
+
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let unitIndex = 0;
+  let size = sizeInBytes;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+
+  return `${size.toFixed(1)} ${units[unitIndex]}`;
+};
+
 const LessonPlanDisplay = ({
   href,
   fileName,
@@ -45,7 +60,7 @@ const LessonPlanDisplay = ({
                 fontSize={theme.textStyles.body.fontSize}
                 color={theme.colors.text.subtitle}
               >
-                {fileSize}
+                {formatFileSize(fileSize)}
               </Text>
             )}
           </Box>
@@ -131,14 +146,11 @@ const LessonPlanView = ({
   isUserSubstituteTeacher,
   isAdminMode,
 }) => {
-  const getFileName = (url) => (url ? 'File name' : '');
-  const getFileSize = (url) => (url ? 'File size' : '');
-
   return lessonPlan ? (
     <LessonPlanDisplay
-      href={lessonPlan}
-      fileName={getFileName(lessonPlan)}
-      fileSize={getFileSize(lessonPlan)}
+      href={lessonPlan.url}
+      fileName={lessonPlan.name}
+      fileSize={lessonPlan.size}
       isUserAbsentTeacher={isUserAbsentTeacher}
       isAdminMode={isAdminMode}
     />
