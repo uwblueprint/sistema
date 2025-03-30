@@ -49,10 +49,14 @@ const Calendar: React.FC = () => {
   useEffect(() => {
     if (searchParams && searchParams.get('isAdminMode') === 'true') {
       setIsAdminMode(true);
+
+      const newUrl = window.location.href.split('?')[0];
+      window.history.replaceState({}, '', newUrl);
     } else {
       setIsAdminMode(false);
     }
   }, [searchParams]);
+
   const { events, fetchAbsences } = useAbsences();
   const [claimedDays, setClaimedDays] = useState<Set<string>>(new Set());
 
