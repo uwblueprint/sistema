@@ -100,7 +100,7 @@ export default function TotalAbsencesCard({
                 </Text>
               )}
             </Box>
-            <VStack align="flex-start">
+            <VStack align="flex-start" pr="32px">
               <HStack>
                 <Box
                   w="16px"
