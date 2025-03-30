@@ -310,6 +310,17 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
                 _placeholder={{ color: 'text.inactiveButtonText' }}
                 paddingX={2.5}
                 paddingY={1.5}
+                _hover={{
+                  borderColor: 'outline',
+                }}
+                _focus={{
+                  borderColor: 'primaryBlue.300',
+                  boxShadow: '0 0 0 1px primaryBlue.300',
+                }}
+                _active={{
+                  borderColor: 'primaryBlue.300',
+                  boxShadow: '0 0 0 1px primaryBlue.300',
+                }}
               />
             </NumberInput>
           </Flex>
