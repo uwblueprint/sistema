@@ -60,7 +60,12 @@ const OperatorMenu: React.FC<OperatorMenuProps> = ({
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent width="160px" borderRadius="md" boxShadow="md">
+        <PopoverContent
+          width="160px"
+          borderRadius="md"
+          boxShadow="md"
+          overflow="hidden"
+        >
           <PopoverBody p={0}>
             <VStack align="stretch" spacing={0} divider={<Divider />}>
               {(
@@ -81,13 +86,6 @@ const OperatorMenu: React.FC<OperatorMenuProps> = ({
                   }}
                   bg={
                     selectedOperator === operator ? 'primaryBlue.50' : 'white'
-                  }
-                  borderRadius={
-                    index === 0
-                      ? 'md md 0 0'
-                      : index === arr.length - 1
-                        ? '0 0 md md'
-                        : '0'
                   }
                 >
                   <Text fontSize="12px" textStyle="label">
