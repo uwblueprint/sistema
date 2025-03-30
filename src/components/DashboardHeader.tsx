@@ -56,6 +56,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       borderColor="neutralGray.300"
       px={theme.space[16]}
       py={theme.space[4]}
+      gap={theme.space[2]}
     >
       <HStack spacing={theme.space[8]}>
         <IconButton
