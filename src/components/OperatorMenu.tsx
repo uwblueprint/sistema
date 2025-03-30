@@ -40,8 +40,8 @@ const OperatorMenu: React.FC<OperatorMenuProps> = ({
             variant="outline"
             size="sm"
             width="full"
-            bgColor="neutralGray.100"
-            borderWidth={0}
+            borderWidth={1}
+            borderColor="neutralGray.300"
             onClick={() => setOperatorMenuOpen(!operatorMenuOpen)}
             rightIcon={
               <Icon
@@ -54,7 +54,7 @@ const OperatorMenu: React.FC<OperatorMenuProps> = ({
             }
             justifyContent="space-between"
           >
-            <Text textStyle="cellBody" fontSize="12px">
+            <Text textStyle="label" fontSize="12px">
               {getOperatorLabel(selectedOperator || 'greater_than')}
             </Text>
           </Button>
@@ -91,11 +91,7 @@ const OperatorMenu: React.FC<OperatorMenuProps> = ({
                   }
                 >
                   <Text fontSize="12px" textStyle="label">
-                    {operator === 'greater_than'
-                      ? 'Greater than'
-                      : operator === 'less_than'
-                        ? 'Less than'
-                        : 'Equal to'}
+                    {getOperatorLabel(operator)}
                   </Text>
                 </Box>
               ))}
