@@ -9,6 +9,7 @@ import {
   PopoverTrigger,
   Text,
   VStack,
+  useTheme,
 } from '@chakra-ui/react';
 import { ComparisonOperator } from '@utils/types';
 import { useRef, useState } from 'react';
@@ -27,6 +28,7 @@ const OperatorMenu: React.FC<OperatorMenuProps> = ({
 }) => {
   const [operatorMenuOpen, setOperatorMenuOpen] = useState(false);
   const operatorMenuRef = useRef(null);
+  const theme = useTheme();
 
   return (
     <Box position="relative" width="160px" ref={operatorMenuRef}>
@@ -37,11 +39,14 @@ const OperatorMenu: React.FC<OperatorMenuProps> = ({
       >
         <PopoverTrigger>
           <Button
-            variant="outline"
+            bg={theme.colors.buttonBackground}
+            border="1px solid"
             size="sm"
             width="full"
             borderWidth={1}
-            borderColor="neutralGray.300"
+            borderColor={theme.colors.neutralGray[300]}
+            _hover={{ bg: theme.colors.primaryBlue[50] }}
+            _active={{ bg: theme.colors.primaryBlue[50] }}
             onClick={() => setOperatorMenuOpen(!operatorMenuOpen)}
             rightIcon={
               <Icon
@@ -65,9 +70,14 @@ const OperatorMenu: React.FC<OperatorMenuProps> = ({
           borderRadius="md"
           boxShadow="md"
           overflow="hidden"
+          borderColor={theme.colors.neutralGray[300]}
         >
           <PopoverBody p={0}>
-            <VStack align="stretch" spacing={0} divider={<Divider />}>
+            <VStack
+              align="stretch"
+              spacing={0}
+              divider={<Divider borderColor="neutralGray.300" opacity={1} />}
+            >
               {(
                 [
                   'greater_than',
@@ -80,6 +90,7 @@ const OperatorMenu: React.FC<OperatorMenuProps> = ({
                   p={2}
                   cursor="pointer"
                   _hover={{ bg: 'neutralGray.100' }}
+                  _active={{ bg: 'neutralGray.300' }}
                   onClick={() => {
                     onOperatorChange(operator);
                     setOperatorMenuOpen(false);
