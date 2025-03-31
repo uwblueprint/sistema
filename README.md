@@ -1,4 +1,9 @@
-# Sistema
+# Sistema Tacet
+## Absence Calendar
+<img width="1728" alt="image" src="https://github.com/user-attachments/assets/7b6022b8-48a7-4192-9916-b1c3ef912780" />
+
+## Admin Dashboard
+<img width="1728" alt="image" src="https://github.com/user-attachments/assets/642d3ff0-dbc0-44f0-80e0-f2fbbecaa916" />
 
 ## Setup
 
