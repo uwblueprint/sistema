@@ -57,7 +57,7 @@ function formDBQuery(fromYear?: number, toYear?: number) {
   const isValidDateRange =
     Number.isInteger(fromYear) &&
     Number.isInteger(toYear) &&
-    toYear - fromYear === 1;
+    Number(toYear) - Number(fromYear) === 1;
 
   if (!isValidDateRange) {
     throw new Error(`${fromYear} to ${toYear} is an invalid date range.`);
