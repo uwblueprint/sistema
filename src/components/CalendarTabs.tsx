@@ -16,7 +16,7 @@ export function CalendarTabs({ activeTab, onTabChange }: CalendarTabsProps) {
       <Button
         variant="unstyled"
         fontSize="16px"
-        fontWeight="600"
+        fontWeight="700"
         width="50%"
         color={activeTab === 'explore' ? 'primaryBlue.300' : 'text.subtitle'}
         onClick={() => onTabChange('explore')}
