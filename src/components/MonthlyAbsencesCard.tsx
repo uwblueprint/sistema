@@ -79,9 +79,15 @@ export default function MonthlyAbsencesCard({
       height="100%"
     >
       <CardHeader pb={0} display="flex" alignItems="center">
-        <Heading fontSize="18px" lineHeight="33px" fontWeight={700} pb="13px">
+        <Text
+          textStyle="h2"
+          fontSize="18px"
+          fontWeight={700}
+          pb="13px"
+          lineHeight="33px"
+        >
           Monthly Absences
-        </Heading>
+        </Text>
       </CardHeader>
       <Divider />
       <CardBody display="flex" flexDirection="column">
