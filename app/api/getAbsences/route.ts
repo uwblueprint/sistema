@@ -8,10 +8,10 @@ export async function GET(request: NextRequest) {
     const fromYear = Number(searchParams.get('fromYear'));
     const toYear = Number(searchParams.get('toYear'));
 
-    const absences: AbsenceAPI[] = await getAbsencesFromDatabase({
+    const absences: AbsenceAPI[] = await getAbsencesFromDatabase(
       fromYear,
-      toYear,
-    });
+      toYear
+    );
 
     if (!absences.length) {
       return NextResponse.json({ events: [] }, { status: 200 });

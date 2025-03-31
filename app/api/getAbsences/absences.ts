@@ -77,13 +77,10 @@ function formDBQuery(fromYear?: number, toYear?: number) {
   };
 }
 
-export const getAbsencesFromDatabase = async ({
-  fromYear,
-  toYear,
-}: {
-  fromYear?: number;
-  toYear?: number;
-}): Promise<AbsenceAPI[]> => {
+export const getAbsencesFromDatabase = async (
+  fromYear?: number,
+  toYear?: number
+): Promise<AbsenceAPI[]> => {
   try {
     const query = formDBQuery(fromYear, toYear);
     const absences = await prisma.absence.findMany(query);
