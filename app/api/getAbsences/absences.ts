@@ -53,6 +53,7 @@ function formDBQuery(fromYear?: number, toYear?: number) {
 
   const hasProvidedDateRange = Boolean(fromYear && toYear);
   if (!hasProvidedDateRange) return baseQuery;
+
   const isValidDateRange =
     Number.isInteger(fromYear) &&
     Number.isInteger(toYear) &&
@@ -61,6 +62,7 @@ function formDBQuery(fromYear?: number, toYear?: number) {
   if (!isValidDateRange) {
     throw new Error(`${fromYear} to ${toYear} is an invalid date range.`);
   }
+
   const firstDayOfYear = new Date(`${fromYear}-01-01T00:00:00.000Z`);
   const lastDayOfYear = new Date(`${fromYear}-12-31T23:59:59.999Z`);
 
