@@ -2,7 +2,7 @@ import { Box, Button, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 import { FiDownload } from 'react-icons/fi';
 
-const ExportAbsencesButton = () => {
+const ExportAbsencesButton = ({ selectedRange }) => {
   const [error, setError] = useState<string | null>(null);
 
   const convertToCSV = (data: any[]) => {
@@ -41,11 +41,13 @@ const ExportAbsencesButton = () => {
 
     return headers + rows;
   };
-
-  const handleDownload = async () => {
+  const handleDownload = async ({ selectedRange: string }) => {
     try {
       setError(null);
-      const response = await fetch('/api/getAbsences');
+      let [fromYear, toYear] = selectedRange.split('-').map((x) => x.trim());
+      const response = await fetch(
+        `/api/getAbsences?fromYear=${fromYear}&toYear=${toYear}`
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to fetch CSV: ${response.statusText}`);
@@ -79,7 +81,7 @@ const ExportAbsencesButton = () => {
       <Button
         leftIcon={<FiDownload size={18} />}
         variant="solid"
-        onClick={handleDownload}
+        onClick={() => handleDownload({ selectedRange })}
         height="40px"
       >
         Export

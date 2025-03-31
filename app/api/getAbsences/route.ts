@@ -1,10 +1,17 @@
 import { AbsenceAPI } from '@utils/types';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getAbsencesFromDatabase } from './absences';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const absences: AbsenceAPI[] = await getAbsencesFromDatabase();
+    const searchParams = request.nextUrl.searchParams;
+    const fromYear = Number(searchParams.get('fromYear'));
+    const toYear = Number(searchParams.get('toYear'));
+
+    const absences: AbsenceAPI[] = await getAbsencesFromDatabase({
+      fromYear,
+      toYear,
+    });
 
     if (!absences.length) {
       return NextResponse.json({ events: [] }, { status: 200 });
