@@ -2,7 +2,7 @@ import { Box, Button, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 import { FiDownload } from 'react-icons/fi';
 
-const ExportAbsencesButton = ({ selectedRange }) => {
+const ExportAbsencesButton = ({ selectedRange }: { selectedRange: string }) => {
   const [error, setError] = useState<string | null>(null);
 
   const convertToCSV = (data: any[]) => {
@@ -41,7 +41,7 @@ const ExportAbsencesButton = ({ selectedRange }) => {
 
     return headers + rows;
   };
-  const handleDownload = async ({ selectedRange: string }) => {
+  const handleDownload = async () => {
     try {
       setError(null);
       let [fromYear, toYear] = selectedRange.split('-').map((x) => x.trim());
@@ -81,7 +81,7 @@ const ExportAbsencesButton = ({ selectedRange }) => {
       <Button
         leftIcon={<FiDownload size={18} />}
         variant="solid"
-        onClick={() => handleDownload({ selectedRange })}
+        onClick={handleDownload}
         height="40px"
       >
         Export
