@@ -67,7 +67,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <IoChevronBack size={24} color={theme.colors.primaryBlue[300]} />
           }
           variant="outline"
-          onClick={() => router.push('/calendar')}
+          onClick={() => router.push('/calendar?isAdminMode=true')}
         />
         <Text
           textStyle="h1"
