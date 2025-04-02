@@ -2,6 +2,7 @@ import { AddIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { TacetLogo } from '../components/SistemaLogoColour';
+import AbsenceStatusAccordion from './AbsenceStatusAccordion';
 import LocationAccordion from './LocationAccordion';
 import MiniCalendar from './MiniCalendar';
 import SubjectAccordion from './SubjectAccordion';
@@ -12,6 +13,7 @@ interface CalendarSidebarProps {
   onDateSelect: (date: Date) => void;
   onDeclareAbsenceClick: () => void;
   selectDate: Date | null;
+  isAdminMode: boolean;
 }
 
 const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
@@ -19,6 +21,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   onDateSelect,
   onDeclareAbsenceClick,
   selectDate,
+  isAdminMode,
 }) => {
   const theme = useTheme();
 
@@ -60,6 +63,16 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       setSearchQuery((prev) => ({
         ...prev,
         archivedLocationIds: archivedLocationIds,
+      }));
+    },
+    [setSearchQuery]
+  );
+
+  const setAbsenceStatusFilter = useCallback(
+    (activeAbsenceStatusIds: number[]) => {
+      setSearchQuery((prev) => ({
+        ...prev,
+        activeAbsenceStatusIds: activeAbsenceStatusIds,
       }));
     },
     [setSearchQuery]
@@ -114,6 +127,10 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         onDateSelect={onDateSelect}
         selectDate={selectDate}
       />
+
+      {isAdminMode && (
+        <AbsenceStatusAccordion setFilter={setAbsenceStatusFilter} />
+      )}
       <SubjectAccordion setFilter={setActiveSubjectFilter} />
       <LocationAccordion setFilter={setActiveLocationFilter} />
 
