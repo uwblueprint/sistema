@@ -347,7 +347,12 @@ const InputForm: React.FC<InputFormProps> = ({
           <FormErrorMessage>{errors.reasonOfAbsence}</FormErrorMessage>
         </FormControl>
 
-        <FileUpload lessonPlan={lessonPlan} setLessonPlan={setLessonPlan} />
+        <FormControl>
+          <FormLabel>
+            <Text textStyle="h4">Lesson Plan</Text>
+          </FormLabel>
+          <FileUpload lessonPlan={lessonPlan} setLessonPlan={setLessonPlan} />
+        </FormControl>
 
         <FormControl>
           <FormLabel sx={{ display: 'flex' }}>
