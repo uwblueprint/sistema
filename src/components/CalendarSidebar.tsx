@@ -125,9 +125,9 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         onDateSelect={onDateSelect}
         selectDate={selectDate}
       />
+      <AbsenceStatusAccordion setFilter={setAbsenceStatusFilter} />
       <SubjectAccordion setFilter={setActiveSubjectFilter} />
       <LocationAccordion setFilter={setActiveLocationFilter} />
-      <AbsenceStatusAccordion setFilter={setAbsenceStatusFilter} />
 
       {(archivedSubjects.length > 0 || archivedLocations.length > 0) && (
         <ArchivedAccordion
