@@ -291,12 +291,15 @@ const Calendar: React.FC = () => {
         activeLocationIds.includes(event.locationId) ||
         archivedLocationIds.includes(event.locationId);
 
-      const hasSubstitute = event.substituteTeacher != null;
-      const eventAbsenceStatus = hasSubstitute ? 1 : 0;
-      const AbsenceStatusMatch =
-        activeAbsenceStatusIds.includes(eventAbsenceStatus);
+      let absenceStatusMatch = true;
+      if (isAdminMode) {
+        const hasSubstitute = event.substituteTeacher != null;
+        const eventAbsenceStatus = hasSubstitute ? 1 : 0;
+        absenceStatusMatch =
+          activeAbsenceStatusIds.includes(eventAbsenceStatus);
+      }
 
-      return subjectMatch && locationMatch && AbsenceStatusMatch;
+      return subjectMatch && locationMatch && absenceStatusMatch;
     });
 
     if (!isAdminMode) {
