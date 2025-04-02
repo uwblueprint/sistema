@@ -44,14 +44,14 @@ export default function AbsenceStatusAccordion({
 
   const accordionItems: AccordionItem[] = [
     {
-      id: FILLED_STATUS,
-      name: 'Filled',
-      color: theme.colors.green[400],
-    },
-    {
       id: UNFILLED_STATUS,
       name: 'Unfilled',
-      color: theme.colors.red[400],
+      color: theme.colors.primaryBlue[300],
+    },
+    {
+      id: FILLED_STATUS,
+      name: 'Filled',
+      color: theme.colors.primaryBlue[300],
     },
   ];
 
