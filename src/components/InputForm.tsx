@@ -15,6 +15,7 @@ import {
   Textarea,
   VStack,
   useDisclosure,
+  useTheme,
   useToast,
 } from '@chakra-ui/react';
 
@@ -24,6 +25,7 @@ import { DateOfAbsence } from './DateOfAbsence';
 import { FileUpload } from './FileUpload';
 import { InputDropdown } from './InputDropdown';
 import { SearchDropdown } from './SearchDropdown';
+import { ThemeContext } from '@emotion/react';
 
 interface InputFormProps {
   onClose?: () => void;
@@ -59,6 +61,7 @@ const InputForm: React.FC<InputFormProps> = ({
   });
   const [lessonPlan, setLessonPlan] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const theme = useTheme();
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -354,6 +357,7 @@ const InputForm: React.FC<InputFormProps> = ({
           </FormLabel>
           <Input
             name="roomNumber"
+            borderColor={theme.colors.outline}
             placeholder="e.g. 2131"
             value={formData.roomNumber}
             onChange={handleChange}
@@ -375,6 +379,7 @@ const InputForm: React.FC<InputFormProps> = ({
             value={formData.reasonOfAbsence}
             onChange={handleChange}
             minH="88px"
+            borderColor={theme.colors.outline}
           />
           <FormErrorMessage>{errors.reasonOfAbsence}</FormErrorMessage>
         </FormControl>
@@ -391,6 +396,7 @@ const InputForm: React.FC<InputFormProps> = ({
             value={formData.notes}
             onChange={handleChange}
             minH="88px"
+            borderColor={theme.colors.outline}
           />
         </FormControl>
 

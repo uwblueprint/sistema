@@ -5,6 +5,7 @@ import {
   Image,
   Input,
   Text,
+  useTheme,
   useToast,
 } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
@@ -23,6 +24,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
+  const theme = useTheme();
 
   const validateAndSetFile = (file: File) => {
     if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
@@ -72,8 +74,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       <Box
         as="label"
         htmlFor="file-upload"
-        border="1px dashed"
-        borderColor={isDragging ? 'primaryBlue.300' : 'outline'}
+        borderStyle="dashed"
+        borderWidth="1.5px"
+        borderColor={isDragging ? 'primaryBlue.300' : theme.colors.outline}
         borderRadius="10px"
         p={5}
         textAlign="center"
