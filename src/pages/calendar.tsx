@@ -63,11 +63,13 @@ const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
   const [searchQuery, setSearchQuery] = useState<{
+    activeAbsenceStatusIds: number[];
     activeSubjectIds: number[];
     activeLocationIds: number[];
     archivedSubjectIds: number[];
     archivedLocationIds: number[];
   }>({
+    activeAbsenceStatusIds: [],
     activeSubjectIds: [],
     activeLocationIds: [],
     archivedSubjectIds: [],
@@ -273,6 +275,7 @@ const Calendar: React.FC = () => {
   };
   useEffect(() => {
     const {
+      activeAbsenceStatusIds,
       activeSubjectIds,
       activeLocationIds,
       archivedSubjectIds,
@@ -288,7 +291,12 @@ const Calendar: React.FC = () => {
         activeLocationIds.includes(event.locationId) ||
         archivedLocationIds.includes(event.locationId);
 
-      return subjectMatch && locationMatch;
+      const hasSubstitute = event.substituteTeacher != null;
+      const eventAbsenceStatus = hasSubstitute ? 1 : 0;
+      const AbsenceStatusMatch =
+        activeAbsenceStatusIds.includes(eventAbsenceStatus);
+
+      return subjectMatch && locationMatch && AbsenceStatusMatch;
     });
 
     if (!isAdminMode) {
