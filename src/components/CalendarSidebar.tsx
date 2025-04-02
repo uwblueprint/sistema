@@ -13,6 +13,7 @@ interface CalendarSidebarProps {
   onDateSelect: (date: Date) => void;
   onDeclareAbsenceClick: () => void;
   selectDate: Date | null;
+  isAdminMode: boolean;
 }
 
 const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
@@ -20,6 +21,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   onDateSelect,
   onDeclareAbsenceClick,
   selectDate,
+  isAdminMode,
 }) => {
   const theme = useTheme();
 
@@ -125,7 +127,10 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         onDateSelect={onDateSelect}
         selectDate={selectDate}
       />
-      <AbsenceStatusAccordion setFilter={setAbsenceStatusFilter} />
+
+      {isAdminMode && (
+        <AbsenceStatusAccordion setFilter={setAbsenceStatusFilter} />
+      )}
       <SubjectAccordion setFilter={setActiveSubjectFilter} />
       <LocationAccordion setFilter={setActiveLocationFilter} />
 
