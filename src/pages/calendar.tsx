@@ -423,6 +423,7 @@ const Calendar: React.FC = () => {
           onDeclareAbsenceClick={handleDeclareAbsenceClick}
           onDateSelect={handleDateSelect}
           selectDate={selectedDate}
+          isAdminMode={isAdminMode}
         />
         <Box
           flex={1}
