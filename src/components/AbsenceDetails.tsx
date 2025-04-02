@@ -25,11 +25,13 @@ import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
 
-const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
+const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
   const theme = useTheme();
   const userData = useUserData();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
+  const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
   const toast = useToast();
   const router = useRouter();
 
@@ -77,8 +79,8 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
       setIsDeleteDialogOpen(false);
       onClose();
 
-      if (onDelete) {
-        onDelete(event.absenceId);
+      if (onChange) {
+        onChange();
       } else {
         router.reload();
       }
@@ -94,6 +96,56 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
       setIsDeleting(false);
     }
   };
+
+  const handleClaimAbsenceClick = () => {
+    setIsClaimDialogOpen(true);
+  };
+
+  const handleClaimCancel = () => {
+    setIsClaimDialogOpen(false);
+  };
+
+  const handleClaimConfirm = async () => {
+    try {
+      setIsClaiming(true);
+      const response = await fetch(`/api/claimAbsence`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,
+          absenceId: event.absenceId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to claim absence');
+      }
+
+      // TODO: show thank you modal
+
+      setIsClaimDialogOpen(false);
+      onClose();
+
+      if (onChange) {
+        onChange();
+      } else {
+        router.reload();
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to claim absence',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsClaiming(false);
+    }
+  };
+
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
@@ -311,6 +363,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                     height="44px"
                     fontSize="16px"
                     fontWeight="500"
+                    onClick={handleClaimAbsenceClick}
                   >
                     Fill this Absence
                   </Button>
@@ -337,6 +390,52 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
             </Button>
             <Button onClick={handleDeleteConfirm} isLoading={isDeleting}>
               Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isClaimDialogOpen} onClose={handleDeleteCancel} isCentered>
+        <ModalOverlay />
+        <ModalContent
+          width="300px"
+          padding="25px"
+          sx={{
+            alignItems: 'center',
+          }}
+        >
+          <ModalHeader
+            textStyle="h3"
+            fontSize="16px"
+            padding="0"
+            textAlign="center"
+          >
+            Are you sure you want to fill this absence?
+          </ModalHeader>
+          <ModalBody
+            textStyle="subtitle"
+            color="text"
+            padding="0"
+            mt="12px"
+            mb="16px"
+          >
+            <Text>{"You won't be able to undo."}</Text>
+          </ModalBody>
+          <ModalFooter padding="0">
+            <Button
+              onClick={handleClaimCancel}
+              variant="outline"
+              textStyle="button"
+              mr="10px"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleClaimConfirm}
+              textStyle="button"
+              isLoading={isClaiming}
+              ml="10px"
+            >
+              Confirm
             </Button>
           </ModalFooter>
         </ModalContent>

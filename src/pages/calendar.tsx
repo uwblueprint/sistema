@@ -309,7 +309,7 @@ const Calendar: React.FC = () => {
     setFilteredEvents(filtered);
   }, [searchQuery, events, activeTab, userData.id, isAdminMode]);
 
-  const handleDeleteAbsence = async () => {
+  const handleAbsenceChange = async () => {
     await fetchAbsences();
   };
 
@@ -463,7 +463,7 @@ const Calendar: React.FC = () => {
         isOpen={isAbsenceDetailsOpen}
         onClose={onAbsenceDetailsClose}
         event={selectedEvent}
-        onDelete={handleDeleteAbsence}
+        onChange={handleAbsenceChange}
         isAdminMode={isAdminMode}
       />
 
