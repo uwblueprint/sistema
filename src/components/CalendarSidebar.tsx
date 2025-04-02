@@ -2,6 +2,7 @@ import { AddIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { TacetLogo } from '../components/SistemaLogoColour';
+import AbsenceStatusAccordion from './AbsenceStatusAccordion';
 import LocationAccordion from './LocationAccordion';
 import MiniCalendar from './MiniCalendar';
 import SubjectAccordion from './SubjectAccordion';
@@ -65,6 +66,16 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
     [setSearchQuery]
   );
 
+  const setAbsenceStatusFilter = useCallback(
+    (activeAbsenceStatusIds: number[]) => {
+      setSearchQuery((prev) => ({
+        ...prev,
+        activeAbsenceStatusIds: activeAbsenceStatusIds,
+      }));
+    },
+    [setSearchQuery]
+  );
+
   useEffect(() => {
     // Fetch archived subjects and locations
     async function fetchArchivedData() {
@@ -116,6 +127,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       />
       <SubjectAccordion setFilter={setActiveSubjectFilter} />
       <LocationAccordion setFilter={setActiveLocationFilter} />
+      <AbsenceStatusAccordion setFilter={setAbsenceStatusFilter} />
 
       {(archivedSubjects.length > 0 || archivedLocations.length > 0) && (
         <ArchivedAccordion
