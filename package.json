@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -16,10 +16,10 @@
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.2",
-    "@chakra-ui/react": "^2.2.1",
+    "@chakra-ui/react": "^2.10.7",
     "@chakra-ui/theme-tools": "^2.0.2",
-    "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.5",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@faker-js/faker": "^8.4.1",
     "@fontsource/inter": "^5.1.1",
     "@fontsource/poppins": "^5.1.1",
@@ -31,7 +31,7 @@
     "@mui/system": "^5.15.20",
     "@prisma/client": "^6.5.0",
     "dotenv": "^16.4.5",
-    "framer-motion": "^6.3.0",
+    "framer-motion": "^6.5.1",
     "googleapis": "^140.0.1",
     "iconsax-react": "^0.0.8",
     "ics": "^3.8.1",
@@ -45,7 +45,7 @@
     "react-calendar": "^5.0.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.3.0",
-    "recharts": "^2.15.1"
+    "recharts": "^3.0.0-alpha.9"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

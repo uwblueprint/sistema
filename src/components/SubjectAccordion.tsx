@@ -1,53 +1,37 @@
-import { SubjectAPI } from '@utils/types';
-import { useEffect, useState } from 'react';
+import { useTheme } from '@chakra-ui/react';
+import type { SubjectAPI } from '@utils/types';
+import { useEffect, useState, useCallback } from 'react';
 import Accordion, { AccordionItem } from './Accordion';
 
 interface SubjectAccordionProps {
   setFilter: (subjects: number[]) => void;
-  showArchived: boolean;
 }
 
-interface SubjectItem {
-  id: number;
-  name: string;
-  color: string;
-  archived: boolean;
-}
-
-export default function SubjectAccordion({
-  setFilter,
-  showArchived,
-}: SubjectAccordionProps) {
+export default function SubjectAccordion({ setFilter }: SubjectAccordionProps) {
+  const theme = useTheme();
   const [isOpen, setIsOpen] = useState(true);
-  const [subjects, setSubjects] = useState<SubjectItem[]>([]);
-  const [selectedSubjectsIds, setSelectedSubjectsIds] = useState<number[]>([]);
-  const [allSubjects, setAllSubjects] = useState<SubjectItem[]>([]);
+  const [subjects, setSubjects] = useState<AccordionItem[]>([]);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
 
   useEffect(() => {
     async function fetchSubjects() {
       try {
-        const response = await fetch('/api/filter/subjects');
+        const response = await fetch('/api/filter/subjects?archived=false');
         if (!response.ok) {
           throw new Error('Failed to fetch subjects');
         }
         const data = await response.json();
         if (data.subjects) {
-          const fetchedSubjects: SubjectItem[] = data.subjects.map(
-            (subject: SubjectAPI) => ({
-              id: subject.id,
-              name: subject.name,
-              color: subject.colorGroup.colorCodes[1],
-              archived: subject.archived,
-            })
-          );
-          setAllSubjects(fetchedSubjects);
+          const fetchedSubjects = data.subjects.map((subject: SubjectAPI) => ({
+            id: subject.id,
+            name: subject.name,
+            color: subject.colorGroup.colorCodes[1],
+          }));
+          setSubjects(fetchedSubjects);
 
-          const visibleSubjects = showArchived
-            ? fetchedSubjects
-            : fetchedSubjects.filter((subject) => !subject.archived);
-
-          setSubjects(visibleSubjects);
-          setSelectedSubjectsIds(visibleSubjects.map((subject) => subject.id));
+          const subjectIds = fetchedSubjects.map((subject) => subject.id);
+          setSelectedSubjectIds(subjectIds);
+          setFilter(subjectIds);
         }
       } catch (error) {
         console.error('Error fetching subjects:', error);
@@ -55,54 +39,38 @@ export default function SubjectAccordion({
     }
 
     fetchSubjects();
-  }, [showArchived]);
+  }, [theme.colors.primaryBlue, setFilter]);
 
-  useEffect(() => {
-    const visibleSubjects = showArchived
-      ? allSubjects
-      : allSubjects.filter((subject) => !subject.archived);
+  const toggleSubject = useCallback(
+    (subjectId: number) => {
+      setSelectedSubjectIds((prevSelected) => {
+        let newSelection;
+        if (prevSelected.includes(subjectId)) {
+          newSelection = prevSelected.filter((s) => s !== subjectId);
+        } else {
+          newSelection = [...prevSelected, subjectId];
+        }
 
-    setSubjects(visibleSubjects);
+        setFilter(newSelection);
+        return newSelection;
+      });
+    },
+    [setFilter]
+  );
 
-    const newSelectedIds = selectedSubjectsIds.filter((id) =>
-      visibleSubjects.some((subject) => subject.id === id)
-    );
-
-    const newVisibleIds = visibleSubjects
-      .filter((subject) => !selectedSubjectsIds.includes(subject.id))
-      .map((subject) => subject.id);
-
-    setSelectedSubjectsIds([...newSelectedIds, ...newVisibleIds]);
-    setFilter([...newSelectedIds, ...newVisibleIds]);
-  }, [showArchived, allSubjects]);
-
-  const toggleSubject = (subjectId: number) => {
-    let newSelection: number[];
-    if (selectedSubjectsIds.includes(subjectId)) {
-      newSelection = selectedSubjectsIds.filter((s) => s !== subjectId);
-    } else {
-      newSelection = [...selectedSubjectsIds, subjectId];
-    }
-    setSelectedSubjectsIds(newSelection);
-    setFilter(newSelection);
-  };
-
-  const toggleOpen = () => {
-    setIsOpen((prev) => !prev);
-  };
+  const toggleOpen = () => setIsOpen((prev) => !prev);
 
   const accordionItems: AccordionItem[] = subjects.map((subject) => ({
     id: subject.id,
     name: subject.name,
     color: subject.color,
-    archived: subject.archived,
   }));
 
   return (
     <Accordion
-      title="Subject"
+      title="Subjects"
       items={accordionItems}
-      selectedItems={selectedSubjectsIds}
+      selectedItems={selectedSubjectIds}
       isOpen={isOpen}
       toggleOpen={toggleOpen}
       toggleItem={toggleSubject}

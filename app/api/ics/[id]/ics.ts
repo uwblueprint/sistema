@@ -1,15 +1,14 @@
 import { AbsenceAPI } from '@utils/types';
 import { EventAttributes, createEvents } from 'ics';
 
-const CALENDAR_NAME: string = 'Sistema Absences';
-
 export const convertAbsenceToICSEvent = (
-  absence: AbsenceAPI
+  absence: AbsenceAPI,
+  calName: string
 ): EventAttributes => {
   const substituteTeacherString = absence.substituteTeacher
     ? `(${absence.substituteTeacher.firstName} ${absence.substituteTeacher.lastName[0]})`
     : '';
-  const lessonString = absence.lessonPlan || 'Lesson Plan Not Submitted';
+  const lessonString = absence.lessonPlan?.url || 'Lesson Plan Not Submitted';
   const notesLine = absence.notes ? `\nNotes: ${absence.notes}` : '';
   const roomString = absence.roomNumber ? `\nRoom: ${absence.roomNumber}` : '';
 
@@ -27,7 +26,7 @@ export const convertAbsenceToICSEvent = (
     title: `${absence.subject.name}: ${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName[0]}${substituteTeacherString}`,
     description: `Subject: ${absence.subject.name}\nLesson Plan: ${lessonString}${notesLine}${roomString}`,
     location: absence.location.name,
-    calName: CALENDAR_NAME,
+    calName,
   };
 };
 

@@ -5,10 +5,12 @@ export async function GET() {
   try {
     const subjects = await prisma.subject.findMany({
       select: { id: true, name: true },
+      where: { archived: false },
     });
 
     const locations = await prisma.location.findMany({
       select: { id: true, name: true },
+      where: { archived: false },
     });
 
     const users = await prisma.user.findMany({

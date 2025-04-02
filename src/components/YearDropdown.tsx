@@ -54,29 +54,26 @@ export default function YearDropdown({
           py="11px"
           px="15px"
           height="40px"
-          width="207px"
-          maxWidth="207px"
+          width="200px"
           _hover={{ bg: theme.colors.primaryBlue[50] }}
           _active={{ bg: theme.colors.primaryBlue[50] }}
         >
           <Flex alignItems="center" justifyContent="space-between" width="100%">
             <Calendar size={25} color={theme.colors.primaryBlue[300]} />
             <Flex flex="1" justifyContent="center">
-              <Text fontWeight="600" fontSize="16px" color="text.header">
-                {selectedRange}
-              </Text>
+              <Text textStyle="h3">{selectedRange}</Text>
             </Flex>
             {isOpen ? (
-              <IoChevronUp size={21} color={theme.colors.icon} />
+              <IoChevronUp size={14} color={theme.colors.icon} />
             ) : (
-              <IoChevronDown size={21} color={theme.colors.icon} />
+              <IoChevronDown size={14} color={theme.colors.icon} />
             )}
           </Flex>
         </Button>
       </PopoverTrigger>
 
       <PopoverContent
-        width="207px"
+        width="200px"
         borderRadius="md"
         overflow="hidden"
         border="1px solid"
@@ -89,7 +86,8 @@ export default function YearDropdown({
               <Box
                 onClick={() => handleSelectYear(year)}
                 sx={{
-                  padding: '16px',
+                  py: '10px',
+                  px: '16px',
                   cursor: 'pointer',
                   bg: selectedRange === year ? 'primaryBlue.50' : 'transparent',
                   _hover: { bg: 'neutralGray.100' },
@@ -97,9 +95,7 @@ export default function YearDropdown({
                   textAlign: 'left',
                 }}
               >
-                <Text fontStyle="body" fontWeight="500">
-                  {year}
-                </Text>
+                <Text textStyle="h4">{year}</Text>
               </Box>
               {index < yearRanges.length - 1 && (
                 <Divider borderColor="neutralGray.300" opacity={1} />

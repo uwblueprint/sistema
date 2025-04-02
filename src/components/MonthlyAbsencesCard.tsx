@@ -4,7 +4,6 @@ import {
   CardBody,
   CardHeader,
   Divider,
-  Flex,
   Heading,
   HStack,
   Text,
@@ -43,7 +42,15 @@ export default function MonthlyAbsencesCard({
 
   const yAxisBuffer = 1;
   const rawMax = highestMonthlyAbsence + yAxisBuffer;
-  const yAxisStep = rawMax <= 5 ? 1 : 5;
+
+  const maxTicks = 5;
+
+  let yAxisStep = Math.ceil(rawMax / maxTicks);
+  if (yAxisStep > 5) {
+    yAxisStep = Math.ceil(yAxisStep / 5) * 5;
+  }
+
+  yAxisStep = Math.max(yAxisStep, 1);
 
   const yAxisMax = Math.ceil(rawMax / yAxisStep) * yAxisStep;
 
@@ -62,6 +69,7 @@ export default function MonthlyAbsencesCard({
   return (
     <Card
       width={width}
+      minWidth={'210px'}
       borderRadius="lg"
       shadow="sm"
       overflow="hidden"
@@ -71,9 +79,15 @@ export default function MonthlyAbsencesCard({
       height="100%"
     >
       <CardHeader pb={0} display="flex" alignItems="center">
-        <Heading fontSize="22px" lineHeight="33px" fontWeight={700} pb="13px">
+        <Text
+          textStyle="h2"
+          fontSize="18px"
+          fontWeight={700}
+          pb="13px"
+          lineHeight="33px"
+        >
           Monthly Absences
-        </Heading>
+        </Text>
       </CardHeader>
       <Divider />
       <CardBody display="flex" flexDirection="column">
@@ -84,11 +98,8 @@ export default function MonthlyAbsencesCard({
                 data={combinedMonthlyData}
                 margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
                 onMouseMove={(state) => {
-                  if (state.isTooltipActive) {
-                    setActiveIndex(state.activeTooltipIndex ?? null);
-                  } else {
-                    setActiveIndex(null);
-                  }
+                  const newIndex = Number(state?.activeTooltipIndex);
+                  setActiveIndex(!isNaN(newIndex) ? newIndex : null);
                 }}
               >
                 <CartesianGrid
@@ -112,22 +123,24 @@ export default function MonthlyAbsencesCard({
                   tickCount={yAxisTicks.length}
                   interval={0}
                 />
-                <Tooltip
-                  content={<CustomTooltip />}
+                <Tooltip<number, string>
+                  content={(props) => <CustomTooltip {...props} />}
                   cursor={{ fill: 'transparent' }}
                 />
                 <Bar
                   dataKey="total"
                   barSize={28}
-                  shape={(props) => (
-                    <DualColorBar
-                      key={`bar-${props.payload?.month}-${props.payload?.filled}-${props.payload?.unfilled}`}
-                      {...props}
-                      filledColor={filledColor}
-                      unfilledColor={unfilledColor}
-                      isActive={activeIndex === props.index}
-                    />
-                  )}
+                  shape={(props) => {
+                    return (
+                      <DualColorBar
+                        key={props.index}
+                        {...props}
+                        filledColor={filledColor}
+                        unfilledColor={unfilledColor}
+                        isActive={activeIndex === props.index}
+                      />
+                    );
+                  }}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -135,13 +148,13 @@ export default function MonthlyAbsencesCard({
           <VStack align="flex-start" pr="10px">
             <HStack>
               <Box w="16px" h="16px" borderRadius="full" bg={unfilledColor} />
-              <Text fontSize="13px" fontStyle="normal" fontWeight="400">
+              <Text color="text.body" textStyle="subtitle">
                 Unfilled
               </Text>
             </HStack>
             <HStack>
               <Box w="16px" h="16px" borderRadius="full" bg={filledColor} />
-              <Text fontSize="13px" fontStyle="normal" fontWeight="400">
+              <Text color="text.body" textStyle="subtitle">
                 Filled
               </Text>
             </HStack>

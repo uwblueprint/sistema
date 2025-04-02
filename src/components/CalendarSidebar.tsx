@@ -2,17 +2,13 @@ import { AddIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { TacetLogo } from '../components/SistemaLogoColour';
-import ArchivedAccordion from './ArchivedAccordion';
 import LocationAccordion from './LocationAccordion';
 import MiniCalendar from './MiniCalendar';
 import SubjectAccordion from './SubjectAccordion';
+import ArchivedAccordion from './ArchivedAccordion';
 
 interface CalendarSidebarProps {
-  setSearchQuery: (query: {
-    subjectIds: number[];
-    locationIds: number[];
-    archiveIds: number[];
-  }) => void;
+  setSearchQuery;
   onDateSelect: (date: Date) => void;
   onDeclareAbsenceClick: () => void;
   selectDate: Date | null;
@@ -24,29 +20,70 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   onDeclareAbsenceClick,
   selectDate,
 }) => {
-  const [subjectIds, setSubjectIds] = useState<number[]>([]);
-  const [locationIds, setLocationIds] = useState<number[]>([]);
-  const [archiveIds, setArchiveIds] = useState<number[]>([]);
-
   const theme = useTheme();
-  const [showArchivedSubjects, setShowArchivedSubjects] = useState(false);
-  const [showArchivedLocations, setShowArchivedLocations] = useState(false);
+
+  const [archivedSubjects, setArchivedSubjects] = useState([]);
+  const [archivedLocations, setArchivedLocations] = useState([]);
+
+  const setActiveSubjectFilter = useCallback(
+    (activeSubjectIds: number[]) => {
+      setSearchQuery((prev) => ({
+        ...prev,
+        activeSubjectIds: activeSubjectIds,
+      }));
+    },
+    [setSearchQuery]
+  );
+
+  const setArchivedSubjectFilter = useCallback(
+    (archivedSubjectIds: number[]) => {
+      setSearchQuery((prev) => ({
+        ...prev,
+        archivedSubjectIds: archivedSubjectIds,
+      }));
+    },
+    [setSearchQuery]
+  );
+
+  const setActiveLocationFilter = useCallback(
+    (activeLocationIds: number[]) => {
+      setSearchQuery((prev) => ({
+        ...prev,
+        activeLocationIds: activeLocationIds,
+      }));
+    },
+    [setSearchQuery]
+  );
+
+  const setArchivedLocationFilter = useCallback(
+    (archivedLocationIds: number[]) => {
+      setSearchQuery((prev) => ({
+        ...prev,
+        archivedLocationIds: archivedLocationIds,
+      }));
+    },
+    [setSearchQuery]
+  );
 
   useEffect(() => {
-    setSearchQuery({
-      subjectIds,
-      locationIds,
-      archiveIds,
-    });
-  }, [subjectIds, locationIds, archiveIds, setSearchQuery]);
+    // Fetch archived subjects and locations
+    async function fetchArchivedData() {
+      try {
+        const subjectRes = await fetch('/api/filter/subjects?archived=true');
+        const locationRes = await fetch('/api/filter/locations?archived=true');
 
-  const handleArchivedToggle = useCallback(
-    (subjectsArchived: boolean, locationsArchived: boolean) => {
-      setShowArchivedSubjects(subjectsArchived);
-      setShowArchivedLocations(locationsArchived);
-    },
-    []
-  );
+        const subjectsData = await subjectRes.json();
+        const locationsData = await locationRes.json();
+
+        setArchivedSubjects(subjectsData.subjects);
+        setArchivedLocations(locationsData.locations);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    fetchArchivedData();
+  }, []);
 
   return (
     <Flex
@@ -58,7 +95,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       height="100vh"
       overflowY="auto"
     >
-      <Box width="150px">
+      <Box width="110px">
         <TacetLogo />
       </Box>
       <HStack>
@@ -77,18 +114,15 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         onDateSelect={onDateSelect}
         selectDate={selectDate}
       />
-      <SubjectAccordion
-        setFilter={setSubjectIds}
-        showArchived={showArchivedSubjects}
-      />
-      <LocationAccordion
-        setFilter={setLocationIds}
-        showArchived={showArchivedLocations}
-      />
-      <ArchivedAccordion
-        setFilter={setArchiveIds}
-        onArchivedToggle={handleArchivedToggle}
-      />
+      <SubjectAccordion setFilter={setActiveSubjectFilter} />
+      <LocationAccordion setFilter={setActiveLocationFilter} />
+
+      {(archivedSubjects.length > 0 || archivedLocations.length > 0) && (
+        <ArchivedAccordion
+          setSubjectFilter={setArchivedSubjectFilter}
+          setLocationFilter={setArchivedLocationFilter}
+        />
+      )}
     </Flex>
   );
 };

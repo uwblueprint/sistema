@@ -1,19 +1,21 @@
-import { Box, HStack } from '@chakra-ui/react';
-import { YearlyAbsenceData } from '@utils/types';
-import { useUserData } from '@utils/useUserData';
+import { Box, HStack, useTheme } from '@chakra-ui/react';
+import { useUserData } from '@hooks/useUserData';
+import { Role, YearlyAbsenceData } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import DashboardHeader from '../components/DashboardHeader';
 import MonthlyAbsencesCard from '../components/MonthlyAbsencesCard';
 import TotalAbsencesCard from '../components/TotalAbsencesCard';
 import UserManagementCard from '../components/UserManagementCard';
-import { Role } from '@utils/types';
-
 export default function DashboardPage() {
+  const theme = useTheme();
   const userData = useUserData();
   const router = useRouter();
+  const currentYear = new Date().getFullYear();
 
-  const [selectedYearRange, setSelectedYearRange] = useState('');
+  const [selectedYearRange, setSelectedYearRange] = useState(
+    `${currentYear - 1} - ${currentYear}`
+  );
   const [absenceData, setAbsenceData] = useState<YearlyAbsenceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [startYear, endYear] = selectedYearRange.split(' - ');
@@ -126,23 +128,24 @@ export default function DashboardPage() {
         hasData={hasAbsenceData}
       />
       <Box
-        px={8}
+        px={14}
         py={3}
         display="flex"
         flexDirection="column"
         flex="1"
         minHeight="0"
+        backgroundColor={theme.colors.neutralGray[50]}
       >
-        <HStack mb={3} spacing={3} height="220px">
+        <HStack mb={3} spacing={3} height="215px">
           <TotalAbsencesCard
-            width="35%"
+            width="40%"
             filled={yearlyAbsencesFilled}
             total={totalAbsenceCount}
             startYear={startYear}
             endYear={endYear}
           />
           <MonthlyAbsencesCard
-            width="65%"
+            width="60%"
             monthlyData={selectedYearData.yearlyData}
             highestMonthlyAbsence={highestMonthlyAbsence}
           />

@@ -23,6 +23,7 @@ export interface AccordionProps {
   isOpen: boolean;
   toggleOpen: () => void;
   toggleItem: (id: number) => void;
+  textColor?: string;
 }
 
 const Accordion = ({
@@ -32,6 +33,7 @@ const Accordion = ({
   isOpen,
   toggleOpen,
   toggleItem,
+  textColor = 'text.body',
 }: AccordionProps) => {
   return (
     <Box width="100%">
@@ -44,40 +46,47 @@ const Accordion = ({
         height="32px"
       >
         <Flex justify="space-between" align="center" width="100%">
-          <Text textStyle="h4">{title}</Text>
-          {isOpen ? <IoChevronUp size={24} /> : <IoChevronDown size={24} />}
+          <Text textStyle="h4" color={textColor}>
+            {title}
+          </Text>
+          {isOpen ? (
+            <IoChevronUp size={24} color={textColor} />
+          ) : (
+            <IoChevronDown size={24} color={textColor} />
+          )}
         </Flex>
       </Button>
       <Box pl={1} mt={2}>
         <Collapse in={isOpen} animateOpacity>
           <Stack spacing={2} mt={0}>
             {items.map((item) => (
-              <Flex
-                key={item.name}
-                align="center"
-                cursor="pointer"
-                onClick={() => toggleItem(item.id)}
-              >
-                <Box
-                  width="20px"
-                  height="20px"
-                  mr={2}
-                  flexShrink={0}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  borderRadius="2px"
-                  bg={selectedItems.includes(item.id) ? item.color : 'white'}
-                  border={`2px solid ${item.color}`}
+              <Box key={item.id}>
+                <Flex
+                  align="center"
+                  cursor="pointer"
+                  onClick={() => toggleItem(item.id)}
                 >
-                  {selectedItems.includes(item.id) && (
-                    <Icon as={CheckIcon} color="white" w="14px" h="14px" />
-                  )}
-                </Box>
-                <Text textStyle="subtitle" color="text.body">
-                  {item.name}
-                </Text>
-              </Flex>
+                  <Box
+                    width="20px"
+                    height="20px"
+                    mr={2}
+                    flexShrink={0}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    borderRadius="2px"
+                    bg={selectedItems.includes(item.id) ? item.color : 'white'}
+                    border={`2px solid ${item.color}`}
+                  >
+                    {selectedItems.includes(item.id) && (
+                      <Icon as={CheckIcon} color="white" w="14px" h="14px" />
+                    )}
+                  </Box>
+                  <Text textStyle="subtitle" color={textColor}>
+                    {item.name}
+                  </Text>
+                </Flex>
+              </Box>
             ))}
           </Stack>
         </Collapse>

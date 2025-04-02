@@ -1,7 +1,7 @@
 export interface Absence {
   id: number;
   lessonDate: Date;
-  lessonPlan?: string;
+  lessonPlanId?: number;
   reasonOfAbsence: string;
   notes?: string;
   roomNumber?: string;
@@ -11,9 +11,33 @@ export interface Absence {
   subjectId: number;
 }
 
+export interface LessonPlanFile {
+  id: number;
+  url: string;
+  name: string;
+  size: number;
+}
+
+export interface EventDetails {
+  title: string;
+  start: Date | null;
+  absentTeacher: { id: number; firstName: string; lastName: string } | null;
+  absentTeacherFullName: string;
+  substituteTeacher: { id: number; firstName: string; lastName: string } | null;
+  substituteTeacherFullName: string | null;
+  location: string;
+  classType: string;
+  lessonPlan: LessonPlanFile | null;
+  roomNumber: string | null;
+  reasonOfAbsence: string;
+  notes: string;
+  absenceId: number;
+}
+
 export interface AbsenceAPI {
+  id: number;
   lessonDate: Date;
-  lessonPlan?: string | null;
+  lessonPlan?: LessonPlanFile | null;
   reasonOfAbsence: string;
   notes?: string | null;
   roomNumber?: string | null;
@@ -30,6 +54,7 @@ export interface AbsenceAPI {
   location: {
     id: number;
     name: string;
+    abbreviation: string;
     archived: boolean;
   };
   subject: {
@@ -110,6 +135,23 @@ export interface ColorGroup {
   colorCodes: string[];
 }
 
+export interface ColorCodes {
+  light: string;
+  medium: string;
+  dark: string;
+  text: string;
+}
+
+export function mapColorCodes(codesArr): ColorCodes {
+  let coded: ColorCodes = {
+    light: codesArr[3],
+    medium: codesArr[2],
+    dark: codesArr[1],
+    text: codesArr[0],
+  };
+  return coded;
+}
+
 export interface GlobalSettings {
   id: number;
   absenceCap: number;
@@ -146,5 +188,5 @@ export interface FilterOptions {
   role: string | null | undefined;
   absencesOperator: ComparisonOperator;
   absencesValue: number | null;
-  tags: string[] | null;
+  disabledTags?: string[] | null;
 }

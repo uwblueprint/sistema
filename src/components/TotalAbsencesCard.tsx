@@ -46,6 +46,7 @@ export default function TotalAbsencesCard({
   return (
     <Card
       width={width}
+      minWidth={'180px'}
       height="100%"
       borderRadius="lg"
       shadow="sm"
@@ -55,19 +56,19 @@ export default function TotalAbsencesCard({
       borderColor="neutralGray.300"
     >
       <CardHeader pb={0} display="flex" alignItems="center">
-        <Heading
-          fontSize="22px"
-          lineHeight="33px"
-          fontWeight={700}
-          paddingBottom="13px"
-        >
+        <Text textStyle="h2" fontSize="18px" fontWeight={700} pb="13px">
           Total Absences
-        </Heading>
+        </Text>
       </CardHeader>
       <Divider />
-      <CardBody display="flex" flexDirection="column" overflowY="auto">
+      <CardBody
+        display="flex"
+        flexDirection="column"
+        overflowX="auto"
+        overflowY="hidden"
+      >
         <HStack align="flex-start" justify="space-between" width="100%">
-          <HStack align="flex-start" gap="35px">
+          <HStack align="flex-start" gap="28px">
             <CircularProgress
               value={percentage}
               size={110}
@@ -77,21 +78,16 @@ export default function TotalAbsencesCard({
             />
             <Box whiteSpace="nowrap" mt="10px">
               <Text
-                fontSize="42.955px"
-                fontWeight="500"
-                fontStyle="normal"
-                lineHeight="normal"
-                fontFamily="Poppins"
+                fontSize="43px"
+                fontWeight="550"
                 color={numColor}
-                mb="1"
                 isTruncated
               >
                 {noData ? 'No Data' : `${filled}/${total}`}
               </Text>
               {!noData && (
                 <Text
-                  fontSize="22px"
-                  lineHeight="normal"
+                  fontSize="18px"
                   fontWeight="400"
                   color={dateColor}
                   isTruncated
@@ -100,7 +96,7 @@ export default function TotalAbsencesCard({
                 </Text>
               )}
             </Box>
-            <VStack align="flex-start" pr="30px">
+            <VStack align="flex-start" pr="32px">
               <HStack>
                 <Box
                   w="16px"
@@ -108,7 +104,7 @@ export default function TotalAbsencesCard({
                   borderRadius="full"
                   bg={theme.colors.neutralGray[200]}
                 />
-                <Text fontSize="13px" fontStyle="normal" fontWeight="400">
+                <Text color="text.body" textStyle="subtitle">
                   Unfilled
                 </Text>
               </HStack>
@@ -119,7 +115,7 @@ export default function TotalAbsencesCard({
                   borderRadius="full"
                   bg={theme.colors.primaryBlue[300]}
                 />
-                <Text fontSize="13px" fontStyle="normal" fontWeight="400">
+                <Text color="text.body" textStyle="subtitle">
                   Filled
                 </Text>
               </HStack>

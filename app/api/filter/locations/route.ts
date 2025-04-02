@@ -1,10 +1,18 @@
 import { prisma } from '@utils/prisma';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { Location } from '@utils/types';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const archivedParam = searchParams.get('archived');
+
+    let archivedFilter: boolean | undefined = undefined;
+    if (archivedParam === 'true') archivedFilter = true;
+    if (archivedParam === 'false') archivedFilter = false;
+
     const locations: Location[] = await prisma.location.findMany({
+      where: archivedFilter !== undefined ? { archived: archivedFilter } : {},
       select: {
         id: true,
         name: true,
@@ -12,10 +20,6 @@ export async function GET() {
         archived: true,
       },
     });
-
-    if (!locations.length) {
-      return NextResponse.json({ locations: [] }, { status: 200 });
-    }
 
     return NextResponse.json({ locations }, { status: 200 });
   } catch (err: any) {
