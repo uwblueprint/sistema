@@ -320,7 +320,7 @@ const InputForm: React.FC<InputFormProps> = ({
 
       const absenceData: Prisma.AbsenceCreateManyInput = {
         lessonDate: lessonDate,
-        lessonPlan: lessonPlanUrl,
+        lessonPlan: lessonPlanUrl || null,
         reasonOfAbsence: formData.reasonOfAbsence,
         absentTeacherId: parseInt(String(formData.absentTeacherId), 10),
         substituteTeacherId: formData.substituteTeacherId
