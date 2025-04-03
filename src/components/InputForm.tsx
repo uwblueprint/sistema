@@ -315,43 +315,41 @@ const InputForm: React.FC<InputFormProps> = ({
           }
         }
       } else {
-        // Handle add mode
-      }
-
-      const absenceData: Prisma.AbsenceCreateManyInput = {
-        lessonDate: lessonDate,
-        lessonPlan: lessonPlanUrl || null,
-        reasonOfAbsence: formData.reasonOfAbsence,
-        absentTeacherId: parseInt(String(formData.absentTeacherId), 10),
-        substituteTeacherId: formData.substituteTeacherId
-          ? parseInt(String(formData.substituteTeacherId), 10)
-          : null,
-        locationId: parseInt(String(formData.locationId), 10),
-        subjectId: parseInt(String(formData.subjectId), 10),
-        notes: formData.notes,
-        roomNumber: formData.roomNumber || null,
-      };
-
-      const response = await onAddAbsence(absenceData);
-
-      if (response) {
-        const options: Intl.DateTimeFormatOptions = {
-          weekday: 'long',
-          month: 'long',
-          day: 'numeric',
+        const absenceData: Prisma.AbsenceCreateManyInput = {
+          lessonDate: lessonDate,
+          lessonPlan: lessonPlanUrl || null,
+          reasonOfAbsence: formData.reasonOfAbsence,
+          absentTeacherId: parseInt(String(formData.absentTeacherId), 10),
+          substituteTeacherId: formData.substituteTeacherId
+            ? parseInt(String(formData.substituteTeacherId), 10)
+            : null,
+          locationId: parseInt(String(formData.locationId), 10),
+          subjectId: parseInt(String(formData.subjectId), 10),
+          notes: formData.notes,
+          roomNumber: formData.roomNumber || null,
         };
-        const formattedLessonDate = lessonDate.toLocaleDateString(
-          'en-US',
-          options
-        );
 
-        toast({
-          title: 'Success',
-          description: `You have successfully declared an absence on ${formattedLessonDate}.`,
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-        });
+        const response = await onAddAbsence(absenceData);
+
+        if (response) {
+          const options: Intl.DateTimeFormatOptions = {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+          };
+          const formattedLessonDate = lessonDate.toLocaleDateString(
+            'en-US',
+            options
+          );
+
+          toast({
+            title: 'Success',
+            description: `You have successfully declared an absence on ${formattedLessonDate}.`,
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+          });
+        }
 
         if (
           parseInt(String(formData.substituteTeacherId), 10) === userId ||
