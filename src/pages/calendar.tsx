@@ -128,33 +128,6 @@ const Calendar: React.FC = () => {
     [userData?.id]
   );
 
-  const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
-    id: String(absenceData.id),
-    title: absenceData.subject.name,
-    start: absenceData.lessonDate,
-    allDay: true,
-    display: 'auto',
-    location: absenceData.location.name,
-    extendedProps: {
-      // Add other necessary properties here
-      absenceId: absenceData.id,
-      reasonOfAbsence: absenceData.reasonOfAbsence,
-      absentTeacherId: absenceData.absentTeacher.id,
-      substituteTeacherId: absenceData.substituteTeacher?.id,
-      subject: absenceData.subject.name,
-      subjectId: absenceData.subject.id,
-      locationId: absenceData.location.id,
-      notes: absenceData.notes,
-      lessonPlan: absenceData.lessonPlan,
-      absentTeacherFirstName: absenceData.absentTeacher.firstName,
-      absentTeacherLastName: absenceData.absentTeacher.lastName,
-      substituteTeacher: absenceData.substituteTeacher,
-      lessonDate: absenceData.lessonDate,
-    },
-    subjectId: absenceData.subject.id,
-    locationId: absenceData.location.id,
-  });
-
   const handleDeclareAbsence = async (
     absence: Prisma.AbsenceCreateManyInput
   ): Promise<Absence | null> => {
@@ -284,6 +257,7 @@ const Calendar: React.FC = () => {
       reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
       notes: clickInfo.event.extendedProps.notes || '',
       absenceId: clickInfo.event.extendedProps.absenceId,
+      subject: clickInfo.event.extendedProps.subject || null,
     });
     onAbsenceDetailsOpen();
   };
@@ -406,6 +380,7 @@ const Calendar: React.FC = () => {
         event={selectedEvent}
         onDelete={handleDeleteAbsence}
         isAdminMode={isAdminMode}
+        onEditAbsence={handleEditAbsence}
       />
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>

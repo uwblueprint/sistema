@@ -32,6 +32,10 @@ const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
   reasonOfAbsence: absenceData.reasonOfAbsence,
   notes: absenceData.notes,
   absenceId: absenceData.id,
+  subject: {
+    id: absenceData.subject.id,
+    name: absenceData.subject.name,
+  },
 });
 
 export const useAbsences = () => {

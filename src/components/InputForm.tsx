@@ -61,6 +61,7 @@ const InputForm: React.FC<InputFormProps> = ({
     locationOptions: [],
     subjectOptions: [],
   });
+  console.log('initialAbsence', initialAbsence);
   const [formData, setFormData] = useState({
     id: initialAbsence?.id || 0,
     reasonOfAbsence: initialAbsence?.reasonOfAbsence || '',
