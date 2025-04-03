@@ -8,7 +8,7 @@ export const convertAbsenceToICSEvent = (
   const substituteTeacherString = absence.substituteTeacher
     ? `(${absence.substituteTeacher.firstName} ${absence.substituteTeacher.lastName[0]})`
     : '';
-  const lessonString = absence.lessonPlan || 'Lesson Plan Not Submitted';
+  const lessonString = absence.lessonPlan?.url || 'Lesson Plan Not Submitted';
   const notesLine = absence.notes ? `\nNotes: ${absence.notes}` : '';
   const roomString = absence.roomNumber ? `\nRoom: ${absence.roomNumber}` : '';
 

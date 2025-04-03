@@ -19,7 +19,7 @@ import {
 import { useUserData } from '@hooks/useUserData';
 import { Buildings, Calendar } from 'iconsax-react';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
@@ -90,7 +90,7 @@ const AbsenceDetails = ({
         : undefined,
       location: event.location
         ? {
-            id: event.location.id,
+            id: event.locationId,
             name: event.location,
             abbreviation: event.location.abbreviation,
             archived: event.location.archived,

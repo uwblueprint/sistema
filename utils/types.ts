@@ -1,7 +1,7 @@
 export interface Absence {
   id: number;
   lessonDate: Date;
-  lessonPlan?: string;
+  lessonPlanId?: number;
   reasonOfAbsence: string;
   notes?: string;
   roomNumber?: string;
@@ -9,6 +9,13 @@ export interface Absence {
   substituteTeacherId?: number;
   locationId: number;
   subjectId: number;
+}
+
+export interface LessonPlanFile {
+  id: number;
+  url: string;
+  name: string;
+  size: number;
 }
 
 export interface EventDetails {
@@ -19,8 +26,9 @@ export interface EventDetails {
   substituteTeacher: { id: number; firstName: string; lastName: string } | null;
   substituteTeacherFullName: string | null;
   location: string;
+  locationId: number;
   classType: string;
-  lessonPlan: string | null;
+  lessonPlan: LessonPlanFile | null;
   roomNumber: string | null;
   reasonOfAbsence: string;
   notes: string;
@@ -31,7 +39,7 @@ export interface EventDetails {
 export interface AbsenceAPI {
   id: number;
   lessonDate: Date;
-  lessonPlan?: string | null;
+  lessonPlan?: LessonPlanFile | null;
   reasonOfAbsence: string;
   notes?: string | null;
   roomNumber?: string | null;
@@ -183,7 +191,7 @@ export interface FilterOptions {
   role: string | null | undefined;
   absencesOperator: ComparisonOperator;
   absencesValue: number | null;
-  tags: string[] | null;
+  disabledTags?: string[] | null;
 }
 
 export interface AbsenceUpdate {

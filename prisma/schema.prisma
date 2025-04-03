@@ -8,9 +8,8 @@ datasource db {
 }
 
 model Absence {
-  id                  Int      @id @default(autoincrement())
+  id                  Int             @id @default(autoincrement())
   lessonDate          DateTime
-  lessonPlan          String?
   reasonOfAbsence     String
   notes               String?
   roomNumber          String?
@@ -18,10 +17,21 @@ model Absence {
   substituteTeacherId Int?
   locationId          Int
   subjectId           Int
-  absentTeacher       User     @relation("absentTeacher", fields: [absentTeacherId], references: [id])
-  substituteTeacher   User?    @relation("substituteTeacher", fields: [substituteTeacherId], references: [id])
-  location            Location @relation(fields: [locationId], references: [id])
-  subject             Subject  @relation(fields: [subjectId], references: [id])
+  lessonPlanId        Int?            @unique
+  lessonPlan          LessonPlanFile? @relation(fields: [lessonPlanId], references: [id], onDelete: Cascade)
+  absentTeacher       User            @relation("absentTeacher", fields: [absentTeacherId], references: [id])
+  substituteTeacher   User?           @relation("substituteTeacher", fields: [substituteTeacherId], references: [id])
+  location            Location        @relation(fields: [locationId], references: [id])
+  subject             Subject         @relation(fields: [subjectId], references: [id])
+}
+
+model LessonPlanFile {
+  id   Int    @id @default(autoincrement())
+  url  String
+  name String
+  size Int
+
+  absence Absence? @relation
 }
 
 model User {

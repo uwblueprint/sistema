@@ -34,10 +34,11 @@ const main = async () => {
   ];
 
   const numUsers = 100;
-  const numAbsences = 300;
+  const numAbsences = 600;
   const numSubjects = subjects.length;
   const userIds = Array.from({ length: numUsers + 1 }, (_, i) => i + 1);
   const subjectIds = Array.from({ length: numSubjects }, (_, i) => i + 1);
+  const absenceIds = Array.from({ length: numAbsences }, (_, i) => i + 1);
 
   await seed.user((createMany) =>
     createMany(1, () => {
@@ -166,71 +167,91 @@ const main = async () => {
     return date;
   };
 
-  await seed.absence((createMany) =>
-    createMany(numAbsences, () => {
-      const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
-        probability: 0.5,
-      });
-      const randomSubstitute = faker.helpers.maybe(
-        () => faker.helpers.arrayElement(userIds),
-        {
-          probability: 0.5,
-        }
-      );
-      const randomLessonPlan = faker.helpers.maybe(() => faker.internet.url(), {
-        probability: 0.5,
-      });
+  await seed.lessonPlanFile((createMany) =>
+    createMany(Math.floor(numAbsences / 2), () => {
+      const baseFileName = faker.lorem
+        .words({ min: 1, max: 3 })
+        .replace(/\s+/g, '-');
+      const fileName = `${baseFileName}.pdf`;
+      const fileUrl = `https://drive.google.com/files/${baseFileName}.pdf`;
       return {
-        lessonDate: generateWeekdayPastDate(),
-        lessonPlan: randomLessonPlan ?? null,
-        reasonOfAbsence: faker.lorem.sentence(),
-        notes: maybeNotes ?? null,
-        roomNumber: faker.helpers.arrayElement([
-          '101',
-          '202',
-          '303',
-          '404',
-          'B1',
-          'A5',
-          'C12',
-        ]),
-        substituteTeacherId: randomSubstitute ?? null,
+        name: fileName,
+        url: fileUrl,
+        size: faker.number.int({ min: 100, max: 100000000 }),
       };
     })
   );
+  const halfAbsences = Math.floor(absenceIds.length / 2);
 
-  await seed.absence((createMany) =>
-    createMany(numAbsences, () => {
-      const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
-        probability: 0.5,
-      });
-      const randomSubstitute = faker.helpers.maybe(
-        () => faker.helpers.arrayElement(userIds),
-        {
+  for (let i = 0; i < halfAbsences; i++) {
+    const absenceId = absenceIds[i];
+    const lessonPlanId = absenceId % 2 === 0 ? Math.floor(absenceId / 2) : null;
+
+    await seed.absence((createMany) =>
+      createMany(1, () => {
+        const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
           probability: 0.5,
-        }
-      );
-      const randomLessonPlan = faker.helpers.maybe(() => faker.internet.url(), {
-        probability: 0.5,
-      });
-      return {
-        lessonDate: generateWeekdayFutureDate(),
-        lessonPlan: randomLessonPlan ?? null,
-        reasonOfAbsence: faker.lorem.sentence(),
-        notes: maybeNotes ?? null,
-        roomNumber: faker.helpers.arrayElement([
-          '101',
-          '202',
-          '303',
-          '404',
-          'B1',
-          'A5',
-          'C12',
-        ]),
-        substituteTeacherId: randomSubstitute ?? null,
-      };
-    })
-  );
+        });
+        const randomSubstitute = faker.helpers.maybe(
+          () => faker.helpers.arrayElement(userIds),
+          {
+            probability: 0.5,
+          }
+        );
+        return {
+          lessonDate: generateWeekdayPastDate(),
+          lessonPlanId: lessonPlanId,
+          reasonOfAbsence: faker.lorem.sentence(),
+          notes: maybeNotes ?? null,
+          roomNumber: faker.helpers.arrayElement([
+            '101',
+            '202',
+            '303',
+            '404',
+            'B1',
+            'A5',
+            'C12',
+          ]),
+          substituteTeacherId: randomSubstitute ?? null,
+        };
+      })
+    );
+  }
+
+  for (let i = halfAbsences; i < absenceIds.length; i++) {
+    const absenceId = absenceIds[i];
+    const lessonPlanId = absenceId % 2 === 0 ? Math.floor(absenceId / 2) : null;
+
+    await seed.absence((createMany) =>
+      createMany(1, () => {
+        const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
+          probability: 0.5,
+        });
+        const randomSubstitute = faker.helpers.maybe(
+          () => faker.helpers.arrayElement(userIds),
+          {
+            probability: 0.5,
+          }
+        );
+        return {
+          lessonDate: generateWeekdayFutureDate(),
+          lessonPlanId: lessonPlanId,
+          reasonOfAbsence: faker.lorem.sentence(),
+          notes: maybeNotes ?? null,
+          roomNumber: faker.helpers.arrayElement([
+            '101',
+            '202',
+            '303',
+            '404',
+            'B1',
+            'A5',
+            'C12',
+          ]),
+          substituteTeacherId: randomSubstitute ?? null,
+        };
+      })
+    );
+  }
 
   for (const subjectId of subjectIds) {
     const randomNumUsers = faker.number.int({ min: 0, max: numUsers });

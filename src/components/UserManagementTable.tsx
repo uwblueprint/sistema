@@ -4,6 +4,7 @@ import {
   Avatar,
   Box,
   Divider,
+  Flex,
   HStack,
   Icon,
   Input,
@@ -18,8 +19,6 @@ import {
   Th,
   Thead,
   Tr,
-  Wrap,
-  WrapItem,
 } from '@chakra-ui/react';
 
 import { getAbsenceColor } from '@utils/getAbsenceColor';
@@ -35,7 +34,7 @@ import {
   FiUser,
 } from 'react-icons/fi';
 import EditableRoleCell from './EditableRoleCell';
-import FilterPopup from './FilterPopup';
+import FilterPopup, { NO_EMAIL_TAGS } from './FilterPopup';
 
 type SortField = 'name' | 'email' | 'absences' | 'role';
 
@@ -58,7 +57,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
     role: null,
     absencesOperator: 'greater_than',
     absencesValue: null,
-    tags: null,
+    disabledTags: [],
   });
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [availableTags, setAvailableTags] = useState<string[]>([]);
@@ -180,12 +179,13 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       borderRadius="lg"
       bg="white"
       w="full"
+      minWidth="402px"
       border="1px solid"
       borderColor="neutralGray.300"
       height="100%"
     >
       <HStack justify="space-between" mx={5} my={3}>
-        <Text fontSize={'18px'} lineHeight="33px" fontWeight={700}>
+        <Text textStyle="h2" fontSize="18px" fontWeight={700} lineHeight="33px">
           User Management
         </Text>
         <HStack spacing={4}>
@@ -194,6 +194,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
               <Icon as={FiSearch} color="neutralGray.600" boxSize={6} />
             </InputLeftElement>
             <Input
+              borderColor={'neutralGray.300'}
               paddingRight={0}
               color="black"
               value={searchTerm}
@@ -238,7 +239,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
               <SortableHeader field="email" label="Email" icon={FiMail} />
               <SortableHeader
                 field="absences"
-                label="Abs."
+                label="Absent"
                 icon={FiClock}
                 centered
               />
@@ -250,6 +251,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                     textStyle="h4"
                     color="text.subtitle"
                     textTransform="none"
+                    whiteSpace="nowrap"
                   >
                     Email Subscriptions
                   </Text>
@@ -301,30 +303,29 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       />
                     </Td>
                     <Td py="6px">
-                      <Wrap spacing={2}>
+                      <Flex gap={2} wrap="nowrap">
                         {user.mailingLists?.map((mailingList, index) => (
-                          <WrapItem key={index}>
-                            <Tag
-                              height="28px"
-                              variant="subtle"
-                              bg={mailingList.subject.colorGroup.colorCodes[3]}
-                            >
-                              <TagLabel>
-                                <Text
-                                  color={
-                                    mailingList.subject.colorGroup.colorCodes[0]
-                                  }
-                                  textStyle="label"
-                                  whiteSpace="nowrap"
-                                  overflow="hidden"
-                                >
-                                  {mailingList.subject.name}
-                                </Text>
-                              </TagLabel>
-                            </Tag>
-                          </WrapItem>
+                          <Tag
+                            height="28px"
+                            variant="subtle"
+                            bg={mailingList.subject.colorGroup.colorCodes[3]}
+                            key={index}
+                          >
+                            <TagLabel>
+                              <Text
+                                color={
+                                  mailingList.subject.colorGroup.colorCodes[0]
+                                }
+                                textStyle="label"
+                                whiteSpace="nowrap"
+                                overflow="hidden"
+                              >
+                                {mailingList.subject.name}
+                              </Text>
+                            </TagLabel>
+                          </Tag>
                         ))}
-                      </Wrap>
+                      </Flex>
                     </Td>
                   </Tr>
                 ))
