@@ -9,6 +9,7 @@ export interface Absence {
   substituteTeacherId?: number;
   locationId: number;
   subjectId: number;
+  lessonPlan?: string | null;
 }
 
 export interface LessonPlanFile {
