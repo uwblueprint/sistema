@@ -33,6 +33,7 @@ export interface EventDetails {
   reasonOfAbsence: string;
   notes: string;
   absenceId: number;
+  subject: { id: number; name: string } | null;
 }
 
 export interface AbsenceAPI {
