@@ -22,6 +22,7 @@ interface DashboardHeaderProps {
   setSelectedYearRange: (yearRange: string) => void;
   yearRanges: string[];
   hasData: boolean;
+  onSystemOptionsUpdate: () => void;
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
@@ -30,6 +31,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   setSelectedYearRange,
   yearRanges,
   hasData,
+  onSystemOptionsUpdate,
 }) => {
   const theme = useTheme();
   const router = useRouter();
@@ -108,6 +110,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         isOpen={isOpen}
         onClose={onClose}
         absenceCap={absenceCap}
+        onUpdateComplete={onSystemOptionsUpdate}
       />
     </Flex>
   );

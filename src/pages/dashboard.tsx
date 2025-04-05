@@ -2,7 +2,7 @@ import { Box, HStack } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
 import { Role, YearlyAbsenceData } from '@utils/types';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import DashboardHeader from '../components/DashboardHeader';
 import MonthlyAbsencesCard from '../components/MonthlyAbsencesCard';
 import TotalAbsencesCard from '../components/TotalAbsencesCard';
@@ -19,6 +19,23 @@ export default function DashboardPage() {
   const [absenceData, setAbsenceData] = useState<YearlyAbsenceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [startYear, endYear] = selectedYearRange.split(' - ');
+
+  // We'll use a ref to store the refresh function that will be created in UserManagementCard
+  const userManagementRefreshRef = useRef<() => void>(() => {
+    console.log('UserManagement refresh function not set yet');
+  });
+
+  // Function to refresh user management data - called when system options are updated
+  const handleSystemOptionsUpdate = useCallback(() => {
+    console.log('System options updated, refreshing user data');
+    // Call the refresh function stored in the ref
+    userManagementRefreshRef.current();
+  }, []);
+
+  // Function to set the refresh function from UserManagementCard
+  const setUserManagementRefresh = useCallback((refreshFn: () => void) => {
+    userManagementRefreshRef.current = refreshFn;
+  }, []);
 
   useEffect(() => {
     if (!userData.isLoading && !userData.isAuthenticated) {
@@ -126,6 +143,7 @@ export default function DashboardPage() {
         setSelectedYearRange={setSelectedYearRange}
         yearRanges={sortedYearRanges}
         hasData={hasAbsenceData}
+        onSystemOptionsUpdate={handleSystemOptionsUpdate}
       />
       <Box
         px={14}
@@ -149,7 +167,7 @@ export default function DashboardPage() {
             highestMonthlyAbsence={highestMonthlyAbsence}
           />
         </HStack>
-        <UserManagementCard />
+        <UserManagementCard setRefreshFunction={setUserManagementRefresh} />
       </Box>
     </Box>
   );

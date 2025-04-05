@@ -33,12 +33,14 @@ interface SystemOptionsModalProps {
   isOpen: boolean;
   onClose: () => void;
   absenceCap: number;
+  onUpdateComplete?: () => void;
 }
 
 const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   isOpen,
   onClose,
   absenceCap,
+  onUpdateComplete,
 }) => {
   // Constants for character limits
   const MAX_SUBJECT_ABBREVIATION_LENGTH = 9;
@@ -195,6 +197,11 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     try {
       const result = await applyChangesOriginal();
       if (result) {
+        // Call the callback to notify parent components that changes have been applied
+        if (onUpdateComplete) {
+          onUpdateComplete();
+        }
+
         confirmationDialog.onClose();
         onClose();
       }
