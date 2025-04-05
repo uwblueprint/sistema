@@ -65,10 +65,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
   return (
     <FormControl>
-      <FormLabel>
-        <Text textStyle="h4">{label}</Text>
-      </FormLabel>
-
       <Box
         as="label"
         htmlFor="file-upload"
