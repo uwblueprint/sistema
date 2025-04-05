@@ -4,7 +4,6 @@ import { prisma } from '@utils/prisma';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log(body);
 
     if (
       !body.lessonDate ||
