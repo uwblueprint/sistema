@@ -5,17 +5,12 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Text,
   Textarea,
   VStack,
   useDisclosure,
   useToast,
+  useTheme,
 } from '@chakra-ui/react';
 
 import { Absence, Prisma } from '@prisma/client';
@@ -24,6 +19,7 @@ import { DateOfAbsence } from './DateOfAbsence';
 import { FileUpload } from './FileUpload';
 import { InputDropdown } from './InputDropdown';
 import { SearchDropdown } from './SearchDropdown';
+import { ConfirmAbsenceModal } from './ConfirmAbsenceModal';
 
 interface InputFormProps {
   onClose?: () => void;
@@ -59,6 +55,7 @@ const InputForm: React.FC<InputFormProps> = ({
   });
   const [lessonPlan, setLessonPlan] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const theme = useTheme();
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -239,6 +236,11 @@ const InputForm: React.FC<InputFormProps> = ({
     }));
   };
 
+  const selectedDate = new Date(formData.lessonDate + 'T00:00:00');
+  const now = new Date();
+  const isWithin14Days =
+    (selectedDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 14;
+
   return (
     <Box
       as="form"
@@ -396,6 +398,7 @@ const InputForm: React.FC<InputFormProps> = ({
 
         <Button
           type="submit"
+          colorScheme={theme.colors.primaryBlue[300]}
           isLoading={isSubmitting}
           loadingText="Submitting"
           width="full"
@@ -405,36 +408,15 @@ const InputForm: React.FC<InputFormProps> = ({
         </Button>
       </VStack>
 
-      <Modal isOpen={isOpen} onClose={closeModal} isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Confirm Absence</ModalHeader>
-          <ModalBody>
-            <Text>
-              Please confirm your absence on{' '}
-              <strong>
-                {new Date(formData.lessonDate + 'T00:00:00').toLocaleDateString(
-                  'en-CA',
-                  {
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric',
-                  }
-                )}
-              </strong>
-              .
-            </Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={closeModal} mr={3}>
-              Cancel
-            </Button>
-            <Button onClick={handleConfirmSubmit} isLoading={isSubmitting}>
-              Confirm
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <ConfirmAbsenceModal
+        isOpen={isOpen}
+        onClose={closeModal}
+        onConfirm={handleConfirmSubmit}
+        isSubmitting={isSubmitting}
+        lessonDate={formData.lessonDate}
+        hasLessonPlan={!!lessonPlan}
+        isWithin14Days={isWithin14Days}
+      />
     </Box>
   );
 };
