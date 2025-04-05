@@ -88,7 +88,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             variant="outline"
           />
         </HStack>
-        <Text textStyle="h1" whiteSpace="nowrap" overflow="hidden">
+        <Text textStyle="h1" whiteSpace="nowrap" overflow="hidden" pl={2}>
           {currentMonthYear}
         </Text>
       </HStack>

@@ -26,4 +26,20 @@ export const getCalendarStyles = (theme: CustomTheme) => css`
   .fc .fc-daygrid-day-number {
     width: 100%;
   }
+  .fc .fc-scrollgrid thead .fc-col-header-cell {
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+  }
+  .fc .fc-col-header-cell {
+    height: 32px;
+  }
+  .fc .fc-col-header-cell .fc-scrollgrid-sync-inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+  }
 `;

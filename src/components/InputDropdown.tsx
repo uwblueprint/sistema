@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
   Text,
+  useTheme,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
@@ -31,6 +32,7 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const theme = useTheme();
 
   const fetchData = useCallback(async () => {
     try {
@@ -68,7 +70,7 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
       <PopoverTrigger>
         <InputGroup
           border="1px solid"
-          borderColor="neutralGray.300"
+          borderColor={theme.colors.outline}
           borderRadius="md"
         >
           <Input

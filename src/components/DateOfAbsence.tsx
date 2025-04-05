@@ -8,6 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
   Text,
+  useTheme,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import MiniCalendar from './MiniCalendar';
@@ -31,6 +32,7 @@ export const DateOfAbsence: React.FC<DateOfAbsenceProps> = ({
     dateValue ? dateValue.toLocaleDateString('en-CA') : ''
   );
   const [isOpen, setIsOpen] = useState(false);
+  const theme = useTheme();
 
   useEffect(() => {
     if (dateValue) {
@@ -83,6 +85,7 @@ export const DateOfAbsence: React.FC<DateOfAbsenceProps> = ({
               pattern={DATE_PATTERN}
               title="Enter date in YYYY-MM-DD format"
               autoComplete="off"
+              borderColor={theme.colors.outline}
             />
           </Box>
         </PopoverTrigger>
