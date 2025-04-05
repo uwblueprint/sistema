@@ -15,6 +15,12 @@ import {
   useTheme,
   Spacer,
   Icon,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  Portal,
+  VStack,
 } from '@chakra-ui/react';
 import {
   IoEllipsisHorizontal,
@@ -26,6 +32,7 @@ import {
 } from 'react-icons/io5';
 import { FiType, FiArchive, FiMapPin, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { LuInfo } from 'react-icons/lu';
+import AbsenceBox from './AbsenceBox';
 
 export interface EntityTableItem {
   id: number;
@@ -49,7 +56,7 @@ export interface EntityTableProps {
   title: string;
   entityType: 'subject' | 'location';
   items: EntityTableItem[];
-  colorGroups?: ColorGroup[];
+  colorGroups: ColorGroup[];
   itemsInUse: number[];
   handleUpdateEntity: (entity: EntityTableItem | null, id?: number) => void;
   maxAbbreviationLength: number;
@@ -61,7 +68,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
   title,
   entityType,
   items,
-  colorGroups = [],
+  colorGroups,
   itemsInUse,
   handleUpdateEntity,
   maxAbbreviationLength,
@@ -69,6 +76,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
   leftColumnWidth = '60%', // Default to 60% if not specified
 }) => {
   const COLOR_CODE_INDEX = 1;
+  const ROW_HEIGHT = '50px'; // Use fixed row height as per design
   const theme = useTheme();
   const editingRowRef = useRef<HTMLDivElement>(null);
   const rightColumnWidth = `${100 - parseInt(leftColumnWidth)}%`; // Calculate right column width
@@ -234,6 +242,28 @@ const EntityTable: React.FC<EntityTableProps> = ({
     handleUpdateEntity(null, item.id);
   };
 
+  // Tooltip component for showing the abbreviation preview
+  const AbbreviationPreview = ({
+    subject,
+    location,
+    colorCodes,
+  }: {
+    subject: string;
+    location: string;
+    colorCodes: string[];
+  }) => {
+    return (
+      <AbsenceBox
+        title={subject}
+        location={location}
+        backgroundColor={colorCodes[3]}
+        borderColor={colorCodes[1]}
+        textColor={colorCodes[0]}
+        opacity={1}
+      />
+    );
+  };
+
   return (
     <Box borderWidth="1px" borderRadius="md" overflow="hidden">
       {/* Table Header */}
@@ -329,18 +359,11 @@ const EntityTable: React.FC<EntityTableProps> = ({
                     </Text>{' '}
                     characters.
                   </Text>
-                  <Box mt={3} bg="blue.50" p={4} borderRadius="md">
-                    <HStack spacing={2}>
-                      <Text fontWeight="bold" color="blue.800" fontSize="md">
-                        Strings & Orch
-                      </Text>
-                      <Spacer />
-                      <Icon as={IoLinkOutline} color="blue.300" boxSize={5} />
-                    </HStack>
-                    <Text color="gray.600" mt={1} fontSize="md">
-                      Yorkwood
-                    </Text>
-                  </Box>
+                  <AbbreviationPreview
+                    subject="STR"
+                    location="Lambton"
+                    colorCodes={colorGroups[0].colorCodes}
+                  />
                 </Box>
               }
               placement="top"
@@ -370,6 +393,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
           alignItems="center"
           key={item.id}
           transition="background-color 0.3s ease"
+          height={ROW_HEIGHT}
         >
           {editingItem && editingItem.id === item.id ? (
             <>
@@ -420,7 +444,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
                                     : 'transparent'
                                 }
                                 cursor="pointer"
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setEditingItem({
                                     ...editingItem,
                                     colorGroup: group,
@@ -578,98 +603,112 @@ const EntityTable: React.FC<EntityTableProps> = ({
                   {item.abbreviation}
                 </Text>
                 <Box
-                  className="menu-button"
+                  className="action-button"
                   opacity={openMenuId === item.id ? '1' : '0'}
                   _groupHover={{ opacity: '1' }}
                   transition="opacity 0.3s ease"
                 >
-                  <Menu
+                  <Popover
                     isOpen={openMenuId === item.id}
                     onOpen={() => setOpenMenuId(item.id)}
                     onClose={() => setOpenMenuId(null)}
+                    placement="bottom-end"
                   >
-                    <MenuButton
-                      as={IconButton}
-                      aria-label="Options"
-                      icon={<IoEllipsisHorizontal />}
-                      variant="ghost"
-                      size="sm"
-                      transition="opacity 0.2s ease"
-                    />
-                    <MenuList minW="120px">
-                      <MenuItem
-                        icon={
-                          <FiEdit2
-                            color={theme.colors.neutralGray[600]}
-                            size={15}
-                          />
-                        }
-                        onClick={() => handleEditItem(item)}
-                        transition="background-color 0.2s ease"
-                        textStyle="label"
-                        color="body"
-                        py={2}
-                      >
-                        Edit
-                      </MenuItem>
-                      <MenuItem
-                        icon={
-                          <FiArchive
-                            color={theme.colors.neutralGray[600]}
-                            size={15}
-                          />
-                        }
-                        onClick={() => handleArchiveItem(item)}
-                        transition="background-color 0.2s ease"
-                        textStyle="label"
-                        color="body"
-                        py={2}
-                      >
-                        {item.archived ? 'Unarchive' : 'Archive'}
-                      </MenuItem>
-                      <Tooltip
-                        label={
-                          itemsInUse.includes(item.id)
-                            ? `Cannot delete ${entityType} because it is used in existing absences`
-                            : ''
-                        }
-                        isDisabled={!itemsInUse.includes(item.id)}
-                        hasArrow
-                      >
-                        <MenuItem
-                          icon={
-                            <FiTrash2
-                              color={theme.colors.neutralGray[600]}
-                              size={15}
-                            />
-                          }
-                          onClick={() => handleDeleteItem(item)}
-                          isDisabled={itemsInUse.includes(item.id)}
-                          bg={
-                            itemsInUse.includes(item.id)
-                              ? 'neutralGray.100'
-                              : undefined
-                          }
-                          _hover={
-                            itemsInUse.includes(item.id)
-                              ? { bg: 'neutralGray.100' }
-                              : undefined
-                          }
-                          cursor={
-                            itemsInUse.includes(item.id)
-                              ? 'not-allowed'
-                              : 'pointer'
-                          }
-                          transition="background-color 0.2s ease"
-                          textStyle="label"
-                          color="body"
-                          py={2}
-                        >
-                          Delete
-                        </MenuItem>
-                      </Tooltip>
-                    </MenuList>
-                  </Menu>
+                    <PopoverTrigger>
+                      <IconButton
+                        aria-label="Options"
+                        icon={<IoEllipsisHorizontal />}
+                        variant="ghost"
+                        size="sm"
+                        transition="opacity 0.2s ease"
+                      />
+                    </PopoverTrigger>
+                    <Portal>
+                      <PopoverContent width="auto" boxShadow="md">
+                        <PopoverBody p={0}>
+                          <VStack align="stretch" spacing={0}>
+                            <Button
+                              leftIcon={
+                                <FiEdit2
+                                  color={theme.colors.neutralGray[600]}
+                                  size={15}
+                                />
+                              }
+                              onClick={() => handleEditItem(item)}
+                              variant="ghost"
+                              justifyContent="flex-start"
+                              width="100%"
+                              textStyle="label"
+                              color="body"
+                              py={2}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              leftIcon={
+                                <FiArchive
+                                  color={theme.colors.neutralGray[600]}
+                                  size={15}
+                                />
+                              }
+                              onClick={() => handleArchiveItem(item)}
+                              variant="ghost"
+                              justifyContent="flex-start"
+                              width="100%"
+                              textStyle="label"
+                              color="body"
+                              py={2}
+                            >
+                              {item.archived ? 'Unarchive' : 'Archive'}
+                            </Button>
+                            <Tooltip
+                              label={
+                                itemsInUse.includes(item.id)
+                                  ? `Cannot delete ${entityType} because it is used in existing absences`
+                                  : ''
+                              }
+                              isDisabled={!itemsInUse.includes(item.id)}
+                              hasArrow
+                            >
+                              <Button
+                                leftIcon={
+                                  <FiTrash2
+                                    color={theme.colors.neutralGray[600]}
+                                    size={15}
+                                  />
+                                }
+                                onClick={() => handleDeleteItem(item)}
+                                isDisabled={itemsInUse.includes(item.id)}
+                                variant="ghost"
+                                justifyContent="flex-start"
+                                width="100%"
+                                textStyle="label"
+                                color="body"
+                                py={2}
+                                bg={
+                                  itemsInUse.includes(item.id)
+                                    ? 'neutralGray.100'
+                                    : undefined
+                                }
+                                _hover={
+                                  itemsInUse.includes(item.id)
+                                    ? { bg: 'neutralGray.100' }
+                                    : undefined
+                                }
+                                cursor={
+                                  itemsInUse.includes(item.id)
+                                    ? 'not-allowed'
+                                    : 'pointer'
+                                }
+                              >
+                                Delete
+                              </Button>
+                            </Tooltip>
+                          </VStack>
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Portal>
+                  </Popover>
                 </Box>
               </Box>
             </>
@@ -692,6 +731,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
               '100%': { opacity: 1, transform: 'translateY(0)' },
             },
           }}
+          height={ROW_HEIGHT}
         >
           <Box width={leftColumnWidth} pl={2}>
             <HStack>
@@ -745,7 +785,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
                                 : 'transparent'
                             }
                             cursor="pointer"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setNewItem({
                                 ...newItem,
                                 colorGroup: group,
@@ -831,6 +872,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
         transition="background-color 0.2s ease"
         textAlign="left"
         borderTopWidth={items.length > 0 ? '1px' : '0'}
+        height={ROW_HEIGHT}
       >
         <HStack px={4} py={2} spacing={2} justify="flex-start">
           <Icon as={IoAdd} size={20} color={theme.colors.text.subtitle} />

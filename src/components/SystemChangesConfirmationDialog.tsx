@@ -358,7 +358,7 @@ const SystemChangesConfirmationDialog: React.FC<
       closeOnOverlayClick={false}
       preserveScrollBarGap
     >
-      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" backdropFilter="blur(3px)" />
+      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" />
       <ModalContent
         p={8}
         width="sm"

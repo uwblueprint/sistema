@@ -1,5 +1,5 @@
 import React from 'react';
-import { Location } from '@utils/types';
+import { ColorGroup, Location } from '@utils/types';
 import EntityTable from './EntityTable';
 
 interface LocationsTableProps {
@@ -7,6 +7,7 @@ interface LocationsTableProps {
   locationsInUse: number[];
   handleUpdateLocation: (location: Location | null, id?: number) => void;
   maxAbbreviationLength: number;
+  colorGroups: ColorGroup[];
 }
 
 const LocationsTable: React.FC<LocationsTableProps> = ({
@@ -14,6 +15,7 @@ const LocationsTable: React.FC<LocationsTableProps> = ({
   locationsInUse,
   handleUpdateLocation,
   maxAbbreviationLength,
+  colorGroups,
 }) => {
   return (
     <EntityTable
@@ -23,6 +25,7 @@ const LocationsTable: React.FC<LocationsTableProps> = ({
       itemsInUse={locationsInUse}
       handleUpdateEntity={handleUpdateLocation}
       maxAbbreviationLength={maxAbbreviationLength}
+      colorGroups={colorGroups}
     />
   );
 };

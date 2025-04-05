@@ -117,7 +117,7 @@ export const components = {
     },
   },
   Tooltip: {
-      baseStyle: {
+    baseStyle: {
       bg: 'white',
       color: 'text.body',
       borderRadius: 'md',
@@ -129,6 +129,6 @@ export const components = {
       boxShadow: 'md',
       border: '1px solid',
       borderColor: 'neutralGray.200',
-      },
+    },
   },
 };

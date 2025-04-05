@@ -38,7 +38,7 @@ const UnsavedChangesDialog: React.FC<UnsavedChangesDialogProps> = ({
       closeOnOverlayClick={false}
       preserveScrollBarGap
     >
-      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" backdropFilter="blur(3px)" />
+      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" transition="all 0.3s ease" />
       <ModalContent
         p={8}
         width="sm"

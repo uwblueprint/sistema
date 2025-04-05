@@ -52,13 +52,23 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   const unsavedChangesDialog = useDisclosure();
   const toast = useToast();
   const theme = useTheme();
+
+  // Default color group to ensure we always have at least one color group
+  // for the preview object in EntityTable.tsx
+  // This will be replaced with the actual color group from the API
+  const defaultColorGroup = {
+    id: 0,
+    name: 'Default',
+    colorCodes: ['#000000', '#1E88E5', '#64B5F6', '#E3F2FD'],
+  };
+
   const [colorGroups, setColorGroups] = useState<
     {
       id: number;
       name: string;
       colorCodes: string[];
     }[]
-  >([]);
+  >([defaultColorGroup]);
 
   const [isConfirmingClose, setIsConfirmingClose] = useState(false);
 
@@ -242,11 +252,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       isCentered={false}
       motionPreset="slideInBottom"
     >
-      <ModalOverlay
-        bg="rgba(0, 0, 0, 0.4)"
-        backdropFilter="blur(3px)"
-        transition="all 0.3s ease"
-      />
+      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" transition="all 0.3s ease" />
       <ModalContent
         minHeight={['90vh', '95vh', '100vh']}
         maxHeight="none"
@@ -306,6 +312,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                 locationsInUse={locationsInUse}
                 handleUpdateLocation={handleUpdateLocation}
                 maxAbbreviationLength={MAX_LOCATION_ABBREVIATION_LENGTH}
+                colorGroups={colorGroups}
               />
             </Box>
 
