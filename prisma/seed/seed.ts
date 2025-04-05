@@ -69,10 +69,10 @@ const main = async () => {
   );
 
   const schools = [
-    { name: 'Lambton Park Community School', abbreviation: 'LP' },
-    { name: 'St Martin de Porres Catholic School', abbreviation: 'SC' },
-    { name: 'Yorkwoods Public School', abbreviation: 'YW' },
-    { name: 'Parkdale Junior Senior Public School', abbreviation: 'PD' },
+    { name: 'Lambton Park Community School', abbreviation: 'Lambton' },
+    { name: 'St Martin de Porres Catholic School', abbreviation: 'St Martin' },
+    { name: 'Yorkwoods Public School', abbreviation: 'Yorkwoods' },
+    { name: 'Parkdale Junior Senior Public School', abbreviation: 'Parkdale' },
     {
       name: 'St Gertrude Elementary School',
       abbreviation: 'SG',
