@@ -26,6 +26,7 @@ import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { AbsenceAPI, AbsenceUpdate } from '@utils/types';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import AbsenceBox from '../components/AbsenceBox';
 import AbsenceDetails from '../components/AbsenceDetails';
@@ -91,6 +92,10 @@ const Calendar: React.FC = () => {
     onClose: onAbsenceDetailsClose,
   } = useDisclosure();
 
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedAbsence, setSelectedAbsence] = useState<AbsenceAPI | null>(
+    null
+  );
   const {
     isOpen: isInputFormOpen,
     onOpen: onInputFormOpen,
@@ -188,6 +193,37 @@ const Calendar: React.FC = () => {
     }
   };
 
+  const handleEditAbsence = async (
+    absence: AbsenceUpdate & { id: number }
+  ): Promise<Absence | null> => {
+    try {
+      const res = await fetch('/api/editAbsence', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(absence),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to edit absence: ${res.statusText}`);
+      }
+
+      const updatedAbsence = await res.json();
+      await fetchAbsences(); // Refresh the calendar events
+      return updatedAbsence;
+    } catch (error) {
+      console.error('Error editing absence:', error);
+      toast({
+        title: 'Failed to update absence',
+        description:
+          'There was an error updating the absence. Please try again.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      return null;
+    }
+  };
+
   useEffect(() => {
     fetchAbsences();
   }, [fetchAbsences]);
@@ -203,6 +239,8 @@ const Calendar: React.FC = () => {
   const handleDateClick = (arg: { date: Date }) => {
     setSelectedDate(arg.date);
     onInputFormOpen();
+    setIsEditMode(false);
+    setSelectedAbsence(null);
   };
 
   const handleTodayClick = useCallback(() => {
@@ -261,6 +299,8 @@ const Calendar: React.FC = () => {
       reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
       notes: clickInfo.event.extendedProps.notes || '',
       absenceId: clickInfo.event.extendedProps.absenceId,
+      subject: clickInfo.event.extendedProps.subject || null,
+      locationId: clickInfo.event.extendedProps.locationId || null,
     });
     onAbsenceDetailsOpen();
   };
@@ -270,6 +310,8 @@ const Calendar: React.FC = () => {
       const calendarApi = calendarRef.current.getApi();
       const today = calendarApi.getDate();
       setSelectedDate(today);
+      setIsEditMode(false);
+      setSelectedAbsence(null);
       onInputFormOpen();
     }
   };
@@ -477,6 +519,7 @@ const Calendar: React.FC = () => {
         event={selectedEvent}
         onDelete={handleDeleteAbsence}
         isAdminMode={isAdminMode}
+        onEditAbsence={handleEditAbsence}
       />
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>
@@ -487,13 +530,13 @@ const Calendar: React.FC = () => {
           borderRadius="16px"
         >
           <ModalHeader fontSize={22} p="0 0 28px 0">
-            Declare Absence
+            {isEditMode ? 'Edit Absence' : 'Declare Absence'}
           </ModalHeader>
           <ModalCloseButton top="33px" right="28px" color="text.header" />
           <ModalBody p={0}>
             <InputForm
               onClose={onInputFormClose}
-              onDeclareAbsence={handleDeclareAbsence}
+              onAddAbsence={handleDeclareAbsence}
               initialDate={selectedDate!!}
               userId={userData.id}
               onTabChange={setActiveTab}
@@ -507,3 +550,12 @@ const Calendar: React.FC = () => {
 };
 
 export default Calendar;
+function toast(arg0: {
+  title: string;
+  description: string;
+  status: string;
+  duration: number;
+  isClosable: boolean;
+}) {
+  throw new Error('Function not implemented.');
+}

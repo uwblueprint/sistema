@@ -14,9 +14,9 @@ import {
   VStack,
   useTheme,
   useToast,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
-import { Role } from '@utils/types';
 import { Buildings, Calendar } from 'iconsax-react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -24,8 +24,18 @@ import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
+import { Role, AbsenceUpdate } from '@utils/types';
+import InputForm from './InputForm';
+import { Absence, Prisma } from '@prisma/client';
 
-const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
+const AbsenceDetails = ({
+  isOpen,
+  onClose,
+  event,
+  isAdminMode,
+  onDelete,
+  onEditAbsence,
+}) => {
   const theme = useTheme();
   const userData = useUserData();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -33,12 +43,101 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
   const toast = useToast();
   const router = useRouter();
 
+  const {
+    isOpen: isEditFormOpen,
+    onOpen: onEditFormOpen,
+    onClose: onEditFormClose,
+  } = useDisclosure();
+
   if (!event) return null;
 
   const userId = userData.id;
   const isUserAbsentTeacher = userId === event.absentTeacher.id;
   const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
   const isUserAdmin = userData.role === Role.ADMIN;
+  console.log('event', event);
+  const prepareAbsenceForEdit = () => {
+    return {
+      id: event.absenceId,
+      lessonDate: event.start ? new Date(event.start) : new Date(),
+      subjectId: event.subject?.id,
+      locationId: event.location?.id,
+      reasonOfAbsence: event.reasonOfAbsence || '',
+      lessonPlan: event.lessonPlan || '',
+      notes: event.notes || '',
+      roomNumber: event.roomNumber || '',
+      absentTeacherId: event.absentTeacher.id,
+      substituteTeacherId: event.substituteTeacher?.id,
+      absentTeacher: event.absentTeacher || null,
+      absentTeacherFullName: event.absentTeacherFullName || '',
+      substituteTeacher: event.substituteTeacher
+        ? {
+            id: event.substituteTeacher.id,
+            firstName: event.substituteTeacher.firstName,
+            lastName: event.substituteTeacher.lastName,
+          }
+        : null,
+      subject: event.subject
+        ? {
+            id: event.subject.id,
+            name: event.subject.name,
+            archived: event.subject.archived || false,
+            abbreviation: event.subject.abbreviation || '',
+            colorGroup: {
+              colorCodes: event.subject.colorGroup?.colorCodes || [],
+            },
+          }
+        : undefined,
+      location: event.location
+        ? {
+            id: event.locationId,
+            name: event.location,
+            abbreviation: event.location.abbreviation,
+            archived: event.location.archived,
+          }
+        : undefined,
+    };
+  };
+
+  const handleEditClick = () => {
+    onEditFormOpen();
+  };
+
+  const handleEditSubmit = async (
+    editedAbsence: AbsenceUpdate & { id: number }
+  ): Promise<Absence | null> => {
+    try {
+      // Add the absence ID to the updated data
+      const absenceToUpdate = {
+        ...editedAbsence,
+        id: event.absenceId,
+      };
+
+      const updatedAbsence = await onEditAbsence(absenceToUpdate);
+
+      if (updatedAbsence) {
+        toast({
+          title: 'Absence updated',
+          description: 'The absence has been successfully updated.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+        return updatedAbsence;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error updating absence:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update the absence. Please try again.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      return null;
+    }
+  };
 
   const handleDeleteClick = () => {
     setIsDeleteDialogOpen(true);
@@ -120,6 +219,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                     }
                     size="sm"
                     variant="ghost"
+                    onClick={handleEditClick}
                   />
                 )}
 
@@ -319,6 +419,40 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
           </ModalBody>
         </ModalContent>
       </Modal>
+
+      <Modal isOpen={isEditFormOpen} onClose={onEditFormClose} isCentered>
+        <ModalOverlay />
+        <ModalContent
+          width={362}
+          sx={{ padding: '33px 31px' }}
+          borderRadius="16px"
+        >
+          <ModalHeader fontSize={22} sx={{ padding: '0 0 28px 0' }}>
+            Edit Absence
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody p={0}>
+            <InputForm
+              onClose={onEditFormClose}
+              onEditAbsence={handleEditSubmit}
+              initialDate={event.start ? new Date(event.start) : new Date()}
+              userId={userData.id}
+              isEditMode={true}
+              initialAbsence={prepareAbsenceForEdit()}
+              isAdminMode={isAdminMode}
+              onAddAbsence={function (
+                absence: Prisma.AbsenceCreateManyInput
+              ): Promise<Absence | null> {
+                throw new Error('Function not implemented.');
+              }}
+              onTabChange={function (tab: 'explore' | 'declared'): void {
+                throw new Error('Function not implemented.');
+              }}
+            />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
       <Modal
         isOpen={isDeleteDialogOpen}
         onClose={handleDeleteCancel}
