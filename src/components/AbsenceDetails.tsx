@@ -24,6 +24,7 @@ import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
+import AbsenceClaimThanks from './AbsenceClaimThanks';
 
 const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
   const theme = useTheme();
@@ -32,6 +33,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
   const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
+  const [isClaimThanksOpen, setIsClaimThanksOpen] = useState(false);
   const toast = useToast();
   const router = useRouter();
 
@@ -41,6 +43,37 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
   const isUserAbsentTeacher = userId === event.absentTeacher.id;
   const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
   const isUserAdmin = userData.role === Role.ADMIN;
+
+  const getOrdinalNum = (number) => {
+    let selector;
+
+    if (number <= 0) {
+      selector = 4;
+    } else if ((number > 3 && number < 21) || number % 10 > 3) {
+      selector = 0;
+    } else {
+      selector = number % 10;
+    }
+
+    return number + ['th', 'st', 'nd', 'rd', ''][selector];
+  };
+
+  const formatDate = (date) => {
+    if (!date) return 'N/A';
+
+    const parsedDate = new Date(date);
+    const weekday = parsedDate.toLocaleDateString('en-CA', { weekday: 'long' });
+    const month = parsedDate.toLocaleDateString('en-CA', { month: 'long' });
+    const day = parsedDate.getDate();
+
+    return `${weekday}, ${month} ${getOrdinalNum(day)}`;
+  };
+
+  const absenceDate = formatDate(event.start);
+
+  const handleClaimThanksDone = () => {
+    setIsClaimThanksOpen(false);
+  };
 
   const handleDeleteClick = () => {
     setIsDeleteDialogOpen(true);
@@ -123,9 +156,8 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
         throw new Error('Failed to claim absence');
       }
 
-      // TODO: show thank you modal
-
       setIsClaimDialogOpen(false);
+      setIsClaimThanksOpen(true);
       onClose();
 
       if (onChange) {
@@ -207,13 +239,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
               <Flex gap="13px" mt="-8px">
                 <Calendar size="20px" color={theme.colors.primaryBlue[300]} />
                 <Text textStyle="subtitle" color={theme.colors.text.body}>
-                  {event.start
-                    ? new Date(event.start).toLocaleDateString('en-CA', {
-                        weekday: 'long',
-                        month: 'long',
-                        day: 'numeric',
-                      })
-                    : 'N/A'}
+                  {absenceDate}
                 </Text>
               </Flex>
               <Flex gap="13px" mt="-8px">
@@ -394,7 +420,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-      <Modal isOpen={isClaimDialogOpen} onClose={handleDeleteCancel} isCentered>
+      <Modal isOpen={isClaimDialogOpen} onClose={handleClaimCancel} isCentered>
         <ModalOverlay />
         <ModalContent
           width="300px"
@@ -425,6 +451,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
               onClick={handleClaimCancel}
               variant="outline"
               textStyle="button"
+              fontWeight="500"
               mr="10px"
             >
               Cancel
@@ -432,6 +459,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
             <Button
               onClick={handleClaimConfirm}
               textStyle="button"
+              fontWeight="500"
               isLoading={isClaiming}
               ml="10px"
             >
@@ -440,6 +468,12 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      <AbsenceClaimThanks
+        isOpen={isClaimThanksOpen}
+        onClose={handleClaimThanksDone}
+        event={event}
+        absenceDate={absenceDate}
+      />
     </>
   );
 };
