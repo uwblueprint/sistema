@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   Box,
   Text,
@@ -16,8 +16,21 @@ function EditableNotes({ notes }) {
   const [isEditing, setIsEditing] = useState(false);
   const [savedNotes, setsavedNotes] = useState(notes);
   const [tempNotes, setTempNotes] = useState(notes);
+  const noteBoxRef = useRef<HTMLDivElement | null>(null);
+  const [initialHeight, setInitialHeight] = useState<number | undefined>(
+    undefined
+  );
+  const emptyNotesSpace = 41;
+  const spaceAfterNotes = 33;
+  const minHeight = emptyNotesSpace + spaceAfterNotes;
 
   const handleEditClick = () => {
+    if (noteBoxRef.current) {
+      const height = noteBoxRef.current.offsetHeight;
+      setInitialHeight(Math.max(height, minHeight));
+    } else {
+      setInitialHeight(minHeight);
+    }
     setTempNotes(savedNotes);
     setIsEditing(true);
   };
@@ -28,7 +41,6 @@ function EditableNotes({ notes }) {
   };
 
   const handleSave = () => {
-    setsavedNotes(tempNotes);
     setIsEditing(false);
     // TO-DO: edit absence with new notes
   };
@@ -48,15 +60,16 @@ function EditableNotes({ notes }) {
             borderColor={theme.colors.primaryBlue[300]}
             borderRadius="10px"
             padding="15px"
+            minH={`${initialHeight}px`}
           />
 
-          <HStack mt="20px">
+          <HStack mt="20px" mb="9px">
             <Button
               width="143px"
               height="35.174px"
               fontSize="16px"
               fontWeight="500"
-              variant="ghost"
+              variant="outline"
               onClick={handleCancel}
             >
               Cancel
@@ -75,6 +88,7 @@ function EditableNotes({ notes }) {
         </>
       ) : (
         <Box
+          ref={noteBoxRef}
           fontSize="12px"
           padding="15px 15px 33px 15px"
           borderRadius="10px"
