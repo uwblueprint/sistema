@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Text,
@@ -17,6 +17,7 @@ function EditableNotes({ notes }) {
   const [savedNotes, setsavedNotes] = useState(notes);
   const [tempNotes, setTempNotes] = useState(notes);
   const noteBoxRef = useRef<HTMLDivElement | null>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null); // Ref for Textarea
   const [initialHeight, setInitialHeight] = useState<number | undefined>(
     undefined
   );
@@ -45,6 +46,13 @@ function EditableNotes({ notes }) {
     // TO-DO: edit absence with new notes
   };
 
+  useEffect(() => {
+    if (isEditing && textAreaRef.current) {
+      const textLength = textAreaRef.current.value.length;
+      textAreaRef.current.setSelectionRange(textLength, textLength); // move cursor to the end
+    }
+  }, [isEditing]);
+
   return (
     <Box position="relative">
       <Text textStyle="h4" mb="9px">
@@ -54,6 +62,7 @@ function EditableNotes({ notes }) {
       {isEditing ? (
         <>
           <Textarea
+            ref={textAreaRef}
             value={tempNotes}
             onChange={(e) => setTempNotes(e.target.value)}
             fontSize="12px"
