@@ -5,25 +5,22 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Text,
   Textarea,
   VStack,
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
+import { submitAbsence } from '@utils/submitAbsence';
+import { validateAbsenceForm } from '@utils/validateAbsenceForm';
 
 import { Absence, Prisma } from '@prisma/client';
 import { useState } from 'react';
+import { AdminTeacherFields } from './AdminTeacherFields';
+import { ConfirmAbsenceModal } from './ConfirmAbsenceModal';
 import { DateOfAbsence } from './DateOfAbsence';
 import { FileUpload } from './FileUpload';
 import { InputDropdown } from './InputDropdown';
-import { SearchDropdown } from './SearchDropdown';
 
 interface InputFormProps {
   onClose?: () => void;
@@ -61,24 +58,7 @@ const InputForm: React.FC<InputFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.absentTeacherId) {
-      newErrors.absentTeacherId = 'Absent teacher ID is required';
-    }
-    if (!formData.locationId) {
-      newErrors.locationId = 'Location ID is required';
-    }
-    if (!formData.subjectId) {
-      newErrors.subjectId = 'Subject ID is required';
-    }
-    if (!formData.reasonOfAbsence) {
-      newErrors.reasonOfAbsence = 'Reason of absence is required';
-    }
-    if (!formData.lessonDate) {
-      newErrors.lessonDate = 'Date is required';
-    }
-
+    const newErrors = validateAbsenceForm(formData);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -120,80 +100,34 @@ const InputForm: React.FC<InputFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      const lessonDate = new Date(formData.lessonDate + 'T00:00:00');
+      const result = await submitAbsence({
+        formData,
+        lessonPlan,
+        onDeclareAbsence,
+      });
 
-      let lessonPlanData: { url: string; name: string; size: number } | null =
-        null;
-      if (lessonPlan) {
-        const lessonPlanUrl = await uploadFile(lessonPlan);
-
-        if (lessonPlanUrl === null) {
-          toast({
-            title: 'Error',
-            description: 'Failed to upload the lesson plan file',
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
-          });
-          return;
-        }
-
-        lessonPlanData = {
-          url: lessonPlanUrl,
-          name: lessonPlan.name,
-          size: lessonPlan.size,
-        };
-      }
-
-      const absenceData = {
-        lessonDate: lessonDate,
-        reasonOfAbsence: formData.reasonOfAbsence,
-        absentTeacherId: parseInt(formData.absentTeacherId, 10),
-        substituteTeacherId: formData.substituteTeacherId
-          ? parseInt(formData.substituteTeacherId, 10)
-          : null,
-        locationId: parseInt(formData.locationId, 10),
-        subjectId: parseInt(formData.subjectId, 10),
-        notes: formData.notes,
-        roomNumber: formData.roomNumber || null,
-        lessonPlanFile: lessonPlanData,
-      };
-
-      const response = await onDeclareAbsence(absenceData);
-
-      if (response) {
-        const options: Intl.DateTimeFormatOptions = {
-          weekday: 'long',
-          month: 'long',
-          day: 'numeric',
-        };
-        const formattedLessonDate = lessonDate.toLocaleDateString(
-          'en-US',
-          options
-        );
-
+      if (result.success) {
         toast({
           title: 'Success',
-          description: `You have successfully declared an absence on ${formattedLessonDate}.`,
+          description: `You have successfully declared an absence on ${result.message}.`,
           status: 'success',
           duration: 5000,
           isClosable: true,
         });
 
-        if (
+        const userIsInvolved =
           parseInt(formData.substituteTeacherId, 10) === userId ||
-          parseInt(formData.absentTeacherId, 10) === userId
-        ) {
+          parseInt(formData.absentTeacherId, 10) === userId;
+
+        if (userIsInvolved) {
           onTabChange('declared');
         }
 
-        if (onClose) {
-          onClose();
-        }
+        onClose?.();
       } else {
         toast({
           title: 'Error',
-          description: 'Failed to declare absence',
+          description: result.message,
           status: 'error',
           duration: 5000,
           isClosable: true,
@@ -213,25 +147,6 @@ const InputForm: React.FC<InputFormProps> = ({
     }
   };
 
-  const uploadFile = async (file: File): Promise<string | null> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('fileName', file.name);
-
-    const res = await fetch('/api/uploadFile/', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.message || 'Failed to upload file');
-    }
-
-    const data = await res.json();
-    return `https://drive.google.com/file/d/${data.fileId}/view`;
-  };
-
   const handleDateSelect = (date: Date) => {
     setFormData((prev) => ({
       ...prev,
@@ -249,58 +164,12 @@ const InputForm: React.FC<InputFormProps> = ({
     >
       <VStack sx={{ gap: '24px' }}>
         {isAdminMode && (
-          <>
-            <FormControl isRequired isInvalid={!!errors.absentTeacherId}>
-              <FormLabel sx={{ display: 'flex' }}>
-                <Text textStyle="h4">Teacher Absent</Text>
-              </FormLabel>
-              <SearchDropdown
-                label="Teacher"
-                type="user"
-                excludedId={formData.substituteTeacherId}
-                onChange={(value) => {
-                  // Handle selected subject
-                  setFormData((prev) => ({
-                    ...prev,
-                    absentTeacherId: value ? String(value.id) : '',
-                  }));
-                  // Clear error when user selects a value
-                  if (errors.absentTeacherId) {
-                    setErrors((prev) => ({
-                      ...prev,
-                      absentTeacherId: '',
-                    }));
-                  }
-                }}
-              />
-              <FormErrorMessage>{errors.absentTeacherId}</FormErrorMessage>
-            </FormControl>
-
-            <FormControl>
-              <FormLabel sx={{ display: 'flex' }}>
-                <Text textStyle="h4">Substitute Teacher</Text>
-              </FormLabel>
-              <SearchDropdown
-                label="Teacher"
-                type="user"
-                excludedId={formData.absentTeacherId}
-                onChange={(value) => {
-                  // Handle selected subject
-                  setFormData((prev) => ({
-                    ...prev,
-                    substituteTeacherId: value ? String(value.id) : '',
-                  }));
-                  // Clear error when user selects a value
-                  if (errors.substituteTeacherId) {
-                    setErrors((prev) => ({
-                      ...prev,
-                      substituteTeacherId: '',
-                    }));
-                  }
-                }}
-              />
-            </FormControl>
-          </>
+          <AdminTeacherFields
+            formData={formData}
+            errors={errors}
+            setFormData={setFormData}
+            setErrors={setErrors}
+          />
         )}
 
         <FormControl isRequired isInvalid={!!errors.subjectId}>
@@ -405,36 +274,13 @@ const InputForm: React.FC<InputFormProps> = ({
         </Button>
       </VStack>
 
-      <Modal isOpen={isOpen} onClose={closeModal} isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Confirm Absence</ModalHeader>
-          <ModalBody>
-            <Text>
-              Please confirm your absence on{' '}
-              <strong>
-                {new Date(formData.lessonDate + 'T00:00:00').toLocaleDateString(
-                  'en-CA',
-                  {
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric',
-                  }
-                )}
-              </strong>
-              .
-            </Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={closeModal} mr={3}>
-              Cancel
-            </Button>
-            <Button onClick={handleConfirmSubmit} isLoading={isSubmitting}>
-              Confirm
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <ConfirmAbsenceModal
+        isOpen={isOpen}
+        onClose={closeModal}
+        onConfirm={handleConfirmSubmit}
+        isSubmitting={isSubmitting}
+        lessonDate={formData.lessonDate}
+      />
     </Box>
   );
 };

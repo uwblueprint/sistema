@@ -9,16 +9,6 @@ const useUserFiltering = (
   sortDirection: 'asc' | 'desc'
 ) => {
   const filteredUsers = useMemo(() => {
-    // We need to know how many tags exist in total
-    const allAvailableTags = new Set<string>();
-    users.forEach((user) => {
-      user.mailingLists?.forEach((list) => {
-        allAvailableTags.add(list.subject.name);
-      });
-    });
-    const totalTagCount = allAvailableTags.size;
-    const areAllTagsDisabled = filters.disabledTags?.length === totalTagCount;
-
     return users.filter((user: UserAPI) => {
       const { role, absencesOperator, absencesValue, disabledTags } = filters;
 
