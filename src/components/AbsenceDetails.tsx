@@ -24,6 +24,7 @@ import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
+import EditableNotes from './EditableNotes';
 
 const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
   const theme = useTheme();
@@ -211,36 +212,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                 </Box>
               )}
               {isUserAbsentTeacher && !isAdminMode && (
-                <Box position="relative">
-                  <Text textStyle="h4" mb="9px">
-                    Notes
-                  </Text>
-                  <Box
-                    fontSize="12px"
-                    sx={{
-                      padding: '15px 15px 33px 15px',
-                      borderRadius: '10px',
-                    }}
-                    background={theme.colors.neutralGray[50]}
-                  >
-                    {event.notes}
-                  </Box>
-
-                  <IconButton
-                    aria-label="Edit Notes"
-                    icon={
-                      <FiEdit2
-                        size="15px"
-                        color={theme.colors.neutralGray[600]}
-                      />
-                    }
-                    size="sm"
-                    variant="ghost"
-                    position="absolute"
-                    bottom="8px"
-                    right="16px"
-                  />
-                </Box>
+                <EditableNotes notes={event.notes} />
               )}
               {event.notes && (!isUserAbsentTeacher || isAdminMode) && (
                 <Box position="relative">
