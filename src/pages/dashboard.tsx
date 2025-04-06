@@ -25,16 +25,28 @@ export default function DashboardPage() {
     console.log('UserManagement refresh function not set yet');
   });
 
+  // To handle header refreshes (for absenceCap updates)
+  const dashboardHeaderRefreshRef = useRef<() => void>(() => {
+    console.log('DashboardHeader refresh function not set yet');
+  });
+
   // Function to refresh user management data - called when system options are updated
   const handleSystemOptionsUpdate = useCallback(() => {
-    console.log('System options updated, refreshing user data');
-    // Call the refresh function stored in the ref
+    console.log('System options updated, refreshing user data and settings');
+    // Call the refresh function stored in the ref to refresh user data
     userManagementRefreshRef.current();
+    // Also refresh the dashboard header data
+    dashboardHeaderRefreshRef.current();
   }, []);
 
   // Function to set the refresh function from UserManagementCard
   const setUserManagementRefresh = useCallback((refreshFn: () => void) => {
     userManagementRefreshRef.current = refreshFn;
+  }, []);
+
+  // Function to set the refresh function from DashboardHeader
+  const setDashboardHeaderRefresh = useCallback((refreshFn: () => void) => {
+    dashboardHeaderRefreshRef.current = refreshFn;
   }, []);
 
   useEffect(() => {
@@ -144,6 +156,7 @@ export default function DashboardPage() {
         yearRanges={sortedYearRanges}
         hasData={hasAbsenceData}
         onSystemOptionsUpdate={handleSystemOptionsUpdate}
+        setRefreshFunction={setDashboardHeaderRefresh}
       />
       <Box
         px={14}

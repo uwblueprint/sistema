@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { IoChevronBack, IoSettingsOutline } from 'react-icons/io5';
 import ExportAbsencesButton from './ExportAbsencesButton';
 import ProfileMenu from './ProfileMenu';
@@ -23,6 +23,7 @@ interface DashboardHeaderProps {
   yearRanges: string[];
   hasData: boolean;
   onSystemOptionsUpdate: () => void;
+  setRefreshFunction?: (refreshFn: () => void) => void;
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
@@ -32,26 +33,34 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   yearRanges,
   hasData,
   onSystemOptionsUpdate,
+  setRefreshFunction,
 }) => {
   const theme = useTheme();
   const router = useRouter();
   const [absenceCap, setAbsenceCap] = useState<number>(10);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await fetch('/api/settings');
-        if (!response.ok) throw new Error('Failed to fetch settings');
-        const data = await response.json();
-        setAbsenceCap(data.absenceCap);
-      } catch (error) {
-        console.error('Error fetching settings:', error);
-      }
-    };
-
-    fetchSettings();
+  const fetchSettings = useCallback(async () => {
+    try {
+      const response = await fetch('/api/settings');
+      if (!response.ok) throw new Error('Failed to fetch settings');
+      const data = await response.json();
+      setAbsenceCap(data.absenceCap);
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
   }, []);
+
+  // Register our fetchSettings function with the parent component if needed
+  useEffect(() => {
+    if (setRefreshFunction) {
+      setRefreshFunction(fetchSettings);
+    }
+  }, [setRefreshFunction, fetchSettings]);
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings, onSystemOptionsUpdate]);
 
   return (
     <Flex

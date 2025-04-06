@@ -170,6 +170,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     fetchColorGroups,
     checkSubjectsInUse,
     checkLocationsInUse,
+    absenceCap,
   ]);
 
   // Use our change management hook

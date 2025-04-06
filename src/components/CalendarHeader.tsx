@@ -10,7 +10,7 @@ import {
 
 import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { IoChevronBack, IoChevronForward, IoStatsChart } from 'react-icons/io5';
 import { AdminTeacherToggle } from './AdminTeacherToggle';
 import ProfileMenu from './ProfileMenu';
@@ -38,20 +38,20 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   const router = useRouter();
   const [absenceCap, setAbsenceCap] = useState<number>(10);
 
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await fetch('/api/settings');
-        if (!response.ok) throw new Error('Failed to fetch settings');
-        const data = await response.json();
-        setAbsenceCap(data.absenceCap);
-      } catch (error) {
-        console.error('Error fetching settings:', error);
-      }
-    };
-
-    fetchSettings();
+  const fetchSettings = useCallback(async () => {
+    try {
+      const response = await fetch('/api/settings');
+      if (!response.ok) throw new Error('Failed to fetch settings');
+      const data = await response.json();
+      setAbsenceCap(data.absenceCap);
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
 
   const isAdmin = userData?.role === 'ADMIN';
 
