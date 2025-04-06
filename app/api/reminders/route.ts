@@ -153,8 +153,6 @@ async function sendReminders(
 }
 
 export async function GET(req: Request) {
-  const headers = Object.fromEntries(req.headers.entries());
-
   console.log('--- Reminder API Request ---');
   console.log('Time (UTC):', new Date().toISOString());
   console.log('Method:', req.method);
