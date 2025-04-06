@@ -153,6 +153,12 @@ async function sendReminders(
 }
 
 export async function GET(req: Request) {
+  if (
+    req.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`
+  ) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
   try {
     const [sevenDayCount, twoDayCount] = await Promise.all([
       sendReminders(7, false),
