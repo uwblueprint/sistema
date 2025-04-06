@@ -323,6 +323,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
           borderColor="neutralGray.300"
           ref={popoverRef}
           zIndex={1}
+          mt="2px"
         >
           <PopoverBody p={0} maxHeight="300px" overflowY="auto" zIndex={1}>
             {sortedSubjects.map((subject) => {
