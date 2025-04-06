@@ -324,7 +324,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
           ref={popoverRef}
           zIndex={1}
         >
-          <PopoverBody p={2} maxHeight="300px" overflowY="auto" zIndex={1}>
+          <PopoverBody p={0} maxHeight="300px" overflowY="auto" zIndex={1}>
             {sortedSubjects.map((subject) => {
               const isSelected = selectedSubjectIds.includes(subject.id);
               const bgColor = subject.colorGroup.colorCodes[1];
@@ -333,11 +333,11 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
               return (
                 <Box
                   key={subject.id}
-                  p={2}
+                  p={2.5}
+                  pl={4}
                   display="flex"
                   alignItems="center"
                   _hover={{ bg: 'neutralGray.100' }}
-                  borderRadius="md"
                   onClick={(e) => handleSubjectChange(subject.id, e)}
                   cursor="pointer"
                 >
@@ -352,6 +352,13 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
                       '& .chakra-checkbox__control': {
                         bg: bgColor,
                         borderColor: borderColor,
+                      },
+                    }}
+                    _hover={{
+                      '& .chakra-checkbox__control': {
+                        borderColor: borderColor,
+                        bg: bgColor,
+                        opacity: 0.7,
                       },
                     }}
                     borderColor={borderColor}
