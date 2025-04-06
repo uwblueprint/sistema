@@ -723,7 +723,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
       {/* Add New Item Row */}
       {isAddingItem ? (
         <Box
-          p={3}
+          px={4}
+          py={2}
           borderBottomWidth="1px"
           display="flex"
           width="100%"
@@ -737,8 +738,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
           }}
           height={ROW_HEIGHT}
         >
-          <Box width={leftColumnWidth} pl={2}>
-            <HStack>
+          <Box width={leftColumnWidth} pr={4}>
+            <HStack spacing={5}>
               {entityType === 'subject' && (
                 <Box position="relative">
                   <Circle
@@ -824,6 +825,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
           </Box>
           <Box
             width={rightColumnWidth}
+            pl={4}
             display="flex"
             justifyContent="space-between"
             alignItems="center"
