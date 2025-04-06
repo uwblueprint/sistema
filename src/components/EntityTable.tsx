@@ -133,6 +133,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
 
   const handleEditItem = (item: EntityTableItem) => {
     setEditingItem(item);
+    setOpenMenuId(null);
   };
 
   const handleSaveEditedItem = () => {
@@ -160,6 +161,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
     // Reset the editing state
     setEditingItem(null);
     setColorPickerOpen(null);
+    setOpenMenuId(null);
 
     // Find the original item to compare changes
     const originalItem = items.find((i) => i.id === currentEditingItem.id);
@@ -235,10 +237,12 @@ const EntityTable: React.FC<EntityTableProps> = ({
       archived: !item.archived,
     };
 
+    setOpenMenuId(null);
     handleUpdateEntity(updatedItem);
   };
 
   const handleDeleteItem = (item: EntityTableItem) => {
+    setOpenMenuId(null);
     handleUpdateEntity(null, item.id);
   };
 
