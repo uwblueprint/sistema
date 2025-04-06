@@ -15,6 +15,7 @@ import {
   useToast,
   useTheme,
   Spacer,
+  Flex,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
 import { IoSettingsOutline, IoCloseOutline } from 'react-icons/io5';
@@ -262,8 +263,9 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     >
       <ModalOverlay bg="rgba(0, 0, 0, 0.4)" transition="all 0.3s ease" />
       <ModalContent
-        minHeight={['90vh', '95vh', '100vh']}
-        maxHeight="none"
+        height="auto"
+        minHeight="min-content"
+        width="100%"
         maxWidth="lg"
         position="relative"
         overflow="visible"
@@ -271,68 +273,77 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         paddingY="42px"
         transform={isOpen ? 'translateY(0)' : 'translateY(20px)'}
         opacity={isOpen ? 1 : 0}
-        transition="transform 0.3s ease, opacity 0.3s ease"
+        transition="transform 0.3s ease, opacity 0.3s ease, height 0.3s ease"
+        marginY="2.5vh"
       >
-        <ModalHeader padding={0}>
-          <HStack spacing={0} width="100%">
-            <IoSettingsOutline
-              size={29}
-              color={theme.colors.neutralGray[600]}
-            />
-            <Box width="16px" />
-            <Box>
-              <Text textStyle="h2">System Options</Text>
-            </Box>
-            <Spacer />
-            <IconButton
-              aria-label="Close"
-              icon={<IoCloseOutline size={40} />}
-              variant="ghost"
-              onClick={handleClose}
-              size="sm"
-              transition="background-color 0.2s ease"
-            />
-          </HStack>
-        </ModalHeader>
-        <ModalBody
-          flex="1"
-          position="relative"
-          width="100%"
-          overflow="visible"
-          padding={0}
-        >
-          <VStack align="stretch" spacing="37px" width="100%" marginTop="37px">
-            {/* Subjects Section */}
-            <Box>
-              <SubjectsTable
-                subjects={updatedSubjects}
-                colorGroups={colorGroups}
-                subjectsInUse={subjectsInUse}
-                handleUpdateSubject={handleUpdateSubject}
-                maxAbbreviationLength={MAX_SUBJECT_ABBREVIATION_LENGTH}
+        <Flex direction="column" width="100%">
+          <ModalHeader padding={0}>
+            <HStack spacing={0} width="100%">
+              <IoSettingsOutline
+                size={29}
+                color={theme.colors.neutralGray[600]}
               />
-            </Box>
-
-            {/* Locations Section */}
-            <Box>
-              <LocationsTable
-                locations={updatedLocations}
-                locationsInUse={locationsInUse}
-                handleUpdateLocation={handleUpdateLocation}
-                maxAbbreviationLength={MAX_LOCATION_ABBREVIATION_LENGTH}
-                colorGroups={colorGroups}
+              <Box width="16px" />
+              <Box>
+                <Text textStyle="h2">System Options</Text>
+              </Box>
+              <Spacer />
+              <IconButton
+                aria-label="Close"
+                icon={<IoCloseOutline size={40} />}
+                variant="ghost"
+                onClick={handleClose}
+                size="sm"
+                transition="background-color 0.2s ease"
               />
-            </Box>
+            </HStack>
+          </ModalHeader>
+          <ModalBody
+            position="relative"
+            width="100%"
+            overflow="visible"
+            padding={0}
+          >
+            <VStack
+              align="stretch"
+              spacing="37px"
+              width="100%"
+              marginTop="37px"
+            >
+              {/* Subjects Section */}
+              <Box>
+                <SubjectsTable
+                  subjects={updatedSubjects}
+                  colorGroups={colorGroups}
+                  subjectsInUse={subjectsInUse}
+                  handleUpdateSubject={handleUpdateSubject}
+                  maxAbbreviationLength={MAX_SUBJECT_ABBREVIATION_LENGTH}
+                />
+              </Box>
 
-            {/* Settings Section */}
-            <SystemSettings
-              allowedAbsences={updatedAbsenceCap}
-              originalAbsenceCap={absenceCap}
-              handleUpdateAbsenceCap={handleUpdateAbsenceCap}
-            />
-          </VStack>
+              {/* Locations Section */}
+              <Box>
+                <LocationsTable
+                  locations={updatedLocations}
+                  locationsInUse={locationsInUse}
+                  handleUpdateLocation={handleUpdateLocation}
+                  maxAbbreviationLength={MAX_LOCATION_ABBREVIATION_LENGTH}
+                  colorGroups={colorGroups}
+                />
+              </Box>
 
-          {/* SystemChangesConfirmationDialog moved inside ModalBody */}
+              {/* Settings Section */}
+              <Box>
+                <SystemSettings
+                  allowedAbsences={updatedAbsenceCap}
+                  originalAbsenceCap={absenceCap}
+                  handleUpdateAbsenceCap={handleUpdateAbsenceCap}
+                />
+              </Box>
+            </VStack>
+          </ModalBody>
+
+          {/* SystemChangesConfirmationDialog */}
           <SystemChangesConfirmationDialog
             isOpen={confirmationDialog.isOpen}
             onClose={confirmationDialog.onClose}
@@ -350,35 +361,36 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
             onClose={unsavedChangesDialog.onClose}
             onConfirm={handleCloseConfirmed}
           />
-        </ModalBody>
-        <ModalFooter width="100%" padding={0} marginTop="37px">
-          <HStack spacing={4} width="100%">
-            <Button
-              variant="outline"
-              size="lg"
-              flex="1"
-              height="35px"
-              borderRadius="md"
-              textStyle="button"
-              onClick={handleClose}
-              transition="background-color 0.2s ease"
-            >
-              Cancel
-            </Button>
-            <Button
-              colorScheme="blue"
-              size="lg"
-              flex="1"
-              height="35px"
-              borderRadius="md"
-              textStyle="button"
-              onClick={handleSave}
-              transition="background-color 0.2s ease"
-            >
-              Save
-            </Button>
-          </HStack>
-        </ModalFooter>
+
+          <ModalFooter width="100%" padding={0} marginTop="37px">
+            <HStack spacing={4} width="100%">
+              <Button
+                variant="outline"
+                size="lg"
+                flex="1"
+                height="35px"
+                borderRadius="md"
+                textStyle="button"
+                onClick={handleClose}
+                transition="background-color 0.2s ease"
+              >
+                Cancel
+              </Button>
+              <Button
+                colorScheme="blue"
+                size="lg"
+                flex="1"
+                height="35px"
+                borderRadius="md"
+                textStyle="button"
+                onClick={handleSave}
+                transition="background-color 0.2s ease"
+              >
+                Save
+              </Button>
+            </HStack>
+          </ModalFooter>
+        </Flex>
       </ModalContent>
     </Modal>
   );
