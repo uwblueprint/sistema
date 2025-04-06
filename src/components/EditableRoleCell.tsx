@@ -76,7 +76,12 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
               onClick={toggleDropdown}
             />
           ) : (
-            isHovered && <Icon as={FiEdit2} color="neutralGray.600" />
+            <Icon
+              as={FiEdit2}
+              color="neutralGray.600"
+              opacity={isHovered ? 1 : 0}
+              transition="opacity 0.3s ease-in-out"
+            />
           )}
         </Box>
       </Box>

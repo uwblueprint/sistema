@@ -11,12 +11,13 @@ import {
   Box,
   useDisclosure,
 } from '@chakra-ui/react';
-import { Role, UserAPI } from '@utils/types';
+import { Role, UserAPI, SubjectAPI, MailingList } from '@utils/types';
 import { useEffect, useState } from 'react';
 import { UserManagementTable } from './UserManagementTable';
 
 const UserManagementCard = () => {
   const [users, setUsers] = useState<UserAPI[]>([]);
+  const [subjects, setSubjects] = useState<SubjectAPI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [absenceCap, setAbsenceCap] = useState<number>(10);
 
@@ -27,6 +28,12 @@ const UserManagementCard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch all subjects first
+        const subjectsResponse = await fetch('/api/subjects');
+        if (!subjectsResponse.ok) throw new Error('Failed to fetch subjects');
+        const subjectsData = await subjectsResponse.json();
+        setSubjects(subjectsData);
+
         const usersResponse = await fetch(
           '/api/users?getAbsences=true&getMailingLists=true'
         );
@@ -93,6 +100,87 @@ const UserManagementCard = () => {
     }
   };
 
+  // Utility function to sort mailing lists
+  const sortMailingLists = (lists: MailingList[]) => {
+    return [...lists].sort((a, b) => {
+      // First sort by archived status (unarchived first)
+      if (a.subject.archived !== b.subject.archived) {
+        return a.subject.archived ? 1 : -1;
+      }
+      // Then sort by ID
+      return a.subject.id - b.subject.id;
+    });
+  };
+
+  const updateUserSubscriptions = async (
+    userId: number,
+    subjectIds: number[]
+  ) => {
+    const originalUsers = [...users];
+    const user = users.find((u) => u.id === userId);
+
+    if (!user) return;
+
+    // Get the complete subject objects for all selected subject IDs
+    const unsortedMailingLists = subjectIds.map((subjectId) => {
+      // Find this subject in our subjects list
+      const subjectData = subjects.find((s) => s.id === subjectId);
+
+      // Find existing mailing list for this subject if it exists
+      const existingMailingList = user.mailingLists?.find(
+        (ml) => ml.subject.id === subjectId
+      );
+
+      // If it exists, keep its data
+      if (existingMailingList) {
+        return existingMailingList;
+      }
+
+      // Otherwise create a new entry with full subject data
+      return {
+        userId: userId,
+        subjectId: subjectId,
+        user: user,
+        subject: subjectData || user.mailingLists?.[0]?.subject || null,
+      };
+    });
+
+    // Sort the mailing lists by archived status and ID
+    const updatedMailingLists = sortMailingLists(unsortedMailingLists);
+
+    // Optimistically update UI with complete data
+    setUsers((prevUsers) =>
+      prevUsers.map((u) =>
+        u.id === userId ? { ...u, mailingLists: updatedMailingLists } : u
+      )
+    );
+
+    // Make the API call in the background
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mailingListSubjectIds: subjectIds }),
+      });
+
+      if (!response.ok) {
+        // Restore original state on error
+        setUsers(originalUsers);
+        throw new Error(response.statusText);
+      }
+
+      // Skip refreshing data - our optimistic update is already using complete data
+      // The server response should match what we've already rendered
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error updating user subscriptions:', error.message);
+      }
+      setUsers(originalUsers);
+    }
+  };
+
   return loading ? null : (
     <Box
       height="100%"
@@ -104,7 +192,9 @@ const UserManagementCard = () => {
       <UserManagementTable
         users={users}
         updateUserRole={handleConfirmRoleChange}
+        updateUserSubscriptions={updateUserSubscriptions}
         absenceCap={absenceCap}
+        allSubjects={subjects}
       />
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
