@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   HStack,
@@ -22,11 +22,24 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({
   originalAbsenceCap,
   handleUpdateAbsenceCap,
 }) => {
-  const handleChange = (value: number) => {
-    if (value !== originalAbsenceCap) {
-      handleUpdateAbsenceCap(value);
+  const [inputValue, setInputValue] = useState<string>(
+    allowedAbsences.toString()
+  );
+
+  const handleChange = (valueAsString: string, valueAsNumber: number) => {
+    // Update the displayed input value
+    setInputValue(valueAsString);
+
+    // Only update the actual value if it's a valid number and different from original
+    if (!isNaN(valueAsNumber) && valueAsNumber !== originalAbsenceCap) {
+      handleUpdateAbsenceCap(valueAsNumber);
     }
   };
+
+  // Keep input value in sync with allowedAbsences
+  React.useEffect(() => {
+    setInputValue(allowedAbsences.toString());
+  }, [allowedAbsences]);
 
   return (
     <Box py={0}>
@@ -64,10 +77,12 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({
           </Text>
         </VStack>
         <NumberInput
-          value={allowedAbsences}
-          onChange={(_, value) => handleChange(value)}
+          value={inputValue}
+          onChange={handleChange}
           width="83px"
           variant="unstyled"
+          keepWithinRange={true}
+          min={0}
         >
           <NumberInputField
             textAlign="left"
