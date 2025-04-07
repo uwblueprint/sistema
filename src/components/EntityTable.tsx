@@ -537,8 +537,6 @@ const EntityTable: React.FC<EntityTableProps> = ({
                       <Circle
                         size="20px"
                         bg={item.colorGroup?.colorCodes[COLOR_CODE_INDEX]}
-                        transition="transform 0.2s ease"
-                        _hover={{ transform: 'scale(1.1)' }}
                       />
                       <Box width={3} />
                     </>
