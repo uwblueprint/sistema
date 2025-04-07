@@ -61,13 +61,13 @@ const SystemChangesConfirmationDialog: React.FC<
   // Icons for different change types
   const getChangeIcon = (changeType: string) => {
     if (changeType === 'delete') {
-      return <Icon as={FiTrash2} color="red.500" boxSize={5} />;
+      return <Icon as={FiTrash2} color="red.500" boxSize="21px" />;
     } else if (changeType === 'archive' || changeType === 'unarchive') {
-      return <Icon as={FiArchive} color="blue.500" boxSize={5} />;
+      return <Icon as={FiArchive} color="blue.500" boxSize="21px" />;
     } else if (changeType === 'update') {
-      return <Icon as={FiEdit2} color="blue.500" boxSize={5} />;
+      return <Icon as={FiEdit2} color="blue.500" boxSize="21px" />;
     } else if (changeType === 'add') {
-      return <Icon as={IoAdd} color="blue.500" boxSize={8} />;
+      return <Icon as={IoAdd} color="blue.500" boxSize="21px" />;
     }
     return null;
   };
@@ -227,24 +227,32 @@ const SystemChangesConfirmationDialog: React.FC<
             label: `Updated Subject Colour`,
             color: 'blue.500',
             details: (
-              <HStack spacing={1}>
-                <Text>{updatedSubject.name}:</Text>
-                <Box
-                  display="inline-block"
-                  w="14px"
-                  h="14px"
-                  borderRadius="full"
-                  bg={originalColorGroup?.colorCodes[1] || 'gray.300'}
-                />
-                <Text mx={1}>→</Text>
-                <Box
-                  display="inline-block"
-                  w="14px"
-                  h="14px"
-                  borderRadius="full"
-                  bg={newColorGroup?.colorCodes[1] || 'gray.300'}
-                />
-              </HStack>
+              <Text textStyle="caption" mt="2px">
+                {updatedSubject.name}:{' '}
+                <Box as="span" display="inline-block" whiteSpace="nowrap">
+                  <Box
+                    as="span"
+                    display="inline-block"
+                    w="1em"
+                    h="1em"
+                    borderRadius="full"
+                    bg={originalColorGroup?.colorCodes[1] || 'gray.300'}
+                    verticalAlign="middle"
+                    mx="1px"
+                  />{' '}
+                  →{' '}
+                  <Box
+                    as="span"
+                    display="inline-block"
+                    w="1em"
+                    h="1em"
+                    borderRadius="full"
+                    bg={newColorGroup?.colorCodes[1] || 'gray.300'}
+                    verticalAlign="middle"
+                    mx="1px"
+                  />
+                </Box>
+              </Text>
             ),
           });
         }
@@ -382,27 +390,27 @@ const SystemChangesConfirmationDialog: React.FC<
 
         <ModalBody pb={2} px={0}>
           <VStack
-            spacing={4}
+            spacing={3}
             align="stretch"
             p={4}
             borderWidth="1px"
-            borderRadius="md"
-            borderStyle="dotted"
+            borderRadius="5px"
+            borderColor="neutralGray.300"
             mb={4}
             maxH="236px"
             overflowY="auto"
           >
             {getDisplayableChanges().map((change, index) => (
               <HStack key={index} spacing={3} align="center">
-                <Box w="40px" textAlign="center">
+                <Box minW="40px" textAlign="center">
                   {change.icon}
                 </Box>
                 <VStack align="start" spacing={0}>
-                  <Text fontWeight="bold" color={change.color}>
+                  <Text fontWeight="bold" color={change.color} textStyle="h4">
                     {change.label}
                   </Text>
                   {typeof change.details === 'string' ? (
-                    <Text fontSize="sm">{change.details}</Text>
+                    <Text textStyle="caption">{change.details}</Text>
                   ) : (
                     change.details
                   )}
