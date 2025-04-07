@@ -644,6 +644,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                               width="100%"
                               textStyle="label"
                               color="body"
+                              borderRadius={0}
                               py={2}
                             >
                               Edit
@@ -661,6 +662,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                               width="100%"
                               textStyle="label"
                               color="body"
+                              borderRadius={0}
                               py={2}
                             >
                               {item.archived ? 'Unarchive' : 'Archive'}
@@ -689,6 +691,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                                 textStyle="label"
                                 color="body"
                                 py={2}
+                                borderRadius={0}
                                 bg={
                                   itemsInUse.includes(item.id)
                                     ? 'neutralGray.100'
@@ -874,7 +877,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
         as="button"
         width="100%"
         onClick={() => setIsAddingItem(true)}
-        _hover={{ bg: 'gray.50' }}
+        _hover={{ bg: 'neutralGray.100' }}
         transition="background-color 0.2s ease"
         textAlign="left"
         borderTopWidth={items.length > 0 ? '1px' : '0'}
