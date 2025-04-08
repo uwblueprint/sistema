@@ -103,7 +103,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
         }}
         closeOnBlur={false}
         placement="bottom"
-        gutter={2}
+        gutter={0}
       >
         <PopoverTrigger>
           <Box
