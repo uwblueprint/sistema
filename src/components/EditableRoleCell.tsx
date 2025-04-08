@@ -22,6 +22,7 @@ type EditableRoleCellProps = {
 
 const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [newRole, setNewRole] = useState(role);
   const [isHovered, setIsHovered] = useState(false);
   const theme = useTheme();
@@ -37,6 +38,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
     handler: () => {
       if (isEditing) {
         setIsEditing(false);
+        setIsDropdownOpen(false);
         setNewRole(role);
         onButtonsClose();
       }
@@ -57,18 +59,27 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
     setIsHovered(false);
   };
 
+  const handleDropdownToggle = () => {
+    if (isEditing) {
+      setIsDropdownOpen(!isDropdownOpen);
+    }
+  };
+
   const handleRoleChange = (selectedRole: string) => {
     setNewRole(selectedRole);
+    setIsDropdownOpen(false);
   };
 
   const handleConfirmClick = () => {
     onRoleChange(newRole);
     setIsEditing(false);
+    setIsDropdownOpen(false);
   };
 
   const handleCancelClick = () => {
     setNewRole(role);
     setIsEditing(false);
+    setIsDropdownOpen(false);
   };
 
   const oppositeRole = newRole === 'TEACHER' ? 'ADMIN' : 'TEACHER';
@@ -83,12 +94,11 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
       ref={containerRef}
     >
       <Popover
-        isOpen={isEditing}
+        isOpen={isDropdownOpen}
         onClose={() => {
           // Prevent auto-closing the popovers when buttons are clicked
           if (!isButtonsOpen) {
-            setIsEditing(false);
-            setNewRole(role);
+            setIsDropdownOpen(false);
           }
         }}
         closeOnBlur={false}
@@ -101,7 +111,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
             alignItems="center"
             justifyContent="space-between"
             cursor="pointer"
-            onClick={handleEditClick}
+            onClick={isEditing ? handleDropdownToggle : handleEditClick}
             bg={
               isEditing
                 ? 'primaryBlue.50'
@@ -119,7 +129,10 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
 
             <Box display="flex" alignItems="center">
               {isEditing ? (
-                <Icon as={FiChevronUp} color="neutralGray.600" />
+                <Icon
+                  as={isDropdownOpen ? FiChevronUp : FiChevronDown}
+                  color="neutralGray.600"
+                />
               ) : (
                 isHovered && <Icon as={FiEdit2} color="neutralGray.600" />
               )}
