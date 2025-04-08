@@ -1,13 +1,12 @@
-import { Box, Flex, Tooltip, useTheme } from '@chakra-ui/react';
+import { Box, Flex, useTheme } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
-import { FiCheckCircle, FiClock, FiAlertCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiClock } from 'react-icons/fi';
 
 interface AbsenceStatusTagProps {
   isUserAbsentTeacher: boolean;
   isUserSubstituteTeacher: boolean;
   isAdminMode: boolean;
   substituteTeacherFullName?: string;
-  hasConflictingEvent?: boolean;
 }
 
 const AbsenceStatusTag = ({
@@ -15,7 +14,6 @@ const AbsenceStatusTag = ({
   isUserSubstituteTeacher,
   isAdminMode,
   substituteTeacherFullName,
-  hasConflictingEvent,
 }: AbsenceStatusTagProps) => {
   const theme = useTheme();
   const textRef = useRef<HTMLDivElement | null>(null);
@@ -97,21 +95,6 @@ const AbsenceStatusTag = ({
         >
           {tagText}
         </Box>
-        {hasConflictingEvent &&
-          !substituteTeacherFullName &&
-          !isUserAbsentTeacher && (
-            <Tooltip
-              label="You have already filled for an absence on this date"
-              placement="right"
-            >
-              <Box as="span">
-                <FiAlertCircle
-                  size="16px"
-                  color={theme.colors.warningOrange[300]}
-                />
-              </Box>
-            </Tooltip>
-          )}
       </Flex>
     </Box>
   );
