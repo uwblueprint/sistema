@@ -15,7 +15,13 @@ import { Role, UserAPI } from '@utils/types';
 import { useEffect, useState } from 'react';
 import { UserManagementTable } from './UserManagementTable';
 
-const UserManagementCard = () => {
+interface UserManagementCardProps {
+  selectedYearRange: string;
+}
+
+const UserManagementCard: React.FC<UserManagementCardProps> = ({
+  selectedYearRange,
+}) => {
   const [users, setUsers] = useState<UserAPI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [absenceCap, setAbsenceCap] = useState<number>(10);
@@ -105,6 +111,7 @@ const UserManagementCard = () => {
         users={users}
         updateUserRole={handleConfirmRoleChange}
         absenceCap={absenceCap}
+        selectedYearRange={selectedYearRange}
       />
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>

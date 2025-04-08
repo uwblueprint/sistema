@@ -150,7 +150,7 @@ export default function DashboardPage() {
             highestMonthlyAbsence={highestMonthlyAbsence}
           />
         </HStack>
-        <UserManagementCard />
+        <UserManagementCard selectedYearRange={selectedYearRange} />
       </Box>
     </Box>
   );
