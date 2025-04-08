@@ -26,7 +26,14 @@ import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
 import AbsenceClaimThanks from './AbsenceClaimThanks';
 
-const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
+const AbsenceDetails = ({
+  isOpen,
+  onClose,
+  event,
+  isAdminMode,
+  onChange,
+  hasConflictingEvent,
+}) => {
   const theme = useTheme();
   const userData = useUserData();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -194,6 +201,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
                 isUserSubstituteTeacher={isUserSubstituteTeacher}
                 isAdminMode={isAdminMode}
                 substituteTeacherFullName={event.substituteTeacherFullName}
+                hasConflictingEvent={hasConflictingEvent}
               />
               <Flex position="absolute" right="0">
                 {isAdminMode && (
@@ -390,6 +398,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
                     fontSize="16px"
                     fontWeight="500"
                     onClick={handleClaimAbsenceClick}
+                    isDisabled={hasConflictingEvent}
                   >
                     Fill this Absence
                   </Button>
