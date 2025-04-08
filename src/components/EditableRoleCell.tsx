@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
   useDisclosure,
+  useOutsideClick,
 } from '@chakra-ui/react';
 import React, { useState, useRef, useEffect } from 'react';
 import { FiChevronDown, FiChevronUp, FiEdit2 } from 'react-icons/fi';
@@ -24,11 +25,23 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
   const [newRole, setNewRole] = useState(role);
   const [isHovered, setIsHovered] = useState(false);
   const theme = useTheme();
+  const containerRef = useRef<HTMLDivElement>(null);
   const {
     isOpen: isButtonsOpen,
     onOpen: onButtonsOpen,
     onClose: onButtonsClose,
   } = useDisclosure();
+
+  useOutsideClick({
+    ref: containerRef,
+    handler: () => {
+      if (isEditing) {
+        setIsEditing(false);
+        setNewRole(role);
+        onButtonsClose();
+      }
+    },
+  });
 
   // Synchronize the popovers
   useEffect(() => {
@@ -67,6 +80,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
       alignItems="center"
       onMouseEnter={() => !isEditing && setIsHovered(true)}
       onMouseLeave={() => !isEditing && setIsHovered(false)}
+      ref={containerRef}
     >
       <Popover
         isOpen={isEditing}
@@ -127,6 +141,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
             cursor="pointer"
             borderRadius="md"
             _hover={{ bg: 'neutralGray.100' }}
+            _active={{ bg: 'neutralGray.300' }}
             onClick={() => handleRoleChange(oppositeRole)}
           >
             <Text textStyle="cellBody" flexGrow={1}>
@@ -155,48 +170,36 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
             borderColor="neutralGray.300"
             _focus={{ boxShadow: 'none', outline: 'none' }}
           >
-            {newRole !== role ? (
-              <HStack spacing={0}>
-                <Button
-                  variant="outline"
-                  onClick={handleCancelClick}
-                  size="sm"
-                  // borderRadius="0 md md 0"
-                  p={0}
-                >
-                  <IoCloseOutline
-                    size={20}
-                    color={theme.colors.neutralGray[600]}
-                  />
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleConfirmClick}
-                  size="sm"
-                  borderRadius="md 0 0 md"
-                  p={0}
-                  borderRight="none"
-                >
-                  <IoCheckmark
-                    size={20}
-                    color={theme.colors.neutralGray[600]}
-                  />
-                </Button>
-              </HStack>
-            ) : (
-              <Button
-                variant="outline"
+            <HStack spacing={0}>
+              <Box
+                p={1}
+                cursor="pointer"
+                _hover={{ bg: 'neutralGray.100' }}
+                _active={{ bg: 'neutralGray.300' }}
+                borderRadius="5px 0 0 5px"
                 onClick={handleCancelClick}
-                size="sm"
-                borderRadius="md"
-                p={0}
               >
                 <IoCloseOutline
-                  size={20}
+                  size={24}
                   color={theme.colors.neutralGray[600]}
                 />
-              </Button>
-            )}
+              </Box>
+              {newRole !== role && (
+                <Box
+                  p={1}
+                  cursor="pointer"
+                  _hover={{ bg: 'neutralGray.100' }}
+                  _active={{ bg: 'neutralGray.300' }}
+                  borderRadius="0 5px 5px 0"
+                  onClick={handleConfirmClick}
+                >
+                  <IoCheckmark
+                    size={24}
+                    color={theme.colors.neutralGray[600]}
+                  />
+                </Box>
+              )}
+            </HStack>
           </PopoverContent>
         </Popover>
       )}
