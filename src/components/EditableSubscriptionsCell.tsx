@@ -276,7 +276,13 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
             justifyContent="space-between"
             cursor="pointer"
             onClick={handleEditAreaClick}
-            bg={isEditing ? 'primaryBlue.50' : 'transparent'}
+            bg={
+              isEditing
+                ? 'primaryBlue.50'
+                : isHovered
+                  ? 'neutralGray.100'
+                  : 'transparent'
+            }
             p={2}
             borderRadius="md"
             width="100%"

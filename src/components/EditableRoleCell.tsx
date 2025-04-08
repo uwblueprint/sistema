@@ -59,7 +59,13 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
         justifyContent="space-between"
         cursor="pointer"
         onClick={handleEditClick}
-        bg={isEditing ? 'primaryBlue.50' : 'transparent'}
+        bg={
+          isEditing
+            ? 'primaryBlue.50'
+            : isHovered
+              ? 'neutralGray.100'
+              : 'transparent'
+        }
         p={2}
         borderRadius="md"
         width="100px"
