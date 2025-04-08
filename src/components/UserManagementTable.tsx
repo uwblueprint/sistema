@@ -19,6 +19,8 @@ import {
   Th,
   Thead,
   Tr,
+  Skeleton,
+  SkeletonCircle,
 } from '@chakra-ui/react';
 
 import { getAbsenceColor } from '@utils/getAbsenceColor';
@@ -44,12 +46,14 @@ interface UserManagementTableProps {
   users: UserAPI[];
   updateUserRole: (userId: number, newRole: Role) => void;
   absenceCap: number;
+  isLoading?: boolean;
 }
 
 export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   users,
   updateUserRole,
   absenceCap,
+  isLoading = false,
 }) => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -169,6 +173,37 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
     );
   };
 
+  const LoadingRows = () => (
+    <>
+      {[...Array(5)].map((_, index) => (
+        <Tr key={index}>
+          <Td py="6px">
+            <HStack spacing={5}>
+              <SkeletonCircle size="8" />
+              <Skeleton height="20px" width="150px" borderRadius="full" />
+            </HStack>
+          </Td>
+          <Td>
+            <Skeleton height="20px" width="200px" borderRadius="full" />
+          </Td>
+          <Td textAlign="center">
+            <Skeleton height="20px" width="30px" borderRadius="full" />
+          </Td>
+          <Td>
+            <Skeleton height="28px" width="100px" borderRadius="full" />
+          </Td>
+          <Td>
+            <HStack spacing={2}>
+              <Skeleton height="28px" width="80px" borderRadius="full" />
+              <Skeleton height="28px" width="80px" borderRadius="full" />
+              <Skeleton height="28px" width="80px" borderRadius="full" />
+            </HStack>
+          </Td>
+        </Tr>
+      ))}
+    </>
+  );
+
   return (
     <Box
       display="flex"
@@ -212,19 +247,19 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
               transition="width 0.3s ease"
               width={searchTerm ? '270px' : '0px'}
               margin={0}
+              isDisabled={isLoading}
             />
           </InputGroup>
-
           <FilterPopup
             filters={filters}
             setFilters={setFilters}
             availableTags={availableTags}
             tagColors={tagColors}
+            isDisabled={isLoading}
           />
         </HStack>
       </HStack>
       <Divider borderColor="neutralGray.300" />
-
       <Box flex="1" overflowY="auto">
         <Table variant="simple">
           <Thead
@@ -234,12 +269,12 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
             bg="white"
             boxShadow="0 1px 1px rgba(227, 227, 227, 1)"
           >
-            <Tr borderColor={'red'}>
+            <Tr>
               <SortableHeader field="name" label="Name" icon={FiUser} />
               <SortableHeader field="email" label="Email" icon={FiMail} />
               <SortableHeader
                 field="absences"
-                label="Absent"
+                label="Abs."
                 icon={FiClock}
                 centered
               />
@@ -259,77 +294,78 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
               </Th>
             </Tr>
           </Thead>
-
           <Tbody>
-            {sortedUsers.length > 0
-              ? sortedUsers.map((user, index) => (
-                  <Tr
-                    key={index}
-                    sx={{
-                      ':last-child td': { borderBottom: 'none' },
-                    }}
-                  >
-                    <Td py="6px">
-                      <HStack spacing={5}>
-                        <Avatar
-                          size="sm"
-                          name={`${user.firstName} ${user.lastName}`}
-                          src={user.profilePicture || undefined}
-                        />
-                        <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
-                      </HStack>
-                    </Td>
-                    <Td color="gray.600">
-                      <Text textStyle="cellBody">{user.email}</Text>
-                    </Td>
-                    <Td textAlign="center" py="6px">
-                      <Text
-                        textStyle="cellBold"
-                        color={getAbsenceColor(
-                          user.absences?.length || 0,
-                          absenceCap
-                        )}
-                      >
-                        {user.absences?.length || 0}
-                      </Text>
-                    </Td>
-                    <Td py="6px">
-                      <EditableRoleCell
-                        key={`role-cell-${user.id}`}
-                        role={user.role}
-                        onRoleChange={(newRole) =>
-                          updateUserRole(user.id, newRole as Role)
-                        }
+            {isLoading ? (
+              <LoadingRows />
+            ) : (
+              sortedUsers.map((user, index) => (
+                <Tr
+                  key={index}
+                  sx={{
+                    ':last-child td': { borderBottom: 'none' },
+                  }}
+                >
+                  <Td py="6px">
+                    <HStack spacing={5}>
+                      <Avatar
+                        size="sm"
+                        name={`${user.firstName} ${user.lastName}`}
+                        src={user.profilePicture || undefined}
                       />
-                    </Td>
-                    <Td py="6px">
-                      <Flex gap={2} wrap="nowrap">
-                        {user.mailingLists?.map((mailingList, index) => (
-                          <Tag
-                            height="28px"
-                            variant="subtle"
-                            bg={mailingList.subject.colorGroup.colorCodes[3]}
-                            key={index}
-                          >
-                            <TagLabel>
-                              <Text
-                                color={
-                                  mailingList.subject.colorGroup.colorCodes[0]
-                                }
-                                textStyle="label"
-                                whiteSpace="nowrap"
-                                overflow="hidden"
-                              >
-                                {mailingList.subject.name}
-                              </Text>
-                            </TagLabel>
-                          </Tag>
-                        ))}
-                      </Flex>
-                    </Td>
-                  </Tr>
-                ))
-              : null}
+                      <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
+                    </HStack>
+                  </Td>
+                  <Td color="gray.600">
+                    <Text textStyle="cellBody">{user.email}</Text>
+                  </Td>
+                  <Td textAlign="center" py="6px">
+                    <Text
+                      textStyle="cellBold"
+                      color={getAbsenceColor(
+                        user.absences?.length || 0,
+                        absenceCap
+                      )}
+                    >
+                      {user.absences?.length || 0}
+                    </Text>
+                  </Td>
+                  <Td py="6px">
+                    <EditableRoleCell
+                      key={`role-cell-${user.id}`}
+                      role={user.role}
+                      onRoleChange={(newRole) =>
+                        updateUserRole(user.id, newRole as Role)
+                      }
+                    />
+                  </Td>
+                  <Td py="6px">
+                    <Flex gap={2} wrap="nowrap">
+                      {user.mailingLists?.map((mailingList, index) => (
+                        <Tag
+                          height="28px"
+                          variant="subtle"
+                          bg={mailingList.subject.colorGroup.colorCodes[3]}
+                          key={index}
+                        >
+                          <TagLabel>
+                            <Text
+                              color={
+                                mailingList.subject.colorGroup.colorCodes[0]
+                              }
+                              textStyle="label"
+                              whiteSpace="nowrap"
+                              overflow="hidden"
+                            >
+                              {mailingList.subject.name}
+                            </Text>
+                          </TagLabel>
+                        </Tag>
+                      ))}
+                    </Flex>
+                  </Td>
+                </Tr>
+              ))
+            )}
           </Tbody>
         </Table>
       </Box>
