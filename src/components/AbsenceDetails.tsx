@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Flex,
+  Icon,
   IconButton,
   Modal,
   ModalBody,
@@ -10,6 +11,11 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
   Text,
   VStack,
   useTheme,
@@ -25,6 +31,7 @@ import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import LessonPlanView from './LessonPlanView';
 import AbsenceClaimThanks from './AbsenceClaimThanks';
+import { BiSolidErrorCircle } from 'react-icons/bi';
 
 const AbsenceDetails = ({
   isOpen,
@@ -196,13 +203,35 @@ const AbsenceDetails = ({
         >
           <ModalHeader p="0">
             <Flex justify="space-between" align="center" position="relative">
-              <AbsenceStatusTag
-                isUserAbsentTeacher={isUserAbsentTeacher}
-                isUserSubstituteTeacher={isUserSubstituteTeacher}
-                isAdminMode={isAdminMode}
-                substituteTeacherFullName={event.substituteTeacherFullName}
-                hasConflictingEvent={hasConflictingEvent}
-              />
+              <Flex gap="8px" align="center">
+                <AbsenceStatusTag
+                  isUserAbsentTeacher={isUserAbsentTeacher}
+                  isUserSubstituteTeacher={isUserSubstituteTeacher}
+                  isAdminMode={isAdminMode}
+                  substituteTeacherFullName={event.substituteTeacherFullName}
+                />
+                {hasConflictingEvent &&
+                  !event.substituteTeacherFullName &&
+                  !isUserAbsentTeacher && (
+                    <Popover placement="top" trigger="hover">
+                      <PopoverTrigger>
+                        <Box display="flex" alignItems="center" height="100%">
+                          <Icon
+                            as={BiSolidErrorCircle}
+                            color={theme.colors.errorRed['200']}
+                            boxSize={6}
+                          />
+                        </Box>
+                      </PopoverTrigger>
+                      <PopoverContent bg="white" width="fit-content">
+                        <PopoverArrow />
+                        <PopoverBody textStyle="caption" maxW="190px">
+                          You have already filled an absence on this date.
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+              </Flex>
               <Flex position="absolute" right="0">
                 {isAdminMode && (
                   <IconButton
