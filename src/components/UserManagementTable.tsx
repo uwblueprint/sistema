@@ -180,23 +180,35 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           <Td py="6px">
             <HStack spacing={5}>
               <SkeletonCircle size="8" />
-              <Skeleton height="20px" width="150px" borderRadius="full" />
+              <Skeleton
+                height="16px"
+                width={index % 2 === 0 ? '147px' : '163px'}
+                borderRadius="full"
+              />
             </HStack>
           </Td>
           <Td>
-            <Skeleton height="20px" width="200px" borderRadius="full" />
-          </Td>
-          <Td textAlign="center">
-            <Skeleton height="20px" width="30px" borderRadius="full" />
+            <Skeleton
+              height="16px"
+              width={index % 2 === 0 ? '290px' : '272px'}
+              borderRadius="full"
+            />
           </Td>
           <Td>
-            <Skeleton height="28px" width="100px" borderRadius="full" />
+            <Flex justify="center">
+              <Skeleton height="16px" width="30px" borderRadius="full" />
+            </Flex>
+          </Td>
+          <Td>
+            <Skeleton height="16px" width="100px" borderRadius="full" />
           </Td>
           <Td>
             <HStack spacing={2}>
-              <Skeleton height="28px" width="80px" borderRadius="full" />
-              <Skeleton height="28px" width="80px" borderRadius="full" />
-              <Skeleton height="28px" width="80px" borderRadius="full" />
+              <Skeleton height="28px" width="136px" borderRadius="5px" />
+              <Skeleton height="28px" width="53px" borderRadius="5px" />
+              <Skeleton height="28px" width="62px" borderRadius="5px" />
+              <Skeleton height="28px" width="86px" borderRadius="5px" />
+              <Skeleton height="28px" width="98px" borderRadius="5px" />
             </HStack>
           </Td>
         </Tr>
