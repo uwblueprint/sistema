@@ -323,6 +323,8 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                         size="sm"
                         name={`${user.firstName} ${user.lastName}`}
                         src={user.profilePicture || undefined}
+                        loading="eager"
+                        ignoreFallback
                       />
                       <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
                     </HStack>
