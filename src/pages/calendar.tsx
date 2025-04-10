@@ -12,6 +12,12 @@ import {
   Text,
   useDisclosure,
   useTheme,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  PopoverArrow,
+  Portal,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
@@ -59,6 +65,7 @@ const Calendar: React.FC = () => {
 
   const { events, fetchAbsences } = useAbsences();
   const [claimedDays, setClaimedDays] = useState<Set<string>>(new Set());
+  const [clickedEventId, setClickedEventId] = useState<string | null>(null);
 
   const calendarRef = useRef<FullCalendar>(null);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
@@ -97,6 +104,13 @@ const Calendar: React.FC = () => {
     onClose: onInputFormClose,
   } = useDisclosure();
 
+  const [isClosingDetails, setIsClosingDetails] = useState(false);
+
+  // Define handleDeleteAbsence before it's used
+  const handleDeleteAbsence = async (absenceId: string | number) => {
+    await fetchAbsences();
+  };
+
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => {
       const {
@@ -107,6 +121,7 @@ const Calendar: React.FC = () => {
         locationAbbreviation,
         subjectAbbreviation,
         lessonPlan,
+        absenceId,
       } = eventInfo.event.extendedProps;
 
       const eventDate = new Date(eventInfo.event.startStr);
@@ -120,7 +135,26 @@ const Calendar: React.FC = () => {
           : `${absentTeacherDisplayName} -> Unfilled`
         : undefined;
 
-      return (
+      // Create the event details object for this event
+      const eventDetails = {
+        title: eventInfo.event.title || 'Untitled Event',
+        start: eventInfo.event.start,
+        absentTeacher: absentTeacher || null,
+        absentTeacherFullName: absentTeacherDisplayName || '',
+        substituteTeacher:
+          eventInfo.event.extendedProps.substituteTeacher || null,
+        substituteTeacherFullName: substituteTeacherDisplayName || '',
+        location: eventInfo.event.extendedProps.location || '',
+        classType: eventInfo.event.extendedProps.classType || '',
+        lessonPlan: lessonPlan || null,
+        roomNumber: eventInfo.event.extendedProps.roomNumber || '',
+        reasonOfAbsence: eventInfo.event.extendedProps.reasonOfAbsence || '',
+        notes: eventInfo.event.extendedProps.notes || '',
+        absenceId,
+      };
+
+      // Create an AbsenceBox component for the event
+      const absenceBox = (
         <AbsenceBox
           title={subjectAbbreviation}
           location={locationAbbreviation}
@@ -137,8 +171,72 @@ const Calendar: React.FC = () => {
           opacity={opacity}
         />
       );
+
+      // Check if this is the currently clicked event
+      const isCurrentEvent = absenceId === clickedEventId;
+
+      // Use Popover component with Portal for proper positioning
+      return (
+        <Popover
+          isOpen={isCurrentEvent && isAbsenceDetailsOpen}
+          onClose={handleCloseDetails}
+          placement="right-start"
+          closeOnBlur={true}
+          closeOnEsc={true}
+          gutter={16}
+        >
+          <PopoverTrigger>
+            <Box
+              onClick={() => {
+                setSelectedEvent(eventDetails);
+                setClickedEventId(absenceId);
+                onAbsenceDetailsOpen();
+              }}
+              display="inline-block"
+              position="relative"
+              width="100%"
+              height="100%"
+              cursor="pointer"
+            >
+              {absenceBox}
+            </Box>
+          </PopoverTrigger>
+          {isCurrentEvent && (
+            <Portal>
+              <PopoverContent
+                width="362px"
+                borderRadius="15px"
+                padding="30px"
+                marginY={5}
+                boxShadow="0px 0px 25px 0px rgba(0, 0, 0, 0.25)"
+                zIndex={1500}
+                _focus={{
+                  boxShadow: '0px 0px 25px 0px rgba(0, 0, 0, 0.25)',
+                  outline: 'none',
+                }}
+              >
+                <PopoverBody p={0}>
+                  <AbsenceDetails
+                    event={eventDetails}
+                    isAdminMode={isAdminMode}
+                    onClose={handleCloseDetails}
+                    onDelete={handleDeleteAbsence}
+                  />
+                </PopoverBody>
+              </PopoverContent>
+            </Portal>
+          )}
+        </Popover>
+      );
     },
-    [userData?.id]
+    [
+      userData?.id,
+      isAdminMode,
+      isAbsenceDetailsOpen,
+      onAbsenceDetailsOpen,
+      clickedEventId,
+      handleDeleteAbsence,
+    ]
   );
 
   useEffect(() => {
@@ -201,8 +299,10 @@ const Calendar: React.FC = () => {
   }, []);
 
   const handleDateClick = (arg: { date: Date }) => {
-    setSelectedDate(arg.date);
-    onInputFormOpen();
+    if (!isClosingDetails) {
+      setSelectedDate(arg.date);
+      onInputFormOpen();
+    }
   };
 
   const handleTodayClick = useCallback(() => {
@@ -244,25 +344,8 @@ const Calendar: React.FC = () => {
   }, [updateMonthYearTitle]);
 
   const handleAbsenceClick = (clickInfo: EventClickArg) => {
-    setSelectedEvent({
-      title: clickInfo.event.title || 'Untitled Event',
-      start: clickInfo.event.start,
-      absentTeacher: clickInfo.event.extendedProps.absentTeacher || null,
-      absentTeacherFullName:
-        clickInfo.event.extendedProps.absentTeacherFullName || '',
-      substituteTeacher:
-        clickInfo.event.extendedProps.substituteTeacher || null,
-      substituteTeacherFullName:
-        clickInfo.event.extendedProps.substituteTeacherFullName || '',
-      location: clickInfo.event.extendedProps.location || '',
-      classType: clickInfo.event.extendedProps.classType || '',
-      lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
-      roomNumber: clickInfo.event.extendedProps.roomNumber || '',
-      reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
-      notes: clickInfo.event.extendedProps.notes || '',
-      absenceId: clickInfo.event.extendedProps.absenceId,
-    });
-    onAbsenceDetailsOpen();
+    // Prevent default behavior so our custom handlers work
+    clickInfo.jsEvent.preventDefault();
   };
 
   const handleDeclareAbsenceClick = () => {
@@ -273,6 +356,7 @@ const Calendar: React.FC = () => {
       onInputFormOpen();
     }
   };
+
   useEffect(() => {
     const {
       activeAbsenceStatusIds,
@@ -320,8 +404,11 @@ const Calendar: React.FC = () => {
     setFilteredEvents(filtered);
   }, [searchQuery, events, activeTab, userData.id, isAdminMode]);
 
-  const handleDeleteAbsence = async () => {
-    await fetchAbsences();
+  const handleCloseDetails = () => {
+    setClickedEventId(null);
+    onAbsenceDetailsClose();
+    setIsClosingDetails(true);
+    setTimeout(() => setIsClosingDetails(false), 100);
   };
 
   if (userData.isLoading) {
@@ -420,7 +507,7 @@ const Calendar: React.FC = () => {
   return (
     <>
       <Global styles={getCalendarStyles} />
-      <Flex height="100vh">
+      <Flex height="100vh" overflow="hidden">
         <CalendarSidebar
           setSearchQuery={setSearchQuery}
           onDeclareAbsenceClick={handleDeclareAbsenceClick}
@@ -434,6 +521,7 @@ const Calendar: React.FC = () => {
           height="100%"
           display="flex"
           flexDirection="column"
+          overflow="hidden"
         >
           <CalendarHeader
             currentMonthYear={currentMonthYear}
@@ -445,7 +533,7 @@ const Calendar: React.FC = () => {
             setIsAdminMode={setIsAdminMode}
           />
 
-          <Box flex={1} overflow="hidden" pr={theme.space[2]}>
+          <Box flex={1} overflow="auto" pr={theme.space[2]}>
             {!isAdminMode && (
               <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
             )}
@@ -454,7 +542,7 @@ const Calendar: React.FC = () => {
               headerToolbar={false}
               plugins={[dayGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
-              height="100%"
+              height="auto"
               events={filteredEvents}
               eventContent={renderEventContent}
               timeZone="local"
@@ -470,14 +558,6 @@ const Calendar: React.FC = () => {
           </Box>
         </Box>
       </Flex>
-
-      <AbsenceDetails
-        isOpen={isAbsenceDetailsOpen}
-        onClose={onAbsenceDetailsClose}
-        event={selectedEvent}
-        onDelete={handleDeleteAbsence}
-        isAdminMode={isAdminMode}
-      />
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>
         <ModalOverlay />
