@@ -22,7 +22,7 @@ import { DateOfAbsence } from './DateOfAbsence';
 import { FileUpload } from './FileUpload';
 import { InputDropdown } from './InputDropdown';
 
-interface InputFormProps {
+interface DeclareAbsenceFormProps {
   onClose?: () => void;
   onDeclareAbsence: (
     absence: Prisma.AbsenceCreateManyInput
@@ -33,7 +33,7 @@ interface InputFormProps {
   isAdminMode: boolean;
 }
 
-const InputForm: React.FC<InputFormProps> = ({
+const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
   onClose,
   onDeclareAbsence,
   userId,
@@ -285,4 +285,4 @@ const InputForm: React.FC<InputFormProps> = ({
   );
 };
 
-export default InputForm;
+export default DeclareAbsenceForm;

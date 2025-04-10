@@ -32,7 +32,7 @@ import AbsenceDetails from '../components/AbsenceDetails';
 import CalendarHeader from '../components/CalendarHeader';
 import CalendarSidebar from '../components/CalendarSidebar';
 import { CalendarTabs } from '../components/CalendarTabs';
-import InputForm from '../components/InputForm';
+import DeclareAbsenceForm from '../components/DeclareAbsenceForm';
 
 const Calendar: React.FC = () => {
   const userData = useUserData();
@@ -491,7 +491,7 @@ const Calendar: React.FC = () => {
           </ModalHeader>
           <ModalCloseButton top="33px" right="28px" color="text.header" />
           <ModalBody p={0}>
-            <InputForm
+            <DeclareAbsenceForm
               onClose={onInputFormClose}
               onDeclareAbsence={handleDeclareAbsence}
               initialDate={selectedDate!!}
