@@ -13,14 +13,12 @@ interface FileUploadProps {
   lessonPlan: File | null;
   setLessonPlan: (file: File | null) => void;
   existingFile?: LessonPlanFile | null;
-  label?: string;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   lessonPlan,
   setLessonPlan,
   existingFile,
-  label = 'Lesson Plan',
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -66,10 +64,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   return (
-    <FormControl>
-      <Text textStyle="h4" mb={2}>
-        {label}
-      </Text>
+    <>
       <Box
         as="label"
         htmlFor="fileUpload"
@@ -106,6 +101,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         accept="application/pdf"
         display="none"
       />
-    </FormControl>
+    </>
   );
 };
