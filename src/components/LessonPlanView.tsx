@@ -3,10 +3,15 @@ import {
   Flex,
   IconButton,
   Image,
+  Input,
   Link,
   Text,
   useTheme,
+  useToast,
 } from '@chakra-ui/react';
+import { LessonPlanFile } from '@utils/types';
+import { uploadFile } from '@utils/uploadFile';
+import { useEffect, useRef, useState } from 'react';
 import { FiFileText } from 'react-icons/fi';
 
 const formatFileSize = (sizeInBytes: number) => {
@@ -30,13 +35,10 @@ const LessonPlanDisplay = ({
   fileSize,
   isUserAbsentTeacher,
   isAdminMode,
+  onSwap,
+  isDisabled,
 }) => {
   const theme = useTheme();
-
-  const handleSwap = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-  };
 
   return (
     <Link href={href} isExternal width="100%">
@@ -79,7 +81,8 @@ const LessonPlanDisplay = ({
             }
             size="sm"
             variant="ghost"
-            onClick={handleSwap}
+            onClick={onSwap}
+            isDisabled={isDisabled}
           />
         )}
       </Flex>
@@ -145,15 +148,109 @@ const LessonPlanView = ({
   isUserAbsentTeacher,
   isUserSubstituteTeacher,
   isAdminMode,
+  absenceId,
+  fetchAbsences,
 }) => {
-  return lessonPlan ? (
-    <LessonPlanDisplay
-      href={lessonPlan.url}
-      fileName={lessonPlan.name}
-      fileSize={lessonPlan.size}
-      isUserAbsentTeacher={isUserAbsentTeacher}
-      isAdminMode={isAdminMode}
-    />
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const toast = useToast();
+  const [isUploading, setIsUploading] = useState(false);
+  const [localLessonPlan, setLocalLessonPlan] = useState<LessonPlanFile | null>(
+    lessonPlan
+  );
+
+  useEffect(() => {
+    setLocalLessonPlan(lessonPlan);
+  }, [lessonPlan]);
+
+  const handleSwap = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || file.type !== 'application/pdf') return;
+
+    setIsUploading(true);
+
+    const fileUrl = await uploadFile(file);
+    if (!fileUrl) {
+      toast({
+        title: 'Upload failed',
+        description: 'Could not upload the lesson plan file.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      setIsUploading(false);
+      return;
+    }
+
+    const res = await fetch('/api/editAbsence', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: absenceId,
+        lessonPlanFile: {
+          name: file.name,
+          size: file.size,
+          url: fileUrl,
+        },
+      }),
+    });
+
+    if (res.ok) {
+      const updatedPlan: LessonPlanFile = {
+        id: -1,
+        name: file.name,
+        size: file.size,
+        url: fileUrl,
+      };
+
+      setLocalLessonPlan(updatedPlan);
+
+      toast({
+        title: 'Lesson Plan Updated',
+        description: 'Your lesson plan was successfully swapped.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+
+      await fetchAbsences?.();
+    } else {
+      toast({
+        title: 'Update failed',
+        description: 'There was a problem updating the lesson plan.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+
+    setIsUploading(false);
+  };
+
+  return localLessonPlan ? (
+    <>
+      <LessonPlanDisplay
+        href={localLessonPlan.url}
+        fileName={localLessonPlan.name}
+        fileSize={localLessonPlan.size}
+        isUserAbsentTeacher={isUserAbsentTeacher}
+        isAdminMode={isAdminMode}
+        onSwap={handleSwap}
+        isDisabled={isUploading}
+      />
+      <Input
+        type="file"
+        ref={fileInputRef}
+        display="none"
+        accept="application/pdf"
+        onChange={handleFileChange}
+      />
+    </>
   ) : isUserAbsentTeacher && !isAdminMode ? (
     <NoLessonPlanDeclaredDisplay />
   ) : (
