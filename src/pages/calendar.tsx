@@ -225,6 +225,19 @@ const Calendar: React.FC = () => {
     updateMonthYearTitle();
   }, [updateMonthYearTitle]);
 
+  const formatDateForClaimedDays = (date: Date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const hasConflictingEvent = (event: EventDetails | null) => {
+    if (!event?.start) return false;
+    const dateString = formatDateForClaimedDays(new Date(event.start));
+    return claimedDays.has(dateString);
+  };
+
   const handleAbsenceClick = (clickInfo: EventClickArg) => {
     setSelectedEvent({
       title: clickInfo.event.title,
@@ -316,7 +329,7 @@ const Calendar: React.FC = () => {
   }
 
   const dayCellContent = (args) => {
-    const eventDateString = `${args.date.getFullYear()}-${(args.date.getMonth() + 1).toString().padStart(2, '0')}-${args.date.getDate().toString().padStart(2, '0')}`;
+    const eventDateString = formatDateForClaimedDays(args.date);
 
     const isToday = (() => {
       const today = new Date();
@@ -461,6 +474,7 @@ const Calendar: React.FC = () => {
         fetchAbsences={fetchAbsences}
         onDelete={handleDeleteAbsence}
         isAdminMode={isAdminMode}
+        hasConflictingEvent={hasConflictingEvent(selectedEvent)}
       />
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>
