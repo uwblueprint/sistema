@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Modal,
   ModalBody,
@@ -8,10 +9,9 @@ import {
   ModalHeader,
   ModalOverlay,
   Text,
-  Box,
   useDisclosure,
 } from '@chakra-ui/react';
-import { Role, UserAPI, SubjectAPI, MailingList } from '@utils/types';
+import { MailingList, Role, SubjectAPI, UserAPI } from '@utils/types';
 import { useEffect, useState } from 'react';
 import { UserManagementTable } from './UserManagementTable';
 
