@@ -340,8 +340,6 @@ const Calendar: React.FC = () => {
         height="100%"
         display="flex"
         alignItems="center"
-        pt={1}
-        pr={1}
       >
         <Box
           width="26px"
