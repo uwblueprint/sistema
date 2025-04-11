@@ -130,7 +130,8 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
     filters,
     searchTerm,
     sortField,
-    sortDirection
+    sortDirection,
+    getSelectedYearAbsences
   );
 
   const SortIcon = ({ field }: { field: SortField }) => {
