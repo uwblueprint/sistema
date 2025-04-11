@@ -3,18 +3,17 @@ import {
   Flex,
   IconButton,
   Image,
+  Input,
   Link,
   Text,
   useTheme,
-  VStack,
-  Button,
-  HStack,
   useToast,
 } from '@chakra-ui/react';
+import { LessonPlanFile } from '@utils/types';
+import { uploadFile } from '@utils/uploadFile';
+import { useEffect, useRef, useState } from 'react';
 import { FiFileText } from 'react-icons/fi';
-import { VscArrowSwap } from 'react-icons/vsc';
 import { FileUpload } from './FileUpload';
-import React, { useState, useEffect } from 'react';
 
 const formatFileSize = (sizeInBytes: number) => {
   if (sizeInBytes === 0) return '0 B';
@@ -36,8 +35,9 @@ const LessonPlanDisplay = ({
   fileName,
   fileSize,
   isUserAbsentTeacher,
-  onSwapClick,
   isAdminMode,
+  onSwap,
+  isDisabled,
 }) => {
   const theme = useTheme();
 
@@ -68,6 +68,7 @@ const LessonPlanDisplay = ({
             )}
           </Box>
         </Flex>
+
         {isUserAbsentTeacher && !isAdminMode && (
           <IconButton
             aria-label="Swap Lesson Plan"
@@ -81,7 +82,8 @@ const LessonPlanDisplay = ({
             }
             size="sm"
             variant="ghost"
-            onClick={onSwapClick}
+            onClick={onSwap}
+            isDisabled={isDisabled}
           />
         )}
       </Flex>
@@ -126,155 +128,126 @@ const NoLessonPlanViewingDisplay = ({
   );
 };
 
-const NoLessonPlanDeclaredDisplay = ({ onLessonPlanUploaded }) => {
-  const theme = useTheme();
-  const toast = useToast();
-
-  const [lessonPlan, setLessonPlan] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const uploadFile = async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('fileName', file.name);
-
-    const res = await fetch('/api/uploadFile/', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.message || 'Failed to upload file');
-    }
-
-    const data = await res.json();
-    return `https://drive.google.com/file/d/${data.fileId}/view`;
-  };
-
-  const handleUploadFile = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      if (lessonPlan) {
-        const lessonPlanUrl = await uploadFile(lessonPlan);
-        console.log('File uploaded successfully:', lessonPlanUrl);
-        setLessonPlan(null);
-
-        if (onLessonPlanUploaded) {
-          onLessonPlanUploaded(lessonPlanUrl);
-        }
-        //TODO: Add the patch to the DB, and also make sure that this component knows which absence to edit / interact with
-        toast({
-          title: 'Success',
-          description: `You have successfully uploaded your lesson plan.`,
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-        });
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleCancel = (e) => {
-    e.preventDefault();
-    setLessonPlan(null);
-  };
-  return (
-    <VStack>
-      <FileUpload lessonPlan={lessonPlan} setLessonPlan={setLessonPlan} />
-
-      {lessonPlan && (
-        <HStack width={'full'}>
-          <Button
-            type="submit"
-            colorScheme="blue"
-            fontSize="12px"
-            isLoading={isSubmitting}
-            loadingText="Submitting"
-            width="full"
-            height="44px"
-            onClick={handleUploadFile}
-          >
-            Save Changes
-          </Button>
-          <Button
-            colorScheme="gray"
-            fontSize="12px"
-            width="full"
-            height="44px"
-            onClick={handleCancel}
-          >
-            Cancel
-          </Button>
-        </HStack>
-      )}
-    </VStack>
-  );
-};
-
 const LessonPlanView = ({
-  lessonPlan: initialLessonPlan,
+  lessonPlan,
   absentTeacherFirstName,
   isUserAbsentTeacher,
   isUserSubstituteTeacher,
   isAdminMode,
+  absenceId,
+  fetchAbsences,
 }) => {
-  const [currentLessonPlan, setCurrentLessonPlan] = useState(initialLessonPlan);
-  const [showUploadForm, setShowUploadForm] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const toast = useToast();
+  const [isUploading, setIsUploading] = useState(false);
+  const [localLessonPlan, setLocalLessonPlan] = useState<LessonPlanFile | null>(
+    lessonPlan
+  );
 
   useEffect(() => {
-    setCurrentLessonPlan(initialLessonPlan);
-  }, [initialLessonPlan]);
+    setLocalLessonPlan(lessonPlan);
+  }, [lessonPlan]);
 
-  const handleLessonPlanUploaded = (newLessonPlanUrl) => {
-    setCurrentLessonPlan(newLessonPlanUrl);
-    setShowUploadForm(false);
+  const handleSwap = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fileInputRef.current?.click();
   };
 
-  const handleSwapClick = () => {
-    setShowUploadForm(true);
+  const handleFileUpload = async (file: File) => {
+    if (!file || file.type !== 'application/pdf') return;
+
+    setIsUploading(true);
+
+    const fileUrl = await uploadFile(file);
+    if (!fileUrl) {
+      toast({
+        title: 'Upload failed',
+        description: 'Could not upload the lesson plan file.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      setIsUploading(false);
+      return;
+    }
+
+    const res = await fetch('/api/editAbsence', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: absenceId,
+        lessonPlanFile: {
+          name: file.name,
+          size: file.size,
+          url: fileUrl,
+        },
+      }),
+    });
+
+    if (res.ok) {
+      const updatedPlan: LessonPlanFile = {
+        id: -1,
+        name: file.name,
+        size: file.size,
+        url: fileUrl,
+      };
+
+      setLocalLessonPlan(updatedPlan);
+
+      toast({
+        title: 'Lesson Plan Updated',
+        description: 'Your lesson plan was successfully swapped.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+
+      await fetchAbsences?.();
+    } else {
+      toast({
+        title: 'Update failed',
+        description: 'There was a problem updating the lesson plan.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+
+    setIsUploading(false);
   };
 
-  const getFileName = (url) =>
-    url ? url.split('/').pop() || 'Lesson Plan' : '';
-  const getFileSize = (url) => (url ? 'PDF Document' : '');
-
-  if (showUploadForm && isUserAbsentTeacher) {
-    return (
-      <NoLessonPlanDeclaredDisplay
-        onLessonPlanUploaded={handleLessonPlanUploaded}
-      />
-    );
-  }
-
-  if (currentLessonPlan) {
-    return (
+  return localLessonPlan ? (
+    <>
       <LessonPlanDisplay
-        href={currentLessonPlan.url}
-        fileName={currentLessonPlan.name}
-        fileSize={currentLessonPlan.size}
+        href={localLessonPlan.url}
+        fileName={localLessonPlan.name}
+        fileSize={localLessonPlan.size}
         isUserAbsentTeacher={isUserAbsentTeacher}
         isAdminMode={isAdminMode}
-        onSwapClick={handleSwapClick}
+        onSwap={handleSwap}
+        isDisabled={isUploading}
       />
-    );
-  }
-
-  if (isUserAbsentTeacher && !isAdminMode) {
-    return (
-      <NoLessonPlanDeclaredDisplay
-        onLessonPlanUploaded={handleLessonPlanUploaded}
+      <Input
+        type="file"
+        ref={fileInputRef}
+        display="none"
+        accept="application/pdf"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            handleFileUpload(file);
+          }
+        }}
       />
-    );
-  }
-
-  return (
+    </>
+  ) : isUserAbsentTeacher && !isAdminMode ? (
+    <FileUpload
+      lessonPlan={null}
+      setLessonPlan={handleFileUpload}
+      existingFile={null}
+    />
+  ) : (
     <NoLessonPlanViewingDisplay
       absentTeacherFirstName={absentTeacherFirstName}
       isUserSubstituteTeacher={isUserSubstituteTeacher}
