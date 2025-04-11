@@ -44,12 +44,14 @@ interface UserManagementTableProps {
   users: UserAPI[];
   updateUserRole: (userId: number, newRole: Role) => void;
   absenceCap: number;
+  selectedYearRange: string;
 }
 
 export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   users,
   updateUserRole,
   absenceCap,
+  selectedYearRange,
 }) => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -62,6 +64,27 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [tagColors, setTagColors] = useState<Record<string, string[]>>({});
+
+  // Get absences for the selected school year
+  const getSelectedYearAbsences = (absences?: any[]) => {
+    if (!absences) return 0;
+
+    // Parse the year range (format: "2023 - 2024")
+    const [startYear] = selectedYearRange
+      .split(' - ')
+      .map((year) => parseInt(year, 10));
+    const endYear = startYear + 1;
+
+    return absences.filter((absence) => {
+      const absenceDate = new Date(absence.lessonDate);
+      const absenceMonth = absenceDate.getMonth();
+      const absenceYear = absenceDate.getFullYear();
+
+      if (absenceYear === startYear && absenceMonth >= 8) return true; // Sep-Dec of start year
+      if (absenceYear === endYear && absenceMonth < 8) return true; // Jan-Aug of end year
+      return false;
+    }).length;
+  };
 
   // Extract unique tags and their colors from users' mailing lists
   useEffect(() => {
@@ -276,7 +299,10 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                           name={`${user.firstName} ${user.lastName}`}
                           src={user.profilePicture || undefined}
                         />
-                        <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
+                        <Text
+                          textStyle="cellBold"
+                          whiteSpace="nowrap"
+                        >{`${user.firstName} ${user.lastName}`}</Text>
                       </HStack>
                     </Td>
                     <Td color="gray.600">
@@ -286,11 +312,11 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       <Text
                         textStyle="cellBold"
                         color={getAbsenceColor(
-                          user.absences?.length || 0,
+                          getSelectedYearAbsences(user.absences),
                           absenceCap
                         )}
                       >
-                        {user.absences?.length || 0}
+                        {getSelectedYearAbsences(user.absences)}
                       </Text>
                     </Td>
                     <Td py="6px">
