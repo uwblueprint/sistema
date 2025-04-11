@@ -6,24 +6,21 @@ import {
   Icon,
   NumberInput,
   NumberInputField,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Spacer,
   Tag,
   TagLabel,
   Text,
   VStack,
   useDisclosure,
-  useOutsideClick,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  PopoverArrow,
 } from '@chakra-ui/react';
-import { FilterOptions, Role } from '@utils/types';
-import React, { useMemo, useRef } from 'react';
+import { ComparisonOperator, FilterOptions, Role } from '@utils/types';
+import React, { useMemo } from 'react';
 import { BiRevision } from 'react-icons/bi';
 import { IoFilterOutline } from 'react-icons/io5';
 import OperatorMenu from './OperatorMenu';
-import { ComparisonOperator } from '@utils/types';
 
 interface FilterPopupProps {
   filters: FilterOptions;

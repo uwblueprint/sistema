@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
 import { prisma } from '@utils/prisma';
 import { sendEmail } from '@utils/sendEmail';
+import { NextResponse } from 'next/server';
 
 const UPLOAD_LINK = `${process.env.NEXT_PUBLIC_PROD_URL!}/calendar`;
 

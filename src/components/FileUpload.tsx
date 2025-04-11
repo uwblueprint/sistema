@@ -1,7 +1,6 @@
 import {
   Box,
   FormControl,
-  FormLabel,
   Image,
   Input,
   Text,

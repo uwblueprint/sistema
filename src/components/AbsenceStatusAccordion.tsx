@@ -1,5 +1,5 @@
 import { useTheme } from '@chakra-ui/react';
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Accordion, { AccordionItem } from './Accordion';
 
 interface AbsenceStatusAccordionProps {
