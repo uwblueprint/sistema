@@ -108,9 +108,15 @@ const Calendar: React.FC = () => {
         lessonPlan,
       } = eventInfo.event.extendedProps;
 
-      const eventDate = new Date(eventInfo.event.startStr);
-      const isPastEvent = eventDate < new Date();
-      const opacity = isPastEvent ? 0.7 : 1;
+      const eventDate = new Date(eventInfo.event.start!!);
+      const now = new Date();
+      const isSameDay =
+        eventDate.getFullYear() === now.getFullYear() &&
+        eventDate.getMonth() === now.getMonth() &&
+        eventDate.getDate() === now.getDate();
+      const isPastEvent = eventDate < now && !isSameDay;
+
+      const opacity = isPastEvent ? 0.6 : 1;
       const createdByUser = absentTeacher.id === userData?.id;
 
       const highlightText = createdByUser

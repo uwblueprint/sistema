@@ -59,6 +59,5 @@ export const useUserData = (): UseUserDataReturn => {
     usedAbsences: fetchedUserData?.usedAbsences ?? 0,
     isAuthenticated: status === 'authenticated',
     isLoading,
-    numOfAbsences: 0,
   };
 };

@@ -9,7 +9,6 @@ export interface Absence {
   substituteTeacherId?: number;
   locationId: number;
   subjectId: number;
-  lessonPlan?: string | null;
 }
 
 export interface LessonPlanFile {
@@ -34,7 +33,6 @@ export interface EventDetails {
   reasonOfAbsence: string;
   notes: string;
   absenceId: number;
-  subject: { id: number; name: string } | null;
 }
 
 export interface AbsenceAPI {
@@ -192,38 +190,4 @@ export interface FilterOptions {
   absencesOperator: ComparisonOperator;
   absencesValue: number | null;
   disabledTags?: string[] | null;
-}
-
-export interface AbsenceUpdate {
-  lessonDate?: Date | string;
-  lessonPlan?: string | null;
-  reasonOfAbsence?: string;
-  notes?: string | null;
-  roomNumber?: string | null;
-  substituteTeacher?: {
-    firstName: string;
-    lastName: string;
-    id: number;
-  } | null;
-  absentTeacher?: {
-    firstName: string;
-    lastName: string;
-    id: number;
-  } | null;
-  location?: {
-    id: number;
-    name: string;
-  } | null;
-  subject?: {
-    id: number;
-    name: string;
-    abbreviation: string;
-    colorGroup: {
-      colorCodes: string[];
-    };
-  } | null;
-  absentTeacherId?: number;
-  substituteTeacherId?: number;
-  locationId?: number;
-  subjectId?: number;
 }
