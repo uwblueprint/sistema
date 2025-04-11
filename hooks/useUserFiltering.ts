@@ -1,6 +1,7 @@
 import { FilterOptions, UserAPI } from '@utils/types';
 import { useMemo } from 'react';
 import { NO_EMAIL_TAGS } from '../src/components/FilterPopup';
+
 const useUserFiltering = (
   users: UserAPI[],
   filters: FilterOptions,

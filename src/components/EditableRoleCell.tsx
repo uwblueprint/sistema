@@ -59,7 +59,13 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
         justifyContent="space-between"
         cursor="pointer"
         onClick={handleEditClick}
-        bg={isEditing ? 'primaryBlue.50' : 'transparent'}
+        bg={
+          isEditing
+            ? 'primaryBlue.50'
+            : isHovered
+              ? 'neutralGray.100'
+              : 'transparent'
+        }
         p={2}
         borderRadius="md"
         width="100px"
@@ -76,7 +82,12 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
               onClick={toggleDropdown}
             />
           ) : (
-            isHovered && <Icon as={FiEdit2} color="neutralGray.600" />
+            <Icon
+              as={FiEdit2}
+              color="neutralGray.600"
+              opacity={isHovered ? 1 : 0}
+              transition="opacity 0.3s ease-in-out"
+            />
           )}
         </Box>
       </Box>
