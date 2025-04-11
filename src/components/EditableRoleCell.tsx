@@ -172,9 +172,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
           <PopoverContent
             width="auto"
             p={0}
-            borderRadius="5px"
             shadow="md"
-            border="1px solid"
             borderColor="neutralGray.300"
             _focus={{ boxShadow: 'none', outline: 'none' }}
           >
