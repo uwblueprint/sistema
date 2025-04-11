@@ -6,7 +6,7 @@ interface FileUploadProps {
   lessonPlan: File | null;
   setLessonPlan: (file: File | null) => void;
   existingFile?: LessonPlanFile | null;
-  isDisabled: boolean;
+  isDisabled?: boolean;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
