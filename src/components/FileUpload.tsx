@@ -90,11 +90,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         onDrop={handleDrop}
       >
         <Image src="/images/upload.svg" alt="Upload" width={10} height={10} />
-        <Box mt={2}>
-          <Text textStyle="subtitle">
-            {lessonPlan?.name || existingFile?.name || 'Upload PDF'}
-          </Text>
-        </Box>
+        <Text textStyle="subtitle">
+          {lessonPlan?.name || existingFile?.name || 'Upload PDF'}
+        </Text>
       </Box>
 
       <Input
