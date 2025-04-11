@@ -30,6 +30,7 @@ interface FilterPopupProps {
   setFilters: (filters: FilterOptions) => void;
   availableTags: string[];
   tagColors?: Record<string, string[]>;
+  isDisabled?: boolean;
 }
 
 // Special tag identifier for users with no email tags
@@ -40,6 +41,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
   setFilters,
   availableTags,
   tagColors = {},
+  isDisabled = false,
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -128,6 +130,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
           justifyContent="space-between"
           px={3}
           transition="all 0.3s ease-in-out"
+          isDisabled={isDisabled}
         >
           <HStack
             spacing={activeFilterCount > 0 ? 2 : 1}
