@@ -35,6 +35,14 @@ export async function PUT(req: Request) {
     const updatedAbsence = await prisma.$transaction(async (prisma) => {
       let lessonPlanId: number | undefined;
 
+      const existingAbsence = await prisma.absence.findUnique({
+        where: { id },
+      });
+
+      if (!existingAbsence) {
+        throw new Error(`Absence with ID ${id} not found.`);
+      }
+
       if (lessonPlanFile) {
         const existing = await prisma.absence.findUnique({
           where: { id },

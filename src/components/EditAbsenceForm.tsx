@@ -41,7 +41,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
   const toast = useToast();
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  console.log('POO1', initialData.start);
   const [formData, setFormData] = useState({
     reasonOfAbsence: initialData.reasonOfAbsence,
     absentTeacherId: initialData.absentTeacher
