@@ -245,7 +245,7 @@ const Calendar: React.FC = () => {
 
   const handleAbsenceClick = (clickInfo: EventClickArg) => {
     setSelectedEvent({
-      title: clickInfo.event.title || 'Untitled Event',
+      title: clickInfo.event.title,
       start: clickInfo.event.start,
       absentTeacher: clickInfo.event.extendedProps.absentTeacher || null,
       absentTeacherFullName:
@@ -255,6 +255,8 @@ const Calendar: React.FC = () => {
       substituteTeacherFullName:
         clickInfo.event.extendedProps.substituteTeacherFullName || '',
       location: clickInfo.event.extendedProps.location || '',
+      locationId: clickInfo.event.extendedProps.locationId,
+      subjectId: clickInfo.event.extendedProps.subjectId,
       classType: clickInfo.event.extendedProps.classType || '',
       lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
       roomNumber: clickInfo.event.extendedProps.roomNumber || '',

@@ -26,6 +26,8 @@ export interface EventDetails {
   substituteTeacher: { id: number; firstName: string; lastName: string } | null;
   substituteTeacherFullName: string | null;
   location: string;
+  locationId: number;
+  subjectId: number;
   classType: string;
   lessonPlan: LessonPlanFile | null;
   roomNumber: string | null;
