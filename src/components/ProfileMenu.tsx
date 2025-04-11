@@ -72,6 +72,8 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
           src={userData?.image}
           width="40px"
           height="40px"
+          loading="eager"
+          ignoreFallback
         />
       </MenuButton>
       <MenuList width="280px" p={4} textAlign="center" boxShadow="lg">
@@ -81,6 +83,8 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
           width="80px"
           height="80px"
           mb={3}
+          loading="eager"
+          ignoreFallback
         />
         <Text textStyle="h3">Hi, {userData?.name}!</Text>
         <Text textStyle="caption" color="text.subtitle" mb={4}>

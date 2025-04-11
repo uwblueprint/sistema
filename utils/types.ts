@@ -20,13 +20,14 @@ export interface LessonPlanFile {
 
 export interface EventDetails {
   title: string;
-  start: Date | null;
-  absentTeacher: { id: number; firstName: string; lastName: string } | null;
+  start: Date;
+  absentTeacher: { id: number; firstName: string; lastName: string };
   absentTeacherFullName: string;
   substituteTeacher: { id: number; firstName: string; lastName: string } | null;
   substituteTeacherFullName: string | null;
   location: string;
-  classType: string;
+  locationId: number;
+  subjectId: number;
   lessonPlan: LessonPlanFile | null;
   roomNumber: string | null;
   reasonOfAbsence: string;

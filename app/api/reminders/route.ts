@@ -23,13 +23,16 @@ function getUTCDateWithoutTime(baseDate: Date, daysToAdd: number): Date {
   );
 }
 
-async function getAdminEmails() {
+async function getAdminEmails(allowedDomain: string): Promise<string[]> {
   try {
     const adminUsers = await prisma.user.findMany({
       where: { role: 'ADMIN' },
       select: { email: true },
     });
-    return adminUsers.map((user) => user.email);
+
+    return adminUsers
+      .map((user) => user.email)
+      .filter((email) => email.endsWith(`@${allowedDomain}`));
   } catch (error) {
     console.error('Error fetching admin emails:', error);
     return [];
@@ -106,6 +109,7 @@ async function sendReminders(
   const today = new Date();
   const targetDate = getUTCDateWithoutTime(today, daysBefore);
   const nextDay = new Date(targetDate.getTime() + 86400000);
+  const allowedDomain = process.env.SISTEMA_EMAIL_DOMAIN!;
 
   const users = await getUsersWithPendingLessonPlans(targetDate, nextDay);
 
@@ -114,10 +118,17 @@ async function sendReminders(
     return 0;
   }
 
-  const adminEmails = await getAdminEmails();
+  const adminEmails = await getAdminEmails(allowedDomain);
 
   const emailPromises = users.flatMap((user) =>
     user.absences.map(async (absence) => {
+      if (!user.email.endsWith(`@${allowedDomain}`)) {
+        console.warn(
+          `Skipped email to ${user.email} due to domain restriction`
+        );
+        return false;
+      }
+
       const emailBody = createEmailBody(user, absence, isUrgent);
       const emailContent = {
         to: user.email,
@@ -141,7 +152,13 @@ async function sendReminders(
   return successfulEmails;
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  if (
+    req.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`
+  ) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
   try {
     const [sevenDayCount, twoDayCount] = await Promise.all([
       sendReminders(7, false),
