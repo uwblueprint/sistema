@@ -91,7 +91,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       >
         <Image src="/images/upload.svg" alt="Upload" width={10} height={10} />
         <Text textStyle="subtitle">
-          {lessonPlan?.name || existingFile?.name || 'Upload PDF'}
+          {lessonPlan
+            ? `Selected file: ${lessonPlan.name}`
+            : existingFile
+              ? `Selected file: ${existingFile.name}`
+              : 'Upload PDF'}
         </Text>
       </Box>
 
