@@ -36,7 +36,10 @@ export default function DashboardPage() {
         const events = data.events || [];
         setAbsenceData(events);
 
-        if (events.length > 0 && !selectedYearRange) {
+        if (
+          events.length > 0 &&
+          !events.some((e) => e.yearRange === selectedYearRange)
+        ) {
           setSelectedYearRange(events[0].yearRange);
         }
       } catch (err) {
@@ -150,7 +153,7 @@ export default function DashboardPage() {
             highestMonthlyAbsence={highestMonthlyAbsence}
           />
         </HStack>
-        <UserManagementCard />
+        <UserManagementCard selectedYearRange={selectedYearRange} />
       </Box>
     </Box>
   );
