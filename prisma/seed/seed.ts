@@ -155,6 +155,8 @@ const main = async () => {
     let date: Date;
     do {
       date = faker.date.future({ years: 2 });
+      // Set time to noon to avoid timezone shifts affecting the weekday
+      date.setHours(12, 0, 0, 0);
     } while (date.getDay() === 0 || date.getDay() === 6);
     return date;
   };
@@ -163,6 +165,8 @@ const main = async () => {
     let date: Date;
     do {
       date = faker.date.past({ years: 2 });
+      // Set time to noon to avoid timezone shifts affecting the weekday
+      date.setHours(12, 0, 0, 0);
     } while (date.getDay() === 0 || date.getDay() === 6);
     return date;
   };
