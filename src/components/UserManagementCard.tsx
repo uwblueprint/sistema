@@ -202,6 +202,7 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
         absenceCap={absenceCap}
         allSubjects={subjects}
         selectedYearRange={selectedYearRange}
+        isLoading={loading}
       />
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -215,7 +216,7 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
               <strong>
                 {pendingUser?.firstName} {pendingUser?.lastName}
               </strong>
-              &rsquo;s role to <strong>{pendingRole}</strong>?{' '}
+              &rsquo;s role to <strong>{pendingRole}</strong>?
             </Text>
           </ModalBody>
           <ModalFooter>

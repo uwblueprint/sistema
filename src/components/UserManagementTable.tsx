@@ -47,6 +47,7 @@ interface UserManagementTableProps {
   updateUserSubscriptions: (userId: number, subjectIds: number[]) => void;
   absenceCap: number;
   allSubjects?: SubjectAPI[];
+  isLoading?: boolean;
   selectedYearRange: string;
 }
 
@@ -56,6 +57,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   updateUserSubscriptions,
   absenceCap,
   allSubjects: propSubjects,
+  isLoading = false,
   selectedYearRange,
 }) => {
   const [sortField, setSortField] = useState<SortField>('name');
@@ -247,6 +249,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
               transition="width 0.3s ease"
               width={searchTerm ? '270px' : '0px'}
               margin={0}
+              isDisabled={isLoading}
             />
           </InputGroup>
 
@@ -255,6 +258,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
             setFilters={setFilters}
             availableTags={availableTags}
             tagColors={tagColors}
+            isDisabled={isLoading}
           />
         </HStack>
       </HStack>
@@ -265,16 +269,16 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           <Thead
             position="sticky"
             top={0}
-            zIndex={2000} // Make sure it's above the popover for editing email subscriptions
+            zIndex={1000} // Make sure it's above the popover for editing email subscriptions
             bg="white"
             boxShadow="0 1px 1px rgba(227, 227, 227, 1)"
           >
-            <Tr borderColor={'red'}>
+            <Tr>
               <SortableHeader field="name" label="Name" icon={FiUser} />
               <SortableHeader field="email" label="Email" icon={FiMail} />
               <SortableHeader
                 field="absences"
-                label="Absent"
+                label="Abs."
                 icon={FiClock}
                 centered
               />
@@ -296,8 +300,9 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           </Thead>
 
           <Tbody>
-            {sortedUsers.length > 0
-              ? sortedUsers.map((user, index) => (
+            {isLoading
+              ? null
+              : sortedUsers.map((user, index) => (
                   <Tr
                     key={index}
                     sx={{
@@ -310,8 +315,13 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                           size="sm"
                           name={`${user.firstName} ${user.lastName}`}
                           src={user.profilePicture || undefined}
+                          loading="eager"
+                          ignoreFallback
                         />
-                        <Text textStyle="cellBold">{`${user.firstName} ${user.lastName}`}</Text>
+
+                        <Text textStyle="cellBold" whiteSpace="nowrap">
+                          {`${user.firstName} ${user.lastName}`}
+                        </Text>
                       </HStack>
                     </Td>
                     <Td color="gray.600">
@@ -321,11 +331,11 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       <Text
                         textStyle="cellBold"
                         color={getAbsenceColor(
-                          user.absences?.length || 0,
+                          getSelectedYearAbsences(user.absences),
                           absenceCap
                         )}
                       >
-                        {user.absences?.length || 0}
+                        {getSelectedYearAbsences(user.absences)}{' '}
                       </Text>
                     </Td>
                     <Td py="6px">
@@ -347,8 +357,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       />
                     </Td>
                   </Tr>
-                ))
-              : null}
+                ))}
           </Tbody>
         </Table>
       </Box>
