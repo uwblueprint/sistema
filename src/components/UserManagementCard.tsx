@@ -93,7 +93,7 @@ const UserManagementCard = () => {
     }
   };
 
-  return loading ? null : (
+  return (
     <Box
       height="100%"
       display="flex"
@@ -105,6 +105,7 @@ const UserManagementCard = () => {
         users={users}
         updateUserRole={handleConfirmRoleChange}
         absenceCap={absenceCap}
+        isLoading={loading}
       />
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
