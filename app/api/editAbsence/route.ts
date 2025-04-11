@@ -18,8 +18,6 @@ export async function PUT(req: Request) {
       lessonPlanFile,
     } = body;
 
-    console.log(body);
-
     if (
       !id ||
       !lessonDate ||

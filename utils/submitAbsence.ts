@@ -1,14 +1,24 @@
 import { Prisma } from '@prisma/client';
 import { uploadFile } from './uploadFile';
 
-interface SubmitAbsenceParams {
+type SubmitAbsenceBase = {
   formData: any;
   lessonPlan: File | null;
-  onDeclareAbsence?: (absence: Prisma.AbsenceCreateManyInput) => Promise<any>;
-  onEditAbsence?: (
+};
+
+type DeclareAbsenceParams = SubmitAbsenceBase & {
+  onDeclareAbsence: (absence: Prisma.AbsenceCreateManyInput) => Promise<any>;
+  onEditAbsence?: never;
+};
+
+type EditAbsenceParams = SubmitAbsenceBase & {
+  onEditAbsence: (
     absence: Partial<Prisma.AbsenceUpdateInput> & { id: number }
   ) => Promise<any>;
-}
+  onDeclareAbsence?: never;
+};
+
+type SubmitAbsenceParams = DeclareAbsenceParams | EditAbsenceParams;
 
 export async function submitAbsence({
   formData,
@@ -49,19 +59,10 @@ export async function submitAbsence({
   };
 
   if (onEditAbsence && formData.id) {
-    const response = await onEditAbsence({
-      ...absenceData,
-      id: formData.id,
-    });
+    const response = await onEditAbsence({ ...absenceData, id: formData.id });
     return response
-      ? {
-          success: true,
-          message: 'Absence updated successfully.',
-        }
-      : {
-          success: false,
-          message: 'Failed to update absence',
-        };
+      ? { success: true, message: 'Absence updated successfully.' }
+      : { success: false, message: 'Failed to update absence' };
   }
 
   if (onDeclareAbsence) {
@@ -75,11 +76,8 @@ export async function submitAbsence({
             day: 'numeric',
           }),
         }
-      : {
-          success: false,
-          message: 'Failed to declare absence',
-        };
+      : { success: false, message: 'Failed to declare absence' };
   }
 
-  return { success: false, message: 'No action provided' };
+  throw new Error('submitAbsence called without a valid action handler');
 }
