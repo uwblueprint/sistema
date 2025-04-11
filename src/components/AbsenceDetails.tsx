@@ -21,10 +21,11 @@ import { Buildings, Calendar } from 'iconsax-react';
 import { useState } from 'react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
+import AbsenceClaimThanks from './AbsenceClaimThanks';
 import AbsenceStatusTag from './AbsenceStatusTag';
+import EditableNotes from './EditableNotes';
 import EditAbsenceForm from './EditAbsenceForm';
 import LessonPlanView from './LessonPlanView';
-import AbsenceClaimThanks from './AbsenceClaimThanks';
 
 interface AbsenceDetailsProps {
   isOpen: boolean;
@@ -322,36 +323,11 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                 </Box>
               )}
               {isUserAbsentTeacher && !isAdminMode && (
-                <Box position="relative">
-                  <Text textStyle="h4" mb="9px">
-                    Notes
-                  </Text>
-                  <Box
-                    fontSize="12px"
-                    sx={{
-                      padding: '15px 15px 33px 15px',
-                      borderRadius: '10px',
-                    }}
-                    background={theme.colors.neutralGray[50]}
-                  >
-                    {event.notes}
-                  </Box>
-
-                  <IconButton
-                    aria-label="Edit Notes"
-                    icon={
-                      <FiEdit2
-                        size="15px"
-                        color={theme.colors.neutralGray[600]}
-                      />
-                    }
-                    size="sm"
-                    variant="ghost"
-                    position="absolute"
-                    bottom="8px"
-                    right="16px"
-                  />
-                </Box>
+                <EditableNotes
+                  notes={event.notes}
+                  absenceId={event.absenceId}
+                  fetchAbsences={fetchAbsences}
+                />
               )}
               {event.notes && (!isUserAbsentTeacher || isAdminMode) && (
                 <Box position="relative">
