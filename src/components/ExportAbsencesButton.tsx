@@ -1,8 +1,9 @@
 import { Box, Button, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 import { FiDownload } from 'react-icons/fi';
+import { getSelectedYearAbsences } from '@utils/getSelectedYearAbsences';
 
-const ExportAbsencesButton = () => {
+const ExportAbsencesButton = ({ selectedRange }: { selectedRange: string }) => {
   const [error, setError] = useState<string | null>(null);
 
   const convertToCSV = (data: any[]) => {
@@ -42,6 +43,20 @@ const ExportAbsencesButton = () => {
     return headers + rows;
   };
 
+  const getFilteredAbsences = (
+    absences: { lessonDate: string }[],
+    selectedRange: string
+  ) => {
+    return absences
+      .filter(
+        (absence) => getSelectedYearAbsences([absence], selectedRange) > 0
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.lessonDate).getTime() - new Date(b.lessonDate).getTime()
+      );
+  };
+
   const handleDownload = async () => {
     try {
       setError(null);
@@ -52,7 +67,9 @@ const ExportAbsencesButton = () => {
       }
 
       const data = await response.json();
-      const csvData = convertToCSV(data.events);
+      const filteredAbsences = getFilteredAbsences(data.events, selectedRange);
+
+      const csvData = convertToCSV(filteredAbsences);
       const blob = new Blob([csvData], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -64,8 +81,10 @@ const ExportAbsencesButton = () => {
         .replace(/:/g, '-')
         .split('.')[0];
 
+      const sanitizedRange = selectedRange.replace(/ /g, '').replace('-', '_');
+
       link.href = url;
-      link.download = `absences_${timestamp}.csv`;
+      link.download = `absences_${sanitizedRange}_generated_at_${timestamp}.csv`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (err) {

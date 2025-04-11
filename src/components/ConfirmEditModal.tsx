@@ -9,46 +9,37 @@ import {
   Text,
 } from '@chakra-ui/react';
 
-interface ConfirmAbsenceModalProps {
+interface ConfirmEditModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   isSubmitting?: boolean;
-  lessonDate: string;
 }
 
-export const ConfirmAbsenceModal: React.FC<ConfirmAbsenceModalProps> = ({
+export const ConfirmEditModal: React.FC<ConfirmEditModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
   isSubmitting = false,
-  lessonDate,
 }) => {
-  const formattedDate = new Date(lessonDate + 'T00:00:00').toLocaleDateString(
-    'en-CA',
-    {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-    }
-  );
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Confirm Absence</ModalHeader>
+        <ModalHeader>Save Changes?</ModalHeader>
         <ModalBody>
-          <Text>
-            Please confirm your absence on <strong>{formattedDate}</strong>.
-          </Text>
+          <Text>Would you like to save the changes you&apos;ve made?</Text>
         </ModalBody>
         <ModalFooter>
           <Button onClick={onClose} mr={3}>
-            Cancel
+            Back
           </Button>
-          <Button onClick={onConfirm} isLoading={isSubmitting}>
-            Confirm
+          <Button
+            onClick={onConfirm}
+            isLoading={isSubmitting}
+            colorScheme="blue"
+          >
+            Save
           </Button>
         </ModalFooter>
       </ModalContent>

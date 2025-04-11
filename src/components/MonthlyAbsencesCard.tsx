@@ -4,7 +4,6 @@ import {
   CardBody,
   CardHeader,
   Divider,
-  Heading,
   HStack,
   Text,
   useTheme,

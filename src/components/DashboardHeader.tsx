@@ -86,8 +86,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             yearRanges={yearRanges}
           />
         )}
-
-        <ExportAbsencesButton />
+        {hasData && <ExportAbsencesButton selectedRange={selectedYearRange} />}
         <ProfileMenu userData={userData} absenceCap={absenceCap} />
       </HStack>
     </Flex>

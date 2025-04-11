@@ -3,10 +3,10 @@ import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { TacetLogo } from '../components/SistemaLogoColour';
 import AbsenceStatusAccordion from './AbsenceStatusAccordion';
+import ArchivedAccordion from './ArchivedAccordion';
 import LocationAccordion from './LocationAccordion';
 import MiniCalendar from './MiniCalendar';
 import SubjectAccordion from './SubjectAccordion';
-import ArchivedAccordion from './ArchivedAccordion';
 
 interface CalendarSidebarProps {
   setSearchQuery;

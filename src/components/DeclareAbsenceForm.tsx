@@ -22,24 +22,22 @@ import { DateOfAbsence } from './DateOfAbsence';
 import { FileUpload } from './FileUpload';
 import { InputDropdown } from './InputDropdown';
 
-interface InputFormProps {
+interface DeclareAbsenceFormProps {
   onClose?: () => void;
-  onDeclareAbsence: (
-    absence: Prisma.AbsenceCreateManyInput
-  ) => Promise<Absence | null>;
   userId: number;
   onTabChange: (tab: 'explore' | 'declared') => void;
   initialDate: Date;
   isAdminMode: boolean;
+  fetchAbsences: () => Promise<void>;
 }
 
-const InputForm: React.FC<InputFormProps> = ({
+const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
   onClose,
-  onDeclareAbsence,
   userId,
   onTabChange,
   initialDate,
   isAdminMode,
+  fetchAbsences,
 }) => {
   const toast = useToast();
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
@@ -103,7 +101,7 @@ const InputForm: React.FC<InputFormProps> = ({
       const result = await submitAbsence({
         formData,
         lessonPlan,
-        onDeclareAbsence,
+        onDeclareAbsence: handleDeclareAbsence,
       });
 
       if (result.success) {
@@ -147,6 +145,29 @@ const InputForm: React.FC<InputFormProps> = ({
     }
   };
 
+  const handleDeclareAbsence = async (
+    absence: Prisma.AbsenceCreateManyInput
+  ): Promise<Absence | null> => {
+    try {
+      const res = await fetch('/api/declareAbsence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(absence),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to add absence: ${res.statusText}`);
+      }
+
+      const addedAbsence = await res.json();
+      await fetchAbsences();
+      return addedAbsence;
+    } catch (error) {
+      console.error('Error adding absence:', error);
+      return null;
+    }
+  };
+
   const handleDateSelect = (date: Date) => {
     setFormData((prev) => ({
       ...prev,
@@ -177,7 +198,7 @@ const InputForm: React.FC<InputFormProps> = ({
             <Text textStyle="h4">Subject</Text>
           </FormLabel>
           <InputDropdown
-            label="class type"
+            label="subject"
             type="subject"
             onChange={(value) => {
               setFormData((prev) => ({
@@ -200,7 +221,7 @@ const InputForm: React.FC<InputFormProps> = ({
             <Text textStyle="h4">Location</Text>
           </FormLabel>
           <InputDropdown
-            label="class location"
+            label="location"
             type="location"
             onChange={(value) => {
               setFormData((prev) => ({
@@ -218,10 +239,11 @@ const InputForm: React.FC<InputFormProps> = ({
           <FormErrorMessage>{errors.locationId}</FormErrorMessage>
         </FormControl>
         <FormControl>
-          <FormLabel sx={{ display: 'flex' }}>
+          <FormLabel htmlFor="roomNumber" sx={{ display: 'flex' }}>
             <Text textStyle="h4">Room Number</Text>
           </FormLabel>
           <Input
+            id="roomNumber"
             name="roomNumber"
             placeholder="e.g. 2131"
             value={formData.roomNumber}
@@ -235,10 +257,11 @@ const InputForm: React.FC<InputFormProps> = ({
         />
 
         <FormControl isRequired isInvalid={!!errors.reasonOfAbsence}>
-          <FormLabel sx={{ display: 'flex' }}>
+          <FormLabel htmlFor="reasonOfAbsence" sx={{ display: 'flex' }}>
             <Text textStyle="h4">Reason of Absence</Text>
           </FormLabel>
           <Textarea
+            id="reasonOfAbsence"
             name="reasonOfAbsence"
             placeholder="Only visible to admin"
             value={formData.reasonOfAbsence}
@@ -248,13 +271,19 @@ const InputForm: React.FC<InputFormProps> = ({
           <FormErrorMessage>{errors.reasonOfAbsence}</FormErrorMessage>
         </FormControl>
 
-        <FileUpload lessonPlan={lessonPlan} setLessonPlan={setLessonPlan} />
+        <FormControl>
+          <Text textStyle="h4" mb={2}>
+            Lesson Plan
+          </Text>
+          <FileUpload lessonPlan={lessonPlan} setLessonPlan={setLessonPlan} />
+        </FormControl>
 
         <FormControl>
-          <FormLabel sx={{ display: 'flex' }}>
+          <FormLabel htmlFor="notes" sx={{ display: 'flex' }}>
             <Text textStyle="h4">Notes</Text>
           </FormLabel>
           <Textarea
+            id="notes"
             name="notes"
             placeholder="Additional relevant info..."
             value={formData.notes}
@@ -285,4 +314,4 @@ const InputForm: React.FC<InputFormProps> = ({
   );
 };
 
-export default InputForm;
+export default DeclareAbsenceForm;

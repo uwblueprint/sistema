@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@utils/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
 function validateId(id: string): number | null {
   const parsedId = Number(id);

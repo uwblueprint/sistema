@@ -7,7 +7,8 @@ const useUserFiltering = (
   filters: FilterOptions,
   searchTerm: string,
   sortField: string,
-  sortDirection: 'asc' | 'desc'
+  sortDirection: 'asc' | 'desc',
+  getSelectedYearAbsences: (absences?: any[]) => number
 ) => {
   const filteredUsers = useMemo(() => {
     return users.filter((user: UserAPI) => {
@@ -16,7 +17,10 @@ const useUserFiltering = (
       if (searchTerm) {
         const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
         const searchLower = searchTerm.toLowerCase();
-        if (!fullName.includes(searchLower)) {
+        if (
+          !fullName.includes(searchLower) &&
+          !user.email.toLowerCase().includes(searchLower)
+        ) {
           return false;
         }
       }
@@ -25,18 +29,18 @@ const useUserFiltering = (
         return false;
       }
 
-      if (absencesValue !== null && absencesValue !== undefined) {
-        const userAbsences = user.absences?.length || 0;
+      const filteredAbsences = getSelectedYearAbsences(user.absences);
 
+      if (absencesValue !== null && absencesValue !== undefined) {
         switch (absencesOperator) {
           case 'greater_than':
-            if (userAbsences <= absencesValue) return false;
+            if (filteredAbsences <= absencesValue) return false;
             break;
           case 'less_than':
-            if (userAbsences >= absencesValue) return false;
+            if (filteredAbsences >= absencesValue) return false;
             break;
           case 'equal_to':
-            if (userAbsences !== absencesValue) return false;
+            if (filteredAbsences !== absencesValue) return false;
             break;
         }
       }
@@ -45,19 +49,17 @@ const useUserFiltering = (
         const userTags =
           user.mailingLists?.map((list) => list.subject.name) || [];
 
-        // Check if user has no subscriptions
         if (userTags.length === 0) {
-          // Only show users with no subscriptions if the "No Email Tags" option is enabled
           return !disabledTags.includes(NO_EMAIL_TAGS);
         }
 
-        // For users with subscriptions, check if they have any enabled tag
+        // Include users who have at least one allowed tag
         return userTags.some((tag) => !disabledTags.includes(tag));
       }
 
       return true;
     });
-  }, [users, filters, searchTerm]);
+  }, [users, filters, searchTerm, getSelectedYearAbsences]);
 
   const sortedUsers = useMemo(() => {
     return [...filteredUsers].sort((a, b) => {
@@ -73,14 +75,16 @@ const useUserFiltering = (
         case 'email':
           return a.email.localeCompare(b.email) * modifier;
         case 'absences':
-          return (a.absences.length - b.absences.length) * modifier;
+          const aCount = getSelectedYearAbsences(a.absences);
+          const bCount = getSelectedYearAbsences(b.absences);
+          return (aCount - bCount) * modifier;
         case 'role':
           return a.role.localeCompare(b.role) * modifier;
         default:
           return 0;
       }
     });
-  }, [filteredUsers, sortField, sortDirection]);
+  }, [filteredUsers, sortField, sortDirection, getSelectedYearAbsences]);
 
   return { sortedUsers };
 };

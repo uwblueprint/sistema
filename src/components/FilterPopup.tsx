@@ -6,30 +6,28 @@ import {
   Icon,
   NumberInput,
   NumberInputField,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Spacer,
   Tag,
   TagLabel,
   Text,
   VStack,
   useDisclosure,
-  useOutsideClick,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  PopoverArrow,
 } from '@chakra-ui/react';
-import { FilterOptions, Role } from '@utils/types';
-import React, { useMemo, useRef } from 'react';
+import { ComparisonOperator, FilterOptions, Role } from '@utils/types';
+import React, { useMemo } from 'react';
 import { BiRevision } from 'react-icons/bi';
 import { IoFilterOutline } from 'react-icons/io5';
 import OperatorMenu from './OperatorMenu';
-import { ComparisonOperator } from '@utils/types';
 
 interface FilterPopupProps {
   filters: FilterOptions;
   setFilters: (filters: FilterOptions) => void;
   availableTags: string[];
   tagColors?: Record<string, string[]>;
+  isDisabled?: boolean;
 }
 
 // Special tag identifier for users with no email tags
@@ -40,6 +38,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
   setFilters,
   availableTags,
   tagColors = {},
+  isDisabled = false,
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -128,6 +127,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
           justifyContent="space-between"
           px={3}
           transition="all 0.3s ease-in-out"
+          isDisabled={isDisabled}
         >
           <HStack
             spacing={activeFilterCount > 0 ? 2 : 1}

@@ -48,13 +48,12 @@ const AbsenceBox: React.FC<AbsenceBoxProps> = ({
   return (
     <Box
       sx={{
-        padding: (theme) => `${theme.space[1]} ${theme.space[1]}`,
-        margin: `4px 4px`,
+        padding: '2px 3px 4px 3px',
         borderRadius: (theme) => `${theme.radii.md}`,
         backgroundColor,
         textColor,
-        border: '0.1rem solid',
-        borderLeft: '5px solid',
+        border: '1px solid',
+        borderLeft: '7px solid',
         borderColor,
         position: 'relative',
         opacity,
@@ -70,14 +69,29 @@ const AbsenceBox: React.FC<AbsenceBoxProps> = ({
             color: textColor,
             transform: 'rotate(180deg)',
           }}
+          size={18}
         />
       )}
       <Box className="fc-event-title-container">
-        <Box className="fc-event-title fc-sticky" sx={{ fontWeight: 'bold' }}>
+        <Box
+          className="fc-event-title fc-sticky"
+          sx={{
+            textStyle: 'h3',
+            color: 'inherit',
+            fontSize: '16px !important',
+          }}
+        >
           {title}
         </Box>
       </Box>
-      <Box className="fc-event-title fc-sticky" sx={{ fontSize: 'xs' }}>
+      <Box
+        className="fc-event-title fc-sticky"
+        sx={{
+          textStyle: 'subtitle',
+          color: 'inherit',
+          fontSize: '13px !important',
+        }}
+      >
         {location}
       </Box>
       {highlightText && (
