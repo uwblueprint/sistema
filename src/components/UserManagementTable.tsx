@@ -20,7 +20,7 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react';
-
+import { getSelectedYearAbsences as computeYearlyAbsences } from '@utils/getSelectedYearAbsences';
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { FilterOptions, Role, SubjectAPI, UserAPI } from '@utils/types';
 import useUserFiltering from '@hooks/useUserFiltering';
@@ -47,6 +47,7 @@ interface UserManagementTableProps {
   updateUserSubscriptions: (userId: number, subjectIds: number[]) => void;
   absenceCap: number;
   allSubjects?: SubjectAPI[];
+  selectedYearRange: string;
 }
 
 export const UserManagementTable: React.FC<UserManagementTableProps> = ({
@@ -55,6 +56,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   updateUserSubscriptions,
   absenceCap,
   allSubjects: propSubjects,
+  selectedYearRange,
 }) => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -68,6 +70,8 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [tagColors, setTagColors] = useState<Record<string, string[]>>({});
   const [allSubjects, setAllSubjects] = useState<SubjectAPI[]>([]);
+  const getSelectedYearAbsences = (absences?: any[]) =>
+    computeYearlyAbsences(absences, selectedYearRange);
 
   useEffect(() => {
     // Use subjects from props if available, otherwise fetch them
@@ -136,7 +140,8 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
     filters,
     searchTerm,
     sortField,
-    sortDirection
+    sortDirection,
+    getSelectedYearAbsences
   );
 
   const SortIcon = ({ field }: { field: SortField }) => {

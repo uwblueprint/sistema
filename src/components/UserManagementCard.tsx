@@ -15,7 +15,13 @@ import { Role, UserAPI, SubjectAPI, MailingList } from '@utils/types';
 import { useEffect, useState } from 'react';
 import { UserManagementTable } from './UserManagementTable';
 
-const UserManagementCard = () => {
+interface UserManagementCardProps {
+  selectedYearRange: string;
+}
+
+const UserManagementCard: React.FC<UserManagementCardProps> = ({
+  selectedYearRange,
+}) => {
   const [users, setUsers] = useState<UserAPI[]>([]);
   const [subjects, setSubjects] = useState<SubjectAPI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -195,6 +201,7 @@ const UserManagementCard = () => {
         updateUserSubscriptions={updateUserSubscriptions}
         absenceCap={absenceCap}
         allSubjects={subjects}
+        selectedYearRange={selectedYearRange}
       />
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
