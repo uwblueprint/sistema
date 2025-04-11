@@ -151,11 +151,20 @@ const main = async () => {
     }))
   );
 
+  const isESTWeekday = (date: Date): boolean => {
+    const weekdayInEST = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      weekday: 'short',
+    }).format(date);
+
+    return !['Sat', 'Sun'].includes(weekdayInEST);
+  };
+
   const generateWeekdayFutureDate = (): Date => {
     let date: Date;
     do {
       date = faker.date.future({ years: 2 });
-    } while (date.getDay() === 0 || date.getDay() === 6);
+    } while (!isESTWeekday(date));
     return date;
   };
 
@@ -163,7 +172,7 @@ const main = async () => {
     let date: Date;
     do {
       date = faker.date.past({ years: 2 });
-    } while (date.getDay() === 0 || date.getDay() === 6);
+    } while (!isESTWeekday(date));
     return date;
   };
 
