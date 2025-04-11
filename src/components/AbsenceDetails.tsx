@@ -16,26 +16,43 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
-import { Role } from '@utils/types';
+import { EventDetails, Role } from '@utils/types';
 import { Buildings, Calendar } from 'iconsax-react';
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
+import EditAbsenceForm from './EditAbsenceForm';
 import LessonPlanView from './LessonPlanView';
 import AbsenceClaimThanks from './AbsenceClaimThanks';
 
-const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
+interface AbsenceDetailsProps {
+  isOpen: boolean;
+  onClose: () => void;
+  event: EventDetails;
+  onDelete?: (absenceId: number) => void;
+  isAdminMode: boolean;
+  fetchAbsences: () => Promise<void>;
+}
+
+const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
+  isOpen,
+  onClose,
+  event,
+  onDelete,
+  isAdminMode,
+  fetchAbsences,
+}) => {
   const theme = useTheme();
   const userData = useUserData();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
   const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
   const [isClaimThanksOpen, setIsClaimThanksOpen] = useState(false);
+
   const toast = useToast();
-  const router = useRouter();
 
   if (!event) return null;
 
@@ -58,9 +75,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
     return number + ['th', 'st', 'nd', 'rd', ''][selector];
   };
 
-  const formatDate = (date) => {
-    if (!date) return 'N/A';
-
+  const formatDate = (date: Date) => {
     const parsedDate = new Date(date);
     const weekday = parsedDate.toLocaleDateString('en-CA', { weekday: 'long' });
     const month = parsedDate.toLocaleDateString('en-CA', { month: 'long' });
@@ -69,10 +84,73 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
     return `${weekday}, ${month} ${getOrdinalNum(day)}`;
   };
 
-  const absenceDate = formatDate(event.start);
+  const absenceDate = formatDate(event.start!!);
 
   const handleClaimThanksDone = () => {
     setIsClaimThanksOpen(false);
+  };
+
+  const handleClaimAbsenceClick = () => {
+    setIsClaimDialogOpen(true);
+  };
+
+  const handleClaimCancel = () => {
+    setIsClaimDialogOpen(false);
+  };
+
+  const handleClaimConfirm = async () => {
+    setIsClaiming(true);
+
+    try {
+      const response = await fetch('/api/editAbsence', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: event.absenceId,
+          lessonDate: event.start,
+          reasonOfAbsence: event.reasonOfAbsence,
+          notes: event.notes,
+          absentTeacherId: event.absentTeacher.id,
+          substituteTeacherId: userData.id,
+          locationId: event.locationId,
+          subjectId: event.subjectId,
+          roomNumber: event.roomNumber,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to claim absence');
+      }
+
+      toast({
+        title: 'Absence claimed',
+        description: 'You have successfully claimed this absence.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+
+      await fetchAbsences();
+      setIsClaimDialogOpen(false);
+      setIsClaimThanksOpen(true);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to claim absence',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsClaiming(false);
+      onClose();
+    }
+  };
+
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
   };
 
   const handleDeleteClick = () => {
@@ -92,7 +170,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          isUserAdmin: isUserAdmin,
+          isUserAdmin,
           absenceId: event.absenceId,
         }),
       });
@@ -109,13 +187,12 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
         isClosable: true,
       });
 
+      await fetchAbsences();
       setIsDeleteDialogOpen(false);
       onClose();
 
-      if (onChange) {
-        onChange();
-      } else {
-        router.reload();
+      if (onDelete) {
+        onDelete(event.absenceId);
       }
     } catch (error) {
       toast({
@@ -129,55 +206,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
       setIsDeleting(false);
     }
   };
-
-  const handleClaimAbsenceClick = () => {
-    setIsClaimDialogOpen(true);
-  };
-
-  const handleClaimCancel = () => {
-    setIsClaimDialogOpen(false);
-  };
-
-  const handleClaimConfirm = async () => {
-    try {
-      setIsClaiming(true);
-      const response = await fetch(`/api/claimAbsence`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: userId,
-          absenceId: event.absenceId,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to claim absence');
-      }
-
-      setIsClaimDialogOpen(false);
-      setIsClaimThanksOpen(true);
-      onClose();
-
-      if (onChange) {
-        onChange();
-      } else {
-        router.reload();
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to claim absence',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    } finally {
-      setIsClaiming(false);
-    }
-  };
-
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
@@ -193,7 +221,11 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
                 isUserAbsentTeacher={isUserAbsentTeacher}
                 isUserSubstituteTeacher={isUserSubstituteTeacher}
                 isAdminMode={isAdminMode}
-                substituteTeacherFullName={event.substituteTeacherFullName}
+                substituteTeacherFullName={
+                  event.substituteTeacherFullName
+                    ? event.substituteTeacherFullName
+                    : undefined
+                }
               />
               <Flex position="absolute" right="0">
                 {isAdminMode && (
@@ -204,6 +236,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
                     }
                     size="sm"
                     variant="ghost"
+                    onClick={handleEditClick}
                   />
                 )}
 
@@ -380,7 +413,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
                   </Flex>
                 )}
 
-              {/* Fill Absence Button*/}
               {!event.substituteTeacher &&
                 !isUserAbsentTeacher &&
                 !isAdminMode && (
@@ -396,28 +428,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
                 )}
             </VStack>
           </ModalBody>
-        </ModalContent>
-      </Modal>
-      <Modal
-        isOpen={isDeleteDialogOpen}
-        onClose={handleDeleteCancel}
-        isCentered
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Delete Absence</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text>Are you sure you want to delete this absence?</Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={handleDeleteCancel} mr={3}>
-              Cancel
-            </Button>
-            <Button onClick={handleDeleteConfirm} isLoading={isDeleting}>
-              Delete
-            </Button>
-          </ModalFooter>
         </ModalContent>
       </Modal>
       <Modal isOpen={isClaimDialogOpen} onClose={handleClaimCancel} isCentered>
@@ -474,6 +484,56 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onChange }) => {
         event={event}
         absenceDate={absenceDate}
       />
+      <Modal
+        isOpen={isDeleteDialogOpen}
+        onClose={handleDeleteCancel}
+        isCentered
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Delete Absence</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>Are you sure you want to delete this absence?</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={handleDeleteCancel} mr={3}>
+              Cancel
+            </Button>
+            <Button onClick={handleDeleteConfirm} isLoading={isDeleting}>
+              Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      {isEditModalOpen && (
+        <Modal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          isCentered
+        >
+          <ModalOverlay />
+          <ModalContent
+            width={362}
+            sx={{ padding: '33px 31px' }}
+            borderRadius="16px"
+          >
+            <ModalHeader fontSize={22} p="0 0 28px 0">
+              Edit Absence
+            </ModalHeader>
+            <ModalCloseButton top="33px" right="28px" color="text.header" />
+            <ModalBody p={0}>
+              <EditAbsenceForm
+                initialData={event}
+                isAdminMode={isAdminMode}
+                fetchAbsences={fetchAbsences}
+                onClose={() => setIsEditModalOpen(false)}
+                onFinishedEdit={onClose}
+              />
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      )}
     </>
   );
 };
