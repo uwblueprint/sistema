@@ -9,8 +9,9 @@ import {
   useTheme,
   useToast,
 } from '@chakra-ui/react';
+import { LessonPlanFile } from '@utils/types';
 import { uploadFile } from '@utils/uploadFile';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FiFileText } from 'react-icons/fi';
 
 const formatFileSize = (sizeInBytes: number) => {
@@ -153,6 +154,13 @@ const LessonPlanView = ({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const toast = useToast();
   const [isUploading, setIsUploading] = useState(false);
+  const [localLessonPlan, setLocalLessonPlan] = useState<LessonPlanFile | null>(
+    lessonPlan
+  );
+
+  useEffect(() => {
+    setLocalLessonPlan(lessonPlan);
+  }, [lessonPlan]);
 
   const handleSwap = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -193,6 +201,15 @@ const LessonPlanView = ({
     });
 
     if (res.ok) {
+      const updatedPlan: LessonPlanFile = {
+        id: -1,
+        name: file.name,
+        size: file.size,
+        url: fileUrl,
+      };
+
+      setLocalLessonPlan(updatedPlan);
+
       toast({
         title: 'Lesson Plan Updated',
         description: 'Your lesson plan was successfully swapped.',
@@ -200,6 +217,7 @@ const LessonPlanView = ({
         duration: 5000,
         isClosable: true,
       });
+
       await fetchAbsences?.();
     } else {
       toast({
@@ -214,12 +232,12 @@ const LessonPlanView = ({
     setIsUploading(false);
   };
 
-  return lessonPlan ? (
+  return localLessonPlan ? (
     <>
       <LessonPlanDisplay
-        href={lessonPlan.url}
-        fileName={lessonPlan.name}
-        fileSize={lessonPlan.size}
+        href={localLessonPlan.url}
+        fileName={localLessonPlan.name}
+        fileSize={localLessonPlan.size}
         isUserAbsentTeacher={isUserAbsentTeacher}
         isAdminMode={isAdminMode}
         onSwap={handleSwap}
