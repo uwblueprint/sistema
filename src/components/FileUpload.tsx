@@ -1,11 +1,4 @@
-import {
-  Box,
-  FormControl,
-  Image,
-  Input,
-  Text,
-  useToast,
-} from '@chakra-ui/react';
+import { Box, Image, Input, Text, useToast } from '@chakra-ui/react';
 import { LessonPlanFile } from '@utils/types';
 import { useRef, useState } from 'react';
 
@@ -13,12 +6,14 @@ interface FileUploadProps {
   lessonPlan: File | null;
   setLessonPlan: (file: File | null) => void;
   existingFile?: LessonPlanFile | null;
+  isDisabled: boolean;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   lessonPlan,
   setLessonPlan,
   existingFile,
+  isDisabled,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -32,33 +27,39 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         title: 'Invalid File Type',
         description: 'Please upload a valid PDF file.',
         status: 'error',
-        duration: 4000,
+        duration: 5000,
         isClosable: true,
       });
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
+    if (isDisabled) return;
+
+    const file = e.target.files?.[0];
+    if (file) {
       validateAndSetFile(file);
     }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
+    if (isDisabled) return;
     e.preventDefault();
     setIsDragging(true);
   };
 
   const handleDragLeave = () => {
+    if (isDisabled) return;
     setIsDragging(false);
   };
 
   const handleDrop = (e: React.DragEvent) => {
+    if (isDisabled) return;
     e.preventDefault();
     setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const file = e.dataTransfer.files[0];
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
       validateAndSetFile(file);
     }
   };
@@ -69,11 +70,20 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         as="label"
         htmlFor="fileUpload"
         border="1px dashed"
-        borderColor={isDragging ? 'primaryBlue.300' : 'outline'}
+        borderColor={
+          isDisabled
+            ? 'neutralGray.300'
+            : isDragging
+              ? 'primaryBlue.300'
+              : 'outline'
+        }
+        bg={isDisabled ? 'neutralGray.50' : 'transparent'}
+        opacity={isDisabled ? 0.6 : 1}
+        pointerEvents={isDisabled ? 'none' : 'auto'}
         borderRadius="10px"
         p={5}
         textAlign="center"
-        cursor="pointer"
+        cursor={isDisabled ? 'not-allowed' : 'pointer'}
         display="flex"
         flexDirection="column"
         alignItems="center"
@@ -100,6 +110,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         onChange={handleFileChange}
         accept="application/pdf"
         display="none"
+        disabled={isDisabled}
       />
     </>
   );

@@ -13,6 +13,7 @@ import { LessonPlanFile } from '@utils/types';
 import { uploadFile } from '@utils/uploadFile';
 import { useEffect, useRef, useState } from 'react';
 import { FiFileText } from 'react-icons/fi';
+import { FileUpload } from './FileUpload';
 
 const formatFileSize = (sizeInBytes: number) => {
   if (sizeInBytes === 0) return '0 B';
@@ -127,21 +128,6 @@ const NoLessonPlanViewingDisplay = ({
   );
 };
 
-const NoLessonPlanDeclaredDisplay = () => {
-  const theme = useTheme();
-
-  return (
-    <Flex width="100%">
-      <Text
-        fontSize={theme.textStyles.body.fontSize}
-        color={theme.colors.neutralGray[500]}
-      >
-        Upload PDF component
-      </Text>
-    </Flex>
-  );
-};
-
 const LessonPlanView = ({
   lessonPlan,
   absentTeacherFirstName,
@@ -168,8 +154,7 @@ const LessonPlanView = ({
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileUpload = async (file: File) => {
     if (!file || file.type !== 'application/pdf') return;
 
     setIsUploading(true);
@@ -248,11 +233,21 @@ const LessonPlanView = ({
         ref={fileInputRef}
         display="none"
         accept="application/pdf"
-        onChange={handleFileChange}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            handleFileUpload(file);
+          }
+        }}
       />
     </>
   ) : isUserAbsentTeacher && !isAdminMode ? (
-    <NoLessonPlanDeclaredDisplay />
+    <FileUpload
+      lessonPlan={null}
+      setLessonPlan={handleFileUpload}
+      existingFile={null}
+      isDisabled={isUploading}
+    />
   ) : (
     <NoLessonPlanViewingDisplay
       absentTeacherFirstName={absentTeacherFirstName}
