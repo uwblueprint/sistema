@@ -21,7 +21,9 @@ import { Buildings, Calendar } from 'iconsax-react';
 import { useState } from 'react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
+import AbsenceClaimThanks from './AbsenceClaimThanks';
 import AbsenceStatusTag from './AbsenceStatusTag';
+import EditableNotes from './EditableNotes';
 import EditAbsenceForm from './EditAbsenceForm';
 import LessonPlanView from './LessonPlanView';
 
@@ -47,6 +49,9 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
+  const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
+  const [isClaimThanksOpen, setIsClaimThanksOpen] = useState(false);
 
   const toast = useToast();
 
@@ -56,6 +61,94 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const isUserAbsentTeacher = userId === event.absentTeacher.id;
   const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
   const isUserAdmin = userData.role === Role.ADMIN;
+
+  const getOrdinalNum = (number) => {
+    let selector;
+
+    if (number <= 0) {
+      selector = 4;
+    } else if ((number > 3 && number < 21) || number % 10 > 3) {
+      selector = 0;
+    } else {
+      selector = number % 10;
+    }
+
+    return number + ['th', 'st', 'nd', 'rd', ''][selector];
+  };
+
+  const formatDate = (date: Date) => {
+    const parsedDate = new Date(date);
+    const weekday = parsedDate.toLocaleDateString('en-CA', { weekday: 'long' });
+    const month = parsedDate.toLocaleDateString('en-CA', { month: 'long' });
+    const day = parsedDate.getDate();
+
+    return `${weekday}, ${month} ${getOrdinalNum(day)}`;
+  };
+
+  const absenceDate = formatDate(event.start!!);
+
+  const handleClaimThanksDone = () => {
+    setIsClaimThanksOpen(false);
+  };
+
+  const handleClaimAbsenceClick = () => {
+    setIsClaimDialogOpen(true);
+  };
+
+  const handleClaimCancel = () => {
+    setIsClaimDialogOpen(false);
+  };
+
+  const handleClaimConfirm = async () => {
+    setIsClaiming(true);
+
+    try {
+      const response = await fetch('/api/editAbsence', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: event.absenceId,
+          lessonDate: event.start,
+          reasonOfAbsence: event.reasonOfAbsence,
+          notes: event.notes,
+          absentTeacherId: event.absentTeacher.id,
+          substituteTeacherId: userData.id,
+          locationId: event.locationId,
+          subjectId: event.subjectId,
+          roomNumber: event.roomNumber,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to claim absence');
+      }
+
+      toast({
+        title: 'Absence claimed',
+        description: 'You have successfully claimed this absence.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+
+      await fetchAbsences();
+      setIsClaimDialogOpen(false);
+      setIsClaimThanksOpen(true);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to claim absence',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsClaiming(false);
+      onClose();
+    }
+  };
 
   const handleEditClick = () => {
     setIsEditModalOpen(true);
@@ -180,13 +273,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
               <Flex gap="13px" mt="-8px">
                 <Calendar size="20px" color={theme.colors.primaryBlue[300]} />
                 <Text textStyle="subtitle" color={theme.colors.text.body}>
-                  {event.start
-                    ? new Date(event.start).toLocaleDateString('en-CA', {
-                        weekday: 'long',
-                        month: 'long',
-                        day: 'numeric',
-                      })
-                    : 'N/A'}
+                  {absenceDate}
                 </Text>
               </Flex>
               <Flex gap="13px" mt="-8px">
@@ -236,36 +323,11 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                 </Box>
               )}
               {isUserAbsentTeacher && !isAdminMode && (
-                <Box position="relative">
-                  <Text textStyle="h4" mb="9px">
-                    Notes
-                  </Text>
-                  <Box
-                    fontSize="12px"
-                    sx={{
-                      padding: '15px 15px 33px 15px',
-                      borderRadius: '10px',
-                    }}
-                    background={theme.colors.neutralGray[50]}
-                  >
-                    {event.notes}
-                  </Box>
-
-                  <IconButton
-                    aria-label="Edit Notes"
-                    icon={
-                      <FiEdit2
-                        size="15px"
-                        color={theme.colors.neutralGray[600]}
-                      />
-                    }
-                    size="sm"
-                    variant="ghost"
-                    position="absolute"
-                    bottom="8px"
-                    right="16px"
-                  />
-                </Box>
+                <EditableNotes
+                  notes={event.notes}
+                  absenceId={event.absenceId}
+                  fetchAbsences={fetchAbsences}
+                />
               )}
               {event.notes && (!isUserAbsentTeacher || isAdminMode) && (
                 <Box position="relative">
@@ -335,6 +397,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                     height="44px"
                     fontSize="16px"
                     fontWeight="500"
+                    onClick={handleClaimAbsenceClick}
                   >
                     Fill this Absence
                   </Button>
@@ -343,6 +406,60 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
           </ModalBody>
         </ModalContent>
       </Modal>
+      <Modal isOpen={isClaimDialogOpen} onClose={handleClaimCancel} isCentered>
+        <ModalOverlay />
+        <ModalContent
+          width="300px"
+          padding="25px"
+          sx={{
+            alignItems: 'center',
+          }}
+        >
+          <ModalHeader
+            textStyle="h3"
+            fontSize="16px"
+            padding="0"
+            textAlign="center"
+          >
+            Are you sure you want to fill this absence?
+          </ModalHeader>
+          <ModalBody
+            textStyle="subtitle"
+            color="text"
+            padding="0"
+            mt="12px"
+            mb="16px"
+          >
+            <Text>{"You won't be able to undo."}</Text>
+          </ModalBody>
+          <ModalFooter padding="0">
+            <Button
+              onClick={handleClaimCancel}
+              variant="outline"
+              textStyle="button"
+              fontWeight="500"
+              mr="10px"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleClaimConfirm}
+              textStyle="button"
+              fontWeight="500"
+              isLoading={isClaiming}
+              ml="10px"
+            >
+              Confirm
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <AbsenceClaimThanks
+        isOpen={isClaimThanksOpen}
+        onClose={handleClaimThanksDone}
+        event={event}
+        absenceDate={absenceDate}
+      />
       <Modal
         isOpen={isDeleteDialogOpen}
         onClose={handleDeleteCancel}

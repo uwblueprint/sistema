@@ -4,37 +4,16 @@ import { NextResponse } from 'next/server';
 export async function PUT(req: Request) {
   try {
     const body = await req.json();
+    const { id, lessonPlanFile, ...fields } = body;
 
-    const {
-      id,
-      lessonDate,
-      reasonOfAbsence,
-      notes,
-      absentTeacherId,
-      substituteTeacherId,
-      locationId,
-      subjectId,
-      roomNumber,
-      lessonPlanFile,
-    } = body;
-
-    if (
-      !id ||
-      !lessonDate ||
-      !reasonOfAbsence ||
-      !absentTeacherId ||
-      !locationId ||
-      !subjectId
-    ) {
+    if (!id) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing absence ID' },
         { status: 400 }
       );
     }
 
     const updatedAbsence = await prisma.$transaction(async (tx) => {
-      let lessonPlanId: number | undefined;
-
       const existing = await tx.absence.findUnique({
         where: { id },
         include: { lessonPlan: true },
@@ -44,19 +23,34 @@ export async function PUT(req: Request) {
         throw new Error(`Absence with ID ${id} not found.`);
       }
 
+      const dataToUpdate: any = {};
+
+      if ('lessonDate' in fields)
+        dataToUpdate.lessonDate = new Date(fields.lessonDate);
+      if ('reasonOfAbsence' in fields)
+        dataToUpdate.reasonOfAbsence = fields.reasonOfAbsence;
+      if ('notes' in fields) dataToUpdate.notes = fields.notes || null;
+      if ('absentTeacherId' in fields)
+        dataToUpdate.absentTeacherId = fields.absentTeacherId;
+      if ('substituteTeacherId' in fields)
+        dataToUpdate.substituteTeacherId = fields.substituteTeacherId || null;
+      if ('locationId' in fields) dataToUpdate.locationId = fields.locationId;
+      if ('subjectId' in fields) dataToUpdate.subjectId = fields.subjectId;
+      if ('roomNumber' in fields)
+        dataToUpdate.roomNumber = fields.roomNumber || null;
+
       if (lessonPlanFile) {
         if (existing.lessonPlanId) {
           await tx.absence.update({
             where: { id },
             data: { lessonPlanId: null },
           });
-
           await tx.lessonPlanFile.delete({
             where: { id: existing.lessonPlanId },
           });
         }
 
-        const lessonPlan = await tx.lessonPlanFile.create({
+        const newLessonPlan = await tx.lessonPlanFile.create({
           data: {
             name: lessonPlanFile.name,
             url: lessonPlanFile.url,
@@ -64,30 +58,15 @@ export async function PUT(req: Request) {
           },
         });
 
-        lessonPlanId = lessonPlan.id;
+        dataToUpdate.lessonPlanId = newLessonPlan.id;
       }
 
-      const dataToUpdate: any = {
-        lessonDate: new Date(lessonDate),
-        reasonOfAbsence,
-        notes: notes || null,
-        absentTeacherId,
-        substituteTeacherId: substituteTeacherId || null,
-        locationId,
-        subjectId,
-        roomNumber: roomNumber || null,
-      };
-
-      if (lessonPlanId !== undefined) {
-        dataToUpdate.lessonPlanId = lessonPlanId;
-      }
-
-      const absence = await tx.absence.update({
+      const updated = await tx.absence.update({
         where: { id },
         data: dataToUpdate,
       });
 
-      return absence;
+      return updated;
     });
 
     return NextResponse.json(updatedAbsence, { status: 200 });
