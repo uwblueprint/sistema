@@ -14,7 +14,7 @@ import {
 import { Absence } from '@prisma/client';
 
 import { submitAbsence } from '@utils/submitAbsence';
-import { EventDetails, LessonPlanFile } from '@utils/types';
+import { EventDetails } from '@utils/types';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
 import { useState } from 'react';
 import { AdminTeacherFields } from './AdminTeacherFields';
@@ -43,9 +43,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     reasonOfAbsence: initialData.reasonOfAbsence,
-    absentTeacherId: initialData.absentTeacher
-      ? String(initialData.absentTeacher.id)
-      : '',
+    absentTeacherId: String(initialData.absentTeacher.id),
     substituteTeacherId: initialData.substituteTeacher
       ? String(initialData.substituteTeacher.id)
       : '',

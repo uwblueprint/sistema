@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { prisma } from '@utils/prisma';
+import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request) {
   try {
@@ -32,30 +32,31 @@ export async function PUT(req: Request) {
       );
     }
 
-    const updatedAbsence = await prisma.$transaction(async (prisma) => {
+    const updatedAbsence = await prisma.$transaction(async (tx) => {
       let lessonPlanId: number | undefined;
 
-      const existingAbsence = await prisma.absence.findUnique({
+      const existing = await tx.absence.findUnique({
         where: { id },
+        include: { lessonPlan: true },
       });
 
-      if (!existingAbsence) {
+      if (!existing) {
         throw new Error(`Absence with ID ${id} not found.`);
       }
 
       if (lessonPlanFile) {
-        const existing = await prisma.absence.findUnique({
-          where: { id },
-          include: { lessonPlan: true },
-        });
+        if (existing.lessonPlanId) {
+          await tx.absence.update({
+            where: { id },
+            data: { lessonPlanId: null },
+          });
 
-        if (existing?.lessonPlanId) {
-          await prisma.lessonPlanFile.delete({
+          await tx.lessonPlanFile.delete({
             where: { id: existing.lessonPlanId },
           });
         }
 
-        const lessonPlan = await prisma.lessonPlanFile.create({
+        const lessonPlan = await tx.lessonPlanFile.create({
           data: {
             name: lessonPlanFile.name,
             url: lessonPlanFile.url,
@@ -81,7 +82,7 @@ export async function PUT(req: Request) {
         dataToUpdate.lessonPlanId = lessonPlanId;
       }
 
-      const absence = await prisma.absence.update({
+      const absence = await tx.absence.update({
         where: { id },
         data: dataToUpdate,
       });
