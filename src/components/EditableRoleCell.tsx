@@ -103,7 +103,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
         }}
         closeOnBlur={false}
         placement="bottom"
-        gutter={0}
+        gutter={1}
       >
         <PopoverTrigger>
           <Box
@@ -120,7 +120,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
                   : 'transparent'
             }
             p={2}
-            borderRadius="md"
+            borderRadius="5px"
             width="100px"
           >
             <Text textStyle="cellBody" flexGrow={1}>
@@ -143,7 +143,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
         <PopoverContent
           width="100px"
           p={0}
-          borderRadius="md"
+          borderRadius="5px"
           shadow="md"
           border="1px solid"
           borderColor="neutralGray.300"
@@ -152,7 +152,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
           <Box
             p={2}
             cursor="pointer"
-            borderRadius="md"
+            borderRadius="5px"
             _hover={{ bg: 'neutralGray.100' }}
             _active={{ bg: 'neutralGray.300' }}
             onClick={() => handleRoleChange(oppositeRole)}
@@ -165,19 +165,14 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
       </Popover>
 
       {isEditing && (
-        <Popover
-          isOpen={isButtonsOpen}
-          placement="right"
-          closeOnBlur={false}
-          // offset={[10, 0]}
-        >
+        <Popover isOpen={isButtonsOpen} placement="right" closeOnBlur={false}>
           <PopoverTrigger>
             <Box position="absolute" right="0" opacity="0" />
           </PopoverTrigger>
           <PopoverContent
             width="auto"
             p={0}
-            borderRadius="md"
+            borderRadius="5px"
             shadow="md"
             border="1px solid"
             borderColor="neutralGray.300"
@@ -189,7 +184,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
                 cursor="pointer"
                 _hover={{ bg: 'neutralGray.100' }}
                 _active={{ bg: 'neutralGray.300' }}
-                borderRadius="5px 0 0 5px"
+                borderRadius={newRole !== role ? '5px 0 0 5px' : '5px'}
                 onClick={handleCancelClick}
               >
                 <IoCloseOutline
