@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Modal,
   ModalBody,
@@ -8,7 +9,6 @@ import {
   ModalHeader,
   ModalOverlay,
   Text,
-  Box,
   useDisclosure,
 } from '@chakra-ui/react';
 import { Role, UserAPI } from '@utils/types';
@@ -17,10 +17,12 @@ import { UserManagementTable } from './UserManagementTable';
 
 interface UserManagementCardProps {
   setRefreshFunction?: (refreshFn: () => void) => void;
+  selectedYearRange: string;
 }
 
 const UserManagementCard: React.FC<UserManagementCardProps> = ({
   setRefreshFunction,
+  selectedYearRange,
 }) => {
   const [users, setUsers] = useState<UserAPI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -108,7 +110,7 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
     }
   };
 
-  return loading ? null : (
+  return (
     <Box
       height="100%"
       display="flex"
@@ -120,6 +122,8 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
         users={users}
         updateUserRole={handleConfirmRoleChange}
         absenceCap={absenceCap}
+        isLoading={loading}
+        selectedYearRange={selectedYearRange}
       />
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -133,7 +137,7 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
               <strong>
                 {pendingUser?.firstName} {pendingUser?.lastName}
               </strong>
-              &rsquo;s role to <strong>{pendingRole}</strong>?{' '}
+              &rsquo;s role to <strong>{pendingRole}</strong>?
             </Text>
           </ModalBody>
           <ModalFooter>

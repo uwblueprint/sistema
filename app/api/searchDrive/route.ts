@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   const newHeaders = new Headers(req.headers);

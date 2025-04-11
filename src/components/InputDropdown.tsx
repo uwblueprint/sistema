@@ -20,12 +20,14 @@ interface InputDropdownProps {
   label: string;
   type: 'location' | 'subject';
   onChange: (value: Option | null) => void;
+  defaultValueId?: number;
 }
 
 export const InputDropdown: React.FC<InputDropdownProps> = ({
   label,
   type,
   onChange,
+  defaultValueId,
 }) => {
   const [options, setOptions] = useState<Option[]>([]);
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
@@ -50,6 +52,16 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
     fetchData();
   }, [fetchData]);
 
+  useEffect(() => {
+    if (options.length > 0 && defaultValueId) {
+      const match = options.find((opt) => opt.id === defaultValueId);
+      if (match) {
+        setSelectedOption(match);
+        onChange(match);
+      }
+    }
+  }, [options, defaultValueId, onChange]);
+
   const handleOptionSelect = (option: Option) => {
     setSelectedOption(option);
     onChange(option);
@@ -66,11 +78,7 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
       onClose={() => setIsOpen(false)}
     >
       <PopoverTrigger>
-        <InputGroup
-          border="1px solid"
-          borderColor="neutralGray.300"
-          borderRadius="md"
-        >
+        <InputGroup>
           <Input
             ref={inputRef}
             cursor="pointer"
@@ -79,7 +87,6 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
             placeholder={`Please select ${label}`}
             value={selectedOption ? selectedOption.name : ''}
             readOnly
-            border="none"
             _focusVisible={{ outline: 'none' }}
           />
           <InputRightElement pointerEvents="none">

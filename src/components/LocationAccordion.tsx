@@ -1,6 +1,6 @@
 import { useTheme } from '@chakra-ui/react';
 import type { Location } from '@utils/types';
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Accordion, { AccordionItem } from './Accordion';
 
 interface LocationAccordionProps {

@@ -61,6 +61,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
       marginBottom={theme.space[4]}
       alignItems="center"
       width="100%"
+      gap={theme.space[2]}
     >
       <HStack spacing={theme.space[6]}>
         <HStack spacing={1}>

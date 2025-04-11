@@ -1,17 +1,28 @@
-import { NextResponse } from 'next/server';
 import { prisma } from '@utils/prisma';
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log(body);
+
+    const {
+      lessonDate,
+      reasonOfAbsence,
+      notes,
+      absentTeacherId,
+      substituteTeacherId,
+      locationId,
+      subjectId,
+      roomNumber,
+      lessonPlanFile,
+    } = body;
 
     if (
-      !body.lessonDate ||
-      !body.reasonOfAbsence ||
-      !body.absentTeacherId ||
-      !body.locationId ||
-      !body.subjectId
+      !lessonDate ||
+      !reasonOfAbsence ||
+      !absentTeacherId ||
+      !locationId ||
+      !subjectId
     ) {
       console.log('Missing required fields');
       return NextResponse.json(
@@ -23,12 +34,12 @@ export async function POST(req: Request) {
     const newAbsence = await prisma.$transaction(async (prisma) => {
       let lessonPlanId: number | null = null;
 
-      if (body.lessonPlanFile) {
+      if (lessonPlanFile) {
         const lessonPlan = await prisma.lessonPlanFile.create({
           data: {
-            name: body.lessonPlanFile.name,
-            url: body.lessonPlanFile.url,
-            size: body.lessonPlanFile.size,
+            name: lessonPlanFile.name,
+            url: lessonPlanFile.url,
+            size: lessonPlanFile.size,
           },
         });
         lessonPlanId = lessonPlan.id;
@@ -36,15 +47,15 @@ export async function POST(req: Request) {
 
       const absence = await prisma.absence.create({
         data: {
-          lessonDate: new Date(body.lessonDate),
+          lessonDate: new Date(lessonDate),
           lessonPlanId,
-          reasonOfAbsence: body.reasonOfAbsence,
-          notes: body.notes || null,
-          absentTeacherId: body.absentTeacherId,
-          substituteTeacherId: body.substituteTeacherId || null,
-          locationId: body.locationId,
-          subjectId: body.subjectId,
-          roomNumber: body.roomNumber || null,
+          reasonOfAbsence: reasonOfAbsence,
+          notes: notes || null,
+          absentTeacherId: absentTeacherId,
+          substituteTeacherId: substituteTeacherId || null,
+          locationId: locationId,
+          subjectId: subjectId,
+          roomNumber: roomNumber || null,
         },
       });
 

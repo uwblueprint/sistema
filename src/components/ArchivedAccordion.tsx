@@ -5,15 +5,14 @@ import {
   Collapse,
   Flex,
   Icon,
-  Spacer,
   Stack,
   Text,
+  useTheme,
 } from '@chakra-ui/react';
-import { useTheme } from '@chakra-ui/react';
 
-import { useEffect, useState, useCallback } from 'react';
-import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 import type { Location, SubjectAPI } from '@utils/types';
+import { useCallback, useEffect, useState } from 'react';
+import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 
 interface ArchivedAccordionProps {
   setSubjectFilter: (subjectIds: number[]) => void;

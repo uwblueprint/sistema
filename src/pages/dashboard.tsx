@@ -1,4 +1,4 @@
-import { Box, HStack } from '@chakra-ui/react';
+import { Box, HStack, useTheme } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
 import { Role, YearlyAbsenceData } from '@utils/types';
 import { useRouter } from 'next/navigation';
@@ -7,8 +7,8 @@ import DashboardHeader from '../components/DashboardHeader';
 import MonthlyAbsencesCard from '../components/MonthlyAbsencesCard';
 import TotalAbsencesCard from '../components/TotalAbsencesCard';
 import UserManagementCard from '../components/UserManagementCard';
-
 export default function DashboardPage() {
+  const theme = useTheme();
   const userData = useUserData();
   const router = useRouter();
   const currentYear = new Date().getFullYear();
@@ -65,7 +65,10 @@ export default function DashboardPage() {
         const events = data.events || [];
         setAbsenceData(events);
 
-        if (events.length > 0 && !selectedYearRange) {
+        if (
+          events.length > 0 &&
+          !events.some((e) => e.yearRange === selectedYearRange)
+        ) {
           setSelectedYearRange(events[0].yearRange);
         }
       } catch (err) {
@@ -165,6 +168,7 @@ export default function DashboardPage() {
         flexDirection="column"
         flex="1"
         minHeight="0"
+        backgroundColor={theme.colors.neutralGray[50]}
       >
         <HStack mb={3} spacing={3} height="215px">
           <TotalAbsencesCard
@@ -180,7 +184,10 @@ export default function DashboardPage() {
             highestMonthlyAbsence={highestMonthlyAbsence}
           />
         </HStack>
-        <UserManagementCard setRefreshFunction={setUserManagementRefresh} />
+        <UserManagementCard
+          selectedYearRange={selectedYearRange}
+          setRefreshFunction={setUserManagementRefresh}
+        />
       </Box>
     </Box>
   );

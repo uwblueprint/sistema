@@ -4,7 +4,6 @@ import {
   CardBody,
   CardHeader,
   Divider,
-  Heading,
   HStack,
   Text,
   useTheme,
@@ -46,6 +45,7 @@ export default function TotalAbsencesCard({
   return (
     <Card
       width={width}
+      minWidth={'180px'}
       height="100%"
       borderRadius="lg"
       shadow="sm"
@@ -55,17 +55,17 @@ export default function TotalAbsencesCard({
       borderColor="neutralGray.300"
     >
       <CardHeader pb={0} display="flex" alignItems="center">
-        <Heading
-          fontSize="18px"
-          lineHeight="33px"
-          fontWeight={700}
-          paddingBottom="13px"
-        >
+        <Text textStyle="h2" fontSize="18px" fontWeight={700} pb="13px">
           Total Absences
-        </Heading>
+        </Text>
       </CardHeader>
       <Divider />
-      <CardBody display="flex" flexDirection="column" overflowY="auto">
+      <CardBody
+        display="flex"
+        flexDirection="column"
+        overflowX="auto"
+        overflowY="hidden"
+      >
         <HStack align="flex-start" justify="space-between" width="100%">
           <HStack align="flex-start" gap="28px">
             <CircularProgress
@@ -95,7 +95,7 @@ export default function TotalAbsencesCard({
                 </Text>
               )}
             </Box>
-            <VStack align="flex-start">
+            <VStack align="flex-start" pr="32px">
               <HStack>
                 <Box
                   w="16px"
