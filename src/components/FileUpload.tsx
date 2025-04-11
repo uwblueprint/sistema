@@ -7,17 +7,20 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
+import { LessonPlanFile } from '@utils/types';
 import { useRef, useState } from 'react';
 
 interface FileUploadProps {
   lessonPlan: File | null;
-  setLessonPlan: (lessonPlan: File | null) => void;
+  setLessonPlan: (file: File | null) => void;
+  existingFile?: LessonPlanFile | null;
   label?: string;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   lessonPlan,
   setLessonPlan,
+  existingFile,
   label = 'Lesson Plan',
 }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -65,13 +68,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
   return (
     <FormControl>
-      <FormLabel>
-        <Text textStyle="h4">{label}</Text>
-      </FormLabel>
-
+      <Text textStyle="h4" mb={2}>
+        {label}
+      </Text>
       <Box
         as="label"
-        htmlFor="file-upload"
+        htmlFor="fileUpload"
         border="1px dashed"
         borderColor={isDragging ? 'primaryBlue.300' : 'outline'}
         borderRadius="10px"
@@ -88,12 +90,17 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       >
         <Image src="/images/upload.svg" alt="Upload" width={10} height={10} />
         <Text textStyle="subtitle">
-          {lessonPlan ? `Selected file: ${lessonPlan.name}` : 'Upload PDF'}
+          {lessonPlan
+            ? `Selected file: ${lessonPlan.name}`
+            : existingFile
+              ? `Selected file: ${existingFile.name}`
+              : 'Upload PDF'}
         </Text>
       </Box>
 
       <Input
-        id="file-upload"
+        id="fileUpload"
+        name="fileUpload"
         ref={inputRef}
         type="file"
         onChange={handleFileChange}

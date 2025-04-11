@@ -19,16 +19,14 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 export type Option = { name: string; id: number; profilePicture: string };
 
 interface SearchDropdownProps {
-  label: string;
-  type: 'user';
+  id: string;
   excludedId?: string;
   defaultValueId?: number;
   onChange: (value: Option | null) => void;
 }
 
 export const SearchDropdown: React.FC<SearchDropdownProps> = ({
-  label,
-  type,
+  id,
   excludedId,
   defaultValueId,
   onChange,
@@ -48,18 +46,16 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
       if (res.ok) {
         const data = await res.json();
 
-        if (type === 'user') {
-          const sortedOptions = data.userOptions.sort((a: Option, b: Option) =>
-            a.name.localeCompare(b.name)
-          );
-          setOptions(sortedOptions);
-          setFilteredOptions(sortedOptions);
-        }
+        const sortedOptions = data.userOptions.sort((a: Option, b: Option) =>
+          a.name.localeCompare(b.name)
+        );
+        setOptions(sortedOptions);
+        setFilteredOptions(sortedOptions);
       }
     } catch (error) {
-      console.error(`Failed to fetch ${type} options:`, error);
+      console.error(`Failed to fetch options:`, error);
     }
-  }, [type]);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -128,51 +124,47 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
         placement="bottom-start"
         autoFocus={false}
       >
-        {isSelected ? (
-          <InputGroup
-            border="1px solid"
-            borderColor="neutralGray.300"
-            borderRadius="md"
-          >
-            <InputLeftElement>
-              <Avatar
-                name={selectedOption?.name || searchQuery}
-                src={selectedOption?.profilePicture}
-                size="sm"
-                p="4px"
-              />
-            </InputLeftElement>
+        <PopoverTrigger>
+          <InputGroup>
+            {isSelected && (
+              <InputLeftElement>
+                <Avatar
+                  name={selectedOption?.name || searchQuery}
+                  src={selectedOption?.profilePicture}
+                  size="sm"
+                  p="4px"
+                />
+              </InputLeftElement>
+            )}
             <Input
+              id={id}
+              name={id}
               ref={inputRef}
               value={searchQuery}
-              isReadOnly
-              cursor="default"
-              fontWeight="600"
-              border="none"
-              _focusVisible={{ outline: 'none' }}
+              onChange={isSelected ? undefined : handleSearchChange}
+              onClick={() => {
+                if (!isSelected) {
+                  handleSearchChange({
+                    target: { value: searchQuery },
+                  } as React.ChangeEvent<HTMLInputElement>);
+                }
+              }}
+              isReadOnly={isSelected}
+              cursor={isSelected ? 'default' : undefined}
+              fontWeight={isSelected ? '600' : undefined}
+              placeholder={isSelected ? undefined : 'Search for Teacher'}
+              _focusVisible={isSelected ? { outline: 'none' } : undefined}
             />
-            <InputRightElement>
-              <CloseButton
-                onClick={handleClearSelection}
-                color="neutralGray.600"
-              />
-            </InputRightElement>
+            {isSelected && (
+              <InputRightElement>
+                <CloseButton
+                  onClick={handleClearSelection}
+                  color="neutralGray.600"
+                />
+              </InputRightElement>
+            )}
           </InputGroup>
-        ) : (
-          <PopoverTrigger>
-            <Input
-              ref={inputRef}
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onClick={() =>
-                handleSearchChange({
-                  target: { value: searchQuery },
-                } as React.ChangeEvent<HTMLInputElement>)
-              }
-              placeholder={`Search for ${label}`}
-            />
-          </PopoverTrigger>
-        )}
+        </PopoverTrigger>
 
         <PopoverContent
           width="300px"

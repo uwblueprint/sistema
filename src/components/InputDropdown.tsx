@@ -78,11 +78,7 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
       onClose={() => setIsOpen(false)}
     >
       <PopoverTrigger>
-        <InputGroup
-          border="1px solid"
-          borderColor="neutralGray.300"
-          borderRadius="md"
-        >
+        <InputGroup>
           <Input
             ref={inputRef}
             cursor="pointer"
@@ -91,7 +87,6 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
             placeholder={`Please select ${label}`}
             value={selectedOption ? selectedOption.name : ''}
             readOnly
-            border="none"
             _focusVisible={{ outline: 'none' }}
           />
           <InputRightElement pointerEvents="none">
