@@ -21,9 +21,9 @@ import {
   Tr,
 } from '@chakra-ui/react';
 
+import useUserFiltering from '@hooks/useUserFiltering';
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { FilterOptions, Role, UserAPI } from '@utils/types';
-import useUserFiltering from '@hooks/useUserFiltering';
 import React, { useEffect, useState } from 'react';
 import {
   FiClock,
@@ -34,7 +34,7 @@ import {
   FiUser,
 } from 'react-icons/fi';
 import EditableRoleCell from './EditableRoleCell';
-import FilterPopup, { NO_EMAIL_TAGS } from './FilterPopup';
+import FilterPopup from './FilterPopup';
 
 type SortField = 'name' | 'email' | 'absences' | 'role';
 
@@ -44,6 +44,7 @@ interface UserManagementTableProps {
   users: UserAPI[];
   updateUserRole: (userId: number, newRole: Role) => void;
   absenceCap: number;
+  isLoading?: boolean;
   selectedYearRange: string;
 }
 
@@ -51,6 +52,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   users,
   updateUserRole,
   absenceCap,
+  isLoading = false,
   selectedYearRange,
 }) => {
   const [sortField, setSortField] = useState<SortField>('name');
@@ -69,7 +71,6 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const getSelectedYearAbsences = (absences?: any[]) => {
     if (!absences) return 0;
 
-    // Parse the year range (format: "2023 - 2024")
     const [startYear] = selectedYearRange
       .split(' - ')
       .map((year) => parseInt(year, 10));
@@ -235,19 +236,19 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
               transition="width 0.3s ease"
               width={searchTerm ? '270px' : '0px'}
               margin={0}
+              isDisabled={isLoading}
             />
           </InputGroup>
-
           <FilterPopup
             filters={filters}
             setFilters={setFilters}
             availableTags={availableTags}
             tagColors={tagColors}
+            isDisabled={isLoading}
           />
         </HStack>
       </HStack>
       <Divider borderColor="neutralGray.300" />
-
       <Box flex="1" overflowY="auto">
         <Table variant="simple">
           <Thead
@@ -257,12 +258,12 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
             bg="white"
             boxShadow="0 1px 1px rgba(227, 227, 227, 1)"
           >
-            <Tr borderColor={'red'}>
+            <Tr>
               <SortableHeader field="name" label="Name" icon={FiUser} />
               <SortableHeader field="email" label="Email" icon={FiMail} />
               <SortableHeader
                 field="absences"
-                label="Absent"
+                label="Abs."
                 icon={FiClock}
                 centered
               />
@@ -282,10 +283,10 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
               </Th>
             </Tr>
           </Thead>
-
           <Tbody>
-            {sortedUsers.length > 0
-              ? sortedUsers.map((user, index) => (
+            {isLoading
+              ? null
+              : sortedUsers.map((user, index) => (
                   <Tr
                     key={index}
                     sx={{
@@ -298,11 +299,12 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                           size="sm"
                           name={`${user.firstName} ${user.lastName}`}
                           src={user.profilePicture || undefined}
+                          loading="eager"
+                          ignoreFallback
                         />
-                        <Text
-                          textStyle="cellBold"
-                          whiteSpace="nowrap"
-                        >{`${user.firstName} ${user.lastName}`}</Text>
+                        <Text textStyle="cellBold" whiteSpace="nowrap">
+                          {`${user.firstName} ${user.lastName}`}
+                        </Text>
                       </HStack>
                     </Td>
                     <Td color="gray.600">
@@ -354,8 +356,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       </Flex>
                     </Td>
                   </Tr>
-                ))
-              : null}
+                ))}
           </Tbody>
         </Table>
       </Box>
