@@ -20,12 +20,14 @@ interface InputDropdownProps {
   label: string;
   type: 'location' | 'subject';
   onChange: (value: Option | null) => void;
+  defaultValueId?: number;
 }
 
 export const InputDropdown: React.FC<InputDropdownProps> = ({
   label,
   type,
   onChange,
+  defaultValueId,
 }) => {
   const [options, setOptions] = useState<Option[]>([]);
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
@@ -49,6 +51,16 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    if (options.length > 0 && defaultValueId) {
+      const match = options.find((opt) => opt.id === defaultValueId);
+      if (match) {
+        setSelectedOption(match);
+        onChange(match);
+      }
+    }
+  }, [options, defaultValueId, onChange]);
 
   const handleOptionSelect = (option: Option) => {
     setSelectedOption(option);

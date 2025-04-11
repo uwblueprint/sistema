@@ -22,6 +22,7 @@ interface SearchDropdownProps {
   label: string;
   type: 'user';
   excludedId?: string;
+  defaultValueId?: number;
   onChange: (value: Option | null) => void;
 }
 
@@ -29,6 +30,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   label,
   type,
   excludedId,
+  defaultValueId,
   onChange,
 }) => {
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
@@ -62,6 +64,18 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    if (defaultValueId && options.length > 0) {
+      const match = options.find((opt) => opt.id === defaultValueId);
+      if (match) {
+        setSelectedOption(match);
+        setSearchQuery(match.name);
+        setIsSelected(true);
+        onChange(match);
+      }
+    }
+  }, [defaultValueId, options, onChange]);
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
