@@ -1,17 +1,16 @@
 import {
   Box,
-  Button,
-  Icon,
-  Text,
-  useTheme,
   HStack,
+  Icon,
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Text,
   useDisclosure,
   useOutsideClick,
+  useTheme,
 } from '@chakra-ui/react';
-import React, { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FiChevronDown, FiChevronUp, FiEdit2 } from 'react-icons/fi';
 import { IoCheckmark, IoCloseOutline } from 'react-icons/io5';
 
