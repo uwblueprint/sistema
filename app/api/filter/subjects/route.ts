@@ -1,6 +1,6 @@
 import { prisma } from '@utils/prisma';
-import { NextRequest, NextResponse } from 'next/server';
 import { SubjectAPI } from '@utils/types';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {

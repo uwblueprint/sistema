@@ -1,15 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
 import {
   Box,
-  Text,
-  Textarea,
-  IconButton,
   Button,
   HStack,
-  useTheme,
+  IconButton,
   Spacer,
+  Text,
+  Textarea,
+  useTheme,
   useToast,
 } from '@chakra-ui/react';
+import { useEffect, useRef, useState } from 'react';
 import { FiEdit2 } from 'react-icons/fi';
 
 interface EditableNotesProps {

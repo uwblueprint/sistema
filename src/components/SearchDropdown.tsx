@@ -1,8 +1,8 @@
 import {
   Avatar,
   Box,
-  Divider,
   CloseButton,
+  Divider,
   Input,
   InputGroup,
   InputLeftElement,
