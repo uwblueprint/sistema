@@ -299,10 +299,12 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                 </Text>
                 <LessonPlanView
                   lessonPlan={event.lessonPlan}
+                  absenceId={event.absenceId}
                   absentTeacherFirstName={event.absentTeacher.firstName}
                   isUserAbsentTeacher={isUserAbsentTeacher}
                   isUserSubstituteTeacher={isUserSubstituteTeacher}
                   isAdminMode={isAdminMode}
+                  fetchAbsences={fetchAbsences}
                 />
               </Box>
               {(isAdminMode || isUserAbsentTeacher) && (
