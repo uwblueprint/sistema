@@ -20,9 +20,9 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react';
-
 import useUserFiltering from '@hooks/useUserFiltering';
 import { getAbsenceColor } from '@utils/getAbsenceColor';
+import { getSelectedYearAbsences as computeYearlyAbsences } from '@utils/getSelectedYearAbsences';
 import { FilterOptions, Role, UserAPI } from '@utils/types';
 import React, { useEffect, useState } from 'react';
 import {
@@ -67,25 +67,8 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [tagColors, setTagColors] = useState<Record<string, string[]>>({});
 
-  // Get absences for the selected school year
-  const getSelectedYearAbsences = (absences?: any[]) => {
-    if (!absences) return 0;
-
-    const [startYear] = selectedYearRange
-      .split(' - ')
-      .map((year) => parseInt(year, 10));
-    const endYear = startYear + 1;
-
-    return absences.filter((absence) => {
-      const absenceDate = new Date(absence.lessonDate);
-      const absenceMonth = absenceDate.getMonth();
-      const absenceYear = absenceDate.getFullYear();
-
-      if (absenceYear === startYear && absenceMonth >= 8) return true; // Sep-Dec of start year
-      if (absenceYear === endYear && absenceMonth < 8) return true; // Jan-Aug of end year
-      return false;
-    }).length;
-  };
+  const getSelectedYearAbsences = (absences?: any[]) =>
+    computeYearlyAbsences(absences, selectedYearRange);
 
   // Extract unique tags and their colors from users' mailing lists
   useEffect(() => {

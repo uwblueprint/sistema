@@ -34,7 +34,7 @@ import { CalendarTabs } from '../components/CalendarTabs';
 import DeclareAbsenceForm from '../components/DeclareAbsenceForm';
 
 const Calendar: React.FC = () => {
-  const userData = useUserData();
+  const { refetchUserData, ...userData } = useUserData();
   const router = useRouter();
 
   const searchParams = useSearchParams();
@@ -56,7 +56,7 @@ const Calendar: React.FC = () => {
     }
   }, [searchParams]);
 
-  const { events, fetchAbsences } = useAbsences();
+  const { events, fetchAbsences } = useAbsences(refetchUserData);
   const [claimedDays, setClaimedDays] = useState<Set<string>>(new Set());
 
   const calendarRef = useRef<FullCalendar>(null);

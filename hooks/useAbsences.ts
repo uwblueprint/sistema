@@ -33,7 +33,7 @@ const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
   absenceId: absenceData.id,
 });
 
-export const useAbsences = () => {
+export const useAbsences = (refetchUserData?: () => void) => {
   const [events, setEvents] = useState<EventInput[]>([]);
   const toast = useToast();
 
@@ -46,6 +46,10 @@ export const useAbsences = () => {
       const data = await res.json();
       const formattedEvents = data.events.map(convertAbsenceToEvent);
       setEvents(formattedEvents);
+
+      if (refetchUserData) {
+        refetchUserData();
+      }
     } catch (error) {
       console.error('Error fetching absences:', error);
       toast({
@@ -57,7 +61,7 @@ export const useAbsences = () => {
         isClosable: true,
       });
     }
-  }, [toast]);
+  }, [refetchUserData, toast]);
 
   useEffect(() => {
     fetchAbsences();
