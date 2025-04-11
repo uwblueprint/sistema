@@ -194,7 +194,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         )}
 
         <FormControl isRequired isInvalid={!!errors.subjectId}>
-          <FormLabel htmlFor="subject" sx={{ display: 'flex' }}>
+          <FormLabel sx={{ display: 'flex' }}>
             <Text textStyle="h4">Subject</Text>
           </FormLabel>
           <InputDropdown
@@ -217,7 +217,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         </FormControl>
 
         <FormControl isRequired isInvalid={!!errors.locationId}>
-          <FormLabel htmlFor="location" sx={{ display: 'flex' }}>
+          <FormLabel sx={{ display: 'flex' }}>
             <Text textStyle="h4">Location</Text>
           </FormLabel>
           <InputDropdown
@@ -243,6 +243,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
             <Text textStyle="h4">Room Number</Text>
           </FormLabel>
           <Input
+            id="roomNumber"
             name="roomNumber"
             placeholder="e.g. 2131"
             value={formData.roomNumber}
@@ -260,6 +261,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
             <Text textStyle="h4">Reason of Absence</Text>
           </FormLabel>
           <Textarea
+            id="reasonOfAbsence"
             name="reasonOfAbsence"
             placeholder="Only visible to admin"
             value={formData.reasonOfAbsence}
@@ -276,6 +278,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
             <Text textStyle="h4">Notes</Text>
           </FormLabel>
           <Textarea
+            id="notes"
             name="notes"
             placeholder="Additional relevant info..."
             value={formData.notes}

@@ -193,7 +193,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         )}
 
         <FormControl isRequired isInvalid={!!errors.subjectId}>
-          <FormLabel htmlFor="location" sx={{ display: 'flex' }}>
+          <FormLabel sx={{ display: 'flex' }}>
             <Text textStyle="h4">Subject</Text>
           </FormLabel>
           <InputDropdown
@@ -217,7 +217,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         </FormControl>
 
         <FormControl isRequired isInvalid={!!errors.locationId}>
-          <FormLabel htmlFor="location" sx={{ display: 'flex' }}>
+          <FormLabel sx={{ display: 'flex' }}>
             <Text textStyle="h4">Location</Text>
           </FormLabel>
           <InputDropdown
@@ -245,6 +245,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
             <Text textStyle="h4">Room Number</Text>
           </FormLabel>
           <Input
+            id="roomNumber"
             name="roomNumber"
             placeholder="e.g. 2131"
             value={formData.roomNumber}
@@ -263,6 +264,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
             <Text textStyle="h4">Reason of Absence</Text>
           </FormLabel>
           <Textarea
+            id="reasonOfAbsence"
             name="reasonOfAbsence"
             placeholder="Only visible to admin"
             value={formData.reasonOfAbsence}
@@ -283,6 +285,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
             <Text textStyle="h4">Notes</Text>
           </FormLabel>
           <Textarea
+            id="notes"
             name="notes"
             placeholder="Additional relevant info..."
             value={formData.notes}

@@ -68,13 +68,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
   return (
     <FormControl>
-      <FormLabel htmlFor="fileUpload">
-        <Text textStyle="h4">{label}</Text>
-      </FormLabel>
-
+      <Text textStyle="h4" mb={2}>
+        {label}
+      </Text>
       <Box
         as="label"
-        htmlFor="file-upload"
+        htmlFor="fileUpload"
         border="1px dashed"
         borderColor={isDragging ? 'primaryBlue.300' : 'outline'}
         borderRadius="10px"
@@ -101,6 +100,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
       <Input
         id="fileUpload"
+        name="fileUpload"
         ref={inputRef}
         type="file"
         onChange={handleFileChange}
