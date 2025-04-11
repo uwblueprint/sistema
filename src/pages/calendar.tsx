@@ -233,7 +233,6 @@ const Calendar: React.FC = () => {
       location: clickInfo.event.extendedProps.location,
       locationId: clickInfo.event.extendedProps.locationId,
       subjectId: clickInfo.event.extendedProps.subjectId,
-      classType: clickInfo.event.extendedProps.classType,
       lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
       roomNumber: clickInfo.event.extendedProps.roomNumber || '',
       reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence,

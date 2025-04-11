@@ -28,7 +28,6 @@ export interface EventDetails {
   location: string;
   locationId: number;
   subjectId: number;
-  classType: string;
   lessonPlan: LessonPlanFile | null;
   roomNumber: string | null;
   reasonOfAbsence: string;
