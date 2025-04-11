@@ -31,12 +31,11 @@ export const AdminTeacherFields: React.FC<AdminTeacherFieldsProps> = ({
   return (
     <>
       <FormControl isRequired isInvalid={!!errors.absentTeacherId}>
-        <FormLabel sx={{ display: 'flex' }}>
+        <FormLabel htmlFor="absentTeacher" sx={{ display: 'flex' }}>
           <Text textStyle="h4">Teacher Absent</Text>
         </FormLabel>
         <SearchDropdown
-          label="Teacher"
-          type="user"
+          id="absentTeacher"
           excludedId={formData.substituteTeacherId}
           defaultValueId={Number(formData.absentTeacherId)}
           onChange={(value) => {
@@ -56,12 +55,11 @@ export const AdminTeacherFields: React.FC<AdminTeacherFieldsProps> = ({
       </FormControl>
 
       <FormControl>
-        <FormLabel sx={{ display: 'flex' }}>
+        <FormLabel htmlFor="substituteTeacher" sx={{ display: 'flex' }}>
           <Text textStyle="h4">Substitute Teacher</Text>
         </FormLabel>
         <SearchDropdown
-          label="Teacher"
-          type="user"
+          id="substituteTeacher"
           excludedId={formData.absentTeacherId}
           defaultValueId={
             formData.substituteTeacherId
