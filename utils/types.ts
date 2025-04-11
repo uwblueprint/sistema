@@ -122,8 +122,8 @@ export interface SubjectAPI {
   id: number;
   name: string;
   abbreviation: string;
-  colorGroupId: number;
   archived: boolean;
+  colorGroupId: number;
   colorGroup: {
     name: string;
     colorCodes: string[];

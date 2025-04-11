@@ -77,7 +77,7 @@ export default function LocationAccordion({
 
   return (
     <Accordion
-      title="Location"
+      title="Locations"
       items={accordionItems}
       selectedItems={selectedLocationIds}
       isOpen={isOpen}
