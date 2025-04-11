@@ -449,6 +449,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                     fontSize="16px"
                     fontWeight="500"
                     onClick={handleClaimAbsenceClick}
+                    disabled={hasConflictingEvent}
                   >
                     Fill this Absence
                   </Button>
