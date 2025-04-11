@@ -193,11 +193,11 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         )}
 
         <FormControl isRequired isInvalid={!!errors.subjectId}>
-          <FormLabel sx={{ display: 'flex' }}>
+          <FormLabel htmlFor="location" sx={{ display: 'flex' }}>
             <Text textStyle="h4">Subject</Text>
           </FormLabel>
           <InputDropdown
-            label="class type"
+            label="subject"
             type="subject"
             onChange={(value) => {
               setFormData((prev) => ({
@@ -217,11 +217,11 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         </FormControl>
 
         <FormControl isRequired isInvalid={!!errors.locationId}>
-          <FormLabel sx={{ display: 'flex' }}>
+          <FormLabel htmlFor="location" sx={{ display: 'flex' }}>
             <Text textStyle="h4">Location</Text>
           </FormLabel>
           <InputDropdown
-            label="class location"
+            label="location"
             type="location"
             onChange={(value) => {
               setFormData((prev) => ({
@@ -241,7 +241,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         </FormControl>
 
         <FormControl>
-          <FormLabel sx={{ display: 'flex' }}>
+          <FormLabel htmlFor="roomNumber" sx={{ display: 'flex' }}>
             <Text textStyle="h4">Room Number</Text>
           </FormLabel>
           <Input
@@ -259,7 +259,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         />
 
         <FormControl isRequired isInvalid={!!errors.reasonOfAbsence}>
-          <FormLabel sx={{ display: 'flex' }}>
+          <FormLabel htmlFor="reasonOfAbsence" sx={{ display: 'flex' }}>
             <Text textStyle="h4">Reason of Absence</Text>
           </FormLabel>
           <Textarea
@@ -279,7 +279,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         />
 
         <FormControl>
-          <FormLabel sx={{ display: 'flex' }}>
+          <FormLabel htmlFor="notes" sx={{ display: 'flex' }}>
             <Text textStyle="h4">Notes</Text>
           </FormLabel>
           <Textarea

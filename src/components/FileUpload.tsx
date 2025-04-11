@@ -68,7 +68,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
   return (
     <FormControl>
-      <FormLabel>
+      <FormLabel htmlFor="fileUpload">
         <Text textStyle="h4">{label}</Text>
       </FormLabel>
 
@@ -100,7 +100,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       </Box>
 
       <Input
-        id="file-upload"
+        id="fileUpload"
         ref={inputRef}
         type="file"
         onChange={handleFileChange}
