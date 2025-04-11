@@ -8,30 +8,40 @@ import {
   HStack,
   useTheme,
   Spacer,
+  useToast,
 } from '@chakra-ui/react';
 import { FiEdit2 } from 'react-icons/fi';
 
-function EditableNotes({ notes }) {
+interface EditableNotesProps {
+  notes: string;
+  absenceId: number;
+  fetchAbsences: () => Promise<void>;
+}
+
+function EditableNotes({
+  notes,
+  absenceId,
+  fetchAbsences,
+}: EditableNotesProps) {
   const theme = useTheme();
+  const toast = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [savedNotes, setsavedNotes] = useState(notes);
+  const [savedNotes, setSavedNotes] = useState(notes);
   const [tempNotes, setTempNotes] = useState(notes);
+  const [isSaving, setIsSaving] = useState(false);
   const noteBoxRef = useRef<HTMLDivElement | null>(null);
-  const textAreaRef = useRef<HTMLTextAreaElement | null>(null); // Ref for Textarea
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
   const [initialHeight, setInitialHeight] = useState<number | undefined>(
     undefined
   );
+
   const emptyNotesSpace = 41;
   const spaceAfterNotes = 33;
   const minHeight = emptyNotesSpace + spaceAfterNotes;
 
   const handleEditClick = () => {
-    if (noteBoxRef.current) {
-      const height = noteBoxRef.current.offsetHeight;
-      setInitialHeight(Math.max(height, minHeight));
-    } else {
-      setInitialHeight(minHeight);
-    }
+    const height = noteBoxRef.current?.offsetHeight ?? minHeight;
+    setInitialHeight(Math.max(height, minHeight));
     setTempNotes(savedNotes);
     setIsEditing(true);
   };
@@ -41,15 +51,52 @@ function EditableNotes({ notes }) {
     setTempNotes(savedNotes);
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
-    // TO-DO: edit absence with new notes
+  const handleSave = async () => {
+    setIsSaving(true);
+
+    try {
+      const response = await fetch('/api/editAbsence', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: absenceId,
+          notes: tempNotes || null,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save notes');
+      }
+
+      setSavedNotes(tempNotes);
+      toast({
+        title: 'Notes saved',
+        description: 'Your notes were successfully updated.',
+        status: 'success',
+        duration: 4000,
+        isClosable: true,
+      });
+
+      setIsEditing(false);
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description:
+          err instanceof Error ? err.message : 'Failed to save notes',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsSaving(false);
+      fetchAbsences();
+    }
   };
 
   useEffect(() => {
     if (isEditing && textAreaRef.current) {
       const textLength = textAreaRef.current.value.length;
-      textAreaRef.current.setSelectionRange(textLength, textLength); // move cursor to the end
+      textAreaRef.current.setSelectionRange(textLength, textLength);
     }
   }, [isEditing]);
 
@@ -71,7 +118,6 @@ function EditableNotes({ notes }) {
             padding="15px"
             minH={`${initialHeight}px`}
           />
-
           <HStack mt="20px" mb="9px">
             <Button
               width="143px"
@@ -90,6 +136,8 @@ function EditableNotes({ notes }) {
               fontSize="16px"
               fontWeight="500"
               onClick={handleSave}
+              isLoading={isSaving}
+              loadingText="Saving"
             >
               Save Changes
             </Button>
@@ -103,7 +151,7 @@ function EditableNotes({ notes }) {
           borderRadius="10px"
           background={theme.colors.neutralGray[50]}
         >
-          {savedNotes}
+          {savedNotes || ''}
           <IconButton
             aria-label="Edit Notes"
             icon={<FiEdit2 size="15px" color={theme.colors.neutralGray[600]} />}
