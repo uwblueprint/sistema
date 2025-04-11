@@ -2,7 +2,7 @@ import { Box, Button, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 import { FiDownload } from 'react-icons/fi';
 
-const ExportAbsencesButton = () => {
+const ExportAbsencesButton = ({ selectedRange }: { selectedRange: string }) => {
   const [error, setError] = useState<string | null>(null);
 
   const convertToCSV = (data: any[]) => {
