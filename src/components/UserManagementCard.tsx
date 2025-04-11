@@ -187,7 +187,7 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
     }
   };
 
-  return loading ? null : (
+  return (
     <Box
       height="100%"
       display="flex"
