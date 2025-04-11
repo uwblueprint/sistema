@@ -58,11 +58,8 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
   });
 
   const [lessonPlan, setLessonPlan] = useState<File | null>(null);
-  const [existingLessonPlan, setExistingLessonPlan] =
-    useState<LessonPlanFile | null>(initialData.lessonPlan || null);
-  const handleClearExistingLessonPlan = () => {
-    setExistingLessonPlan(null);
-  };
+  const existingLessonPlan = initialData.lessonPlan || null;
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
@@ -282,7 +279,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
           lessonPlan={lessonPlan}
           setLessonPlan={setLessonPlan}
           existingFile={existingLessonPlan}
-          onClearExisting={handleClearExistingLessonPlan}
         />
 
         <FormControl>

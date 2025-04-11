@@ -14,7 +14,6 @@ interface FileUploadProps {
   lessonPlan: File | null;
   setLessonPlan: (file: File | null) => void;
   existingFile?: LessonPlanFile | null;
-  onClearExisting?: () => void;
   label?: string;
 }
 
