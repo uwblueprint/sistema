@@ -133,6 +133,8 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
                   src={selectedOption?.profilePicture}
                   size="sm"
                   p="4px"
+                  loading="eager"
+                  ignoreFallback
                 />
               </InputLeftElement>
             )}
@@ -204,6 +206,8 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
                       size="sm"
                       m="4px"
                       p="4px"
+                      loading="eager"
+                      ignoreFallback
                     />
                     <Text textStyle="subtitle">{option.name}</Text>
                   </Box>
