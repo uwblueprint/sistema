@@ -4,13 +4,17 @@ import { uploadFile } from './uploadFile';
 interface SubmitAbsenceParams {
   formData: any;
   lessonPlan: File | null;
-  onDeclareAbsence: (absence: Prisma.AbsenceCreateManyInput) => Promise<any>;
+  onDeclareAbsence?: (absence: Prisma.AbsenceCreateManyInput) => Promise<any>;
+  onEditAbsence?: (
+    absence: Partial<Prisma.AbsenceUpdateInput> & { id: number }
+  ) => Promise<any>;
 }
 
 export async function submitAbsence({
   formData,
   lessonPlan,
   onDeclareAbsence,
+  onEditAbsence,
 }: SubmitAbsenceParams): Promise<{ success: boolean; message: string }> {
   const lessonDate = new Date(formData.lessonDate + 'T00:00:00');
 
@@ -44,17 +48,38 @@ export async function submitAbsence({
     lessonPlanFile: lessonPlanData,
   };
 
-  const response = await onDeclareAbsence(absenceData);
-  if (response) {
-    return {
-      success: true,
-      message: lessonDate.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-      }),
-    };
+  if (onEditAbsence && formData.id) {
+    const response = await onEditAbsence({
+      ...absenceData,
+      id: formData.id,
+    });
+    return response
+      ? {
+          success: true,
+          message: 'Absence updated successfully.',
+        }
+      : {
+          success: false,
+          message: 'Failed to update absence',
+        };
   }
 
-  return { success: false, message: 'Failed to declare absence' };
+  if (onDeclareAbsence) {
+    const response = await onDeclareAbsence(absenceData);
+    return response
+      ? {
+          success: true,
+          message: lessonDate.toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+          }),
+        }
+      : {
+          success: false,
+          message: 'Failed to declare absence',
+        };
+  }
+
+  return { success: false, message: 'No action provided' };
 }

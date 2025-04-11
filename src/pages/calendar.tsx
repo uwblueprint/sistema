@@ -20,7 +20,6 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { useAbsences } from '@hooks/useAbsences';
 import { useUserData } from '@hooks/useUserData';
-import { Absence, Prisma } from '@prisma/client';
 import { formatMonthYear } from '@utils/formatMonthYear';
 import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
@@ -165,29 +164,6 @@ const Calendar: React.FC = () => {
     setClaimedDays(claimedAbsences);
   }, [events, userData?.id]);
 
-  const handleDeclareAbsence = async (
-    absence: Prisma.AbsenceCreateManyInput
-  ): Promise<Absence | null> => {
-    try {
-      const res = await fetch('/api/declareAbsence', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(absence),
-      });
-
-      if (!res.ok) {
-        throw new Error(`Failed to add absence: ${res.statusText}`);
-      }
-
-      const addedAbsence = await res.json();
-      await fetchAbsences();
-      return addedAbsence;
-    } catch (error) {
-      console.error('Error adding absence:', error);
-      return null;
-    }
-  };
-
   useEffect(() => {
     fetchAbsences();
   }, [fetchAbsences]);
@@ -246,21 +222,21 @@ const Calendar: React.FC = () => {
   const handleAbsenceClick = (clickInfo: EventClickArg) => {
     setSelectedEvent({
       title: clickInfo.event.title,
-      start: clickInfo.event.start,
-      absentTeacher: clickInfo.event.extendedProps.absentTeacher || null,
+      start: clickInfo.event.start!!,
+      absentTeacher: clickInfo.event.extendedProps.absentTeacher,
       absentTeacherFullName:
-        clickInfo.event.extendedProps.absentTeacherFullName || '',
+        clickInfo.event.extendedProps.absentTeacherFullName,
       substituteTeacher:
         clickInfo.event.extendedProps.substituteTeacher || null,
       substituteTeacherFullName:
         clickInfo.event.extendedProps.substituteTeacherFullName || '',
-      location: clickInfo.event.extendedProps.location || '',
+      location: clickInfo.event.extendedProps.location,
       locationId: clickInfo.event.extendedProps.locationId,
       subjectId: clickInfo.event.extendedProps.subjectId,
-      classType: clickInfo.event.extendedProps.classType || '',
+      classType: clickInfo.event.extendedProps.classType,
       lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
       roomNumber: clickInfo.event.extendedProps.roomNumber || '',
-      reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
+      reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence,
       notes: clickInfo.event.extendedProps.notes || '',
       absenceId: clickInfo.event.extendedProps.absenceId,
     });
@@ -476,7 +452,8 @@ const Calendar: React.FC = () => {
       <AbsenceDetails
         isOpen={isAbsenceDetailsOpen}
         onClose={onAbsenceDetailsClose}
-        event={selectedEvent}
+        event={selectedEvent!!}
+        fetchAbsences={fetchAbsences}
         onDelete={handleDeleteAbsence}
         isAdminMode={isAdminMode}
       />
@@ -495,11 +472,11 @@ const Calendar: React.FC = () => {
           <ModalBody p={0}>
             <DeclareAbsenceForm
               onClose={onInputFormClose}
-              onDeclareAbsence={handleDeclareAbsence}
               initialDate={selectedDate!!}
               userId={userData.id}
               onTabChange={setActiveTab}
               isAdminMode={isAdminMode}
+              fetchAbsences={fetchAbsences}
             />
           </ModalBody>
         </ModalContent>

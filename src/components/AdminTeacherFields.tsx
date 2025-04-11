@@ -38,6 +38,7 @@ export const AdminTeacherFields: React.FC<AdminTeacherFieldsProps> = ({
           label="Teacher"
           type="user"
           excludedId={formData.substituteTeacherId}
+          defaultValueId={Number(formData.absentTeacherId)}
           onChange={(value) => {
             setFormData((prev) => ({
               ...prev,
@@ -62,6 +63,11 @@ export const AdminTeacherFields: React.FC<AdminTeacherFieldsProps> = ({
           label="Teacher"
           type="user"
           excludedId={formData.absentTeacherId}
+          defaultValueId={
+            formData.substituteTeacherId
+              ? Number(formData.substituteTeacherId)
+              : undefined
+          }
           onChange={(value) => {
             setFormData((prev) => ({
               ...prev,

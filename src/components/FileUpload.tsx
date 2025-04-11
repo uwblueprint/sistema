@@ -8,16 +8,20 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
+import { LessonPlanFile } from '@utils/types';
 
 interface FileUploadProps {
   lessonPlan: File | null;
-  setLessonPlan: (lessonPlan: File | null) => void;
+  setLessonPlan: (file: File | null) => void;
+  existingFile?: LessonPlanFile | null;
+  onClearExisting?: () => void;
   label?: string;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   lessonPlan,
   setLessonPlan,
+  existingFile,
   label = 'Lesson Plan',
 }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -87,9 +91,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         onDrop={handleDrop}
       >
         <Image src="/images/upload.svg" alt="Upload" width={10} height={10} />
-        <Text textStyle="subtitle">
-          {lessonPlan ? `Selected file: ${lessonPlan.name}` : 'Upload PDF'}
-        </Text>
+        <Box mt={2}>
+          <Text textStyle="subtitle">
+            {lessonPlan?.name || existingFile?.name || 'Upload PDF'}
+          </Text>
+        </Box>
       </Box>
 
       <Input

@@ -16,22 +16,39 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
-import { Role } from '@utils/types';
+import { EventDetails, Role } from '@utils/types';
 import { Buildings, Calendar } from 'iconsax-react';
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
+import EditAbsenceForm from './EditAbsenceForm';
 import LessonPlanView from './LessonPlanView';
 
-const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
+interface AbsenceDetailsProps {
+  isOpen: boolean;
+  onClose: () => void;
+  event: EventDetails;
+  onDelete?: (absenceId: number) => void;
+  isAdminMode: boolean;
+  fetchAbsences: () => Promise<void>;
+}
+
+const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
+  isOpen,
+  onClose,
+  event,
+  onDelete,
+  isAdminMode,
+  fetchAbsences,
+}) => {
   const theme = useTheme();
   const userData = useUserData();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   const toast = useToast();
-  const router = useRouter();
 
   if (!event) return null;
 
@@ -39,6 +56,10 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
   const isUserAbsentTeacher = userId === event.absentTeacher.id;
   const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
   const isUserAdmin = userData.role === Role.ADMIN;
+
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
+  };
 
   const handleDeleteClick = () => {
     setIsDeleteDialogOpen(true);
@@ -57,7 +78,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          isUserAdmin: isUserAdmin,
+          isUserAdmin,
           absenceId: event.absenceId,
         }),
       });
@@ -74,13 +95,12 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
         isClosable: true,
       });
 
+      await fetchAbsences();
       setIsDeleteDialogOpen(false);
       onClose();
 
       if (onDelete) {
         onDelete(event.absenceId);
-      } else {
-        router.reload();
       }
     } catch (error) {
       toast({
@@ -109,7 +129,11 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                 isUserAbsentTeacher={isUserAbsentTeacher}
                 isUserSubstituteTeacher={isUserSubstituteTeacher}
                 isAdminMode={isAdminMode}
-                substituteTeacherFullName={event.substituteTeacherFullName}
+                substituteTeacherFullName={
+                  event.substituteTeacherFullName
+                    ? event.substituteTeacherFullName
+                    : undefined
+                }
               />
               <Flex position="absolute" right="0">
                 {isAdminMode && (
@@ -120,6 +144,7 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                     }
                     size="sm"
                     variant="ghost"
+                    onClick={handleEditClick}
                   />
                 )}
 
@@ -302,7 +327,6 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
                   </Flex>
                 )}
 
-              {/* Fill Absence Button*/}
               {!event.substituteTeacher &&
                 !isUserAbsentTeacher &&
                 !isAdminMode && (
@@ -341,6 +365,34 @@ const AbsenceDetails = ({ isOpen, onClose, event, isAdminMode, onDelete }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      {isEditModalOpen && (
+        <Modal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          isCentered
+        >
+          <ModalOverlay />
+          <ModalContent
+            width={362}
+            sx={{ padding: '33px 31px' }}
+            borderRadius="16px"
+          >
+            <ModalHeader fontSize={22} p="0 0 28px 0">
+              Edit Absence
+            </ModalHeader>
+            <ModalCloseButton top="33px" right="28px" color="text.header" />
+            <ModalBody p={0}>
+              <EditAbsenceForm
+                initialData={event}
+                isAdminMode={isAdminMode}
+                fetchAbsences={fetchAbsences}
+                onClose={() => setIsEditModalOpen(false)}
+                onFinishedEdit={onClose}
+              />
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      )}
     </>
   );
 };
