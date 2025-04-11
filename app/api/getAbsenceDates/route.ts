@@ -1,6 +1,6 @@
+import { YearlyAbsenceData } from '@utils/types';
 import { NextResponse } from 'next/server';
 import { getAbsenceYearRanges } from './absenceDates';
-import { YearlyAbsenceData } from '@utils/types';
 
 export async function GET() {
   try {

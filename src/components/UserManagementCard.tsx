@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Modal,
   ModalBody,
@@ -8,14 +9,19 @@ import {
   ModalHeader,
   ModalOverlay,
   Text,
-  Box,
   useDisclosure,
 } from '@chakra-ui/react';
 import { Role, UserAPI } from '@utils/types';
 import { useEffect, useState } from 'react';
 import { UserManagementTable } from './UserManagementTable';
 
-const UserManagementCard = () => {
+interface UserManagementCardProps {
+  selectedYearRange: string;
+}
+
+const UserManagementCard: React.FC<UserManagementCardProps> = ({
+  selectedYearRange,
+}) => {
   const [users, setUsers] = useState<UserAPI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [absenceCap, setAbsenceCap] = useState<number>(10);
@@ -93,7 +99,7 @@ const UserManagementCard = () => {
     }
   };
 
-  return loading ? null : (
+  return (
     <Box
       height="100%"
       display="flex"
@@ -105,6 +111,8 @@ const UserManagementCard = () => {
         users={users}
         updateUserRole={handleConfirmRoleChange}
         absenceCap={absenceCap}
+        isLoading={loading}
+        selectedYearRange={selectedYearRange}
       />
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -118,7 +126,7 @@ const UserManagementCard = () => {
               <strong>
                 {pendingUser?.firstName} {pendingUser?.lastName}
               </strong>
-              &rsquo;s role to <strong>{pendingRole}</strong>?{' '}
+              &rsquo;s role to <strong>{pendingRole}</strong>?
             </Text>
           </ModalBody>
           <ModalFooter>

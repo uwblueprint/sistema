@@ -271,12 +271,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
           <FormErrorMessage>{errors.reasonOfAbsence}</FormErrorMessage>
         </FormControl>
 
-        <FormControl>
-          <Text textStyle="h4" mb={2}>
-            Lesson Plan
-          </Text>
-          <FileUpload lessonPlan={lessonPlan} setLessonPlan={setLessonPlan} />
-        </FormControl>
+        <FileUpload lessonPlan={lessonPlan} setLessonPlan={setLessonPlan} />
 
         <FormControl>
           <FormLabel htmlFor="notes" sx={{ display: 'flex' }}>
