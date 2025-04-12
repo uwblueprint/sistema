@@ -8,7 +8,9 @@ interface UseUserDataReturn extends UserData {
   isLoading: boolean;
 }
 
-export const useUserData = (): UseUserDataReturn & {
+export const useUserData = (
+  selectedYearRange?: string
+): UseUserDataReturn & {
   refetchUserData: () => void;
 } => {
   const { data: session, status } = useSession();
@@ -34,7 +36,8 @@ export const useUserData = (): UseUserDataReturn & {
         const today = new Date();
         const currentYear =
           today.getMonth() >= 8 ? today.getFullYear() : today.getFullYear() - 1;
-        const selectedYearRange = `${currentYear} - ${currentYear + 1}`;
+        const yearRange =
+          selectedYearRange ?? `${currentYear} - ${currentYear + 1}`;
 
         setFetchedUserData({
           id: user.id,
@@ -42,10 +45,7 @@ export const useUserData = (): UseUserDataReturn & {
           email: user.email,
           image: user.profilePicture ?? undefined,
           role: user.role as Role,
-          usedAbsences: getSelectedYearAbsences(
-            user.absences,
-            selectedYearRange
-          ),
+          usedAbsences: getSelectedYearAbsences(user.absences, yearRange),
         });
       } catch (error) {
         console.error('Failed to fetch user data:', error);
@@ -55,7 +55,7 @@ export const useUserData = (): UseUserDataReturn & {
     } else if (status !== 'loading') {
       setIsLoading(false);
     }
-  }, [session?.user?.id, status]);
+  }, [session?.user?.id, status, selectedYearRange]);
 
   useEffect(() => {
     fetchUser();
