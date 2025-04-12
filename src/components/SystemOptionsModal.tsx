@@ -240,8 +240,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       pendingEntities.settings.absenceCap !== undefined;
 
     if (hasChanges) {
-      // Log the pending changes to help debug
-      console.log('Pending entities before confirmation:', pendingEntities);
       setIsConfirmingClose(false);
       confirmationDialog.onOpen();
     } else {

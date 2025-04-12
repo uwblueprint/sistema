@@ -28,8 +28,7 @@ export async function PATCH(
     console.error('Error updating location:', error);
     return NextResponse.json(
       {
-        error:
-          'Unable to update location. Please try again or contact support.',
+        error: 'Unable to update location.',
       },
       { status: 500 }
     );
@@ -72,8 +71,7 @@ export async function DELETE(
     console.error('Error deleting location:', error);
     return NextResponse.json(
       {
-        error:
-          'Unable to delete location. Please try again or contact support.',
+        error: 'Unable to delete location.',
       },
       { status: 500 }
     );

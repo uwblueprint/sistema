@@ -111,13 +111,6 @@ const SystemChangesConfirmationDialog: React.FC<
     const hasLocationChanges = pendingEntities.locations.size > 0;
     const hasSettingChanges = pendingEntities.settings.absenceCap !== undefined;
 
-    // Log the pending entity counts for debugging
-    console.log('Pending changes count:', {
-      subjects: pendingEntities.subjects.size,
-      locations: pendingEntities.locations.size,
-      hasSettingChanges,
-    });
-
     if (!hasSubjectChanges && !hasLocationChanges && !hasSettingChanges) {
       console.log('No changes to apply - returning empty state');
       return [
