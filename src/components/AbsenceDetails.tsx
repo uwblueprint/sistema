@@ -21,7 +21,7 @@ import { Buildings, Calendar } from 'iconsax-react';
 import { useState } from 'react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
-import AbsenceClaimThanks from './AbsenceClaimThanks';
+import AbsenceFillThanks from './AbsenceFillThanks';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import EditableNotes from './EditableNotes';
 import EditAbsenceForm from './EditAbsenceForm';
@@ -49,9 +49,9 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isClaiming, setIsClaiming] = useState(false);
-  const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
-  const [isClaimThanksOpen, setIsClaimThanksOpen] = useState(false);
+  const [isFilling, setIsFilling] = useState(false);
+  const [isFillDialogOpen, setIsFillDialogOpen] = useState(false);
+  const [isFillThanksOpen, setIsFillThanksOpen] = useState(false);
 
   const toast = useToast();
 
@@ -87,20 +87,20 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
 
   const absenceDate = formatDate(event.start!!);
 
-  const handleClaimThanksDone = () => {
-    setIsClaimThanksOpen(false);
+  const handleFillThanksDone = () => {
+    setIsFillThanksOpen(false);
   };
 
-  const handleClaimAbsenceClick = () => {
-    setIsClaimDialogOpen(true);
+  const handleFillAbsenceClick = () => {
+    setIsFillDialogOpen(true);
   };
 
-  const handleClaimCancel = () => {
-    setIsClaimDialogOpen(false);
+  const handleFillCancel = () => {
+    setIsFillDialogOpen(false);
   };
 
-  const handleClaimConfirm = async () => {
-    setIsClaiming(true);
+  const handleFillConfirm = async () => {
+    setIsFilling(true);
 
     try {
       const response = await fetch('/api/editAbsence', {
@@ -122,30 +122,30 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to claim absence');
+        throw new Error('Failed to fill absence');
       }
 
       toast({
-        title: 'Absence claimed',
-        description: 'You have successfully claimed this absence.',
+        title: 'Absence filled',
+        description: 'You have successfully filled this absence.',
         status: 'success',
         duration: 5000,
         isClosable: true,
       });
 
       await fetchAbsences();
-      setIsClaimDialogOpen(false);
-      setIsClaimThanksOpen(true);
+      setIsFillDialogOpen(false);
+      setIsFillThanksOpen(true);
     } catch (error) {
       toast({
         title: 'Error',
-        description: error.message || 'Failed to claim absence',
+        description: error.message || 'Failed to fill absence',
         status: 'error',
         duration: 5000,
         isClosable: true,
       });
     } finally {
-      setIsClaiming(false);
+      setIsFilling(false);
       onClose();
     }
   };
@@ -400,7 +400,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                     height="44px"
                     fontSize="16px"
                     fontWeight="500"
-                    onClick={handleClaimAbsenceClick}
+                    onClick={handleFillAbsenceClick}
                   >
                     Fill this Absence
                   </Button>
@@ -409,7 +409,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
           </ModalBody>
         </ModalContent>
       </Modal>
-      <Modal isOpen={isClaimDialogOpen} onClose={handleClaimCancel} isCentered>
+      <Modal isOpen={isFillDialogOpen} onClose={handleFillCancel} isCentered>
         <ModalOverlay />
         <ModalContent
           width="300px"
@@ -437,7 +437,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
           </ModalBody>
           <ModalFooter padding="0">
             <Button
-              onClick={handleClaimCancel}
+              onClick={handleFillCancel}
               variant="outline"
               textStyle="button"
               fontWeight="500"
@@ -446,10 +446,10 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
               Cancel
             </Button>
             <Button
-              onClick={handleClaimConfirm}
+              onClick={handleFillConfirm}
               textStyle="button"
               fontWeight="500"
-              isLoading={isClaiming}
+              isLoading={isFilling}
               ml="10px"
             >
               Confirm
@@ -457,9 +457,9 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
           </ModalFooter>
         </ModalContent>
       </Modal>
-      <AbsenceClaimThanks
-        isOpen={isClaimThanksOpen}
-        onClose={handleClaimThanksDone}
+      <AbsenceFillThanks
+        isOpen={isFillThanksOpen}
+        onClose={handleFillThanksDone}
         event={event}
         absenceDate={absenceDate}
       />
