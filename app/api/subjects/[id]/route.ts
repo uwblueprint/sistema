@@ -31,7 +31,7 @@ export async function PATCH(
     console.error('Error updating subject:', error);
     return NextResponse.json(
       {
-        error: 'Unable to update subject. Please try again or contact support.',
+        error: 'Unable to update subject.',
       },
       { status: 500 }
     );
@@ -74,7 +74,7 @@ export async function DELETE(
     console.error('Error deleting subject:', error);
     return NextResponse.json(
       {
-        error: 'Unable to delete subject. Please try again or contact support.',
+        error: 'Unable to delete subject.',
       },
       { status: 500 }
     );
