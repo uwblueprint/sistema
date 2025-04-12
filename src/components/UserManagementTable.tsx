@@ -69,6 +69,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [tagColors, setTagColors] = useState<Record<string, string[]>>({});
   const [allSubjects, setAllSubjects] = useState<SubjectAPI[]>([]);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const getSelectedYearAbsences = (absences?: any[]) =>
     computeYearlyAbsences(absences, selectedYearRange);
 
@@ -228,25 +229,21 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
               <Icon as={FiSearch} color="neutralGray.600" boxSize={6} />
             </InputLeftElement>
             <Input
-              borderColor={'neutralGray.300'}
+              borderColor="neutralGray.300"
               paddingRight={0}
               color="black"
               value={searchTerm}
               onChange={handleSearchChange}
-              onFocus={(e) => {
-                e.target.style.width = '270px';
-                e.target.style.flex = '1';
-              }}
-              onBlur={(e) => {
-                if (!e.target.value) {
-                  e.target.style.width = '0px';
-                  e.target.style.flex = '0';
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => {
+                if (!searchTerm) {
+                  setIsSearchFocused(false);
                 }
               }}
+              width={isSearchFocused || searchTerm ? '270px' : '0px'}
               transition="width 0.3s ease"
-              width={searchTerm ? '270px' : '0px'}
-              margin={0}
               isDisabled={isLoading}
+              margin={0}
             />
           </InputGroup>
 
