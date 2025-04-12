@@ -133,7 +133,7 @@ export default function ArchivedAccordion({
                 color={theme.colors.text.subtitle}
                 mb={2}
               >
-                Subject
+                Subjects
               </Text>
               <Stack spacing={2} mt={0} mb={3}>
                 {subjects.map((subject) => (
@@ -183,7 +183,7 @@ export default function ArchivedAccordion({
                 color={theme.colors.text.subtitle}
                 mb={2}
               >
-                Location
+                Locations
               </Text>
               <Stack spacing={2} mt={0}>
                 {locations.map((location) => (

@@ -1,7 +1,7 @@
 import { Box, Button, Text } from '@chakra-ui/react';
+import { getSelectedYearAbsences } from '@utils/getSelectedYearAbsences';
 import { useState } from 'react';
 import { FiDownload } from 'react-icons/fi';
-import { getSelectedYearAbsences } from '@utils/getSelectedYearAbsences';
 
 const ExportAbsencesButton = ({ selectedRange }: { selectedRange: string }) => {
   const [error, setError] = useState<string | null>(null);

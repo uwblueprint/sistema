@@ -12,14 +12,16 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { MailingList, Role, SubjectAPI, UserAPI } from '@utils/types';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { UserManagementTable } from './UserManagementTable';
 
 interface UserManagementCardProps {
+  setRefreshFunction?: (refreshFn: () => void) => void;
   selectedYearRange: string;
 }
 
 const UserManagementCard: React.FC<UserManagementCardProps> = ({
+  setRefreshFunction,
   selectedYearRange,
 }) => {
   const [users, setUsers] = useState<UserAPI[]>([]);
@@ -31,35 +33,44 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
   const [pendingUser, setPendingUser] = useState<UserAPI | null>(null);
   const [pendingRole, setPendingRole] = useState<Role | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch all subjects first
-        const subjectsResponse = await fetch('/api/subjects');
-        if (!subjectsResponse.ok) throw new Error('Failed to fetch subjects');
-        const subjectsData = await subjectsResponse.json();
-        setSubjects(subjectsData);
+  // Define fetchData function with useCallback to allow it to be stable
+  const fetchData = useCallback(async () => {
+    try {
+      // Fetch all subjects first
+      const subjectsResponse = await fetch('/api/subjects');
+      if (!subjectsResponse.ok) throw new Error('Failed to fetch subjects');
+      const subjectsData = await subjectsResponse.json();
+      setSubjects(subjectsData);
 
-        const usersResponse = await fetch(
-          '/api/users?getAbsences=true&getMailingLists=true'
-        );
-        if (!usersResponse.ok) throw new Error('Failed to fetch users');
-        const usersData = await usersResponse.json();
-        setUsers(usersData);
+      const usersResponse = await fetch(
+        '/api/users?getAbsences=true&getMailingLists=true'
+      );
+      if (!usersResponse.ok) throw new Error('Failed to fetch users');
+      const usersData = await usersResponse.json();
+      setUsers(usersData);
 
-        const settingsResponse = await fetch('/api/settings');
-        if (!settingsResponse.ok) throw new Error('Failed to fetch settings');
-        const settings = await settingsResponse.json();
-        setAbsenceCap(settings.absenceCap);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+      const settingsResponse = await fetch('/api/settings');
+      if (!settingsResponse.ok) throw new Error('Failed to fetch settings');
+      const settings = await settingsResponse.json();
+      setAbsenceCap(settings.absenceCap);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  // Initial data loading
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Register our fetchData function with the parent component
+  useEffect(() => {
+    if (setRefreshFunction) {
+      setRefreshFunction(fetchData);
+    }
+  }, [setRefreshFunction, fetchData]);
 
   const handleConfirmRoleChange = (userId: number, newRole: Role) => {
     const user = users.find((u) => u.id === userId);

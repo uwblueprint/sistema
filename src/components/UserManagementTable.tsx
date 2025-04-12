@@ -4,15 +4,12 @@ import {
   Avatar,
   Box,
   Divider,
-  Flex,
   HStack,
   Icon,
   Input,
   InputGroup,
   InputLeftElement,
   Table,
-  Tag,
-  TagLabel,
   Tbody,
   Td,
   Text,
@@ -20,10 +17,10 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react';
-import { getSelectedYearAbsences as computeYearlyAbsences } from '@utils/getSelectedYearAbsences';
-import { getAbsenceColor } from '@utils/getAbsenceColor';
-import { FilterOptions, Role, SubjectAPI, UserAPI } from '@utils/types';
 import useUserFiltering from '@hooks/useUserFiltering';
+import { getAbsenceColor } from '@utils/getAbsenceColor';
+import { getSelectedYearAbsences as computeYearlyAbsences } from '@utils/getSelectedYearAbsences';
+import { FilterOptions, Role, SubjectAPI, UserAPI } from '@utils/types';
 import React, { useEffect, useState } from 'react';
 import {
   FiClock,
@@ -34,8 +31,8 @@ import {
   FiUser,
 } from 'react-icons/fi';
 import EditableRoleCell from './EditableRoleCell';
-import FilterPopup from './FilterPopup';
 import EditableSubscriptionsCell from './EditableSubscriptionsCell';
+import FilterPopup from './FilterPopup';
 
 type SortField = 'name' | 'email' | 'absences' | 'role';
 
