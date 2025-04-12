@@ -10,7 +10,7 @@ import {
 
 import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { IoChevronBack, IoChevronForward, IoStatsChart } from 'react-icons/io5';
 import { AdminTeacherToggle } from './AdminTeacherToggle';
 import ProfileMenu from './ProfileMenu';

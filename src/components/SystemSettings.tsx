@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
 import {
   Box,
   HStack,
-  VStack,
-  Text,
+  Icon,
   NumberInput,
   NumberInputField,
-  Icon,
+  Text,
   Tooltip,
+  VStack,
 } from '@chakra-ui/react';
+import React, { useState } from 'react';
 import { LuInfo } from 'react-icons/lu';
 
 interface SystemSettingsProps {

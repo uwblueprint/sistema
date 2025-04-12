@@ -1,36 +1,31 @@
-import React, { useRef, useState, useMemo } from 'react';
 import {
   Box,
-  Text,
-  HStack,
-  Circle,
   Button,
+  Circle,
+  HStack,
+  Icon,
   IconButton,
   Input,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Portal,
+  Spacer,
+  Text,
   Tooltip,
   useTheme,
-  Spacer,
-  Icon,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverBody,
-  Portal,
   VStack,
 } from '@chakra-ui/react';
+import React, { useMemo, useRef, useState } from 'react';
+import { FiArchive, FiEdit2, FiMapPin, FiTrash2, FiType } from 'react-icons/fi';
 import {
-  IoEllipsisHorizontal,
   IoAdd,
+  IoBookOutline,
   IoCheckmark,
   IoCloseOutline,
-  IoBookOutline,
-  IoLinkOutline,
+  IoEllipsisHorizontal,
 } from 'react-icons/io5';
-import { FiType, FiArchive, FiMapPin, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { LuInfo } from 'react-icons/lu';
 import AbsenceBox from './AbsenceBox';
 

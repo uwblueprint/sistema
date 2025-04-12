@@ -1,22 +1,20 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
 import {
   Box,
-  Button,
   Checkbox,
   Icon,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
   Tag,
   TagLabel,
   Text,
   Wrap,
   WrapItem,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverBody,
 } from '@chakra-ui/react';
-import { FiChevronDown, FiChevronUp, FiEdit2 } from 'react-icons/fi';
-import { IoCheckmark, IoCloseOutline } from 'react-icons/io5';
 import { MailingList, SubjectAPI } from '@utils/types';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { FiChevronDown, FiChevronUp, FiEdit2 } from 'react-icons/fi';
 
 interface SubjectTagProps {
   subject: {

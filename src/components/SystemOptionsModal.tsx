@@ -1,34 +1,31 @@
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  VStack,
-  HStack,
-  Text,
   Box,
-  IconButton,
-  useDisclosure,
-  useToast,
-  useTheme,
-  Spacer,
+  Button,
   Flex,
+  HStack,
+  IconButton,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Spacer,
+  Text,
+  useDisclosure,
+  useTheme,
+  useToast,
+  VStack,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useState } from 'react';
-import { IoSettingsOutline, IoCloseOutline } from 'react-icons/io5';
-import { SubjectAPI, Location } from '@utils/types';
-import React from 'react';
-import SystemChangesConfirmationDialog, {
-  PendingEntities,
-} from './SystemChangesConfirmationDialog';
-import UnsavedChangesDialog from './UnsavedChangesDialog';
-import SubjectsTable from './SubjectsTable';
+import { Location, SubjectAPI } from '@utils/types';
+import React, { useCallback, useEffect, useState } from 'react';
+import { IoCloseOutline, IoSettingsOutline } from 'react-icons/io5';
+import { useChangeManagement } from '../../hooks/useChangeManagement';
 import LocationsTable from './LocationsTable';
+import SubjectsTable from './SubjectsTable';
+import SystemChangesConfirmationDialog from './SystemChangesConfirmationDialog';
 import SystemSettings from './SystemSettings';
-import { useChangeManagement } from '../hooks/useChangeManagement';
+import UnsavedChangesDialog from './UnsavedChangesDialog';
 
 interface SystemOptionsModalProps {
   isOpen: boolean;

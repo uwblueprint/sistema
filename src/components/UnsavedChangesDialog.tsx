@@ -1,16 +1,16 @@
 import {
-  Button,
-  Text,
-  VStack,
   Box,
+  Button,
   HStack,
   Icon,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
   ModalBody,
+  ModalContent,
   ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
 import React from 'react';
 import { IoWarning } from 'react-icons/io5';

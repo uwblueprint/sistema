@@ -4,17 +4,17 @@ import {
   IconButton,
   Spacer,
   Text,
-  useTheme,
   useDisclosure,
+  useTheme,
 } from '@chakra-ui/react';
 import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { IoChevronBack, IoSettingsOutline } from 'react-icons/io5';
 import ExportAbsencesButton from './ExportAbsencesButton';
 import ProfileMenu from './ProfileMenu';
-import YearDropdown from './YearDropdown';
 import SystemOptionsModal from './SystemOptionsModal';
+import YearDropdown from './YearDropdown';
 
 interface DashboardHeaderProps {
   userData?: UserData;

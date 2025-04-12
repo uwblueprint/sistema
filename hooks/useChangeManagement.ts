@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
-import { SubjectAPI, Location } from '@utils/types';
+import { Location, SubjectAPI } from '@utils/types';
+import { useCallback, useEffect, useState } from 'react';
 
 /**
  * This hook manages pending changes to system entities using an entity-based tracking approach.

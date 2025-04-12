@@ -1,30 +1,21 @@
 import {
-  Button,
-  Text,
-  VStack,
   Box,
+  Button,
   HStack,
   Icon,
-  Flex,
-  Divider,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogOverlay,
-  Center,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
   ModalBody,
+  ModalContent,
   ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
+import { Location, SubjectAPI } from '@utils/types';
 import React from 'react';
-import { FiTrash2, FiArchive, FiFolder, FiEdit2 } from 'react-icons/fi';
-import { IoWarning, IoAlertCircleSharp, IoAdd } from 'react-icons/io5';
-import { SubjectAPI, Location } from '@utils/types';
+import { FiArchive, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { IoAdd, IoAlertCircleSharp, IoWarning } from 'react-icons/io5';
 
 // Entity-based pending changes structure
 export interface PendingEntities {
