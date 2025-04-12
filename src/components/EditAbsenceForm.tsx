@@ -25,7 +25,6 @@ import { InputDropdown } from './InputDropdown';
 
 interface EditAbsenceFormProps {
   onClose?: () => void;
-  onFinishedEdit?: () => void;
   initialData: EventDetails;
   isAdminMode: boolean;
   fetchAbsences: () => Promise<void>;
@@ -33,7 +32,6 @@ interface EditAbsenceFormProps {
 
 const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
   onClose,
-  onFinishedEdit,
   initialData,
   isAdminMode,
   fetchAbsences,
@@ -121,7 +119,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
 
         fetchAbsences();
         onClose?.();
-        onFinishedEdit?.();
       } else {
         toast({
           title: 'Error',

@@ -151,6 +151,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   };
 
   const handleEditClick = () => {
+    onClose();
     setIsEditModalOpen(true);
   };
 
@@ -506,7 +507,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                 isAdminMode={isAdminMode}
                 fetchAbsences={fetchAbsences}
                 onClose={() => setIsEditModalOpen(false)}
-                onFinishedEdit={onClose}
               />
             </ModalBody>
           </ModalContent>
