@@ -285,7 +285,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
           <Textarea
             id="notes"
             name="notes"
-            placeholder="Additional relevant info..."
+            placeholder="Visible to everyone"
             value={formData.notes}
             onChange={handleChange}
             minH="88px"
