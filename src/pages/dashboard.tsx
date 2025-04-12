@@ -22,17 +22,16 @@ export default function DashboardPage() {
 
   // We'll use a ref to store the refresh function that will be created in UserManagementCard
   const userManagementRefreshRef = useRef<() => void>(() => {
-    console.log('UserManagement refresh function not set yet');
+    console.error('UserManagement refresh function not set yet');
   });
 
   // To handle header refreshes (for absenceCap updates)
   const dashboardHeaderRefreshRef = useRef<() => void>(() => {
-    console.log('DashboardHeader refresh function not set yet');
+    console.error('DashboardHeader refresh function not set yet');
   });
 
   // Function to refresh user management data - called when system options are updated
   const handleSystemOptionsUpdate = useCallback(() => {
-    console.log('System options updated, refreshing user data and settings');
     // Call the refresh function stored in the ref to refresh user data
     userManagementRefreshRef.current();
     // Also refresh the dashboard header data

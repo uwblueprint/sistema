@@ -112,7 +112,6 @@ const SystemChangesConfirmationDialog: React.FC<
     const hasSettingChanges = pendingEntities.settings.absenceCap !== undefined;
 
     if (!hasSubjectChanges && !hasLocationChanges && !hasSettingChanges) {
-      console.log('No changes to apply - returning empty state');
       return [
         {
           icon: null,
