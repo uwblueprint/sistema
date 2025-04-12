@@ -101,6 +101,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   return (
     <Flex
       minWidth="280px"
+      width="280px"
       padding={theme.space[4]}
       flexDirection="column"
       gap={theme.space[4]}
