@@ -2,7 +2,7 @@ import { Box, HStack, useTheme } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
 import { Role, YearlyAbsenceData } from '@utils/types';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import DashboardHeader from '../components/DashboardHeader';
 import MonthlyAbsencesCard from '../components/MonthlyAbsencesCard';
 import TotalAbsencesCard from '../components/TotalAbsencesCard';
@@ -19,6 +19,34 @@ export default function DashboardPage() {
   const [absenceData, setAbsenceData] = useState<YearlyAbsenceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [startYear, endYear] = selectedYearRange.split(' - ');
+
+  // We'll use a ref to store the refresh function that will be created in UserManagementCard
+  const userManagementRefreshRef = useRef<() => void>(() => {
+    console.error('UserManagement refresh function not set yet');
+  });
+
+  // To handle header refreshes (for absenceCap updates)
+  const dashboardHeaderRefreshRef = useRef<() => void>(() => {
+    console.error('DashboardHeader refresh function not set yet');
+  });
+
+  // Function to refresh user management data - called when system options are updated
+  const handleSystemOptionsUpdate = useCallback(() => {
+    // Call the refresh function stored in the ref to refresh user data
+    userManagementRefreshRef.current();
+    // Also refresh the dashboard header data
+    dashboardHeaderRefreshRef.current();
+  }, []);
+
+  // Function to set the refresh function from UserManagementCard
+  const setUserManagementRefresh = useCallback((refreshFn: () => void) => {
+    userManagementRefreshRef.current = refreshFn;
+  }, []);
+
+  // Function to set the refresh function from DashboardHeader
+  const setDashboardHeaderRefresh = useCallback((refreshFn: () => void) => {
+    dashboardHeaderRefreshRef.current = refreshFn;
+  }, []);
 
   useEffect(() => {
     if (!userData.isLoading && !userData.isAuthenticated) {
@@ -129,6 +157,8 @@ export default function DashboardPage() {
         setSelectedYearRange={setSelectedYearRange}
         yearRanges={sortedYearRanges}
         hasData={hasAbsenceData}
+        onSystemOptionsUpdate={handleSystemOptionsUpdate}
+        setRefreshFunction={setDashboardHeaderRefresh}
       />
       <Box
         px={14}
@@ -153,7 +183,10 @@ export default function DashboardPage() {
             highestMonthlyAbsence={highestMonthlyAbsence}
           />
         </HStack>
-        <UserManagementCard selectedYearRange={selectedYearRange} />
+        <UserManagementCard
+          selectedYearRange={selectedYearRange}
+          setRefreshFunction={setUserManagementRefresh}
+        />
       </Box>
     </Box>
   );

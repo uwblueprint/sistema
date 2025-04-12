@@ -11,18 +11,21 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { Role, UserAPI } from '@utils/types';
-import { useEffect, useState } from 'react';
+import { MailingList, Role, SubjectAPI, UserAPI } from '@utils/types';
+import { useCallback, useEffect, useState } from 'react';
 import { UserManagementTable } from './UserManagementTable';
 
 interface UserManagementCardProps {
+  setRefreshFunction?: (refreshFn: () => void) => void;
   selectedYearRange: string;
 }
 
 const UserManagementCard: React.FC<UserManagementCardProps> = ({
+  setRefreshFunction,
   selectedYearRange,
 }) => {
   const [users, setUsers] = useState<UserAPI[]>([]);
+  const [subjects, setSubjects] = useState<SubjectAPI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [absenceCap, setAbsenceCap] = useState<number>(10);
 
@@ -30,29 +33,44 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
   const [pendingUser, setPendingUser] = useState<UserAPI | null>(null);
   const [pendingRole, setPendingRole] = useState<Role | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const usersResponse = await fetch(
-          '/api/users?getAbsences=true&getMailingLists=true'
-        );
-        if (!usersResponse.ok) throw new Error('Failed to fetch users');
-        const usersData = await usersResponse.json();
-        setUsers(usersData);
+  // Define fetchData function with useCallback to allow it to be stable
+  const fetchData = useCallback(async () => {
+    try {
+      // Fetch all subjects first
+      const subjectsResponse = await fetch('/api/subjects');
+      if (!subjectsResponse.ok) throw new Error('Failed to fetch subjects');
+      const subjectsData = await subjectsResponse.json();
+      setSubjects(subjectsData);
 
-        const settingsResponse = await fetch('/api/settings');
-        if (!settingsResponse.ok) throw new Error('Failed to fetch settings');
-        const settings = await settingsResponse.json();
-        setAbsenceCap(settings.absenceCap);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const usersResponse = await fetch(
+        '/api/users?getAbsences=true&getMailingLists=true'
+      );
+      if (!usersResponse.ok) throw new Error('Failed to fetch users');
+      const usersData = await usersResponse.json();
+      setUsers(usersData);
 
-    fetchData();
+      const settingsResponse = await fetch('/api/settings');
+      if (!settingsResponse.ok) throw new Error('Failed to fetch settings');
+      const settings = await settingsResponse.json();
+      setAbsenceCap(settings.absenceCap);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  // Initial data loading
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Register our fetchData function with the parent component
+  useEffect(() => {
+    if (setRefreshFunction) {
+      setRefreshFunction(fetchData);
+    }
+  }, [setRefreshFunction, fetchData]);
 
   const handleConfirmRoleChange = (userId: number, newRole: Role) => {
     const user = users.find((u) => u.id === userId);
@@ -99,6 +117,87 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
     }
   };
 
+  // Utility function to sort mailing lists
+  const sortMailingLists = (lists: MailingList[]) => {
+    return [...lists].sort((a, b) => {
+      // First sort by archived status (unarchived first)
+      if (a.subject.archived !== b.subject.archived) {
+        return a.subject.archived ? 1 : -1;
+      }
+      // Then sort by ID
+      return a.subject.id - b.subject.id;
+    });
+  };
+
+  const updateUserSubscriptions = async (
+    userId: number,
+    subjectIds: number[]
+  ) => {
+    const originalUsers = [...users];
+    const user = users.find((u) => u.id === userId);
+
+    if (!user) return;
+
+    // Get the complete subject objects for all selected subject IDs
+    const unsortedMailingLists = subjectIds.map((subjectId) => {
+      // Find this subject in our subjects list
+      const subjectData = subjects.find((s) => s.id === subjectId);
+
+      // Find existing mailing list for this subject if it exists
+      const existingMailingList = user.mailingLists?.find(
+        (ml) => ml.subject.id === subjectId
+      );
+
+      // If it exists, keep its data
+      if (existingMailingList) {
+        return existingMailingList;
+      }
+
+      // Otherwise create a new entry with full subject data
+      return {
+        userId: userId,
+        subjectId: subjectId,
+        user: user,
+        subject: subjectData || user.mailingLists?.[0]?.subject || null,
+      };
+    });
+
+    // Sort the mailing lists by archived status and ID
+    const updatedMailingLists = sortMailingLists(unsortedMailingLists);
+
+    // Optimistically update UI with complete data
+    setUsers((prevUsers) =>
+      prevUsers.map((u) =>
+        u.id === userId ? { ...u, mailingLists: updatedMailingLists } : u
+      )
+    );
+
+    // Make the API call in the background
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mailingListSubjectIds: subjectIds }),
+      });
+
+      if (!response.ok) {
+        // Restore original state on error
+        setUsers(originalUsers);
+        throw new Error(response.statusText);
+      }
+
+      // Skip refreshing data - our optimistic update is already using complete data
+      // The server response should match what we've already rendered
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error updating user subscriptions:', error.message);
+      }
+      setUsers(originalUsers);
+    }
+  };
+
   return (
     <Box
       height="100%"
@@ -110,9 +209,11 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
       <UserManagementTable
         users={users}
         updateUserRole={handleConfirmRoleChange}
+        updateUserSubscriptions={updateUserSubscriptions}
         absenceCap={absenceCap}
-        isLoading={loading}
+        allSubjects={subjects}
         selectedYearRange={selectedYearRange}
+        isLoading={loading}
       />
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>

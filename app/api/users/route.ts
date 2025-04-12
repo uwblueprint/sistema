@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
                   select: {
                     name: true,
                     abbreviation: true,
+                    archived: true,
                     colorGroup: {
                       select: { colorCodes: true },
                     },

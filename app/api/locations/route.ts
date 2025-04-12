@@ -18,21 +18,26 @@ export async function POST(request: NextRequest) {
   try {
     const { name, abbreviation } = (await request.json()) ?? {};
 
-    if (!name || !abbreviation) {
+    if (!name) {
       return NextResponse.json(
-        { error: 'name and abbreviation are required' },
+        { error: 'Location name is required' },
         { status: 400 }
       );
     }
 
     const location = await prisma.location.create({
-      data: { name, abbreviation },
+      data: {
+        name,
+        abbreviation: abbreviation || '',
+      },
     });
     return NextResponse.json(location);
   } catch (error) {
     console.error('Error creating location:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Unable to create location.',
+      },
       { status: 500 }
     );
   }
