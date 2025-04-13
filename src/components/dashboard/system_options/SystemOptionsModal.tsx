@@ -20,7 +20,7 @@ import {
 import { Location, SubjectAPI } from '@utils/types';
 import React, { useCallback, useEffect, useState } from 'react';
 import { IoCloseOutline, IoSettingsOutline } from 'react-icons/io5';
-import { useChangeManagement } from '../../hooks/useChangeManagement';
+import { useChangeManagement } from '../../../../hooks/useChangeManagement';
 import LocationsTable from './LocationsTable';
 import SubjectsTable from './SubjectsTable';
 import SystemChangesConfirmationDialog from './SystemChangesConfirmationDialog';

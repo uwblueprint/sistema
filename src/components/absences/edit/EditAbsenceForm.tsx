@@ -17,15 +17,14 @@ import { submitAbsence } from '@utils/submitAbsence';
 import { EventDetails } from '@utils/types';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
 import { useState } from 'react';
-import { AdminTeacherFields } from './AdminTeacherFields';
+import { AdminTeacherFields } from '../declare/AdminTeacherFields';
 import { ConfirmEditModal } from './ConfirmEditModal';
-import { DateOfAbsence } from './DateOfAbsence';
-import { FileUpload } from './FileUpload';
-import { InputDropdown } from './InputDropdown';
+import { DateOfAbsence } from '../declare/DateOfAbsence';
+import { FileUpload } from '../../ui/input/FileUpload';
+import { InputDropdown } from '../../ui/input/InputDropdown';
 
 interface EditAbsenceFormProps {
   onClose?: () => void;
-  onFinishedEdit?: () => void;
   initialData: EventDetails;
   isAdminMode: boolean;
   fetchAbsences: () => Promise<void>;
@@ -33,7 +32,6 @@ interface EditAbsenceFormProps {
 
 const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
   onClose,
-  onFinishedEdit,
   initialData,
   isAdminMode,
   fetchAbsences,
@@ -121,7 +119,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
 
         fetchAbsences();
         onClose?.();
-        onFinishedEdit?.();
       } else {
         toast({
           title: 'Error',
@@ -292,7 +289,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
           <Textarea
             id="notes"
             name="notes"
-            placeholder="Additional relevant info..."
+            placeholder="Visible to everyone"
             value={formData.notes}
             onChange={handleChange}
             minH="88px"

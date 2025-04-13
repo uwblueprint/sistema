@@ -32,12 +32,12 @@ import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import AbsenceBox from '../components/AbsenceBox';
-import AbsenceDetails from '../components/AbsenceDetails';
-import CalendarHeader from '../components/CalendarHeader';
-import CalendarSidebar from '../components/CalendarSidebar';
-import { CalendarTabs } from '../components/CalendarTabs';
-import DeclareAbsenceForm from '../components/DeclareAbsenceForm';
+import AbsenceBox from '../components/absences/AbsenceBox';
+import AbsenceDetails from '../components/absences/details/AbsenceDetails';
+import CalendarHeader from '../components/calendar/header/CalendarHeader';
+import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
+import { CalendarTabs } from '../components/calendar/CalendarTabs';
+import DeclareAbsenceForm from '../components/absences/declare/DeclareAbsenceForm';
 
 const Calendar: React.FC = () => {
   const { refetchUserData, ...userData } = useUserData();
@@ -63,8 +63,8 @@ const Calendar: React.FC = () => {
   }, [searchParams]);
 
   const { events, fetchAbsences } = useAbsences(refetchUserData);
-  const [claimedDays, setClaimedDays] = useState<Set<string>>(new Set());
   const [clickedEventId, setClickedEventId] = useState<string | null>(null);
+  const [filledDays, setFilledDays] = useState<Set<string>>(new Set());
 
   const calendarRef = useRef<FullCalendar>(null);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
@@ -245,7 +245,7 @@ const Calendar: React.FC = () => {
   );
 
   useEffect(() => {
-    const claimedAbsences = new Set<string>();
+    const filledAbsences = new Set<string>();
 
     events.forEach((event) => {
       if (event.start) {
@@ -260,12 +260,12 @@ const Calendar: React.FC = () => {
         const eventDateString = `${eventDate.getFullYear()}-${(eventDate.getMonth() + 1).toString().padStart(2, '0')}-${eventDate.getDate().toString().padStart(2, '0')}`;
 
         if (event.substituteTeacher?.id === userData?.id) {
-          claimedAbsences.add(eventDateString);
+          filledAbsences.add(eventDateString);
         }
       }
     });
 
-    setClaimedDays(claimedAbsences);
+    setFilledDays(filledAbsences);
   }, [events, userData?.id]);
 
   useEffect(() => {
@@ -454,7 +454,7 @@ const Calendar: React.FC = () => {
 
         {!isAdminMode &&
           activeTab === 'explore' &&
-          claimedDays.has(eventDateString) && (
+          filledDays.has(eventDateString) && (
             <Badge
               border="1px solid"
               borderColor="neutralGray.300"

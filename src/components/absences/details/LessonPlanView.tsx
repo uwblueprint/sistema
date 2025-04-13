@@ -13,7 +13,7 @@ import { LessonPlanFile } from '@utils/types';
 import { uploadFile } from '@utils/uploadFile';
 import { useEffect, useRef, useState } from 'react';
 import { FiFileText } from 'react-icons/fi';
-import { FileUpload } from './FileUpload';
+import { FileUpload } from '../../ui/input/FileUpload';
 
 const formatFileSize = (sizeInBytes: number) => {
   if (sizeInBytes === 0) return '0 B';

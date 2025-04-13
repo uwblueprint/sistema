@@ -19,8 +19,8 @@ import { useState } from 'react';
 import { AdminTeacherFields } from './AdminTeacherFields';
 import { ConfirmAbsenceModal } from './ConfirmAbsenceModal';
 import { DateOfAbsence } from './DateOfAbsence';
-import { FileUpload } from './FileUpload';
-import { InputDropdown } from './InputDropdown';
+import { FileUpload } from '../../ui/input/FileUpload';
+import { InputDropdown } from '../../ui/input/InputDropdown';
 
 interface DeclareAbsenceFormProps {
   onClose?: () => void;
@@ -285,7 +285,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
           <Textarea
             id="notes"
             name="notes"
-            placeholder="Additional relevant info..."
+            placeholder="Visible to everyone"
             value={formData.notes}
             onChange={handleChange}
             minH="88px"

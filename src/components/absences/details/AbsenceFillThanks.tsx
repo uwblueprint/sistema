@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { FiCheckCircle } from 'react-icons/fi';
 
-const AbsenceClaimThanks = ({ isOpen, onClose, event, absenceDate }) => {
+const AbsenceFillThanks = ({ isOpen, onClose, event, absenceDate }) => {
   const theme = useTheme();
 
   return (
@@ -47,7 +47,7 @@ const AbsenceClaimThanks = ({ isOpen, onClose, event, absenceDate }) => {
           my="30px"
           textAlign="center"
         >
-          <Text as="span">You have successfully claimed </Text>
+          <Text as="span">You have successfully filled </Text>
           <Text as="span" fontWeight="bold">
             {event?.absentTeacher?.firstName + "'s"}
           </Text>
@@ -79,4 +79,4 @@ const AbsenceClaimThanks = ({ isOpen, onClose, event, absenceDate }) => {
   );
 };
 
-export default AbsenceClaimThanks;
+export default AbsenceFillThanks;

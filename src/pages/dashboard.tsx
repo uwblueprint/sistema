@@ -3,10 +3,10 @@ import { useUserData } from '@hooks/useUserData';
 import { Role, YearlyAbsenceData } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback, useRef } from 'react';
-import DashboardHeader from '../components/DashboardHeader';
-import MonthlyAbsencesCard from '../components/MonthlyAbsencesCard';
-import TotalAbsencesCard from '../components/TotalAbsencesCard';
-import UserManagementCard from '../components/UserManagementCard';
+import DashboardHeader from '../components/dashboard/header/DashboardHeader';
+import MonthlyAbsencesCard from '../components/dashboard/stats/MonthlyAbsencesCard';
+import TotalAbsencesCard from '../components/dashboard/stats/TotalAbsencesCard';
+import UserManagementCard from '../components/dashboard/user_management/UserManagementCard';
 export default function DashboardPage() {
   const theme = useTheme();
   const userData = useUserData();

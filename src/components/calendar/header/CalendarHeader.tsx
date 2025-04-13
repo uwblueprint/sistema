@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { IoChevronBack, IoChevronForward, IoStatsChart } from 'react-icons/io5';
 import { AdminTeacherToggle } from './AdminTeacherToggle';
-import ProfileMenu from './ProfileMenu';
+import ProfileMenu from '../../ui/profile/ProfileMenu';
 
 interface CalendarHeaderProps {
   currentMonthYear: string;

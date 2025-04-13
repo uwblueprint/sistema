@@ -4,7 +4,7 @@ import {
   FormLabel,
   Text,
 } from '@chakra-ui/react';
-import { SearchDropdown } from './SearchDropdown';
+import { SearchDropdown } from '../../ui/input/SearchDropdown';
 
 interface AdminTeacherFieldsProps {
   formData: {

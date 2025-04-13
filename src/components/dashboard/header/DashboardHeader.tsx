@@ -11,9 +11,9 @@ import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { IoChevronBack, IoSettingsOutline } from 'react-icons/io5';
-import ExportAbsencesButton from './ExportAbsencesButton';
-import ProfileMenu from './ProfileMenu';
-import SystemOptionsModal from './SystemOptionsModal';
+import ExportAbsencesButton from '../../absences/ExportAbsencesButton';
+import ProfileMenu from '../../ui/profile/ProfileMenu';
+import SystemOptionsModal from '../../dashboard/system_options/SystemOptionsModal';
 import YearDropdown from './YearDropdown';
 
 interface DashboardHeaderProps {
