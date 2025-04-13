@@ -32,7 +32,7 @@ import {
 } from 'react-icons/fi';
 import EditableRoleCell from './EditableRoleCell';
 import EditableSubscriptionsCell from './EditableSubscriptionsCell';
-import FilterPopup from './FilterPopup';
+import FilterPopup, { NO_EMAIL_TAGS } from './FilterPopup';
 
 type SortField = 'name' | 'email' | 'absences' | 'role';
 
@@ -72,6 +72,22 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const getSelectedYearAbsences = (absences?: any[]) =>
     computeYearlyAbsences(absences, selectedYearRange);
+
+  // Clean up disabled tags when available tags change
+  useEffect(() => {
+    if (filters.disabledTags && filters.disabledTags.length > 0) {
+      const validDisabledTags = filters.disabledTags.filter(
+        (tag) => availableTags.includes(tag) || tag === NO_EMAIL_TAGS
+      );
+
+      if (validDisabledTags.length !== filters.disabledTags.length) {
+        setFilters({
+          ...filters,
+          disabledTags: validDisabledTags,
+        });
+      }
+    }
+  }, [availableTags, filters]);
 
   useEffect(() => {
     // Use subjects from props if available, otherwise fetch them
@@ -116,7 +132,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
 
     setAvailableTags(Array.from(tags));
     setTagColors(colors);
-  }, [users]);
+  }, [users, allSubjects]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
