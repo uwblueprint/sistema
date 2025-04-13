@@ -18,13 +18,13 @@ import {
 import { useUserData } from '@hooks/useUserData';
 import { EventDetails, Role } from '@utils/types';
 import { Buildings, Calendar } from 'iconsax-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
+import EditAbsenceForm from '../edit/EditAbsenceForm';
 import AbsenceFillThanks from './AbsenceFillThanks';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import EditableNotes from './EditableNotes';
-import EditAbsenceForm from '../edit/EditAbsenceForm';
 import LessonPlanView from './LessonPlanView';
 
 interface AbsenceDetailsProps {

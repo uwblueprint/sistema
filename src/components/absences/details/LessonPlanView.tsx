@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { LessonPlanFile } from '@utils/types';
 import { uploadFile } from '@utils/uploadFile';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FiFileText } from 'react-icons/fi';
 import { FileUpload } from '../../ui/input/FileUpload';
 

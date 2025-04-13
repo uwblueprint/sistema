@@ -12,7 +12,7 @@ import {
   useTheme,
 } from '@chakra-ui/react';
 import { ComparisonOperator } from '@utils/types';
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { IoChevronDownOutline, IoChevronUpOutline } from 'react-icons/io5';
 
 interface OperatorMenuProps {

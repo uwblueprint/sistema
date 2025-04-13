@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface DualColorBarProps {
   x: number;
   y: number;

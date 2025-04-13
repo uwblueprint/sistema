@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import { LessonPlanFile } from '@utils/types';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FiPaperclip } from 'react-icons/fi';
 
 interface AbsenceBoxProps {

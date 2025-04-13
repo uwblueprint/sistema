@@ -1,6 +1,7 @@
 import { Button } from '@chakra-ui/react';
 import { signIn } from 'next-auth/react';
 import { FcGoogle } from 'react-icons/fc';
+import { JSX } from 'react';
 
 export function SignInButton(): JSX.Element {
   return (

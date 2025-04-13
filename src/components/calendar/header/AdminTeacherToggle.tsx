@@ -1,4 +1,5 @@
 import { Box, Button, ButtonGroup } from '@chakra-ui/react';
+import React from 'react';
 import { IoBuildSharp, IoSchool } from 'react-icons/io5';
 
 interface AdminTeacherToggleProps {

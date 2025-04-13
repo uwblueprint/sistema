@@ -4,9 +4,10 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { SignInButton } from '../components/ui/profile/SignInButton';
 import { TacetLogo } from '../components/ui/branding/SistemaLogoColour';
+import { JSX } from 'react';
 
 export default function Index(): JSX.Element | null {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
