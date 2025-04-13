@@ -84,7 +84,7 @@ const OperatorMenu: React.FC<OperatorMenuProps> = ({
                   'less_than',
                   'equal_to',
                 ] as ComparisonOperator[]
-              ).map((operator) => (
+              ).map((operator, index, arr) => (
                 <Box
                   key={operator}
                   p={2}

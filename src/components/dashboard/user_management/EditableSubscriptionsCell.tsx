@@ -96,6 +96,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
 
     // Check if the sets are identical - converted to arrays to avoid linter error
     const currentIdsArray = Array.from(currentIds);
+    const selectedIdsArray = Array.from(selectedIds);
     if (
       currentIds.size === selectedIds.size &&
       currentIdsArray.every((id) => selectedIds.has(id))

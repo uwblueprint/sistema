@@ -16,6 +16,7 @@ import { useCallback, useEffect, useState } from 'react';
 interface UseChangeManagementProps {
   subjects: SubjectAPI[];
   locations: Location[];
+  colorGroups: { id: number; name: string; colorCodes: string[] }[];
   absenceCap: number;
   onRefresh?: () => void;
   toast?: any;
@@ -40,6 +41,7 @@ interface UseChangeManagementReturn {
 export const useChangeManagement = ({
   subjects: initialSubjects,
   locations: initialLocations,
+  colorGroups,
   absenceCap: initialAbsenceCap,
   onRefresh,
   toast,
@@ -181,7 +183,7 @@ export const useChangeManagement = ({
       setPendingSettings((prev) => {
         // If new absence cap equals original, remove it from pending settings
         if (newAbsenceCap === initialAbsenceCap) {
-          const { ...rest } = prev;
+          const { absenceCap, ...rest } = prev;
           return rest;
         }
 
