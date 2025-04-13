@@ -1,6 +1,7 @@
 import {
   Box,
   Checkbox,
+  Flex,
   Icon,
   Popover,
   PopoverBody,
@@ -9,7 +10,6 @@ import {
   Tag,
   TagLabel,
   Text,
-  Wrap,
   WrapItem,
 } from '@chakra-ui/react';
 import { MailingList, SubjectAPI } from '@utils/types';
@@ -287,13 +287,13 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
             transition="background-color 0.3s ease-in-out"
             ref={triggerRef}
           >
-            <Wrap spacing={2}>
+            <Flex gap={2} wrap="nowrap">
               {localMailingLists.map((list, index) => (
                 <WrapItem key={`${list.subjectId}-${index}`}>
                   <SubjectTag subject={list.subject} />
                 </WrapItem>
               ))}
-            </Wrap>
+            </Flex>
 
             <Box
               display="flex"
