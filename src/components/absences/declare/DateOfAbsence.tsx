@@ -10,7 +10,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
-import MiniCalendar from './MiniCalendar';
+import MiniCalendar from '../../calendar/MiniCalendar';
 
 interface DateOfAbsenceProps {
   dateValue: Date;

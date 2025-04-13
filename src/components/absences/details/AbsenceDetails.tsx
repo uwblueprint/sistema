@@ -24,7 +24,7 @@ import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceFillThanks from './AbsenceFillThanks';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import EditableNotes from './EditableNotes';
-import EditAbsenceForm from './EditAbsenceForm';
+import EditAbsenceForm from '../edit/EditAbsenceForm';
 import LessonPlanView from './LessonPlanView';
 
 interface AbsenceDetailsProps {
