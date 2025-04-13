@@ -63,35 +63,6 @@ const SystemChangesConfirmationDialog: React.FC<
     return null;
   };
 
-  // Get display text for a change
-  const getChangeText = (
-    changeType: string,
-    entityType: string
-  ): { text: string; color: string } => {
-    if (changeType === 'delete') {
-      return {
-        text: `Deleted ${entityType === 'subject' ? 'Subject' : 'Location'}`,
-        color: 'red.500',
-      };
-    } else if (changeType === 'archive') {
-      return {
-        text: `Archived ${entityType === 'subject' ? 'Subject' : 'Location'}`,
-        color: 'blue.500',
-      };
-    } else if (changeType === 'unarchive') {
-      return {
-        text: `Unarchived ${entityType === 'subject' ? 'Subject' : 'Location'}`,
-        color: 'blue.500',
-      };
-    } else if (changeType === 'add') {
-      return {
-        text: `Added ${entityType === 'subject' ? 'Subject' : 'Location'}`,
-        color: 'blue.500',
-      };
-    }
-    return { text: `Updated ${entityType}`, color: 'gray.700' };
-  };
-
   // Convert pending entities to displayable changes
   const getDisplayableChanges = (): {
     icon: React.ReactNode;

@@ -70,8 +70,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     }[]
   >([defaultColorGroup]);
 
-  const [isConfirmingClose, setIsConfirmingClose] = useState(false);
-
   const fetchSubjects = useCallback(async () => {
     try {
       const response = await fetch('/api/subjects');
@@ -185,7 +183,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   } = useChangeManagement({
     subjects,
     locations,
-    colorGroups,
     absenceCap,
     onRefresh: refreshData,
     toast,
@@ -217,7 +214,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       pendingEntities.settings.absenceCap !== undefined;
 
     if (hasChanges) {
-      setIsConfirmingClose(true);
       unsavedChangesDialog.onOpen();
     } else {
       onClose();
@@ -226,7 +222,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
 
   const handleCloseConfirmed = () => {
     unsavedChangesDialog.onClose();
-    setIsConfirmingClose(false);
     // Clear any pending changes
     clearChanges();
     onClose();
@@ -240,7 +235,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       pendingEntities.settings.absenceCap !== undefined;
 
     if (hasChanges) {
-      setIsConfirmingClose(false);
       confirmationDialog.onOpen();
     } else {
       onClose();

@@ -74,10 +74,11 @@ const useUserFiltering = (
           );
         case 'email':
           return a.email.localeCompare(b.email) * modifier;
-        case 'absences':
+        case 'absences': {
           const aCount = getSelectedYearAbsences(a.absences);
           const bCount = getSelectedYearAbsences(b.absences);
           return (aCount - bCount) * modifier;
+        }
         case 'role':
           return a.role.localeCompare(b.role) * modifier;
         default:
