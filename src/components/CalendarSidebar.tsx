@@ -1,6 +1,6 @@
 import { AddIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useState } from 'react';
+import { Box, Button, Divider, Flex, HStack, useTheme } from '@chakra-ui/react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { TacetLogo } from '../components/SistemaLogoColour';
 import AbsenceStatusAccordion from './AbsenceStatusAccordion';
 import ArchivedAccordion from './ArchivedAccordion';
@@ -24,9 +24,22 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   isAdminMode,
 }) => {
   const theme = useTheme();
-
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showDivider, setShowDivider] = useState(false);
   const [archivedSubjects, setArchivedSubjects] = useState([]);
   const [archivedLocations, setArchivedLocations] = useState([]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollRef.current) {
+        setShowDivider(scrollRef.current.scrollTop > 10);
+      }
+    };
+
+    const el = scrollRef.current;
+    el?.addEventListener('scroll', handleScroll);
+    return () => el?.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const setActiveSubjectFilter = useCallback(
     (activeSubjectIds: number[]) => {
@@ -102,45 +115,66 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
     <Flex
       minWidth="280px"
       width="280px"
-      padding={theme.space[4]}
       flexDirection="column"
-      gap={theme.space[4]}
-      alignItems="center"
       height="100vh"
-      overflowY="auto"
+      overflow="hidden"
     >
-      <Box width="110px">
-        <TacetLogo />
+      <Box
+        position="sticky"
+        top={0}
+        zIndex={1}
+        bg="white"
+        px={4}
+        pt={4}
+        pb={2}
+        transition="box-shadow 0.2s"
+        boxShadow={showDivider ? 'sm' : 'none'}
+      >
+        <Flex direction="column" align="center" gap={4}>
+          <Box width="110px" display="flex" justifyContent="center">
+            <TacetLogo />
+          </Box>
+          <Button
+            width="240px"
+            variant="outline"
+            borderColor={theme.colors.neutralGray[300]}
+            onClick={onDeclareAbsenceClick}
+            leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
+          >
+            Declare Absence
+          </Button>
+        </Flex>
       </Box>
-      <HStack>
-        <Button
-          width="240px"
-          variant="outline"
-          borderColor={theme.colors.neutralGray[300]}
-          onClick={onDeclareAbsenceClick}
-          leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
-        >
-          Declare Absence
-        </Button>
-      </HStack>
-      <MiniCalendar
-        initialDate={new Date()}
-        onDateSelect={onDateSelect}
-        selectDate={selectDate}
-      />
 
-      {isAdminMode && (
-        <AbsenceStatusAccordion setFilter={setAbsenceStatusFilter} />
-      )}
-      <SubjectAccordion setFilter={setActiveSubjectFilter} />
-      <LocationAccordion setFilter={setActiveLocationFilter} />
-
-      {(archivedSubjects.length > 0 || archivedLocations.length > 0) && (
-        <ArchivedAccordion
-          setSubjectFilter={setArchivedSubjectFilter}
-          setLocationFilter={setArchivedLocationFilter}
+      <Box
+        ref={scrollRef}
+        overflowY="auto"
+        flex="1"
+        px={4}
+        pt={4}
+        pb={6}
+        display="flex"
+        flexDirection="column"
+        gap={theme.space[4]}
+      >
+        <MiniCalendar
+          initialDate={new Date()}
+          onDateSelect={onDateSelect}
+          selectDate={selectDate}
         />
-      )}
+        {isAdminMode && (
+          <AbsenceStatusAccordion setFilter={setAbsenceStatusFilter} />
+        )}
+        <SubjectAccordion setFilter={setActiveSubjectFilter} />
+        <LocationAccordion setFilter={setActiveLocationFilter} />
+
+        {(archivedSubjects.length > 0 || archivedLocations.length > 0) && (
+          <ArchivedAccordion
+            setSubjectFilter={setArchivedSubjectFilter}
+            setLocationFilter={setArchivedLocationFilter}
+          />
+        )}
+      </Box>
     </Flex>
   );
 };
