@@ -24,7 +24,6 @@ import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import EditableNotes from './EditableNotes';
-import EditAbsenceForm from '../edit/EditAbsenceForm';
 import LessonPlanView from './LessonPlanView';
 
 interface AbsenceDetailsProps {
@@ -34,6 +33,7 @@ interface AbsenceDetailsProps {
   isAdminMode: boolean;
   fetchAbsences: () => Promise<void>;
   onFillClick: () => void;
+  onEditClick: () => void;
 }
 
 // This component is the content of the popover, not the entire popover/modal
@@ -44,12 +44,12 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   isAdminMode,
   fetchAbsences,
   onFillClick,
+  onEditClick,
 }) => {
   const theme = useTheme();
   const userData = useUserData();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const toast = useToast();
 
@@ -84,11 +84,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   };
 
   const absenceDate = formatDate(event.start!!);
-
-  const handleEditClick = () => {
-    onClose();
-    setIsEditModalOpen(true);
-  };
 
   const handleDeleteClick = () => {
     setIsDeleteDialogOpen(true);
@@ -165,7 +160,10 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                 icon={<FiEdit2 size="15px" color={theme.colors.text.body} />}
                 size="sm"
                 variant="ghost"
-                onClick={handleEditClick}
+                onClick={() => {
+                  onClose();
+                  onEditClick();
+                }}
               />
             )}
 
@@ -352,33 +350,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
           </ModalFooter>
         </ModalContent>
       </Modal>
-      {isEditModalOpen && (
-        <Modal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          isCentered
-        >
-          <ModalOverlay />
-          <ModalContent
-            width={362}
-            sx={{ padding: '33px 31px' }}
-            borderRadius="16px"
-          >
-            <ModalHeader fontSize={22} p="0 0 28px 0">
-              Edit Absence
-            </ModalHeader>
-            <ModalCloseButton top="33px" right="28px" color="text.header" />
-            <ModalBody p={0}>
-              <EditAbsenceForm
-                initialData={event}
-                isAdminMode={isAdminMode}
-                fetchAbsences={fetchAbsences}
-                onClose={() => setIsEditModalOpen(false)}
-              />
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-      )}
     </>
   );
 };

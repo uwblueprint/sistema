@@ -42,6 +42,7 @@ import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
 import { CalendarTabs } from '../components/calendar/CalendarTabs';
 import DeclareAbsenceForm from '../components/absences/declare/DeclareAbsenceForm';
 import AbsenceFillThanks from '../components/absences/details/AbsenceFillThanks';
+import EditAbsenceForm from '../components/absences/edit/EditAbsenceForm';
 
 const Calendar: React.FC = () => {
   const { refetchUserData, ...userData } = useUserData();
@@ -135,6 +136,7 @@ const Calendar: React.FC = () => {
   const [isFillDialogOpen, setIsFillDialogOpen] = useState(false);
   const [isFillThanksOpen, setIsFillThanksOpen] = useState(false);
   const toast = useToast();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const handleDeleteAbsence = async (absenceId: string | number) => {
     await fetchAbsences();
@@ -203,6 +205,10 @@ const Calendar: React.FC = () => {
       setIsFilling(false);
       handleCloseDetails();
     }
+  };
+
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
   };
 
   const renderEventContent = useCallback(
@@ -323,6 +329,7 @@ const Calendar: React.FC = () => {
                     onDelete={handleDeleteAbsence}
                     fetchAbsences={fetchAbsences}
                     onFillClick={handleFillAbsenceClick}
+                    onEditClick={handleEditClick}
                   />
                 </PopoverBody>
               </PopoverContent>
@@ -339,6 +346,7 @@ const Calendar: React.FC = () => {
       clickedEventId,
       handleDeleteAbsence,
       handleFillAbsenceClick,
+      handleEditClick,
     ]
   );
 
@@ -714,6 +722,33 @@ const Calendar: React.FC = () => {
           event={selectedEvent}
           absenceDate={formatDate(selectedEvent.start)}
         />
+      )}
+      {selectedEvent && (
+        <Modal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          isCentered
+        >
+          <ModalOverlay />
+          <ModalContent
+            width={362}
+            sx={{ padding: '33px 31px' }}
+            borderRadius="16px"
+          >
+            <ModalHeader fontSize={22} p="0 0 28px 0">
+              Edit Absence
+            </ModalHeader>
+            <ModalCloseButton top="33px" right="28px" color="text.header" />
+            <ModalBody p={0}>
+              <EditAbsenceForm
+                initialData={selectedEvent}
+                isAdminMode={isAdminMode}
+                fetchAbsences={fetchAbsences}
+                onClose={() => setIsEditModalOpen(false)}
+              />
+            </ModalBody>
+          </ModalContent>
+        </Modal>
       )}
     </>
   );
