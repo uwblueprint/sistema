@@ -12,15 +12,16 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { Absence } from '@prisma/client';
+
 import { submitAbsence } from '@utils/submitAbsence';
 import { EventDetails } from '@utils/types';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { AdminTeacherFields } from '../declare/AdminTeacherFields';
+import { ConfirmEditModal } from './ConfirmEditModal';
+import { DateOfAbsence } from '../declare/DateOfAbsence';
 import { FileUpload } from '../../ui/input/FileUpload';
 import { InputDropdown } from '../../ui/input/InputDropdown';
-import { AdminTeacherFields } from '../declare/AdminTeacherFields';
-import { DateOfAbsence } from '../declare/DateOfAbsence';
-import { ConfirmEditModal } from './ConfirmEditModal';
 
 interface EditAbsenceFormProps {
   onClose?: () => void;

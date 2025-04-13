@@ -1,6 +1,6 @@
 import { Box, Image, Input, Text, useToast } from '@chakra-ui/react';
 import { LessonPlanFile } from '@utils/types';
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 interface FileUploadProps {
   lessonPlan: File | null;

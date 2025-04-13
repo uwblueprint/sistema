@@ -11,7 +11,6 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import React from 'react';
 import { MailingList, Role, SubjectAPI, UserAPI } from '@utils/types';
 import { useCallback, useEffect, useState } from 'react';
 import { UserManagementTable } from './UserManagementTable';

@@ -9,11 +9,11 @@ import {
 } from '@chakra-ui/react';
 import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { IoChevronBack, IoSettingsOutline } from 'react-icons/io5';
 import ExportAbsencesButton from '../../absences/ExportAbsencesButton';
-import SystemOptionsModal from '../../dashboard/system_options/SystemOptionsModal';
 import ProfileMenu from '../../ui/profile/ProfileMenu';
+import SystemOptionsModal from '../../dashboard/system_options/SystemOptionsModal';
 import YearDropdown from './YearDropdown';
 
 interface DashboardHeaderProps {
