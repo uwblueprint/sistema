@@ -1,12 +1,14 @@
 import {
   Badge,
   Box,
+  Button,
   Flex,
   Image,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
+  ModalFooter,
   ModalHeader,
   ModalOverlay,
   Text,
@@ -18,6 +20,7 @@ import {
   PopoverBody,
   PopoverArrow,
   Portal,
+  useToast,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
@@ -38,12 +41,36 @@ import CalendarHeader from '../components/calendar/header/CalendarHeader';
 import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
 import { CalendarTabs } from '../components/calendar/CalendarTabs';
 import DeclareAbsenceForm from '../components/absences/declare/DeclareAbsenceForm';
+import AbsenceFillThanks from '../components/absences/details/AbsenceFillThanks';
 
 const Calendar: React.FC = () => {
   const { refetchUserData, ...userData } = useUserData();
   const router = useRouter();
 
   const searchParams = useSearchParams();
+
+  const getOrdinalNum = (number: number) => {
+    let selector;
+
+    if (number <= 0) {
+      selector = 4;
+    } else if ((number > 3 && number < 21) || number % 10 > 3) {
+      selector = 0;
+    } else {
+      selector = number % 10;
+    }
+
+    return number + ['th', 'st', 'nd', 'rd', ''][selector];
+  };
+
+  const formatDate = (date: Date) => {
+    const parsedDate = new Date(date);
+    const weekday = parsedDate.toLocaleDateString('en-CA', { weekday: 'long' });
+    const month = parsedDate.toLocaleDateString('en-CA', { month: 'long' });
+    const day = parsedDate.getDate();
+
+    return `${weekday}, ${month} ${getOrdinalNum(day)}`;
+  };
 
   useEffect(() => {
     if (!userData.isLoading && !userData.isAuthenticated) {
@@ -104,9 +131,78 @@ const Calendar: React.FC = () => {
   } = useDisclosure();
 
   const [isClosingDetails, setIsClosingDetails] = useState(false);
+  const [isFilling, setIsFilling] = useState(false);
+  const [isFillDialogOpen, setIsFillDialogOpen] = useState(false);
+  const [isFillThanksOpen, setIsFillThanksOpen] = useState(false);
+  const toast = useToast();
 
   const handleDeleteAbsence = async (absenceId: string | number) => {
     await fetchAbsences();
+  };
+
+  const handleFillThanksDone = () => {
+    setIsFillThanksOpen(false);
+  };
+
+  const handleFillAbsenceClick = () => {
+    setIsFillDialogOpen(true);
+  };
+
+  const handleFillCancel = () => {
+    setIsFillDialogOpen(false);
+  };
+
+  const handleFillConfirm = async () => {
+    if (!selectedEvent) return;
+
+    setIsFilling(true);
+
+    try {
+      const response = await fetch('/api/editAbsence', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: selectedEvent.absenceId,
+          lessonDate: selectedEvent.start,
+          reasonOfAbsence: selectedEvent.reasonOfAbsence,
+          notes: selectedEvent.notes,
+          absentTeacherId: selectedEvent.absentTeacher.id,
+          substituteTeacherId: userData.id,
+          locationId: selectedEvent.locationId,
+          subjectId: selectedEvent.subjectId,
+          roomNumber: selectedEvent.roomNumber,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fill absence');
+      }
+
+      toast({
+        title: 'Absence filled',
+        description: 'You have successfully filled this absence.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+
+      await fetchAbsences();
+      setIsFillDialogOpen(false);
+      setIsFillThanksOpen(true);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to fill absence',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsFilling(false);
+      handleCloseDetails();
+    }
   };
 
   const renderEventContent = useCallback(
@@ -226,6 +322,7 @@ const Calendar: React.FC = () => {
                     onClose={handleCloseDetails}
                     onDelete={handleDeleteAbsence}
                     fetchAbsences={fetchAbsences}
+                    onFillClick={handleFillAbsenceClick}
                   />
                 </PopoverBody>
               </PopoverContent>
@@ -241,6 +338,7 @@ const Calendar: React.FC = () => {
       onAbsenceDetailsOpen,
       clickedEventId,
       handleDeleteAbsence,
+      handleFillAbsenceClick,
     ]
   );
 
@@ -561,6 +659,62 @@ const Calendar: React.FC = () => {
           </ModalBody>
         </ModalContent>
       </Modal>
+      <Modal isOpen={isFillDialogOpen} onClose={handleFillCancel} isCentered>
+        <ModalOverlay />
+        <ModalContent
+          width="300px"
+          padding="25px"
+          sx={{
+            alignItems: 'center',
+          }}
+        >
+          <ModalHeader
+            textStyle="h3"
+            fontSize="16px"
+            padding="0"
+            textAlign="center"
+          >
+            Are you sure you want to fill this absence?
+          </ModalHeader>
+          <ModalBody
+            textStyle="subtitle"
+            color="text"
+            padding="0"
+            mt="12px"
+            mb="16px"
+          >
+            <Text>{"You won't be able to undo."}</Text>
+          </ModalBody>
+          <ModalFooter padding="0">
+            <Button
+              onClick={handleFillCancel}
+              variant="outline"
+              textStyle="button"
+              fontWeight="500"
+              mr="10px"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleFillConfirm}
+              textStyle="button"
+              fontWeight="500"
+              isLoading={isFilling}
+              ml="10px"
+            >
+              Confirm
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      {selectedEvent && (
+        <AbsenceFillThanks
+          isOpen={isFillThanksOpen}
+          onClose={handleFillThanksDone}
+          event={selectedEvent}
+          absenceDate={formatDate(selectedEvent.start)}
+        />
+      )}
     </>
   );
 };

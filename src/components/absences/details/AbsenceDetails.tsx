@@ -22,7 +22,6 @@ import { Buildings, Calendar } from 'iconsax-react';
 import { useState } from 'react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
-import AbsenceFillThanks from './AbsenceFillThanks';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import EditableNotes from './EditableNotes';
 import EditAbsenceForm from '../edit/EditAbsenceForm';
@@ -34,6 +33,7 @@ interface AbsenceDetailsProps {
   onDelete?: (absenceId: number) => void;
   isAdminMode: boolean;
   fetchAbsences: () => Promise<void>;
+  onFillClick: () => void;
 }
 
 // This component is the content of the popover, not the entire popover/modal
@@ -43,15 +43,13 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   onDelete,
   isAdminMode,
   fetchAbsences,
+  onFillClick,
 }) => {
   const theme = useTheme();
   const userData = useUserData();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isFilling, setIsFilling] = useState(false);
-  const [isFillDialogOpen, setIsFillDialogOpen] = useState(false);
-  const [isFillThanksOpen, setIsFillThanksOpen] = useState(false);
 
   const toast = useToast();
 
@@ -86,69 +84,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   };
 
   const absenceDate = formatDate(event.start!!);
-
-  const handleFillThanksDone = () => {
-    setIsFillThanksOpen(false);
-  };
-
-  const handleFillAbsenceClick = () => {
-    setIsFillDialogOpen(true);
-  };
-
-  const handleFillCancel = () => {
-    setIsFillDialogOpen(false);
-  };
-
-  const handleFillConfirm = async () => {
-    setIsFilling(true);
-
-    try {
-      const response = await fetch('/api/editAbsence', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: event.absenceId,
-          lessonDate: event.start,
-          reasonOfAbsence: event.reasonOfAbsence,
-          notes: event.notes,
-          absentTeacherId: event.absentTeacher.id,
-          substituteTeacherId: userData.id,
-          locationId: event.locationId,
-          subjectId: event.subjectId,
-          roomNumber: event.roomNumber,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fill absence');
-      }
-
-      toast({
-        title: 'Absence filled',
-        description: 'You have successfully filled this absence.',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
-
-      await fetchAbsences();
-      setIsFillDialogOpen(false);
-      setIsFillThanksOpen(true);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to fill absence',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    } finally {
-      setIsFilling(false);
-      onClose();
-    }
-  };
 
   const handleEditClick = () => {
     onClose();
@@ -208,6 +143,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       setIsDeleting(false);
     }
   };
+
   return (
     <>
       <Box>
@@ -386,7 +322,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                   height="44px"
                   fontSize="16px"
                   fontWeight="500"
-                  onClick={handleFillAbsenceClick}
+                  onClick={onFillClick}
                 >
                   Fill this Absence
                 </Button>
@@ -394,60 +330,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
           </VStack>
         </Box>
       </Box>
-      <Modal isOpen={isFillDialogOpen} onClose={handleFillCancel} isCentered>
-        <ModalOverlay />
-        <ModalContent
-          width="300px"
-          padding="25px"
-          sx={{
-            alignItems: 'center',
-          }}
-        >
-          <ModalHeader
-            textStyle="h3"
-            fontSize="16px"
-            padding="0"
-            textAlign="center"
-          >
-            Are you sure you want to fill this absence?
-          </ModalHeader>
-          <ModalBody
-            textStyle="subtitle"
-            color="text"
-            padding="0"
-            mt="12px"
-            mb="16px"
-          >
-            <Text>{"You won't be able to undo."}</Text>
-          </ModalBody>
-          <ModalFooter padding="0">
-            <Button
-              onClick={handleFillCancel}
-              variant="outline"
-              textStyle="button"
-              fontWeight="500"
-              mr="10px"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleFillConfirm}
-              textStyle="button"
-              fontWeight="500"
-              isLoading={isFilling}
-              ml="10px"
-            >
-              Confirm
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-      <AbsenceFillThanks
-        isOpen={isFillThanksOpen}
-        onClose={handleFillThanksDone}
-        event={event}
-        absenceDate={absenceDate}
-      />
       <Modal
         isOpen={isDeleteDialogOpen}
         onClose={handleDeleteCancel}
