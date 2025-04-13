@@ -27,7 +27,7 @@ import {
   IoEllipsisHorizontal,
 } from 'react-icons/io5';
 import { LuInfo } from 'react-icons/lu';
-import AbsenceBox from './AbsenceBox';
+import AbsenceBox from '../../absences/AbsenceBox';
 
 export interface EntityTableItem {
   id: number;
