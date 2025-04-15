@@ -150,7 +150,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
 
   // Calculate prefix for abbreviation (display) field
   const generateAbbreviationPrefix = (name: string, maxLength: number) => {
-    return name.trim().substring(0, maxLength);
+    return name.trim().substring(0, maxLength).trim();
   };
 
   const handleSaveEditedItem = () => {
@@ -918,7 +918,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
 
                 setNewItem({
                   ...newItem,
-                  abbreviation: newValue,
+                  abbreviation: newValue.trim(),
                 });
               }}
               onBlur={() => {
