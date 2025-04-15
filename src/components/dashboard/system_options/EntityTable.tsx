@@ -10,7 +10,6 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  Portal,
   Spacer,
   Text,
   Tooltip,
@@ -494,27 +493,41 @@ const EntityTable: React.FC<EntityTableProps> = ({
                   maxW="60px"
                   maxLength={maxAbbreviationLength}
                 />
-                <HStack>
-                  <Button
-                    variant="outline"
-                    onClick={handleSaveEditedItem}
-                    size="sm"
-                    borderRadius="md"
-                    p={0}
-                    transition="background-color 0.2s ease"
-                  >
-                    <IoCheckmark size={20} color={theme.colors.gray[600]} />
-                  </Button>
-                  <Button
-                    variant="outline"
+                <HStack
+                  spacing={0}
+                  boxShadow="0px 0px 10px 0px rgba(0, 0, 0, 0.15)"
+                  borderRadius="5px"
+                >
+                  <Box
+                    as="button"
+                    p={1}
+                    cursor="pointer"
+                    bg="buttonBackground"
+                    _hover={{ bg: 'neutralGray.100' }}
+                    _active={{ bg: 'neutralGray.300' }}
+                    borderRadius="5px 0 0 5px"
                     onClick={handleCancelEdit}
-                    size="sm"
-                    borderRadius="md"
-                    p={0}
-                    transition="background-color 0.2s ease"
                   >
-                    <IoCloseOutline size={20} color={theme.colors.gray[600]} />
-                  </Button>
+                    <IoCloseOutline
+                      size={24}
+                      color={theme.colors.neutralGray[600]}
+                    />
+                  </Box>
+                  <Box
+                    as="button"
+                    p={1}
+                    cursor="pointer"
+                    bg="buttonBackground"
+                    _hover={{ bg: 'neutralGray.100' }}
+                    _active={{ bg: 'neutralGray.300' }}
+                    borderRadius="0 5px 5px 0"
+                    onClick={handleSaveEditedItem}
+                  >
+                    <IoCheckmark
+                      size={24}
+                      color={theme.colors.neutralGray[600]}
+                    />
+                  </Box>
                 </HStack>
               </Box>
             </>
@@ -870,27 +883,37 @@ const EntityTable: React.FC<EntityTableProps> = ({
               maxW="60px"
               maxLength={maxAbbreviationLength}
             />
-            <HStack>
-              <Button
-                variant="outline"
-                onClick={handleAddItem}
-                size="sm"
-                borderRadius="md"
-                p={0}
-                transition="background-color 0.2s ease"
-              >
-                <IoCheckmark size={20} color={theme.colors.gray[600]} />
-              </Button>
-              <Button
-                variant="outline"
+            <HStack
+              spacing={0}
+              boxShadow="0px 0px 10px 0px rgba(0, 0, 0, 0.15)"
+            >
+              <Box
+                as="button"
+                p={1}
+                cursor="pointer"
+                bg="buttonBackground"
+                _hover={{ bg: 'neutralGray.100' }}
+                _active={{ bg: 'neutralGray.300' }}
+                borderRadius="5px 0 0 5px"
                 onClick={handleCancelEdit}
-                size="sm"
-                borderRadius="md"
-                p={0}
-                transition="background-color 0.2s ease"
               >
-                <IoCloseOutline size={20} color={theme.colors.gray[600]} />
-              </Button>
+                <IoCloseOutline
+                  size={24}
+                  color={theme.colors.neutralGray[600]}
+                />
+              </Box>
+              <Box
+                as="button"
+                p={1}
+                cursor="pointer"
+                bg="buttonBackground"
+                _hover={{ bg: 'neutralGray.100' }}
+                _active={{ bg: 'neutralGray.300' }}
+                borderRadius="0 5px 5px 0"
+                onClick={handleAddItem}
+              >
+                <IoCheckmark size={24} color={theme.colors.neutralGray[600]} />
+              </Box>
             </HStack>
           </Box>
         </Box>
