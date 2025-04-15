@@ -3,7 +3,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { TacetLogo } from '../components/TacetLogo';
-import { SignInButton } from '../components/ui/SignInButton';
+import { SignInButton } from '../components/SignInButton';
 
 export default function Index(): JSX.Element | null {
   const { status } = useSession();
