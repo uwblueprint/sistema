@@ -17,7 +17,7 @@ import {
   useTheme,
   VStack,
 } from '@chakra-ui/react';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FiArchive, FiEdit2, FiMapPin, FiTrash2, FiType } from 'react-icons/fi';
 import {
   IoAdd,
@@ -94,7 +94,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
   });
 
   // Ensure newItem always has a valid color group for subjects
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       entityType === 'subject' &&
       colorGroups.length > 0 &&

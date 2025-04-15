@@ -12,6 +12,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { useRef } from 'react';
 import { IoWarning } from 'react-icons/io5';
 
 interface UnsavedChangesDialogProps {
@@ -25,7 +26,7 @@ const UnsavedChangesDialog: React.FC<UnsavedChangesDialogProps> = ({
   onClose,
   onConfirm,
 }) => {
-  const cancelRef = React.useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
 
   return (
     <Modal

@@ -77,9 +77,7 @@ const Calendar: React.FC = () => {
   const [currentMonthYear, setCurrentMonthYear] = useState(
     formatMonthYear(new Date())
   );
-  const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
-    'explore'
-  );
+  const [activeTab, setActiveTab] = useState<'explore' | 'declared'>('explore');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventDetails | null>(null);
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);

@@ -13,6 +13,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { Location, SubjectAPI } from '@utils/types';
+import { useRef } from 'react';
 import { FiArchive, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { IoAdd, IoAlertCircleSharp, IoWarning } from 'react-icons/io5';
 
@@ -46,7 +47,7 @@ const SystemChangesConfirmationDialog: React.FC<
   colorGroups,
   absenceCap,
 }) => {
-  const cancelRef = React.useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
 
   // Icons for different change types
   const getChangeIcon = (changeType: string) => {
