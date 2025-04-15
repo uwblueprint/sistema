@@ -113,7 +113,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     });
   }, [mailingLists, selectedSubjectIds, onSubscriptionsChange]);
 
-  // We need to update the state when props change
+  // Update the state when props change
   useEffect(() => {
     if (!isSaving) {
       setSelectedSubjectIds(mailingLists.map((list) => list.subjectId));
