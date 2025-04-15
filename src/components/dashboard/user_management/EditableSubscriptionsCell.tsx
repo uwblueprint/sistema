@@ -153,10 +153,6 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     });
 
     setLocalMailingLists(sortedMailingLists);
-
-    console.log('selectedSubjectIds changed to', selectedSubjectIds);
-    console.log('subjectsById is', subjectsById);
-    console.log('so i changed mailingLists to', sortedMailingLists);
   }, [selectedSubjectIds, subjectsById]);
 
   useEffect(() => {
