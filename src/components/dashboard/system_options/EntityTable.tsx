@@ -80,6 +80,13 @@ const EntityTable: React.FC<EntityTableProps> = ({
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState<number | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [isDisplayFieldManuallyEdited, setIsDisplayFieldManuallyEdited] =
+    useState(false);
+  const [
+    isNewItemDisplayFieldManuallyEdited,
+    setIsNewItemDisplayFieldManuallyEdited,
+  ] = useState(false);
+
   const [newItem, setNewItem] = useState<EntityTableItem>({
     id: 0,
     name: '',
@@ -129,6 +136,21 @@ const EntityTable: React.FC<EntityTableProps> = ({
   const handleEditItem = (item: EntityTableItem) => {
     setEditingItem(item);
     setOpenMenuId(null);
+
+    // Check if abbreviation is custom (different from name prefix)
+    const namePrefix = generateAbbreviationPrefix(
+      item.name,
+      maxAbbreviationLength
+    );
+    const hasCustomAbbreviation = item.abbreviation !== namePrefix;
+
+    // Only auto-update if abbreviation isn't custom
+    setIsDisplayFieldManuallyEdited(hasCustomAbbreviation);
+  };
+
+  // Calculate prefix for abbreviation (display) field
+  const generateAbbreviationPrefix = (name: string, maxLength: number) => {
+    return name.trim().substring(0, maxLength);
   };
 
   const handleSaveEditedItem = () => {
@@ -150,8 +172,17 @@ const EntityTable: React.FC<EntityTableProps> = ({
       return;
     }
 
-    // Store the current editing state
+    // If abbreviation is empty, set it to the name prefix
     const currentEditingItem = { ...editingItem };
+    if (
+      !currentEditingItem.abbreviation ||
+      currentEditingItem.abbreviation.trim() === ''
+    ) {
+      currentEditingItem.abbreviation = generateAbbreviationPrefix(
+        currentEditingItem.name,
+        maxAbbreviationLength
+      );
+    }
 
     // Reset the editing state
     setEditingItem(null);
@@ -194,11 +225,14 @@ const EntityTable: React.FC<EntityTableProps> = ({
       return;
     }
 
-    // Create a temporary item with the new data
-    const itemToAdd = {
-      ...newItem,
-      id: 0, // This will be replaced with a negative ID by the change management hook
-    };
+    // If abbreviation is empty, set it to the name prefix
+    const itemToAdd = { ...newItem };
+    if (!itemToAdd.abbreviation || itemToAdd.abbreviation.trim() === '') {
+      itemToAdd.abbreviation = generateAbbreviationPrefix(
+        itemToAdd.name,
+        maxAbbreviationLength
+      );
+    }
 
     // Reset form and close it
     handleUpdateEntity(itemToAdd);
@@ -223,6 +257,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
     setEditingItem(null);
     setIsAddingItem(false);
     setColorPickerOpen(null);
+    setIsDisplayFieldManuallyEdited(false);
+    setIsNewItemDisplayFieldManuallyEdited(false);
   };
 
   const handleArchiveItem = (item: EntityTableItem) => {
@@ -463,12 +499,22 @@ const EntityTable: React.FC<EntityTableProps> = ({
                   )}
                   <Input
                     value={editingItem.name}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const newName = e.target.value;
+                      // Auto-generate abbreviation if not manually edited
+                      const newAbbreviation = !isDisplayFieldManuallyEdited
+                        ? generateAbbreviationPrefix(
+                            newName,
+                            maxAbbreviationLength
+                          )
+                        : editingItem.abbreviation;
+
                       setEditingItem({
                         ...editingItem,
-                        name: e.target.value,
-                      })
-                    }
+                        name: newName,
+                        abbreviation: newAbbreviation,
+                      });
+                    }}
                     size="sm"
                     flex="1"
                     maxLength={maxFullNameLength}
@@ -484,12 +530,35 @@ const EntityTable: React.FC<EntityTableProps> = ({
               >
                 <Input
                   value={editingItem.abbreviation}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    // If the field is cleared, turn off manual edit mode to allow auto-updating again
+                    if (!newValue || newValue.trim() === '') {
+                      setIsDisplayFieldManuallyEdited(false);
+                    } else {
+                      setIsDisplayFieldManuallyEdited(true);
+                    }
+
                     setEditingItem({
                       ...editingItem,
-                      abbreviation: e.target.value,
-                    })
-                  }
+                      abbreviation: newValue,
+                    });
+                  }}
+                  onBlur={() => {
+                    // If the display field is empty when it loses focus, immediately fill it
+                    if (
+                      !editingItem.abbreviation ||
+                      editingItem.abbreviation.trim() === ''
+                    ) {
+                      setEditingItem({
+                        ...editingItem,
+                        abbreviation: generateAbbreviationPrefix(
+                          editingItem.name,
+                          maxAbbreviationLength
+                        ),
+                      });
+                    }
+                  }}
                   size="sm"
                   maxW="60px"
                   maxLength={maxAbbreviationLength}
@@ -809,12 +878,19 @@ const EntityTable: React.FC<EntityTableProps> = ({
               )}
               <Input
                 value={newItem.name}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const newName = e.target.value;
+                  // Auto-generate abbreviation if not manually edited
+                  const newAbbreviation = !isNewItemDisplayFieldManuallyEdited
+                    ? generateAbbreviationPrefix(newName, maxAbbreviationLength)
+                    : newItem.abbreviation;
+
                   setNewItem({
                     ...newItem,
-                    name: e.target.value,
-                  })
-                }
+                    name: newName,
+                    abbreviation: newAbbreviation,
+                  });
+                }}
                 placeholder={`${title} name`}
                 size="sm"
                 flex="1"
@@ -831,12 +907,35 @@ const EntityTable: React.FC<EntityTableProps> = ({
           >
             <Input
               value={newItem.abbreviation}
-              onChange={(e) =>
+              onChange={(e) => {
+                const newValue = e.target.value;
+                // If the field is cleared, turn off manual edit mode to allow auto-updating again
+                if (!newValue || newValue.trim() === '') {
+                  setIsNewItemDisplayFieldManuallyEdited(false);
+                } else {
+                  setIsNewItemDisplayFieldManuallyEdited(true);
+                }
+
                 setNewItem({
                   ...newItem,
-                  abbreviation: e.target.value,
-                })
-              }
+                  abbreviation: newValue,
+                });
+              }}
+              onBlur={() => {
+                // If the display field is empty when it loses focus, immediately fill it
+                if (
+                  !newItem.abbreviation ||
+                  newItem.abbreviation.trim() === ''
+                ) {
+                  setNewItem({
+                    ...newItem,
+                    abbreviation: generateAbbreviationPrefix(
+                      newItem.name,
+                      maxAbbreviationLength
+                    ),
+                  });
+                }
+              }}
               placeholder="Abbr."
               size="sm"
               maxW="60px"
@@ -872,7 +971,11 @@ const EntityTable: React.FC<EntityTableProps> = ({
       <Box
         as="button"
         width="100%"
-        onClick={() => setIsAddingItem(true)}
+        onClick={() => {
+          setIsAddingItem(true);
+          // Reset the new item manually edited flag when starting to add a new item
+          setIsNewItemDisplayFieldManuallyEdited(false);
+        }}
         _hover={{ bg: 'neutralGray.100' }}
         transition="background-color 0.2s ease"
         textAlign="left"
