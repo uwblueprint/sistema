@@ -2,8 +2,8 @@ import { Box, Flex, Text } from '@chakra-ui/react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { SignInButton } from '../components/ui/SignInButton';
 import { TacetLogo } from '../components/ui/TacetLogo';
-import { SignInButton } from '../components/ui/profile/SignInButton';
 
 export default function Index(): JSX.Element | null {
   const { data: session, status } = useSession();

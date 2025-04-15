@@ -30,7 +30,7 @@ import AbsenceBox from '../components/absences/AbsenceBox';
 import AbsenceDetails from '../components/absences/details/AbsenceDetails';
 import DeclareAbsenceForm from '../components/absences/modal/declare/DeclareAbsenceForm';
 import { CalendarTabs } from '../components/calendar/CalendarTabs';
-import CalendarHeader from '../components/calendar/header/CalendarHeader';
+import CalendarHeader from '../components/header/calendar/CalendarHeader';
 import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
 
 const Calendar: React.FC = () => {

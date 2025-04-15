@@ -11,7 +11,7 @@ import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { IoChevronBack, IoChevronForward, IoStatsChart } from 'react-icons/io5';
-import ProfileMenu from '../../ui/profile/ProfileMenu';
+import ProfileMenu from '../profile/ProfileMenu';
 import { AdminTeacherToggle } from './AdminTeacherToggle';
 
 interface CalendarHeaderProps {

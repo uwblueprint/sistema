@@ -10,7 +10,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 
-import CircularProgress from '../../ui/feedback/CircularProgress';
+import CircularProgress from './CircularProgress';
 
 interface TotalAbsencesProps {
   width: string;
