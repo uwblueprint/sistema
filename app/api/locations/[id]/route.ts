@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@utils/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function PATCH(
   request: NextRequest,
@@ -8,6 +8,13 @@ export async function PATCH(
   const params = await props.params;
   try {
     const id = parseInt(params.id);
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { error: 'Invalid location ID' },
+        { status: 400 }
+      );
+    }
+
     const data = await request.json();
     const { name, abbreviation, archived } = data;
 
@@ -20,7 +27,9 @@ export async function PATCH(
   } catch (error) {
     console.error('Error updating location:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Unable to update location.',
+      },
       { status: 500 }
     );
   }
@@ -34,7 +43,10 @@ export async function DELETE(
   try {
     const id = parseInt(params.id, 10);
     if (isNaN(id)) {
-      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid location ID' },
+        { status: 400 }
+      );
     }
 
     // Check if the location is used in any absences
@@ -47,7 +59,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           error:
-            'Cannot delete location because it is used in existing absences',
+            'This location cannot be deleted because it is used in existing absences',
         },
         { status: 409 }
       );
@@ -58,7 +70,9 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting location:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Unable to delete location.',
+      },
       { status: 500 }
     );
   }

@@ -1,14 +1,25 @@
-# Sistema
+# Sistema Tacet
 
-## Setup
+## Preview
 
-- Make sure you have been added to the [UW Blueprint Github Workspace](https://github.com/uwblueprint/).
-- Install Docker Desktop ([MacOS](https://docs.docker.com/docker-for-mac/install/) | [Windows](https://docs.docker.com/desktop/install/windows-install/) | [Linux](https://docs.docker.com/engine/install/#server)) and ensure that it is running.
-- Install [Node.js](https://nodejs.org/) (v22 tested). It's recommended to use [NVM (Node Version Manager)](https://github.com/nvm-sh/nvm) to manage your Node.js versions.
+- Absence Calendar
+  <img width="1728" alt="image"
+  src="https://github.com/user-attachments/assets/7b6022b8-48a7-4192-9916-b1c3ef912780"
+  />
 
-  - [Node.js for MacOS](https://nodejs.org/en/download/)
-  - [Node.js for Windows](https://nodejs.org/en/download/)
-  - [Node.js for Linux](https://nodejs.org/en/download/package-manager/)
+- Admin Dashboard
+  <img width="1728" alt="image"
+  src="https://github.com/user-attachments/assets/642d3ff0-dbc0-44f0-80e0-f2fbbecaa916"
+  />
+
+## Prerequisites
+
+- If you intend to contribute to this project ensure you have been added to the [UW Blueprint Github Organization](https://github.com/uwblueprint/).
+- Install [Node.js](https://nodejs.org/en/download/) (v22 tested). It's recommended to use [NVM (Node Version Manager)](https://github.com/nvm-sh/nvm) to manage your Node.js versions.
+- Install Docker Desktop ([MacOS](https://docs.docker.com/desktop/setup/install/mac-install/) | [Windows](https://docs.docker.com/desktop/install/windows-install/) | [Linux](https://docs.docker.com/desktop/setup/install/linux/)) and ensure that it is running.
+-
+
+## Clone and Install
 
 - Clone the [Sistema Github Repository](https://github.com/uwblueprint/sistema) to your local machine and `cd` into the project folder:
 
@@ -34,12 +45,12 @@ npm install
 - Build and start the Docker containers
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 ## Secrets
 
-- Create A [HashiCorp Cloud Platform Account](https://portal.cloud.hashicorp.com/sign-in?ajs_aid=9085f07d-f411-42b4-855b-72795f4fdbcc&product_intent=vault)
+- Create a [HashiCorp Cloud Platform Account](https://portal.cloud.hashicorp.com/sign-in?ajs_aid=9085f07d-f411-42b4-855b-72795f4fdbcc&product_intent=vault)
 - Make sure you have been added to the [Sistema HashiCorp Vault](https://github.com/uwblueprint/).
 - Install [HashiCorp Vault](https://developer.hashicorp.com/hcp/tutorials/get-started-hcp-vault-secrets/hcp-vault-secrets-install-cli#install-hcp-vault-secrets-cli) in order to pull secrets
 - In the folder where you cloned the Sistema repository, log into Vault
@@ -82,22 +93,22 @@ Use the arrow keys to navigate: ↓ ↑ → ←
 
 ## Docker Commands
 
-If you’re new to Docker, you can learn more about `docker-compose` commands at
+If you’re new to Docker, you can learn more about `docker compose` commands at
 this [docker compose overview](https://docs.docker.com/compose/reference/).
 
 ```bash
 # Start Docker Containers
-docker-compose up --build
+docker compose up --build
 ```
 
 ```bash
 # Stop Containers
-docker-compose down
+docker compose down
 ```
 
 ```bash
 # Remove Containers, Networks, and Volumes:
-docker-compose down --volumes
+docker compose down --volumes
 ```
 
 ```bash
@@ -157,7 +168,7 @@ This will open an interactive shell inside the container.
 ## Accessing Database
 
 ```bash
-# Open a Postgres shell in the sistema-db -1 Docker container and connect to the sistema database
+# Open a Postgres shell in the sistema-db-1 Docker container and connect to the sistema database
 docker exec -it sistema-db-1 psql -U sistema -d sistema
 # Retrieve all rows from the "Absence" table
 SELECT * FROM public."Absence";
@@ -267,7 +278,7 @@ git push -f
 ```
 
 - Commit messages and PR names are descriptive and written in **imperative tense**. The first word should be capitalized. E.g. "Create user REST endpoints", not "Created user REST endpoints"
-- PRs can contain multiple commits, they do not need to be squashed together before merging as long as each commit is atomic. Our repo is configured to only allow squash commits to `main` so the entire PR will appear as 1 commit on `main`, but the individual commits are preserved when viewing the PR.
+- PRs can contain multiple commits, they do not need to be squashed together before merging as long as each commit is atomic.
 
 ## Version Control Guide
 

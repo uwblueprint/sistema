@@ -2,11 +2,11 @@ import { Box, HStack, useTheme } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
 import { Role, YearlyAbsenceData } from '@utils/types';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import DashboardHeader from '../components/DashboardHeader';
-import MonthlyAbsencesCard from '../components/MonthlyAbsencesCard';
-import TotalAbsencesCard from '../components/TotalAbsencesCard';
-import UserManagementCard from '../components/UserManagementCard';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import MonthlyAbsencesCard from '../components/dashboard/stats/MonthlyAbsencesCard';
+import TotalAbsencesCard from '../components/dashboard/stats/TotalAbsencesCard';
+import UserManagementCard from '../components/dashboard/user_management/UserManagementCard';
+import DashboardHeader from '../components/header/dashboard/DashboardHeader';
 export default function DashboardPage() {
   const theme = useTheme();
   const userData = useUserData();
@@ -17,8 +17,35 @@ export default function DashboardPage() {
     `${currentYear - 1} - ${currentYear}`
   );
   const [absenceData, setAbsenceData] = useState<YearlyAbsenceData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [startYear, endYear] = selectedYearRange.split(' - ');
+
+  // We'll use a ref to store the refresh function that will be created in UserManagementCard
+  const userManagementRefreshRef = useRef<() => void>(() => {
+    console.error('UserManagement refresh function not set yet');
+  });
+
+  // To handle header refreshes (for absenceCap updates)
+  const dashboardHeaderRefreshRef = useRef<() => void>(() => {
+    console.error('DashboardHeader refresh function not set yet');
+  });
+
+  // Function to refresh user management data - called when system options are updated
+  const handleSystemOptionsUpdate = useCallback(() => {
+    // Call the refresh function stored in the ref to refresh user data
+    userManagementRefreshRef.current();
+    // Also refresh the dashboard header data
+    dashboardHeaderRefreshRef.current();
+  }, []);
+
+  // Function to set the refresh function from UserManagementCard
+  const setUserManagementRefresh = useCallback((refreshFn: () => void) => {
+    userManagementRefreshRef.current = refreshFn;
+  }, []);
+
+  // Function to set the refresh function from DashboardHeader
+  const setDashboardHeaderRefresh = useCallback((refreshFn: () => void) => {
+    dashboardHeaderRefreshRef.current = refreshFn;
+  }, []);
 
   useEffect(() => {
     if (!userData.isLoading && !userData.isAuthenticated) {
@@ -36,13 +63,14 @@ export default function DashboardPage() {
         const events = data.events || [];
         setAbsenceData(events);
 
-        if (events.length > 0 && !selectedYearRange) {
+        if (
+          events.length > 0 &&
+          !events.some((e) => e.yearRange === selectedYearRange)
+        ) {
           setSelectedYearRange(events[0].yearRange);
         }
       } catch (err) {
         console.error('Error fetching absences:', err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -126,6 +154,8 @@ export default function DashboardPage() {
         setSelectedYearRange={setSelectedYearRange}
         yearRanges={sortedYearRanges}
         hasData={hasAbsenceData}
+        onSystemOptionsUpdate={handleSystemOptionsUpdate}
+        setRefreshFunction={setDashboardHeaderRefresh}
       />
       <Box
         px={14}
@@ -150,7 +180,10 @@ export default function DashboardPage() {
             highestMonthlyAbsence={highestMonthlyAbsence}
           />
         </HStack>
-        <UserManagementCard />
+        <UserManagementCard
+          selectedYearRange={selectedYearRange}
+          setRefreshFunction={setUserManagementRefresh}
+        />
       </Box>
     </Box>
   );
