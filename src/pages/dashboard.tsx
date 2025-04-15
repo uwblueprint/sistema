@@ -150,7 +150,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <Box height="100vh" display="flex" flexDirection="column">
+    <Box height="100vh" display="flex" flexDirection="column" overflow="hidden">
       <DashboardHeader
         userData={userData}
         selectedYearRange={selectedYearRange}
