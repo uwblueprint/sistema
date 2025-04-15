@@ -21,7 +21,7 @@ import { Buildings, Calendar } from 'iconsax-react';
 import { useState } from 'react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
-import EditAbsenceForm from '../modal/edit/EditAbsenceForm';
+import EditAbsenceForm from '../modals/edit/EditAbsenceForm';
 import AbsenceFillThanks from './AbsenceFillThanks';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import EditableNotes from './EditableNotes';

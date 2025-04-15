@@ -16,10 +16,10 @@ import { submitAbsence } from '@utils/submitAbsence';
 import { EventDetails } from '@utils/types';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
 import { useState } from 'react';
-import { InputDropdown } from '../../../ui/input/InputDropdown';
 import { FileUpload } from '../../FileUpload';
 import { AdminTeacherFields } from '../AdminTeacherFields';
 import { DateOfAbsence } from '../DateOfAbsence';
+import { InputDropdown } from '../InputDropdown';
 import { ConfirmEditModal } from './ConfirmEditModal';
 
 interface EditAbsenceFormProps {

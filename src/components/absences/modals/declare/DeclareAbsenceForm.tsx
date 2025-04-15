@@ -15,10 +15,10 @@ import { Absence, Prisma } from '@prisma/client';
 import { submitAbsence } from '@utils/submitAbsence';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
 import { useState } from 'react';
-import { InputDropdown } from '../../../ui/input/InputDropdown';
 import { FileUpload } from '../../FileUpload';
 import { AdminTeacherFields } from '../AdminTeacherFields';
 import { DateOfAbsence } from '../DateOfAbsence';
+import { InputDropdown } from '../InputDropdown';
 import { ConfirmAbsenceModal } from './ConfirmDeclareModal';
 
 interface DeclareAbsenceFormProps {

@@ -28,10 +28,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import AbsenceBox from '../components/absences/AbsenceBox';
 import AbsenceDetails from '../components/absences/details/AbsenceDetails';
-import DeclareAbsenceForm from '../components/absences/modal/declare/DeclareAbsenceForm';
+import DeclareAbsenceForm from '../components/absences/modals/declare/DeclareAbsenceForm';
 import { CalendarTabs } from '../components/calendar/CalendarTabs';
-import CalendarHeader from '../components/header/calendar/CalendarHeader';
 import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
+import CalendarHeader from '../components/header/calendar/CalendarHeader';
 
 const Calendar: React.FC = () => {
   const { refetchUserData, ...userData } = useUserData();

@@ -14,7 +14,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useRef, useState, Fragment } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 
 export type Option = { name: string; id: number; profilePicture: string };
 

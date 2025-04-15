@@ -13,7 +13,7 @@ import {
   WrapItem,
 } from '@chakra-ui/react';
 import { MailingList, SubjectAPI } from '@utils/types';
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronDown, FiChevronUp, FiEdit2 } from 'react-icons/fi';
 
 interface SubjectTagProps {
