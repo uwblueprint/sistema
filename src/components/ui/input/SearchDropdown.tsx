@@ -14,7 +14,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, Fragment } from 'react';
 
 export type Option = { name: string; id: number; profilePicture: string };
 
@@ -179,7 +179,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
           <VStack align="stretch" spacing={0}>
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option, index) => (
-                <React.Fragment key={option.id}>
+                <Fragment key={option.id}>
                   <Box
                     sx={{
                       borderRadius:
@@ -214,7 +214,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
                   {index < filteredOptions.length - 1 && (
                     <Divider borderColor="neutralGray.300" opacity={1} />
                   )}
-                </React.Fragment>
+                </Fragment>
               ))
             ) : (
               <Box p="6px" m="6px">

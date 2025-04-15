@@ -25,7 +25,7 @@ import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import AbsenceBox from '../components/absences/AbsenceBox';
 import AbsenceDetails from '../components/absences/details/AbsenceDetails';
 import DeclareAbsenceForm from '../components/absences/modal/declare/DeclareAbsenceForm';

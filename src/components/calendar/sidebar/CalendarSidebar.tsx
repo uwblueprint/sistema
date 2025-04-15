@@ -1,6 +1,6 @@
 import { AddIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TacetLogo } from '../../ui/TacetLogo';
 import MiniCalendar from '../MiniCalendar';
 import AbsenceStatusAccordion from './AbsenceStatusAccordion';

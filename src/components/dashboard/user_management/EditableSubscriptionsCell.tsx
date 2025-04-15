@@ -13,7 +13,7 @@ import {
   WrapItem,
 } from '@chakra-ui/react';
 import { MailingList, SubjectAPI } from '@utils/types';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { FiChevronDown, FiChevronUp, FiEdit2 } from 'react-icons/fi';
 
 interface SubjectTagProps {
@@ -89,7 +89,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
   }, [allSubjects]);
 
   // Define saveSubscriptions with useCallback so it can be used in dependency arrays
-  const saveSubscriptions = React.useCallback(() => {
+  const saveSubscriptions = useCallback(() => {
     // Don't save if nothing has changed
     const currentIds = new Set(mailingLists.map((list) => list.subjectId));
     const selectedIds = new Set(selectedSubjectIds);

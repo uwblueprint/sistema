@@ -21,7 +21,7 @@ import useUserFiltering from '@hooks/useUserFiltering';
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { getSelectedYearAbsences as computeYearlyAbsences } from '@utils/getSelectedYearAbsences';
 import { FilterOptions, Role, SubjectAPI, UserAPI } from '@utils/types';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   FiClock,
   FiLock,

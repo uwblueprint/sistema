@@ -13,7 +13,6 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { Location, SubjectAPI } from '@utils/types';
-import React from 'react';
 import { FiArchive, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { IoAdd, IoAlertCircleSharp, IoWarning } from 'react-icons/io5';
 

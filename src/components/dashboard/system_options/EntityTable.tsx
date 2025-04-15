@@ -17,7 +17,7 @@ import {
   useTheme,
   VStack,
 } from '@chakra-ui/react';
-import React, { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { FiArchive, FiEdit2, FiMapPin, FiTrash2, FiType } from 'react-icons/fi';
 import {
   IoAdd,
