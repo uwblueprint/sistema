@@ -27,7 +27,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         title: 'Invalid File Type',
         description: 'Please upload a valid PDF file.',
         status: 'error',
-        duration: 5000,
         isClosable: true,
       });
     }

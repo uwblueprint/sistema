@@ -82,7 +82,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         title: 'Error',
         description: 'Failed to load subjects',
         status: 'error',
-        duration: 3000,
         isClosable: true,
       });
     }
@@ -100,7 +99,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         title: 'Error',
         description: 'Failed to load locations',
         status: 'error',
-        duration: 3000,
         isClosable: true,
       });
     }
@@ -118,7 +116,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         title: 'Error',
         description: 'Failed to load color groups',
         status: 'error',
-        duration: 3000,
         isClosable: true,
       });
     }

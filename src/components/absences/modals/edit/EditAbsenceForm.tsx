@@ -87,7 +87,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         title: 'Validation Error',
         description: 'Please fill in all required fields correctly.',
         status: 'error',
-        duration: 5000,
         isClosable: true,
       });
       return;
@@ -112,7 +111,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
           title: 'Success',
           description: `Absence updated successfully.`,
           status: 'success',
-          duration: 5000,
           isClosable: true,
         });
 
@@ -123,7 +121,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
           title: 'Error',
           description: result.message,
           status: 'error',
-          duration: 5000,
           isClosable: true,
         });
       }
@@ -133,7 +130,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         description:
           error instanceof Error ? error.message : 'Failed to update absence',
         status: 'error',
-        duration: 5000,
         isClosable: true,
       });
     } finally {

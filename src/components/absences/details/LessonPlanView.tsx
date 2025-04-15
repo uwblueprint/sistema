@@ -165,7 +165,6 @@ const LessonPlanView = ({
         title: 'Upload failed',
         description: 'Could not upload the lesson plan file.',
         status: 'error',
-        duration: 5000,
         isClosable: true,
       });
       setIsUploading(false);
@@ -199,7 +198,6 @@ const LessonPlanView = ({
         title: 'Lesson Plan Updated',
         description: 'Your lesson plan was successfully swapped.',
         status: 'success',
-        duration: 5000,
         isClosable: true,
       });
 
@@ -209,7 +207,6 @@ const LessonPlanView = ({
         title: 'Update failed',
         description: 'There was a problem updating the lesson plan.',
         status: 'error',
-        duration: 5000,
         isClosable: true,
       });
     }

@@ -129,7 +129,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         title: 'Absence filled',
         description: 'You have successfully filled this absence.',
         status: 'success',
-        duration: 5000,
         isClosable: true,
       });
 
@@ -141,7 +140,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         title: 'Error',
         description: error.message || 'Failed to fill absence',
         status: 'error',
-        duration: 5000,
         isClosable: true,
       });
     } finally {
@@ -185,7 +183,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         title: 'Absence deleted',
         description: 'The absence has been successfully deleted.',
         status: 'success',
-        duration: 5000,
         isClosable: true,
       });
 
@@ -201,7 +198,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         title: 'Error',
         description: error.message || 'Failed to delete absence',
         status: 'error',
-        duration: 5000,
         isClosable: true,
       });
     } finally {

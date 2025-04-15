@@ -84,7 +84,6 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         title: 'Validation Error',
         description: 'Please fill in all required fields correctly.',
         status: 'error',
-        duration: 5000,
         isClosable: true,
       });
       return;
@@ -108,7 +107,6 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
           title: 'Success',
           description: `You have successfully declared an absence on ${result.message}.`,
           status: 'success',
-          duration: 5000,
           isClosable: true,
         });
 
@@ -126,7 +124,6 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
           title: 'Error',
           description: result.message,
           status: 'error',
-          duration: 5000,
           isClosable: true,
         });
       }
@@ -136,7 +133,6 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         description:
           error instanceof Error ? error.message : 'Failed to declare absence',
         status: 'error',
-        duration: 5000,
         isClosable: true,
       });
     } finally {

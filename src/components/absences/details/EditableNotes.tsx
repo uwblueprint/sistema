@@ -73,7 +73,6 @@ function EditableNotes({
         title: 'Notes saved',
         description: 'Your notes were successfully updated.',
         status: 'success',
-        duration: 4000,
         isClosable: true,
       });
 
@@ -84,7 +83,6 @@ function EditableNotes({
         description:
           err instanceof Error ? err.message : 'Failed to save notes',
         status: 'error',
-        duration: 5000,
         isClosable: true,
       });
     } finally {

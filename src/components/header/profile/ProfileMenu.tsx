@@ -37,7 +37,6 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
         title: 'Copied!',
         description: 'Sistema iCal URL has been copied to your clipboard.',
         status: 'success',
-        duration: 3000,
         isClosable: true,
       });
     } catch (error) {
@@ -55,7 +54,6 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
         title: 'Copied!',
         description: 'Personal iCal URL has been copied to your clipboard.',
         status: 'success',
-        duration: 3000,
         isClosable: true,
       });
     } catch (error) {
