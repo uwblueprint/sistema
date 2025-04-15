@@ -591,14 +591,44 @@ const EntityTable: React.FC<EntityTableProps> = ({
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
+                gap={3}
               >
-                <Text
-                  color={item.archived ? 'text.inactiveButtonText' : 'inherit'}
-                  textStyle="cellBody"
-                  transition="color 0.3s ease"
+                <Tooltip
+                  label={item.abbreviation}
+                  placement="top"
+                  openDelay={300}
+                  isDisabled={item.abbreviation.length <= 3}
+                  hasArrow
                 >
-                  {item.abbreviation}
-                </Text>
+                  <Box position="relative" overflow="hidden" flex={1}>
+                    <Text
+                      color={
+                        item.archived ? 'text.inactiveButtonText' : 'inherit'
+                      }
+                      textStyle="cellBody"
+                      transition="color 0.3s ease"
+                      noOfLines={1}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                      whiteSpace="nowrap"
+                      position="relative"
+                      pr="15px"
+                    >
+                      {item.abbreviation}
+                    </Text>
+                    <Box
+                      position="absolute"
+                      right="0"
+                      top="0"
+                      height="100%"
+                      width="15px"
+                      background={`linear-gradient(to right, transparent, ${item.archived ? 'var(--chakra-colors-neutralGray-100)' : 'white'})`}
+                      zIndex="1"
+                      pointerEvents="none"
+                      transition="background 0.3s ease"
+                    />
+                  </Box>
+                </Tooltip>
                 <Box
                   className="action-button"
                   opacity={openMenuId === item.id ? '1' : '0'}
