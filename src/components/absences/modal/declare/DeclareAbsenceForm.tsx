@@ -11,27 +11,30 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { Absence } from '@prisma/client';
+import { Absence, Prisma } from '@prisma/client';
 import { submitAbsence } from '@utils/submitAbsence';
-import { EventDetails } from '@utils/types';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
 import { useState } from 'react';
-import { FileUpload } from '../../ui/input/FileUpload';
-import { InputDropdown } from '../../ui/input/InputDropdown';
-import { AdminTeacherFields } from '../declare/AdminTeacherFields';
-import { DateOfAbsence } from '../declare/DateOfAbsence';
-import { ConfirmEditModal } from './ConfirmEditModal';
+import { FileUpload } from '../../../ui/input/FileUpload';
+import { InputDropdown } from '../../../ui/input/InputDropdown';
+import { AdminTeacherFields } from '../AdminTeacherFields';
+import { DateOfAbsence } from '../DateOfAbsence';
+import { ConfirmAbsenceModal } from './ConfirmDeclareModal';
 
-interface EditAbsenceFormProps {
+interface DeclareAbsenceFormProps {
   onClose?: () => void;
-  initialData: EventDetails;
+  userId: number;
+  onTabChange: (tab: 'explore' | 'declared') => void;
+  initialDate: Date;
   isAdminMode: boolean;
   fetchAbsences: () => Promise<void>;
 }
 
-const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
+const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
   onClose,
-  initialData,
+  userId,
+  onTabChange,
+  initialDate,
   isAdminMode,
   fetchAbsences,
 }) => {
@@ -39,21 +42,16 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    reasonOfAbsence: initialData.reasonOfAbsence,
-    absentTeacherId: String(initialData.absentTeacher.id),
-    substituteTeacherId: initialData.substituteTeacher
-      ? String(initialData.substituteTeacher.id)
-      : '',
-    locationId: String(initialData.locationId),
-    subjectId: String(initialData.subjectId),
-    roomNumber: initialData.roomNumber || '',
-    lessonDate: initialData.start.toLocaleDateString('en-CA'),
-    notes: initialData.notes || '',
+    reasonOfAbsence: '',
+    absentTeacherId: isAdminMode ? '' : String(userId),
+    substituteTeacherId: '',
+    locationId: '',
+    subjectId: '',
+    roomNumber: '',
+    lessonDate: initialDate.toLocaleDateString('en-CA'),
+    notes: '',
   });
-
   const [lessonPlan, setLessonPlan] = useState<File | null>(null);
-  const existingLessonPlan = initialData.lessonPlan || null;
-
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
@@ -81,7 +79,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) {
       toast({
         title: 'Validation Error',
@@ -92,7 +89,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
       });
       return;
     }
-
     onOpen();
   };
 
@@ -102,21 +98,28 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
 
     try {
       const result = await submitAbsence({
-        formData: { ...formData, id: initialData.absenceId },
+        formData,
         lessonPlan,
-        onEditAbsence: handleEditAbsence,
+        onDeclareAbsence: handleDeclareAbsence,
       });
 
       if (result.success) {
         toast({
           title: 'Success',
-          description: `Absence updated successfully.`,
+          description: `You have successfully declared an absence on ${result.message}.`,
           status: 'success',
           duration: 5000,
           isClosable: true,
         });
 
-        fetchAbsences();
+        const userIsInvolved =
+          parseInt(formData.substituteTeacherId, 10) === userId ||
+          parseInt(formData.absentTeacherId, 10) === userId;
+
+        if (userIsInvolved) {
+          onTabChange('declared');
+        }
+
         onClose?.();
       } else {
         toast({
@@ -131,7 +134,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
       toast({
         title: 'Error',
         description:
-          error instanceof Error ? error.message : 'Failed to update absence',
+          error instanceof Error ? error.message : 'Failed to declare absence',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -141,25 +144,26 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     }
   };
 
-  const handleEditAbsence = async (
-    absence: Partial<Absence> & { id: number }
-  ): Promise<boolean> => {
+  const handleDeclareAbsence = async (
+    absence: Prisma.AbsenceCreateManyInput
+  ): Promise<Absence | null> => {
     try {
-      const res = await fetch('/api/editAbsence', {
-        method: 'PUT',
+      const res = await fetch('/api/declareAbsence', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(absence),
       });
 
       if (!res.ok) {
-        throw new Error(`Failed to update absence: ${res.statusText}`);
+        throw new Error(`Failed to add absence: ${res.statusText}`);
       }
 
+      const addedAbsence = await res.json();
       await fetchAbsences();
-      return true;
+      return addedAbsence;
     } catch (error) {
-      console.error('Error editing absence:', error);
-      return false;
+      console.error('Error adding absence:', error);
+      return null;
     }
   };
 
@@ -207,7 +211,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
                 }));
               }
             }}
-            defaultValueId={Number(formData.subjectId)}
           />
           <FormErrorMessage>{errors.subjectId}</FormErrorMessage>
         </FormControl>
@@ -231,11 +234,9 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
                 }));
               }
             }}
-            defaultValueId={Number(formData.locationId)}
           />
           <FormErrorMessage>{errors.locationId}</FormErrorMessage>
         </FormControl>
-
         <FormControl>
           <FormLabel htmlFor="roomNumber" sx={{ display: 'flex' }}>
             <Text textStyle="h4">Room Number</Text>
@@ -248,9 +249,8 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
             onChange={handleChange}
           />
         </FormControl>
-
         <DateOfAbsence
-          dateValue={initialData.start}
+          dateValue={initialDate}
           onDateSelect={handleDateSelect}
           error={errors.lessonDate}
         />
@@ -274,11 +274,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
           <Text textStyle="h4" mb={2}>
             Lesson Plan
           </Text>
-          <FileUpload
-            lessonPlan={lessonPlan}
-            setLessonPlan={setLessonPlan}
-            existingFile={existingLessonPlan}
-          />
+          <FileUpload lessonPlan={lessonPlan} setLessonPlan={setLessonPlan} />
         </FormControl>
 
         <FormControl>
@@ -298,21 +294,23 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         <Button
           type="submit"
           isLoading={isSubmitting}
-          loadingText="Updating"
+          loadingText="Submitting"
           width="full"
           height="44px"
         >
-          Save Changes
+          Declare Absence
         </Button>
       </VStack>
-      <ConfirmEditModal
+
+      <ConfirmAbsenceModal
         isOpen={isOpen}
         onClose={closeModal}
         onConfirm={handleConfirmSubmit}
         isSubmitting={isSubmitting}
+        lessonDate={formData.lessonDate}
       />
     </Box>
   );
 };
 
-export default EditAbsenceForm;
+export default DeclareAbsenceForm;
