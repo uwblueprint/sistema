@@ -17,7 +17,6 @@ export default function DashboardPage() {
     `${currentYear - 1} - ${currentYear}`
   );
   const [absenceData, setAbsenceData] = useState<YearlyAbsenceData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [startYear, endYear] = selectedYearRange.split(' - ');
 
   // We'll use a ref to store the refresh function that will be created in UserManagementCard
@@ -72,8 +71,6 @@ export default function DashboardPage() {
         }
       } catch (err) {
         console.error('Error fetching absences:', err);
-      } finally {
-        setLoading(false);
       }
     };
 

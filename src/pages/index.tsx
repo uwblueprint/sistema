@@ -6,7 +6,7 @@ import { SignInButton } from '../components/ui/SignInButton';
 import { TacetLogo } from '../components/ui/TacetLogo';
 
 export default function Index(): JSX.Element | null {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {

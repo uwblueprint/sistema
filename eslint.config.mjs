@@ -1,5 +1,7 @@
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
+import tseslintPlugin from '@typescript-eslint/eslint-plugin';
+import tseslintParser from '@typescript-eslint/parser';
 import prettier from 'eslint-plugin-prettier';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,17 +11,11 @@ const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
   baseDirectory: __dirname,
   recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
 });
 
 const eslintConfig = [
   ...compat.config({
     extends: ['next', 'next/core-web-vitals', 'plugin:prettier/recommended'],
-    settings: {
-      plugins: {
-        prettier,
-      },
-    },
     rules: {
       'prettier/prettier': [
         'error',
@@ -31,6 +27,22 @@ const eslintConfig = [
     },
     ignorePatterns: ['.next/'],
   }),
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    languageOptions: {
+      parser: tseslintParser,
+      parserOptions: {
+        project: ['./tsconfig.json'],
+        tsconfigRootDir: __dirname,
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslintPlugin,
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error'],
+    },
+  },
 ];
 
 export default eslintConfig;

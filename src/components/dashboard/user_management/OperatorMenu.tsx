@@ -12,7 +12,7 @@ import {
   useTheme,
 } from '@chakra-ui/react';
 import { ComparisonOperator } from '@utils/types';
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { IoChevronDownOutline, IoChevronUpOutline } from 'react-icons/io5';
 
 interface OperatorMenuProps {
@@ -84,7 +84,7 @@ const OperatorMenu: React.FC<OperatorMenuProps> = ({
                   'less_than',
                   'equal_to',
                 ] as ComparisonOperator[]
-              ).map((operator, index, arr) => (
+              ).map((operator) => (
                 <Box
                   key={operator}
                   p={2}
