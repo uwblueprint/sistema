@@ -650,97 +650,95 @@ const EntityTable: React.FC<EntityTableProps> = ({
                         transition="opacity 0.2s ease"
                       />
                     </PopoverTrigger>
-                    <Portal>
-                      <PopoverContent width="auto" boxShadow="md">
-                        <PopoverBody p={0}>
-                          <VStack align="stretch" spacing={0}>
+                    <PopoverContent width="auto" boxShadow="md">
+                      <PopoverBody p={0}>
+                        <VStack align="stretch" spacing={0}>
+                          <Button
+                            leftIcon={
+                              <FiEdit2
+                                color={theme.colors.neutralGray[600]}
+                                size={15}
+                              />
+                            }
+                            onClick={() => handleEditItem(item)}
+                            variant="ghost"
+                            justifyContent="flex-start"
+                            width="100%"
+                            textStyle="label"
+                            fontSize={12}
+                            color="body"
+                            borderRadius={0}
+                            py={2}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            leftIcon={
+                              <FiArchive
+                                color={theme.colors.neutralGray[600]}
+                                size={15}
+                              />
+                            }
+                            onClick={() => handleArchiveItem(item)}
+                            variant="ghost"
+                            justifyContent="flex-start"
+                            width="100%"
+                            textStyle="label"
+                            fontSize={12}
+                            color="body"
+                            borderRadius={0}
+                            py={2}
+                          >
+                            {item.archived ? 'Unarchive' : 'Archive'}
+                          </Button>
+                          <Tooltip
+                            label={
+                              itemsInUse.includes(item.id)
+                                ? `Cannot delete ${entityType} because it is used in existing absences`
+                                : ''
+                            }
+                            isDisabled={!itemsInUse.includes(item.id)}
+                            hasArrow
+                          >
                             <Button
                               leftIcon={
-                                <FiEdit2
+                                <FiTrash2
                                   color={theme.colors.neutralGray[600]}
                                   size={15}
                                 />
                               }
-                              onClick={() => handleEditItem(item)}
+                              onClick={() => handleDeleteItem(item)}
+                              isDisabled={itemsInUse.includes(item.id)}
                               variant="ghost"
                               justifyContent="flex-start"
                               width="100%"
                               textStyle="label"
                               fontSize={12}
                               color="body"
-                              borderRadius={0}
                               py={2}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              leftIcon={
-                                <FiArchive
-                                  color={theme.colors.neutralGray[600]}
-                                  size={15}
-                                />
-                              }
-                              onClick={() => handleArchiveItem(item)}
-                              variant="ghost"
-                              justifyContent="flex-start"
-                              width="100%"
-                              textStyle="label"
-                              fontSize={12}
-                              color="body"
                               borderRadius={0}
-                              py={2}
-                            >
-                              {item.archived ? 'Unarchive' : 'Archive'}
-                            </Button>
-                            <Tooltip
-                              label={
+                              bg={
                                 itemsInUse.includes(item.id)
-                                  ? `Cannot delete ${entityType} because it is used in existing absences`
-                                  : ''
+                                  ? 'neutralGray.100'
+                                  : undefined
                               }
-                              isDisabled={!itemsInUse.includes(item.id)}
-                              hasArrow
+                              _hover={
+                                itemsInUse.includes(item.id)
+                                  ? { bg: 'neutralGray.100' }
+                                  : undefined
+                              }
+                              cursor={
+                                itemsInUse.includes(item.id)
+                                  ? 'not-allowed'
+                                  : 'pointer'
+                              }
                             >
-                              <Button
-                                leftIcon={
-                                  <FiTrash2
-                                    color={theme.colors.neutralGray[600]}
-                                    size={15}
-                                  />
-                                }
-                                onClick={() => handleDeleteItem(item)}
-                                isDisabled={itemsInUse.includes(item.id)}
-                                variant="ghost"
-                                justifyContent="flex-start"
-                                width="100%"
-                                textStyle="label"
-                                fontSize={12}
-                                color="body"
-                                py={2}
-                                borderRadius={0}
-                                bg={
-                                  itemsInUse.includes(item.id)
-                                    ? 'neutralGray.100'
-                                    : undefined
-                                }
-                                _hover={
-                                  itemsInUse.includes(item.id)
-                                    ? { bg: 'neutralGray.100' }
-                                    : undefined
-                                }
-                                cursor={
-                                  itemsInUse.includes(item.id)
-                                    ? 'not-allowed'
-                                    : 'pointer'
-                                }
-                              >
-                                Delete
-                              </Button>
-                            </Tooltip>
-                          </VStack>
-                        </PopoverBody>
-                      </PopoverContent>
-                    </Portal>
+                              Delete
+                            </Button>
+                          </Tooltip>
+                        </VStack>
+                      </PopoverBody>
+                    </PopoverContent>
                   </Popover>
                 </Box>
               </Box>
