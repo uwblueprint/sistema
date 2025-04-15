@@ -55,7 +55,9 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>(
+    mailingLists.map((list) => list.subjectId)
+  );
   const [localMailingLists, setLocalMailingLists] =
     useState<MailingList[]>(mailingLists);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -111,7 +113,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     });
   }, [mailingLists, selectedSubjectIds, onSubscriptionsChange]);
 
-  // Initialize selected subjects from current mailing lists
+  // We need to update the state when props change
   useEffect(() => {
     if (!isSaving) {
       setSelectedSubjectIds(mailingLists.map((list) => list.subjectId));
@@ -151,7 +153,11 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     });
 
     setLocalMailingLists(sortedMailingLists);
-  }, [selectedSubjectIds, mailingLists, subjectsById]);
+
+    console.log('selectedSubjectIds changed to', selectedSubjectIds);
+    console.log('subjectsById is', subjectsById);
+    console.log('so i changed mailingLists to', sortedMailingLists);
+  }, [selectedSubjectIds, subjectsById]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
