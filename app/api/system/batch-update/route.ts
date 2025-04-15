@@ -22,13 +22,29 @@ export async function POST(req: NextRequest) {
         // Create new subjects
         if (subjects.create && subjects.create.length > 0) {
           for (const subject of subjects.create) {
-            await tx.subject.create({
+            // Create the new subject
+            const newSubject = await tx.subject.create({
               data: {
                 name: subject.name,
                 abbreviation: subject.abbreviation,
                 colorGroupId: subject.colorGroupId,
               },
             });
+
+            // Get all users to automatically add them to the mailing list for this subject
+            const allUsers = await tx.user.findMany({
+              select: { id: true },
+            });
+
+            // Create MailingList entries for each user with this new subject
+            for (const user of allUsers) {
+              await tx.mailingList.create({
+                data: {
+                  userId: user.id,
+                  subjectId: newSubject.id,
+                },
+              });
+            }
           }
         }
 
