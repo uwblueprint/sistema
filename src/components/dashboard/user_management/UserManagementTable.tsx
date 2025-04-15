@@ -341,7 +341,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                         }
                       />
                     </Td>
-                    <Td py="6px">
+                    <Td py={0}>
                       <EditableSubscriptionsCell
                         mailingLists={user.mailingLists || []}
                         allSubjects={allSubjects}
