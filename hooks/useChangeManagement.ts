@@ -1,6 +1,6 @@
 import { Location, SubjectAPI } from '@utils/types';
 import { useCallback, useEffect, useState } from 'react';
-
+import { useCustomToast } from '../src/components/CustomToast';
 /**
  * This hook manages pending changes to system entities using an entity-based tracking approach.
  * Instead of tracking individual atomic changes, it stores the final state of each modified entity.
@@ -18,7 +18,6 @@ interface UseChangeManagementProps {
   locations: Location[];
   absenceCap: number;
   onRefresh?: () => void;
-  showToast?: any;
 }
 
 interface UseChangeManagementReturn {
@@ -42,8 +41,9 @@ export const useChangeManagement = ({
   locations: initialLocations,
   absenceCap: initialAbsenceCap,
   onRefresh,
-  showToast,
 }: UseChangeManagementProps): UseChangeManagementReturn => {
+  const showToast = useCustomToast();
+
   // Store maps of pending entity changes
   const [pendingSubjects, setPendingSubjects] = useState<
     Map<number, SubjectAPI | null>
