@@ -223,6 +223,18 @@ const Calendar: React.FC = () => {
     updateMonthYearTitle();
   }, [updateMonthYearTitle]);
 
+  const formatDateForFilledDays = (date: Date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const hasConflictingEvent = (event: EventDetails) => {
+    const dateString = formatDateForFilledDays(new Date(event.start));
+    return filledDays.has(dateString);
+  };
+
   const handleAbsenceClick = (clickInfo: EventClickArg) => {
     setSelectedEvent({
       title: clickInfo.event.title,
@@ -457,6 +469,7 @@ const Calendar: React.FC = () => {
         fetchAbsences={fetchAbsences}
         onDelete={handleDeleteAbsence}
         isAdminMode={isAdminMode}
+        hasConflictingEvent={hasConflictingEvent(selectedEvent!!)}
       />
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>

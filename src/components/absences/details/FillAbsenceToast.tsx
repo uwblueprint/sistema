@@ -18,7 +18,6 @@ const ClaimAbsenceToast = ({ firstName, date, success }) => {
     <Box
       bg="white"
       width="360px"
-      height="60px"
       border="1px solid"
       borderColor={modalColor}
       borderRadius="md"

@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Flex,
+  Icon,
   IconButton,
   Modal,
   ModalBody,
@@ -10,22 +11,28 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
   Text,
-  VStack,
   useTheme,
   useToast,
+  VStack,
 } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
 import { EventDetails, Role } from '@utils/types';
 import { Buildings, Calendar } from 'iconsax-react';
 import { useState } from 'react';
+import { BiSolidErrorCircle } from 'react-icons/bi';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import EditAbsenceForm from '../modals/edit/EditAbsenceForm';
 import AbsenceFillThanks from './AbsenceFillThanks';
-import ClaimAbsenceToast from './FillAbsenceToast';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import EditableNotes from './EditableNotes';
+import ClaimAbsenceToast from './FillAbsenceToast';
 import LessonPlanView from './LessonPlanView';
 
 interface AbsenceDetailsProps {
@@ -35,6 +42,7 @@ interface AbsenceDetailsProps {
   onDelete?: (absenceId: number) => void;
   isAdminMode: boolean;
   fetchAbsences: () => Promise<void>;
+  hasConflictingEvent: boolean;
 }
 
 const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
@@ -44,6 +52,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   onDelete,
   isAdminMode,
   fetchAbsences,
+  hasConflictingEvent,
 }) => {
   const theme = useTheme();
   const userData = useUserData();
@@ -233,16 +242,34 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         >
           <ModalHeader p="0">
             <Flex justify="space-between" align="center" position="relative">
-              <AbsenceStatusTag
-                isUserAbsentTeacher={isUserAbsentTeacher}
-                isUserSubstituteTeacher={isUserSubstituteTeacher}
-                isAdminMode={isAdminMode}
-                substituteTeacherFullName={
-                  event.substituteTeacherFullName
-                    ? event.substituteTeacherFullName
-                    : undefined
-                }
-              />
+              <Flex gap="8px" align="center">
+                <AbsenceStatusTag
+                  isUserAbsentTeacher={isUserAbsentTeacher}
+                  isUserSubstituteTeacher={isUserSubstituteTeacher}
+                  isAdminMode={isAdminMode}
+                />
+                {hasConflictingEvent &&
+                  !event.substituteTeacherFullName &&
+                  !isUserAbsentTeacher && (
+                    <Popover placement="top" trigger="hover">
+                      <PopoverTrigger>
+                        <Box display="flex" alignItems="center" height="100%">
+                          <Icon
+                            as={BiSolidErrorCircle}
+                            color={theme.colors.errorRed['200']}
+                            boxSize={6}
+                          />
+                        </Box>
+                      </PopoverTrigger>
+                      <PopoverContent bg="white" width="fit-content">
+                        <PopoverArrow />
+                        <PopoverBody textStyle="caption" maxW="190px">
+                          You have already filled an absence on this date.
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+              </Flex>
               <Flex position="absolute" right="0">
                 {isAdminMode && (
                   <IconButton
@@ -415,6 +442,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                     fontSize="16px"
                     fontWeight="500"
                     onClick={handleFillAbsenceClick}
+                    disabled={hasConflictingEvent}
                   >
                     Fill this Absence
                   </Button>

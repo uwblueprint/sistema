@@ -45,11 +45,7 @@ export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent
-        maxW="300px"
-        height={isWithin14Days ? '200px' : '160px'}
-        borderRadius="lg"
-      >
+      <ModalContent maxW="300px" borderRadius="lg">
         <ModalHeader textAlign="center" fontSize="16px" pb={0} pt={5}>
           <Text textStyle="h3">
             {hasLessonPlan ? 'Confirm Absence' : 'No Lesson Plan Added'}
