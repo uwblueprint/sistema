@@ -50,14 +50,10 @@ export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
         height={isWithin14Days ? '200px' : '160px'}
         borderRadius="lg"
       >
-        <ModalHeader
-          textAlign="center"
-          fontSize="16px"
-          fontWeight="700"
-          pb={0}
-          pt={5}
-        >
-          {hasLessonPlan ? 'Confirm Absence' : 'No Lesson Plan Added'}
+        <ModalHeader textAlign="center" fontSize="16px" pb={0} pt={5}>
+          <Text textStyle="h3">
+            {hasLessonPlan ? 'Confirm Absence' : 'No Lesson Plan Added'}
+          </Text>
         </ModalHeader>
         <ModalBody display="flex" justifyContent="center">
           <Box maxW="224px" w="100%">
@@ -66,7 +62,7 @@ export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
                 {hasLessonPlan ? (
                   <>
                     Please confirm your absence on{' '}
-                    <strong>{formattedDate}</strong>.
+                    <strong>{formattedDate}.</strong>
                   </>
                 ) : (
                   <>
