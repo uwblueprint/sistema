@@ -8,14 +8,13 @@ import {
   MenuButton,
   MenuList,
   Text,
-  useTheme,
-  useToast,
 } from '@chakra-ui/react';
 import { NEXT_PUBLIC_PROD_URL } from '@utils/config';
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { Role, UserData } from '@utils/types';
 import { signOut } from 'next-auth/react';
 import { IoLinkOutline } from 'react-icons/io5';
+import { useCustomToast } from '../../CustomToast';
 
 interface ProfileMenuProps {
   userData?: UserData;
@@ -26,18 +25,16 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
   const absenceColor = userData
     ? getAbsenceColor(userData.usedAbsences, absenceCap)
     : getAbsenceColor(0, absenceCap);
-  const theme = useTheme();
-  const toast = useToast();
+  const showToast = useCustomToast();
 
   const handleCopyICal = async () => {
     const iCalURL = `${NEXT_PUBLIC_PROD_URL}/api/ics/calendar.ics`;
     try {
       await navigator.clipboard.writeText(iCalURL);
-      toast({
+      showToast({
         title: 'Copied!',
         description: 'Sistema iCal URL has been copied to your clipboard.',
         status: 'success',
-        isClosable: true,
       });
     } catch (error) {
       console.error('Failed to copy:', error);
@@ -50,11 +47,10 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
     const iCalURL = `${NEXT_PUBLIC_PROD_URL}/api/ics/user-${userData.id}.ics`;
     try {
       await navigator.clipboard.writeText(iCalURL);
-      toast({
+      showToast({
         title: 'Copied!',
         description: 'Personal iCal URL has been copied to your clipboard.',
         status: 'success',
-        isClosable: true,
       });
     } catch (error) {
       console.error('Failed to copy:', error);
@@ -87,7 +83,15 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
         <Text textStyle="caption" color="text.subtitle" mb={4}>
           {userData?.email}
         </Text>
-        <Box bg="neutralGray.50" p={3} textAlign="center" mb={3}>
+        <Box
+          bg="neutralGray.50"
+          p={3}
+          textAlign="center"
+          mb={3}
+          borderRadius="md"
+          maxW="210px"
+          mx="auto"
+        >
           <Flex justify="center" align="center" gap={2} wrap="wrap">
             <Text textStyle="h4" color={absenceColor}>
               {userData?.usedAbsences}/{absenceCap}
@@ -95,38 +99,40 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
             <Text textStyle="h4">Absences Taken</Text>
           </Flex>
         </Box>
-
-        <HStack spacing={2} align="center" justifyContent="center" mb={4}>
+        <HStack spacing={5} align="center" justifyContent="center" mb={4}>
           {userData?.id && (
             <Flex
               alignItems="center"
-              gap={2}
+              gap={1}
               justifyContent="center"
               cursor="pointer"
+              color="text.subtitle"
+              _hover={{ color: 'primaryBlue.300' }}
               onClick={handleCopyPersonalICal}
             >
-              <Text textStyle="caption" color="text.subtitle">
+              <Text textStyle="caption" color="inherit">
                 Personal iCal
               </Text>
-              <IoLinkOutline size={16} color={theme.colors.neutralGray[600]} />
+              <IoLinkOutline size={16} color="currentColor" />
             </Flex>
           )}
           {userData?.role === Role.ADMIN && (
             <Flex
               alignItems="center"
-              gap={2}
+              gap={1}
               justifyContent="center"
               cursor="pointer"
+              color="text.subtitle"
+              _hover={{ color: 'primaryBlue.300' }}
               onClick={handleCopyICal}
             >
-              <Text textStyle="caption" color="text.subtitle">
+              <Text textStyle="caption" color="inherit">
                 Sistema iCal
               </Text>
-              <IoLinkOutline size={16} color={theme.colors.neutralGray[600]} />
+              <IoLinkOutline size={16} color="currentColor" />
             </Flex>
           )}
         </HStack>
-
         <Button
           onClick={() => signOut()}
           variant="outline"

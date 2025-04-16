@@ -7,12 +7,12 @@ import {
   Link,
   Text,
   useTheme,
-  useToast,
 } from '@chakra-ui/react';
 import { LessonPlanFile } from '@utils/types';
 import { uploadFile } from '@utils/uploadFile';
 import { useEffect, useRef, useState } from 'react';
 import { FiFileText } from 'react-icons/fi';
+import { useCustomToast } from '../../CustomToast';
 import { FileUpload } from '../FileUpload';
 
 const formatFileSize = (sizeInBytes: number) => {
@@ -138,7 +138,7 @@ const LessonPlanView = ({
   fetchAbsences,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const toast = useToast();
+  const showToast = useCustomToast();
   const [isUploading, setIsUploading] = useState(false);
   const [localLessonPlan, setLocalLessonPlan] = useState<LessonPlanFile | null>(
     lessonPlan
@@ -161,12 +161,12 @@ const LessonPlanView = ({
 
     const fileUrl = await uploadFile(file);
     if (!fileUrl) {
-      toast({
+      showToast({
         title: 'Upload failed',
         description: 'Could not upload the lesson plan file.',
         status: 'error',
-        isClosable: true,
       });
+
       setIsUploading(false);
       return;
     }
@@ -194,20 +194,18 @@ const LessonPlanView = ({
 
       setLocalLessonPlan(updatedPlan);
 
-      toast({
+      showToast({
         title: 'Lesson Plan Updated',
         description: 'Your lesson plan was successfully swapped.',
         status: 'success',
-        isClosable: true,
       });
 
       await fetchAbsences?.();
     } else {
-      toast({
+      showToast({
         title: 'Update failed',
         description: 'There was a problem updating the lesson plan.',
         status: 'error',
-        isClosable: true,
       });
     }
 

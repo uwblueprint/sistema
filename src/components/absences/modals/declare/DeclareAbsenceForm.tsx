@@ -9,12 +9,12 @@ import {
   Textarea,
   VStack,
   useDisclosure,
-  useToast,
 } from '@chakra-ui/react';
 import { Absence, Prisma } from '@prisma/client';
 import { submitAbsence } from '@utils/submitAbsence';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
 import { useState } from 'react';
+import { useCustomToast } from '../../../CustomToast';
 import { FileUpload } from '../../FileUpload';
 import { AdminTeacherFields } from '../AdminTeacherFields';
 import { DateOfAbsence } from '../DateOfAbsence';
@@ -38,7 +38,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
   isAdminMode,
   fetchAbsences,
 }) => {
-  const toast = useToast();
+  const showToast = useCustomToast();
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -80,11 +80,10 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) {
-      toast({
+      showToast({
         title: 'Validation Error',
         description: 'Please fill in all required fields correctly.',
         status: 'error',
-        isClosable: true,
       });
       return;
     }
@@ -103,11 +102,16 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
       });
 
       if (result.success) {
-        toast({
-          title: 'Success',
-          description: `You have successfully declared an absence on ${result.message}.`,
+        showToast({
           status: 'success',
-          isClosable: true,
+          description: (
+            <Text>
+              You have successfully declared an absence on{' '}
+              <Text as="span" fontWeight="bold">
+                {result.message}.
+              </Text>
+            </Text>
+          ),
         });
 
         const userIsInvolved =
@@ -120,20 +124,18 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
 
         onClose?.();
       } else {
-        toast({
+        showToast({
           title: 'Error',
           description: result.message,
           status: 'error',
-          isClosable: true,
         });
       }
     } catch (error) {
-      toast({
+      showToast({
         title: 'Error',
         description:
           error instanceof Error ? error.message : 'Failed to declare absence',
         status: 'error',
-        isClosable: true,
       });
     } finally {
       setIsSubmitting(false);

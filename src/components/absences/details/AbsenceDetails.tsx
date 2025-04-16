@@ -18,7 +18,6 @@ import {
   PopoverTrigger,
   Text,
   useTheme,
-  useToast,
   VStack,
 } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
@@ -28,11 +27,11 @@ import { useState } from 'react';
 import { BiSolidErrorCircle } from 'react-icons/bi';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
+import { useCustomToast } from '../../CustomToast';
 import EditAbsenceForm from '../modals/edit/EditAbsenceForm';
 import AbsenceFillThanks from './AbsenceFillThanks';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import EditableNotes from './EditableNotes';
-import ClaimAbsenceToast from './FillAbsenceToast';
 import LessonPlanView from './LessonPlanView';
 
 interface AbsenceDetailsProps {
@@ -63,7 +62,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const [isFillDialogOpen, setIsFillDialogOpen] = useState(false);
   const [isFillThanksOpen, setIsFillThanksOpen] = useState(false);
 
-  const toast = useToast();
+  const showToast = useCustomToast();
 
   if (!event) return null;
 
@@ -122,9 +121,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
     try {
       const response = await fetch('/api/editAbsence', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: event.absenceId,
           lessonDate: event.start,
@@ -142,15 +139,19 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         throw new Error('Failed to fill absence');
       }
 
-      toast({
-        isClosable: true,
-        position: 'bottom-left',
-        render: () => (
-          <ClaimAbsenceToast
-            firstName={event.absentTeacher.firstName}
-            date={formattedDate}
-            success={true}
-          />
+      showToast({
+        status: 'success',
+        description: (
+          <Text>
+            You have successfully filled{' '}
+            <Text as="span" fontWeight="bold">
+              {event.absentTeacher.firstName}&apos;s
+            </Text>{' '}
+            absence on{' '}
+            <Text as="span" fontWeight="bold">
+              {formattedDate}.
+            </Text>
+          </Text>
         ),
       });
 
@@ -158,15 +159,19 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       setIsFillDialogOpen(false);
       setIsFillThanksOpen(true);
     } catch {
-      toast({
-        isClosable: true,
-        position: 'bottom-left',
-        render: () => (
-          <ClaimAbsenceToast
-            firstName={event.absentTeacher.firstName}
-            date={formattedDate}
-            success={false}
-          />
+      showToast({
+        status: 'error',
+        description: (
+          <Text>
+            There was an error in filling{' '}
+            <Text as="span" fontWeight="bold">
+              {event.absentTeacher.firstName}&apos;s
+            </Text>{' '}
+            absence on{' '}
+            <Text as="span" fontWeight="bold">
+              {formattedDate}.
+            </Text>
+          </Text>
         ),
       });
     } finally {
@@ -206,11 +211,10 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         throw new Error('Failed to delete absence');
       }
 
-      toast({
+      showToast({
         title: 'Absence deleted',
         description: 'The absence has been successfully deleted.',
         status: 'success',
-        isClosable: true,
       });
 
       await fetchAbsences();
@@ -221,11 +225,10 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         onDelete(event.absenceId);
       }
     } catch (error) {
-      toast({
+      showToast({
         title: 'Error',
         description: error.message || 'Failed to delete absence',
         status: 'error',
-        isClosable: true,
       });
     } finally {
       setIsDeleting(false);
@@ -250,7 +253,8 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                 />
                 {hasConflictingEvent &&
                   !event.substituteTeacherFullName &&
-                  !isUserAbsentTeacher && (
+                  !isUserAbsentTeacher &&
+                  !isAdminMode && (
                     <Popover placement="top" trigger="hover">
                       <PopoverTrigger>
                         <Box display="flex" alignItems="center" height="100%">
@@ -408,9 +412,8 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                           </Text>{' '}
                           and{' '}
                           <Text as="span" fontWeight={700}>
-                            {event.substituteTeacher.firstName}
+                            {event.substituteTeacher.firstName}.
                           </Text>
-                          .
                         </Text>
                       </>
                     ) : isUserSubstituteTeacher ? (
@@ -424,9 +427,8 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                           </Text>{' '}
                           and{' '}
                           <Text as="span" fontWeight={700}>
-                            {event.absentTeacher.firstName}
+                            {event.absentTeacher.firstName}.
                           </Text>
-                          .
                         </Text>
                       </>
                     ) : null}

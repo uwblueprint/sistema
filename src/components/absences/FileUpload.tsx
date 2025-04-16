@@ -1,6 +1,7 @@
-import { Box, Image, Input, Text, useToast } from '@chakra-ui/react';
+import { Box, Image, Input, Text } from '@chakra-ui/react';
 import { LessonPlanFile } from '@utils/types';
 import { useRef, useState } from 'react';
+import { useCustomToast } from '../CustomToast';
 
 interface FileUploadProps {
   lessonPlan: File | null;
@@ -17,17 +18,16 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const toast = useToast();
+  const showToast = useCustomToast();
 
   const validateAndSetFile = (file: File) => {
     if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
       setLessonPlan(file);
     } else {
-      toast({
+      showToast({
         title: 'Invalid File Type',
         description: 'Please upload a valid PDF file.',
         status: 'error',
-        isClosable: true,
       });
     }
   };

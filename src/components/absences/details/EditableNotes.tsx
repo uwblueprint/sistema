@@ -7,10 +7,10 @@ import {
   Text,
   Textarea,
   useTheme,
-  useToast,
 } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 import { FiEdit2 } from 'react-icons/fi';
+import { useCustomToast } from '../../CustomToast';
 
 interface EditableNotesProps {
   notes: string;
@@ -24,7 +24,6 @@ function EditableNotes({
   fetchAbsences,
 }: EditableNotesProps) {
   const theme = useTheme();
-  const toast = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [savedNotes, setSavedNotes] = useState(notes);
   const [tempNotes, setTempNotes] = useState(notes);
@@ -34,6 +33,7 @@ function EditableNotes({
   const [initialHeight, setInitialHeight] = useState<number | undefined>(
     undefined
   );
+  const showToast = useCustomToast();
 
   const emptyNotesSpace = 41;
   const spaceAfterNotes = 33;
@@ -69,21 +69,19 @@ function EditableNotes({
       }
 
       setSavedNotes(tempNotes);
-      toast({
+      showToast({
         title: 'Notes saved',
         description: 'Your notes were successfully updated.',
         status: 'success',
-        isClosable: true,
       });
 
       setIsEditing(false);
     } catch (err) {
-      toast({
+      showToast({
         title: 'Error',
         description:
           err instanceof Error ? err.message : 'Failed to save notes',
         status: 'error',
-        isClosable: true,
       });
     } finally {
       setIsSaving(false);

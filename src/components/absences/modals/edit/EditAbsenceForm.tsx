@@ -9,13 +9,13 @@ import {
   Textarea,
   VStack,
   useDisclosure,
-  useToast,
 } from '@chakra-ui/react';
 import { Absence } from '@prisma/client';
 import { submitAbsence } from '@utils/submitAbsence';
 import { EventDetails } from '@utils/types';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
 import { useState } from 'react';
+import { useCustomToast } from '../../../CustomToast';
 import { FileUpload } from '../../FileUpload';
 import { AdminTeacherFields } from '../AdminTeacherFields';
 import { DateOfAbsence } from '../DateOfAbsence';
@@ -35,7 +35,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
   isAdminMode,
   fetchAbsences,
 }) => {
-  const toast = useToast();
+  const showToast = useCustomToast();
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -83,11 +83,10 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     e.preventDefault();
 
     if (!validateForm()) {
-      toast({
+      showToast({
         title: 'Validation Error',
         description: 'Please fill in all required fields correctly.',
         status: 'error',
-        isClosable: true,
       });
       return;
     }
@@ -107,30 +106,27 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
       });
 
       if (result.success) {
-        toast({
+        showToast({
           title: 'Success',
           description: `Absence updated successfully.`,
           status: 'success',
-          isClosable: true,
         });
 
         fetchAbsences();
         onClose?.();
       } else {
-        toast({
+        showToast({
           title: 'Error',
           description: result.message,
           status: 'error',
-          isClosable: true,
         });
       }
     } catch (error) {
-      toast({
+      showToast({
         title: 'Error',
         description:
           error instanceof Error ? error.message : 'Failed to update absence',
         status: 'error',
-        isClosable: true,
       });
     } finally {
       setIsSubmitting(false);
