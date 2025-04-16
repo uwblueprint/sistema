@@ -338,6 +338,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
                   display="flex"
                   alignItems="center"
                   _hover={{ bg: 'neutralGray.100' }}
+                  _active={{ bg: 'neutralGray.300' }}
                   onClick={(e) => handleSubjectChange(subject.id, e)}
                   cursor="pointer"
                 >
