@@ -1,5 +1,5 @@
 import { Box, Text, useTheme } from '@chakra-ui/react';
-import { MdCheckCircle, MdError } from 'react-icons/md';
+import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons';
 
 const ClaimAbsenceToast = ({ firstName, date, success }) => {
   const theme = useTheme();
@@ -9,10 +9,10 @@ const ClaimAbsenceToast = ({ firstName, date, success }) => {
     : theme.colors.errorRed[200];
 
   const message = success
-    ? `You have successfully claimed `
-    : `There was an error in claiming `;
+    ? `You have successfully filled `
+    : `There was an error in filling `;
 
-  const Icon = success ? MdCheckCircle : MdError;
+  const Icon = success ? CheckCircleIcon : WarningIcon;
 
   return (
     <Box
@@ -29,7 +29,7 @@ const ClaimAbsenceToast = ({ firstName, date, success }) => {
       boxShadow="md"
     >
       <Box mr={4}>
-        <Icon size="38px" color={modalColor} />
+        <Icon boxSize="30px" color={modalColor} />
       </Box>
       <Text fontSize="14px" color="black">
         {message}
