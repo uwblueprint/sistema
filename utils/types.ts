@@ -20,13 +20,14 @@ export interface LessonPlanFile {
 
 export interface EventDetails {
   title: string;
-  start: Date | null;
-  absentTeacher: { id: number; firstName: string; lastName: string } | null;
+  start: Date;
+  absentTeacher: { id: number; firstName: string; lastName: string };
   absentTeacherFullName: string;
   substituteTeacher: { id: number; firstName: string; lastName: string } | null;
   substituteTeacherFullName: string | null;
   location: string;
-  classType: string;
+  locationId: number;
+  subjectId: number;
   lessonPlan: LessonPlanFile | null;
   roomNumber: string | null;
   reasonOfAbsence: string;
@@ -77,6 +78,13 @@ export interface User {
   role: Role;
 }
 
+export interface MailingList {
+  userId: number;
+  subjectId: number;
+  user: UserAPI;
+  subject: SubjectAPI;
+}
+
 export interface UserAPI {
   id: number;
   email: string;
@@ -85,14 +93,7 @@ export interface UserAPI {
   profilePicture?: string;
   role: Role;
   absences: { id: number }[];
-  mailingLists: {
-    subject: {
-      name: string;
-      colorGroup: {
-        colorCodes: string[];
-      };
-    };
-  }[];
+  mailingLists: MailingList[];
 }
 
 export interface Location {
@@ -121,8 +122,8 @@ export interface SubjectAPI {
   id: number;
   name: string;
   abbreviation: string;
-  colorGroupId: number;
   archived: boolean;
+  colorGroupId: number;
   colorGroup: {
     name: string;
     colorCodes: string[];

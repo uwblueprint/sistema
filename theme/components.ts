@@ -65,55 +65,52 @@ export const components = {
     },
   },
   Input: {
-    baseStyle: {
-      field: {
-        border: '1px solid',
-        borderColor: 'outline',
-        borderRadius: '10px',
-        fontSize: '13px',
-        fontWeight: 400,
-        lineHeight: '15.73px',
-        fontFamily: 'body',
-        _placeholder: {
-          color: 'text.subtitle',
-        },
-        _hover: {
+    defaultProps: {
+      variant: 'outline',
+    },
+    variants: {
+      outline: {
+        field: {
+          border: '1px solid',
           borderColor: 'outline',
-        },
-        _focus: {
-          borderColor: 'primaryBlue.300',
-          boxShadow: '0 0 0 1px primaryBlue.300',
-        },
-        _active: {
-          borderColor: 'primaryBlue.300',
-          boxShadow: '0 0 0 1px primaryBlue.300',
+          borderRadius: '10px',
+          fontSize: '13px',
+          fontWeight: 400,
+          lineHeight: '15.73px',
+          fontFamily: 'body',
+          _placeholder: {
+            color: 'text.subtitle',
+          },
+          _hover: {
+            borderColor: 'outline',
+          },
+          _focus: {
+            borderColor: 'primaryBlue.300',
+            boxShadow: '0 0 0 1px primaryBlue.300',
+          },
+          _active: {
+            borderColor: 'primaryBlue.300',
+            boxShadow: '0 0 0 1px primaryBlue.300',
+          },
         },
       },
     },
   },
-  Textarea: {
+  borderColor: 'outline',
+
+  Tooltip: {
     baseStyle: {
+      bg: 'white',
+      color: 'text.body',
+      borderRadius: 'md',
+      px: 3,
+      py: 2,
+      fontSize: 'sm',
+      maxWidth: '320px',
+      '--popper-arrow-bg': 'white',
+      boxShadow: 'md',
       border: '1px solid',
-      borderColor: 'outline',
-      borderRadius: '10px',
-      fontSize: '13px',
-      fontWeight: 400,
-      lineHeight: '15.73px',
-      fontFamily: 'body',
-      _placeholder: {
-        color: 'text.subtitle',
-      },
-      _hover: {
-        borderColor: 'outline',
-      },
-      _focus: {
-        borderColor: 'primaryBlue.300',
-        boxShadow: '0 0 0 1px primaryBlue.300',
-      },
-      _active: {
-        borderColor: 'primaryBlue.300',
-        boxShadow: '0 0 0 1px primaryBlue.300',
-      },
+      borderColor: 'neutralGray.200',
     },
   },
 };

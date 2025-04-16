@@ -20,22 +20,21 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { useAbsences } from '@hooks/useAbsences';
 import { useUserData } from '@hooks/useUserData';
-import { Absence, Prisma } from '@prisma/client';
-import { formatMonthYear } from '@utils/formatMonthYear';
+import { formatMonthYear } from '@utils/formatDate';
 import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import AbsenceBox from '../components/AbsenceBox';
-import AbsenceDetails from '../components/AbsenceDetails';
-import CalendarHeader from '../components/CalendarHeader';
-import CalendarSidebar from '../components/CalendarSidebar';
-import { CalendarTabs } from '../components/CalendarTabs';
-import InputForm from '../components/InputForm';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import AbsenceBox from '../components/absences/AbsenceBox';
+import AbsenceDetails from '../components/absences/details/AbsenceDetails';
+import DeclareAbsenceForm from '../components/absences/modals/declare/DeclareAbsenceForm';
+import { CalendarTabs } from '../components/calendar/CalendarTabs';
+import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
+import CalendarHeader from '../components/header/calendar/CalendarHeader';
 
 const Calendar: React.FC = () => {
-  const userData = useUserData();
+  const { refetchUserData, ...userData } = useUserData();
   const router = useRouter();
 
   const searchParams = useSearchParams();
@@ -57,8 +56,8 @@ const Calendar: React.FC = () => {
     }
   }, [searchParams]);
 
-  const { events, fetchAbsences } = useAbsences();
-  const [claimedDays, setClaimedDays] = useState<Set<string>>(new Set());
+  const { events, fetchAbsences } = useAbsences(refetchUserData);
+  const [filledDays, setFilledDays] = useState<Set<string>>(new Set());
 
   const calendarRef = useRef<FullCalendar>(null);
   const [filteredEvents, setFilteredEvents] = useState<EventInput[]>([]);
@@ -78,9 +77,7 @@ const Calendar: React.FC = () => {
   const [currentMonthYear, setCurrentMonthYear] = useState(
     formatMonthYear(new Date())
   );
-  const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
-    'explore'
-  );
+  const [activeTab, setActiveTab] = useState<'explore' | 'declared'>('explore');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventDetails | null>(null);
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
@@ -109,9 +106,15 @@ const Calendar: React.FC = () => {
         lessonPlan,
       } = eventInfo.event.extendedProps;
 
-      const eventDate = new Date(eventInfo.event.startStr);
-      const isPastEvent = eventDate < new Date();
-      const opacity = isPastEvent ? 0.7 : 1;
+      const eventDate = new Date(eventInfo.event.start!!);
+      const now = new Date();
+      const isSameDay =
+        eventDate.getFullYear() === now.getFullYear() &&
+        eventDate.getMonth() === now.getMonth() &&
+        eventDate.getDate() === now.getDate();
+      const isPastEvent = eventDate < now && !isSameDay;
+
+      const opacity = isPastEvent ? 0.6 : 1;
       const createdByUser = absentTeacher.id === userData?.id;
 
       const highlightText = createdByUser
@@ -142,7 +145,7 @@ const Calendar: React.FC = () => {
   );
 
   useEffect(() => {
-    const claimedAbsences = new Set<string>();
+    const filledAbsences = new Set<string>();
 
     events.forEach((event) => {
       if (event.start) {
@@ -157,36 +160,13 @@ const Calendar: React.FC = () => {
         const eventDateString = `${eventDate.getFullYear()}-${(eventDate.getMonth() + 1).toString().padStart(2, '0')}-${eventDate.getDate().toString().padStart(2, '0')}`;
 
         if (event.substituteTeacher?.id === userData?.id) {
-          claimedAbsences.add(eventDateString);
+          filledAbsences.add(eventDateString);
         }
       }
     });
 
-    setClaimedDays(claimedAbsences);
+    setFilledDays(filledAbsences);
   }, [events, userData?.id]);
-
-  const handleDeclareAbsence = async (
-    absence: Prisma.AbsenceCreateManyInput
-  ): Promise<Absence | null> => {
-    try {
-      const res = await fetch('/api/declareAbsence', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(absence),
-      });
-
-      if (!res.ok) {
-        throw new Error(`Failed to add absence: ${res.statusText}`);
-      }
-
-      const addedAbsence = await res.json();
-      await fetchAbsences();
-      return addedAbsence;
-    } catch (error) {
-      console.error('Error adding absence:', error);
-      return null;
-    }
-  };
 
   useEffect(() => {
     fetchAbsences();
@@ -243,22 +223,36 @@ const Calendar: React.FC = () => {
     updateMonthYearTitle();
   }, [updateMonthYearTitle]);
 
+  const formatDateForFilledDays = (date: Date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const hasConflictingEvent = (event: EventDetails) => {
+    if (!event?.start) return false;
+    const dateString = formatDateForFilledDays(new Date(event.start));
+    return filledDays.has(dateString);
+  };
+
   const handleAbsenceClick = (clickInfo: EventClickArg) => {
     setSelectedEvent({
-      title: clickInfo.event.title || 'Untitled Event',
-      start: clickInfo.event.start,
-      absentTeacher: clickInfo.event.extendedProps.absentTeacher || null,
+      title: clickInfo.event.title,
+      start: clickInfo.event.start!!,
+      absentTeacher: clickInfo.event.extendedProps.absentTeacher,
       absentTeacherFullName:
-        clickInfo.event.extendedProps.absentTeacherFullName || '',
+        clickInfo.event.extendedProps.absentTeacherFullName,
       substituteTeacher:
         clickInfo.event.extendedProps.substituteTeacher || null,
       substituteTeacherFullName:
         clickInfo.event.extendedProps.substituteTeacherFullName || '',
-      location: clickInfo.event.extendedProps.location || '',
-      classType: clickInfo.event.extendedProps.classType || '',
+      location: clickInfo.event.extendedProps.location,
+      locationId: clickInfo.event.extendedProps.locationId,
+      subjectId: clickInfo.event.extendedProps.subjectId,
       lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
       roomNumber: clickInfo.event.extendedProps.roomNumber || '',
-      reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence || '',
+      reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence,
       notes: clickInfo.event.extendedProps.notes || '',
       absenceId: clickInfo.event.extendedProps.absenceId,
     });
@@ -357,8 +351,6 @@ const Calendar: React.FC = () => {
         height="100%"
         display="flex"
         alignItems="center"
-        pt={1}
-        pr={1}
       >
         <Box
           width="26px"
@@ -387,7 +379,7 @@ const Calendar: React.FC = () => {
 
         {!isAdminMode &&
           activeTab === 'explore' &&
-          claimedDays.has(eventDateString) && (
+          filledDays.has(eventDateString) && (
             <Badge
               border="1px solid"
               borderColor="neutralGray.300"
@@ -474,9 +466,11 @@ const Calendar: React.FC = () => {
       <AbsenceDetails
         isOpen={isAbsenceDetailsOpen}
         onClose={onAbsenceDetailsClose}
-        event={selectedEvent}
+        event={selectedEvent!!}
+        fetchAbsences={fetchAbsences}
         onDelete={handleDeleteAbsence}
         isAdminMode={isAdminMode}
+        hasConflictingEvent={hasConflictingEvent(selectedEvent!!)}
       />
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>
@@ -491,13 +485,13 @@ const Calendar: React.FC = () => {
           </ModalHeader>
           <ModalCloseButton top="33px" right="28px" color="text.header" />
           <ModalBody p={0}>
-            <InputForm
+            <DeclareAbsenceForm
               onClose={onInputFormClose}
-              onDeclareAbsence={handleDeclareAbsence}
               initialDate={selectedDate!!}
               userId={userData.id}
               onTabChange={setActiveTab}
               isAdminMode={isAdminMode}
+              fetchAbsences={fetchAbsences}
             />
           </ModalBody>
         </ModalContent>

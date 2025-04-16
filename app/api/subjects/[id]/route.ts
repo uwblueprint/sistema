@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@utils/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function PATCH(
   request: NextRequest,
@@ -9,7 +9,10 @@ export async function PATCH(
   try {
     const id = parseInt(params.id);
     if (isNaN(id)) {
-      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid subject ID' },
+        { status: 400 }
+      );
     }
 
     const data = await request.json();
@@ -27,7 +30,9 @@ export async function PATCH(
   } catch (error) {
     console.error('Error updating subject:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Unable to update subject.',
+      },
       { status: 500 }
     );
   }
@@ -41,7 +46,10 @@ export async function DELETE(
   try {
     const id = parseInt(params.id);
     if (isNaN(id)) {
-      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid subject ID' },
+        { status: 400 }
+      );
     }
 
     // Check if the subject is used in any absences
@@ -54,7 +62,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           error:
-            'Cannot delete subject because it is used in existing absences',
+            'This subject cannot be deleted because it is used in existing absences',
         },
         { status: 409 }
       );
@@ -65,7 +73,9 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting subject:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Unable to delete subject.',
+      },
       { status: 500 }
     );
   }

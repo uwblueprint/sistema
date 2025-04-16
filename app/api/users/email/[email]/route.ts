@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@utils/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
 async function getRandomUser() {
   const user = await prisma.user.findFirstOrThrow({

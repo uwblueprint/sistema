@@ -69,10 +69,10 @@ const main = async () => {
   );
 
   const schools = [
-    { name: 'Lambton Park Community School', abbreviation: 'LP' },
-    { name: 'St Martin de Porres Catholic School', abbreviation: 'SC' },
-    { name: 'Yorkwoods Public School', abbreviation: 'YW' },
-    { name: 'Parkdale Junior Senior Public School', abbreviation: 'PD' },
+    { name: 'Lambton Park Community School', abbreviation: 'Lambton' },
+    { name: 'St Martin de Porres Catholic School', abbreviation: 'St Martin' },
+    { name: 'Yorkwoods Public School', abbreviation: 'Yorkwoods' },
+    { name: 'Parkdale Junior Senior Public School', abbreviation: 'Parkdale' },
     {
       name: 'St Gertrude Elementary School',
       abbreviation: 'SG',
@@ -151,11 +151,20 @@ const main = async () => {
     }))
   );
 
+  const isESTWeekday = (date: Date): boolean => {
+    const weekdayInEST = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      weekday: 'short',
+    }).format(date);
+
+    return !['Sat', 'Sun'].includes(weekdayInEST);
+  };
+
   const generateWeekdayFutureDate = (): Date => {
     let date: Date;
     do {
       date = faker.date.future({ years: 2 });
-    } while (date.getDay() === 0 || date.getDay() === 6);
+    } while (!isESTWeekday(date));
     return date;
   };
 
@@ -163,7 +172,7 @@ const main = async () => {
     let date: Date;
     do {
       date = faker.date.past({ years: 2 });
-    } while (date.getDay() === 0 || date.getDay() === 6);
+    } while (!isESTWeekday(date));
     return date;
   };
 
