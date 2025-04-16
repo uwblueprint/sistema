@@ -113,4 +113,19 @@ export const components = {
       borderColor: 'neutralGray.200',
     },
   },
+  Tooltip: {
+    baseStyle: {
+      bg: 'white',
+      color: 'text.body',
+      borderRadius: 'md',
+      px: 3,
+      py: 2,
+      fontSize: 'sm',
+      maxWidth: '320px',
+      '--popper-arrow-bg': 'white',
+      boxShadow: 'md',
+      border: '1px solid',
+      borderColor: 'neutralGray.200',
+    },
+  },
 };
