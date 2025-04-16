@@ -1,90 +1,69 @@
-import {
-  CheckCircleIcon,
-  CloseIcon,
-  InfoIcon,
-  WarningIcon,
-} from '@chakra-ui/icons';
-import { Box, Text, useTheme, useToast } from '@chakra-ui/react';
+import { Alert, AlertIcon, Box, Text, useToast } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 
-const iconMap = {
-  success: CheckCircleIcon,
-  warning: WarningIcon,
-  error: CloseIcon,
-  info: InfoIcon,
-};
-
-const colorMap = (theme) => ({
-  success: theme.colors.positiveGreen[200],
-  warning: theme.colors.warningOrange[300],
-  error: theme.colors.errorRed[200],
-  info: theme.colors.primaryBlue[300],
-});
+type ToastStatus = 'success' | 'error';
 
 interface CustomToastProps {
   description?: string | ReactNode;
-  status?: 'success' | 'warning' | 'error' | 'info';
+  status?: ToastStatus;
 }
 
 export const CustomToast: React.FC<CustomToastProps> = ({
   description,
-  status = 'info',
+  status = 'success',
 }) => {
-  const theme = useTheme();
-  const Icon = iconMap[status] || InfoIcon;
-  const color = colorMap(theme)[status];
-
   return (
-    <Box
+    <Alert
+      status={status}
+      variant="subtle"
       bg="white"
-      width="360px"
       border="1px solid"
-      borderColor={color}
+      borderColor={status === 'error' ? '#BF3232' : '#5A8934'}
       borderRadius="md"
       px={3}
       py={3}
-      display="flex"
+      width="360px"
       alignItems="center"
       boxShadow="md"
+      sx={{
+        '& [data-status="success"] svg': {
+          color: '#5A8934',
+        },
+        '& [data-status="error"] svg': {
+          color: '#BF3232',
+        },
+      }}
     >
-      <Box mr={3} display="flex" alignItems="center">
-        <Icon boxSize="30px" color={color} />
+      <AlertIcon boxSize="30px" />
+      <Box pl={2}>
+        {typeof description === 'string' ? (
+          <Text fontSize="14px" color="black">
+            {description}
+          </Text>
+        ) : (
+          <Box fontSize="14px" color="black">
+            {description}
+          </Box>
+        )}
       </Box>
-      <Box>
-        {description &&
-          (typeof description === 'string' ? (
-            <Text fontSize="14px" color="black">
-              {description}
-            </Text>
-          ) : (
-            <Box fontSize="14px" color="black">
-              {description}
-            </Box>
-          ))}
-      </Box>
-    </Box>
+    </Alert>
   );
 };
-
-const allowedStatuses = ['success', 'warning', 'error', 'info'] as const;
-type ToastStatus = (typeof allowedStatuses)[number];
-
-function isToastStatus(value: any): value is ToastStatus {
-  return allowedStatuses.includes(value);
-}
 
 export const useCustomToast = () => {
   const toast = useToast();
 
   return ({
     description,
-    status = 'info',
+    status = 'success',
   }: {
-    title?: string;
     description?: string | ReactNode;
     status?: string;
   }) => {
-    const safeStatus: ToastStatus = isToastStatus(status) ? status : 'info';
+    const validStatuses = ['success', 'error'] as const;
+    const safeStatus = validStatuses.includes(status as ToastStatus)
+      ? (status as ToastStatus)
+      : 'success';
 
     toast({
       isClosable: true,
