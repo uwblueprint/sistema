@@ -36,14 +36,11 @@ export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
 }) => {
   const theme = useTheme();
 
-  const formattedDate = new Date(lessonDate + 'T00:00:00').toLocaleDateString(
-    'en-CA',
-    {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    }
-  );
+  const formattedDate = new Date(lessonDate).toLocaleDateString('en-CA', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>

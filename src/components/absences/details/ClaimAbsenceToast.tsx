@@ -38,9 +38,8 @@ const ClaimAbsenceToast = ({ firstName, date, success }) => {
         </Text>{' '}
         absence on{' '}
         <Text as="span" fontWeight="bold">
-          {date}
+          {date}.
         </Text>
-        .
       </Text>
     </Box>
   );

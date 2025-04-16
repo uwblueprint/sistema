@@ -103,6 +103,13 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const handleFillConfirm = async () => {
     setIsFilling(true);
 
+    const formattedDate = new Date(event.start).toLocaleDateString('en-CA', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
     try {
       const response = await fetch('/api/editAbsence', {
         method: 'PUT',
@@ -128,16 +135,11 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
 
       toast({
         isClosable: true,
-        position: 'top',
+        position: 'bottom-left',
         render: () => (
           <ClaimAbsenceToast
             firstName={event.absentTeacher.firstName}
-            date={new Date(event.start).toLocaleDateString('en-CA', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
+            date={formattedDate}
             success={true}
           />
         ),
@@ -147,16 +149,9 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       setIsFillDialogOpen(false);
       setIsFillThanksOpen(true);
     } catch {
-      const formattedDate = new Date(event.start).toLocaleDateString('en-CA', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-
       toast({
         isClosable: true,
-        position: 'top',
+        position: 'bottom-left',
         render: () => (
           <ClaimAbsenceToast
             firstName={event.absentTeacher.firstName}
