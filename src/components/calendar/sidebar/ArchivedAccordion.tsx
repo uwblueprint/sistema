@@ -108,7 +108,7 @@ export default function ArchivedAccordion({
         onClick={() => setIsOpen((prev) => !prev)}
         width="100%"
         variant="ghost"
-        px={1}
+        px={2}
         py={0}
         height="32px"
       >
@@ -123,7 +123,7 @@ export default function ArchivedAccordion({
           )}
         </Flex>
       </Button>
-      <Box pl={1} mt={2}>
+      <Box px={2} mt={2}>
         <Collapse in={isOpen} animateOpacity>
           {subjects.length > 0 && (
             <>

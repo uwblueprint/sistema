@@ -266,13 +266,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
   return (
     <Box borderWidth="1px" borderRadius="md" overflow="hidden">
       {/* Table Header */}
-      <Box
-        p={4}
-        bg="gray.50"
-        borderBottomWidth="1px"
-        display="flex"
-        width="100%"
-      >
+      <Box p={4} bg="white" borderBottomWidth="1px" display="flex" width="100%">
         <Box width={leftColumnWidth} pr={4}>
           <HStack spacing={2}>
             {entityType === 'subject' ? (
