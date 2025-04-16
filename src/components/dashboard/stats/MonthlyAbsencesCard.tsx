@@ -20,7 +20,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { CustomTooltip } from '../../ui/feedback/CustomTooltip';
+import { CustomTooltip } from './CustomTooltip';
 import DualColorBar from './DualColourBar';
 
 export default function MonthlyAbsencesCard({
