@@ -41,7 +41,7 @@ const Accordion = ({
         onClick={toggleOpen}
         width="100%"
         variant="ghost"
-        px={1}
+        px={2}
         py={0}
         height="32px"
       >
@@ -56,7 +56,7 @@ const Accordion = ({
           )}
         </Flex>
       </Button>
-      <Box pl={1} mt={2}>
+      <Box px={2} mt={2}>
         <Collapse in={isOpen} animateOpacity>
           <Stack spacing={2} mt={0}>
             {items.map((item) => (

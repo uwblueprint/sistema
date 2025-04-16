@@ -7,21 +7,11 @@ export const getCalendarStyles = (theme: CustomTheme) => css`
     background-color: transparent;
     margin: 0 !important;
   }
-  .fc th {
-    text-transform: uppercase;
-    font-weight: ${theme.fontWeights[600]};
-  }
   .fc-day-today {
     background-color: inherit !important;
   }
   .fc-weekend {
     background-color: rgba(0, 0, 0, 0.05) !important;
-  }
-  .fc-event-title {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: ${theme.fontSizes.sm};
-    font-weight: ${theme.fontWeights[400]};
   }
   .fc .fc-daygrid-day {
     padding: 8px 5px !important;
@@ -40,12 +30,28 @@ export const getCalendarStyles = (theme: CustomTheme) => css`
     padding: 0 !important;
   }
   .fc-daygrid-day-events:not(:empty) {
-    margin-bottom: 65px !important;
+    margin-bottom: 30px !important;
   }
   .fc-daygrid-event-harness {
     margin-top: 4px !important;
   }
   .fc-daygrid-event-harness:first-of-type {
     margin-top: 0 !important;
+  }
+  .fc .fc-scrollgrid thead .fc-col-header-cell {
+    border-left: none !important;
+    border-right: none !important;
+  }
+  .fc .fc-col-header-cell {
+    height: 32px;
+  }
+  .fc .fc-col-header-cell .fc-scrollgrid-sync-inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: ${theme.fontWeights[600]};
+    text-transform: uppercase;
+    font-size: 14px;
   }
 `;
