@@ -1,11 +1,11 @@
 import { AddIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, HStack, useTheme } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useState } from 'react';
-import { TacetLogo } from '../../ui/branding/SistemaLogoColour';
+import { Box, Button, Flex, useTheme } from '@chakra-ui/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { TacetLogo } from '../../TacetLogo';
+import MiniCalendar from '../MiniCalendar';
 import AbsenceStatusAccordion from './AbsenceStatusAccordion';
 import ArchivedAccordion from './ArchivedAccordion';
 import LocationAccordion from './LocationAccordion';
-import MiniCalendar from '../MiniCalendar';
 import SubjectAccordion from './SubjectAccordion';
 
 interface CalendarSidebarProps {
@@ -25,8 +25,23 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
 }) => {
   const theme = useTheme();
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showDivider, setShowDivider] = useState(false);
   const [archivedSubjects, setArchivedSubjects] = useState([]);
   const [archivedLocations, setArchivedLocations] = useState([]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const scrollTop = el.scrollTop;
+      setShowDivider(scrollTop > 5);
+    };
+
+    el.addEventListener('scroll', handleScroll);
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const setActiveSubjectFilter = useCallback(
     (activeSubjectIds: number[]) => {
@@ -102,45 +117,64 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
     <Flex
       minWidth="280px"
       width="280px"
-      padding={theme.space[4]}
       flexDirection="column"
-      gap={theme.space[4]}
       alignItems="center"
       height="100vh"
-      overflowY="auto"
+      overflow="hidden"
     >
-      <Box width="110px">
-        <TacetLogo />
+      <Box
+        position="sticky"
+        top={0}
+        zIndex={1}
+        bg="white"
+        py={4}
+        borderBottom={showDivider ? '1px solid' : 'none'}
+        borderColor="neutralGray.200"
+      >
+        <Flex direction="column" align="center" gap={4}>
+          <Box width="110px" display="flex" justifyContent="center">
+            <TacetLogo />
+          </Box>
+          <Button
+            width="240px"
+            variant="outline"
+            borderColor={theme.colors.neutralGray[300]}
+            onClick={onDeclareAbsenceClick}
+            leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
+          >
+            Declare Absence
+          </Button>
+        </Flex>
       </Box>
-      <HStack>
-        <Button
-          width="240px"
-          variant="outline"
-          borderColor={theme.colors.neutralGray[300]}
-          onClick={onDeclareAbsenceClick}
-          leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
+      <Box ref={scrollRef} overflowY="auto" pb={6}>
+        <Box px={4} pb={4}>
+          <MiniCalendar
+            initialDate={new Date()}
+            onDateSelect={onDateSelect}
+            selectDate={selectDate}
+          />
+        </Box>
+        <Box
+          px={2}
+          gap={theme.space[4]}
+          display="flex"
+          flex="1"
+          flexDirection="column"
         >
-          Declare Absence
-        </Button>
-      </HStack>
-      <MiniCalendar
-        initialDate={new Date()}
-        onDateSelect={onDateSelect}
-        selectDate={selectDate}
-      />
+          {isAdminMode && (
+            <AbsenceStatusAccordion setFilter={setAbsenceStatusFilter} />
+          )}
+          <SubjectAccordion setFilter={setActiveSubjectFilter} />
+          <LocationAccordion setFilter={setActiveLocationFilter} />
 
-      {isAdminMode && (
-        <AbsenceStatusAccordion setFilter={setAbsenceStatusFilter} />
-      )}
-      <SubjectAccordion setFilter={setActiveSubjectFilter} />
-      <LocationAccordion setFilter={setActiveLocationFilter} />
-
-      {(archivedSubjects.length > 0 || archivedLocations.length > 0) && (
-        <ArchivedAccordion
-          setSubjectFilter={setArchivedSubjectFilter}
-          setLocationFilter={setArchivedLocationFilter}
-        />
-      )}
+          {(archivedSubjects.length > 0 || archivedLocations.length > 0) && (
+            <ArchivedAccordion
+              setSubjectFilter={setArchivedSubjectFilter}
+              setLocationFilter={setArchivedLocationFilter}
+            />
+          )}
+        </Box>
+      </Box>
     </Flex>
   );
 };

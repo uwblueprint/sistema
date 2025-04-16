@@ -8,7 +8,7 @@ import {
   Tooltip,
   VStack,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LuInfo } from 'react-icons/lu';
 
 interface SystemSettingsProps {
@@ -37,7 +37,7 @@ const SystemSettings: React.FC<SystemSettingsProps> = ({
   };
 
   // Keep input value in sync with allowedAbsences
-  React.useEffect(() => {
+  useEffect(() => {
     setInputValue(allowedAbsences.toString());
   }, [allowedAbsences]);
 

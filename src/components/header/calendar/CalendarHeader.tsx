@@ -7,13 +7,12 @@ import {
   Text,
   useTheme,
 } from '@chakra-ui/react';
-
 import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { IoChevronBack, IoChevronForward, IoStatsChart } from 'react-icons/io5';
+import ProfileMenu from '../profile/ProfileMenu';
 import { AdminTeacherToggle } from './AdminTeacherToggle';
-import ProfileMenu from '../../ui/profile/ProfileMenu';
 
 interface CalendarHeaderProps {
   currentMonthYear: string;

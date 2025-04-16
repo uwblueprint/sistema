@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
   Text,
 } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import MiniCalendar from '../../calendar/MiniCalendar';
 
 interface DateOfAbsenceProps {
