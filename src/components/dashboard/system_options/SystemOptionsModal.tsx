@@ -14,13 +14,13 @@ import {
   Text,
   useDisclosure,
   useTheme,
-  useToast,
   VStack,
 } from '@chakra-ui/react';
 import { Location, SubjectAPI } from '@utils/types';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { IoCloseOutline, IoSettingsOutline } from 'react-icons/io5';
 import { useChangeManagement } from '../../../../hooks/useChangeManagement';
+import { useCustomToast } from '../../CustomToast';
 import LocationsTable from './LocationsTable';
 import SubjectsTable from './SubjectsTable';
 import SystemChangesConfirmationDialog from './SystemChangesConfirmationDialog';
@@ -50,7 +50,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   const [locationsInUse, setLocationsInUse] = useState<number[]>([]);
   const confirmationDialog = useDisclosure();
   const unsavedChangesDialog = useDisclosure();
-  const toast = useToast();
+  const showToast = useCustomToast();
   const theme = useTheme();
 
   // Default color group to ensure we always have at least one color group
@@ -70,8 +70,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     }[]
   >([defaultColorGroup]);
 
-  const [isConfirmingClose, setIsConfirmingClose] = useState(false);
-
   const fetchSubjects = useCallback(async () => {
     try {
       const response = await fetch('/api/subjects');
@@ -80,15 +78,12 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       setSubjects(data);
     } catch (error) {
       console.error('Error fetching subjects:', error);
-      toast({
-        title: 'Error',
+      showToast({
         description: 'Failed to load subjects',
         status: 'error',
-        duration: 3000,
-        isClosable: true,
       });
     }
-  }, [toast]);
+  }, [showToast]);
 
   const fetchLocations = useCallback(async () => {
     try {
@@ -98,15 +93,12 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       setLocations(data);
     } catch (error) {
       console.error('Error fetching locations:', error);
-      toast({
-        title: 'Error',
+      showToast({
         description: 'Failed to load locations',
         status: 'error',
-        duration: 3000,
-        isClosable: true,
       });
     }
-  }, [toast]);
+  }, [showToast]);
 
   const fetchColorGroups = useCallback(async () => {
     try {
@@ -116,15 +108,12 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       setColorGroups(data);
     } catch (error) {
       console.error('Error fetching color groups:', error);
-      toast({
-        title: 'Error',
+      showToast({
         description: 'Failed to load color groups',
         status: 'error',
-        duration: 3000,
-        isClosable: true,
       });
     }
-  }, [toast]);
+  }, [showToast]);
 
   const checkSubjectsInUse = useCallback(async () => {
     try {
@@ -185,10 +174,9 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   } = useChangeManagement({
     subjects,
     locations,
-    colorGroups,
     absenceCap,
     onRefresh: refreshData,
-    toast,
+    showToast,
   });
 
   // Create a wrapper for applyChanges that also closes the modal
@@ -217,7 +205,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       pendingEntities.settings.absenceCap !== undefined;
 
     if (hasChanges) {
-      setIsConfirmingClose(true);
       unsavedChangesDialog.onOpen();
     } else {
       onClose();
@@ -226,7 +213,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
 
   const handleCloseConfirmed = () => {
     unsavedChangesDialog.onClose();
-    setIsConfirmingClose(false);
     // Clear any pending changes
     clearChanges();
     onClose();
@@ -240,7 +226,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       pendingEntities.settings.absenceCap !== undefined;
 
     if (hasChanges) {
-      setIsConfirmingClose(false);
       confirmationDialog.onOpen();
     } else {
       onClose();

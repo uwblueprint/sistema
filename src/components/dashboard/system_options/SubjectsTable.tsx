@@ -1,5 +1,4 @@
 import { SubjectAPI } from '@utils/types';
-import React from 'react';
 import EntityTable from './EntityTable';
 
 interface SubjectsTableProps {
