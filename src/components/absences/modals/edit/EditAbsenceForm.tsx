@@ -271,7 +271,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
             value={formData.reasonOfAbsence}
             onChange={handleChange}
             minH="88px"
-            borderColor="outline"
           />
           <FormErrorMessage>{errors.reasonOfAbsence}</FormErrorMessage>
         </FormControl>
@@ -298,7 +297,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
             value={formData.notes}
             onChange={handleChange}
             minH="88px"
-            borderColor="outline"
           />
         </FormControl>
 

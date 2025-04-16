@@ -269,7 +269,6 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
             value={formData.reasonOfAbsence}
             onChange={handleChange}
             minH="88px"
-            borderColor="outline"
           />
           <FormErrorMessage>{errors.reasonOfAbsence}</FormErrorMessage>
         </FormControl>
@@ -292,7 +291,6 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
             value={formData.notes}
             onChange={handleChange}
             minH="88px"
-            borderColor="outline"
           />
         </FormControl>
 
