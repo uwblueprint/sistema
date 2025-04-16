@@ -186,9 +186,22 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         throw new Error('Failed to delete absence');
       }
 
+      const formattedDate = formatFullDate(event.start);
+
       showToast({
-        description: 'The absence has been successfully deleted.',
         status: 'success',
+        description: (
+          <Text>
+            You have successfully deleted{' '}
+            <Text as="span" fontWeight="bold">
+              {event.absentTeacher.firstName}&apos;s
+            </Text>{' '}
+            absence on{' '}
+            <Text as="span" fontWeight="bold">
+              {formattedDate}.
+            </Text>
+          </Text>
+        ),
       });
 
       await fetchAbsences();
