@@ -162,7 +162,7 @@ const LessonPlanView = ({
     const fileUrl = await uploadFile(file);
     if (!fileUrl) {
       showToast({
-        title: 'Upload failed',
+        title: 'Upload Failed',
         description: 'Could not upload the lesson plan file.',
         status: 'error',
       });
@@ -203,7 +203,7 @@ const LessonPlanView = ({
       await fetchAbsences?.();
     } else {
       showToast({
-        title: 'Update failed',
+        title: 'Update Failed',
         description: 'There was a problem updating the lesson plan.',
         status: 'error',
       });

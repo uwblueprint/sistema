@@ -70,7 +70,6 @@ function EditableNotes({
 
       setSavedNotes(tempNotes);
       showToast({
-        title: 'Notes saved',
         description: 'Your notes were successfully updated.',
         status: 'success',
       });

@@ -32,7 +32,6 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
     try {
       await navigator.clipboard.writeText(iCalURL);
       showToast({
-        title: 'Copied!',
         description: 'Sistema iCal URL has been copied to your clipboard.',
         status: 'success',
       });
@@ -48,7 +47,6 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
     try {
       await navigator.clipboard.writeText(iCalURL);
       showToast({
-        title: 'Copied!',
         description: 'Personal iCal URL has been copied to your clipboard.',
         status: 'success',
       });

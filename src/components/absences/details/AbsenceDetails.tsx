@@ -21,6 +21,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
+import { formatFullDate } from '@utils/formatDate';
 import { EventDetails, Role } from '@utils/types';
 import { Buildings, Calendar } from 'iconsax-react';
 import { useState } from 'react';
@@ -71,30 +72,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
   const isUserAdmin = userData.role === Role.ADMIN;
 
-  const getOrdinalNum = (number) => {
-    let selector;
-
-    if (number <= 0) {
-      selector = 4;
-    } else if ((number > 3 && number < 21) || number % 10 > 3) {
-      selector = 0;
-    } else {
-      selector = number % 10;
-    }
-
-    return number + ['th', 'st', 'nd', 'rd', ''][selector];
-  };
-
-  const formatDate = (date: Date) => {
-    const parsedDate = new Date(date);
-    const weekday = parsedDate.toLocaleDateString('en-CA', { weekday: 'long' });
-    const month = parsedDate.toLocaleDateString('en-CA', { month: 'long' });
-    const day = parsedDate.getDate();
-
-    return `${weekday}, ${month} ${getOrdinalNum(day)}`;
-  };
-
-  const absenceDate = formatDate(event.start!!);
+  const absenceDate = formatFullDate(event.start!!);
 
   const handleFillThanksDone = () => {
     setIsFillThanksOpen(false);
@@ -110,13 +88,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
 
   const handleFillConfirm = async () => {
     setIsFilling(true);
-
-    const formattedDate = new Date(event.start).toLocaleDateString('en-CA', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
 
     try {
       const response = await fetch('/api/editAbsence', {
@@ -139,6 +110,8 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         throw new Error('Failed to fill absence');
       }
 
+      const formattedDate = formatFullDate(event.start);
+
       showToast({
         status: 'success',
         description: (
@@ -159,6 +132,8 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       setIsFillDialogOpen(false);
       setIsFillThanksOpen(true);
     } catch {
+      const formattedDate = formatFullDate(event.start);
+
       showToast({
         status: 'error',
         description: (
@@ -212,7 +187,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       }
 
       showToast({
-        title: 'Absence deleted',
         description: 'The absence has been successfully deleted.',
         status: 'success',
       });

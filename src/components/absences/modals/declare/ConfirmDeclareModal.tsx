@@ -54,7 +54,7 @@ export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
             {hasLessonPlan ? 'Confirm Absence' : 'No Lesson Plan Added'}
           </Text>
         </ModalHeader>
-        <ModalBody display="flex" justifyContent="center">
+        <ModalBody display="flex" justifyContent="center" mb={2}>
           <Box maxW="224px" w="100%">
             <VStack align="start" pl={1}>
               <Text textStyle="subtitle" color="black">
@@ -77,7 +77,6 @@ export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
                     boxSize="20px"
                     color={theme.colors.warningOrange[300]}
                   />
-
                   <Text
                     textStyle="body"
                     color={theme.colors.warningOrange[300]}
@@ -90,6 +89,7 @@ export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
             </VStack>
           </Box>
         </ModalBody>
+
         <ModalFooter
           display="flex"
           justifyContent="center"

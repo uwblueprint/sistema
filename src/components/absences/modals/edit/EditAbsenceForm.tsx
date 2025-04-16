@@ -11,6 +11,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { Absence } from '@prisma/client';
+import { formatFullDate } from '@utils/formatDate';
 import { submitAbsence } from '@utils/submitAbsence';
 import { EventDetails } from '@utils/types';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
@@ -99,6 +100,8 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     setIsSubmitting(true);
 
     try {
+      const formattedDate = formatFullDate(initialData.start);
+
       const result = await submitAbsence({
         formData: { ...formData, id: initialData.absenceId },
         lessonPlan,
@@ -107,9 +110,19 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
 
       if (result.success) {
         showToast({
-          title: 'Success',
-          description: `Absence updated successfully.`,
           status: 'success',
+          description: (
+            <Text>
+              You have successfully edited{' '}
+              <Text as="span" fontWeight="bold">
+                {initialData.absentTeacher.firstName}&apos;s
+              </Text>{' '}
+              absence on{' '}
+              <Text as="span" fontWeight="bold">
+                {formattedDate}.
+              </Text>
+            </Text>
+          ),
         });
 
         fetchAbsences();
