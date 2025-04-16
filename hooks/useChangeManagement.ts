@@ -398,9 +398,8 @@ export const useChangeManagement = ({
         // Show success toast
         if (showToast) {
           showToast({
-            title: 'Changes saved',
+            description: 'Changes saved.',
             status: 'success',
-            duration: 3000,
           });
         }
 
@@ -417,7 +416,6 @@ export const useChangeManagement = ({
     // Show error toast if there was a problem
     if (!success && showToast) {
       showToast({
-        title: 'Error',
         description: errorMessage || 'Failed to save changes',
         status: 'error',
       });

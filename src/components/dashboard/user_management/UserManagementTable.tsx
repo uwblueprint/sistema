@@ -32,7 +32,7 @@ import {
 } from 'react-icons/fi';
 import EditableRoleCell from './EditableRoleCell';
 import EditableSubscriptionsCell from './EditableSubscriptionsCell';
-import FilterPopup from './FilterPopup';
+import FilterPopup, { NO_EMAIL_TAGS } from './FilterPopup';
 
 type SortField = 'name' | 'email' | 'absences' | 'role';
 
@@ -73,6 +73,26 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const getSelectedYearAbsences = (absences?: any[]) =>
     computeYearlyAbsences(absences, selectedYearRange);
 
+  // Clean up disabled tags when available tags change
+  useEffect(() => {
+    if (filters.disabledTags && filters.disabledTags.length > 0) {
+      // Keep only valid non-archived tags and the special NO_EMAIL_TAGS tag
+      const validDisabledTags = filters.disabledTags.filter(
+        (tag) =>
+          (availableTags.includes(tag) &&
+            !allSubjects.find((s) => s.name === tag)?.archived) ||
+          tag === NO_EMAIL_TAGS
+      );
+
+      if (validDisabledTags.length !== filters.disabledTags.length) {
+        setFilters({
+          ...filters,
+          disabledTags: validDisabledTags,
+        });
+      }
+    }
+  }, [availableTags, filters, allSubjects]);
+
   useEffect(() => {
     // Use subjects from props if available, otherwise fetch them
     if (propSubjects && propSubjects.length > 0) {
@@ -104,6 +124,9 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
 
     users.forEach((user: UserAPI) => {
       user.mailingLists?.forEach((list) => {
+        // Skip archived subjects
+        if (list.subject.archived) return;
+
         const tagName = list.subject.name;
         tags.add(tagName);
 
@@ -116,7 +139,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
 
     setAvailableTags(Array.from(tags));
     setTagColors(colors);
-  }, [users]);
+  }, [users, allSubjects]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
