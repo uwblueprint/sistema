@@ -21,7 +21,7 @@ import useUserFiltering from '@hooks/useUserFiltering';
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { getSelectedYearAbsences as computeYearlyAbsences } from '@utils/getSelectedYearAbsences';
 import { FilterOptions, Role, SubjectAPI, UserAPI } from '@utils/types';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   FiClock,
   FiLock,
@@ -32,7 +32,7 @@ import {
 } from 'react-icons/fi';
 import EditableRoleCell from './EditableRoleCell';
 import EditableSubscriptionsCell from './EditableSubscriptionsCell';
-import FilterPopup from './FilterPopup';
+import FilterPopup, { NO_EMAIL_TAGS } from './FilterPopup';
 
 type SortField = 'name' | 'email' | 'absences' | 'role';
 
@@ -73,6 +73,26 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const getSelectedYearAbsences = (absences?: any[]) =>
     computeYearlyAbsences(absences, selectedYearRange);
 
+  // Clean up disabled tags when available tags change
+  useEffect(() => {
+    if (filters.disabledTags && filters.disabledTags.length > 0) {
+      // Keep only valid non-archived tags and the special NO_EMAIL_TAGS tag
+      const validDisabledTags = filters.disabledTags.filter(
+        (tag) =>
+          (availableTags.includes(tag) &&
+            !allSubjects.find((s) => s.name === tag)?.archived) ||
+          tag === NO_EMAIL_TAGS
+      );
+
+      if (validDisabledTags.length !== filters.disabledTags.length) {
+        setFilters({
+          ...filters,
+          disabledTags: validDisabledTags,
+        });
+      }
+    }
+  }, [availableTags, filters, allSubjects]);
+
   useEffect(() => {
     // Use subjects from props if available, otherwise fetch them
     if (propSubjects && propSubjects.length > 0) {
@@ -104,6 +124,9 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
 
     users.forEach((user: UserAPI) => {
       user.mailingLists?.forEach((list) => {
+        // Skip archived subjects
+        if (list.subject.archived) return;
+
         const tagName = list.subject.name;
         tags.add(tagName);
 
@@ -116,7 +139,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
 
     setAvailableTags(Array.from(tags));
     setTagColors(colors);
-  }, [users]);
+  }, [users, allSubjects]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -294,64 +317,78 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           </Thead>
 
           <Tbody>
-            {isLoading
-              ? null
-              : sortedUsers.map((user, index) => (
-                  <Tr
-                    key={index}
-                    sx={{
-                      ':last-child td': { borderBottom: 'none' },
-                    }}
-                  >
-                    <Td py="6px">
-                      <HStack spacing={5}>
-                        <Avatar
-                          size="sm"
-                          name={`${user.firstName} ${user.lastName}`}
-                          src={user.profilePicture || undefined}
-                          loading="eager"
-                          ignoreFallback
-                        />
+            {isLoading ? null : sortedUsers.length > 0 ? (
+              sortedUsers.map((user, index) => (
+                <Tr
+                  key={index}
+                  sx={{
+                    ':last-child td': { borderBottom: 'none' },
+                  }}
+                >
+                  <Td py="6px">
+                    <HStack spacing={5}>
+                      <Avatar
+                        size="sm"
+                        name={`${user.firstName} ${user.lastName}`}
+                        src={user.profilePicture || undefined}
+                        loading="eager"
+                        ignoreFallback
+                      />
 
-                        <Text textStyle="cellBold" whiteSpace="nowrap">
-                          {`${user.firstName} ${user.lastName}`}
-                        </Text>
-                      </HStack>
-                    </Td>
-                    <Td color="gray.600">
-                      <Text textStyle="cellBody">{user.email}</Text>
-                    </Td>
-                    <Td textAlign="center" py="6px">
-                      <Text
-                        textStyle="cellBold"
-                        color={getAbsenceColor(
-                          getSelectedYearAbsences(user.absences),
-                          absenceCap
-                        )}
-                      >
-                        {getSelectedYearAbsences(user.absences)}{' '}
+                      <Text textStyle="cellBold" whiteSpace="nowrap">
+                        {`${user.firstName} ${user.lastName}`}
                       </Text>
-                    </Td>
-                    <Td py="6px">
-                      <EditableRoleCell
-                        key={`role-cell-${user.id}`}
-                        role={user.role}
-                        onRoleChange={(newRole) =>
-                          updateUserRole(user.id, newRole as Role)
-                        }
-                      />
-                    </Td>
-                    <Td py="6px">
-                      <EditableSubscriptionsCell
-                        mailingLists={user.mailingLists || []}
-                        allSubjects={allSubjects}
-                        onSubscriptionsChange={(subjectIds) =>
-                          updateUserSubscriptions(user.id, subjectIds)
-                        }
-                      />
-                    </Td>
-                  </Tr>
-                ))}
+                    </HStack>
+                  </Td>
+                  <Td color="gray.600">
+                    <Text textStyle="cellBody">{user.email}</Text>
+                  </Td>
+                  <Td textAlign="center" py="6px">
+                    <Text
+                      textStyle="cellBold"
+                      color={getAbsenceColor(
+                        getSelectedYearAbsences(user.absences),
+                        absenceCap
+                      )}
+                    >
+                      {getSelectedYearAbsences(user.absences)}{' '}
+                    </Text>
+                  </Td>
+                  <Td py="6px">
+                    <EditableRoleCell
+                      key={`role-cell-${user.id}`}
+                      role={user.role}
+                      onRoleChange={(newRole) =>
+                        updateUserRole(user.id, newRole as Role)
+                      }
+                    />
+                  </Td>
+                  <Td py={0}>
+                    <EditableSubscriptionsCell
+                      mailingLists={user.mailingLists || []}
+                      allSubjects={allSubjects}
+                      onSubscriptionsChange={(subjectIds) =>
+                        updateUserSubscriptions(user.id, subjectIds)
+                      }
+                    />
+                  </Td>
+                </Tr>
+              ))
+            ) : (
+              <Tr>
+                <Td
+                  height="100%"
+                  colSpan={5}
+                  textAlign="center"
+                  py={8}
+                  border="none"
+                >
+                  <Text textStyle="h2" fontSize="18px" color="text.subtitle">
+                    No Users Found
+                  </Text>
+                </Td>
+              </Tr>
+            )}
           </Tbody>
         </Table>
       </Box>

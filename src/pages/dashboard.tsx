@@ -2,11 +2,11 @@ import { Box, HStack, useTheme } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
 import { Role, YearlyAbsenceData } from '@utils/types';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useCallback, useRef } from 'react';
-import DashboardHeader from '../components/dashboard/header/DashboardHeader';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import MonthlyAbsencesCard from '../components/dashboard/stats/MonthlyAbsencesCard';
 import TotalAbsencesCard from '../components/dashboard/stats/TotalAbsencesCard';
 import UserManagementCard from '../components/dashboard/user_management/UserManagementCard';
+import DashboardHeader from '../components/header/dashboard/DashboardHeader';
 export default function DashboardPage() {
   const theme = useTheme();
   const userData = useUserData();
@@ -17,7 +17,6 @@ export default function DashboardPage() {
     `${currentYear - 1} - ${currentYear}`
   );
   const [absenceData, setAbsenceData] = useState<YearlyAbsenceData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [startYear, endYear] = selectedYearRange.split(' - ');
 
   // We'll use a ref to store the refresh function that will be created in UserManagementCard
@@ -72,8 +71,6 @@ export default function DashboardPage() {
         }
       } catch (err) {
         console.error('Error fetching absences:', err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -150,7 +147,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <Box height="100vh" display="flex" flexDirection="column">
+    <Box height="100vh" display="flex" flexDirection="column" overflow="hidden">
       <DashboardHeader
         userData={userData}
         selectedYearRange={selectedYearRange}

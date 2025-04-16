@@ -13,7 +13,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { Location, SubjectAPI } from '@utils/types';
-import React from 'react';
+import { useRef } from 'react';
 import { FiArchive, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { IoAdd, IoAlertCircleSharp, IoWarning } from 'react-icons/io5';
 
@@ -47,7 +47,7 @@ const SystemChangesConfirmationDialog: React.FC<
   colorGroups,
   absenceCap,
 }) => {
-  const cancelRef = React.useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
 
   // Icons for different change types
   const getChangeIcon = (changeType: string) => {
@@ -61,35 +61,6 @@ const SystemChangesConfirmationDialog: React.FC<
       return <Icon as={IoAdd} color="blue.500" boxSize="21px" />;
     }
     return null;
-  };
-
-  // Get display text for a change
-  const getChangeText = (
-    changeType: string,
-    entityType: string
-  ): { text: string; color: string } => {
-    if (changeType === 'delete') {
-      return {
-        text: `Deleted ${entityType === 'subject' ? 'Subject' : 'Location'}`,
-        color: 'red.500',
-      };
-    } else if (changeType === 'archive') {
-      return {
-        text: `Archived ${entityType === 'subject' ? 'Subject' : 'Location'}`,
-        color: 'blue.500',
-      };
-    } else if (changeType === 'unarchive') {
-      return {
-        text: `Unarchived ${entityType === 'subject' ? 'Subject' : 'Location'}`,
-        color: 'blue.500',
-      };
-    } else if (changeType === 'add') {
-      return {
-        text: `Added ${entityType === 'subject' ? 'Subject' : 'Location'}`,
-        color: 'blue.500',
-      };
-    }
-    return { text: `Updated ${entityType}`, color: 'gray.700' };
   };
 
   // Convert pending entities to displayable changes

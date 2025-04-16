@@ -53,7 +53,7 @@ const AbsenceFillThanks = ({ isOpen, onClose, event, absenceDate }) => {
           </Text>
           {' absence on '}
           <Text as="span" fontWeight="bold">
-            {absenceDate + '.'}
+            {absenceDate}.
           </Text>
 
           <Text my="12px">Make sure to review the lesson plan!</Text>
