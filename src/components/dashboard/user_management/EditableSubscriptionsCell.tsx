@@ -150,7 +150,6 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
 
     setLocalMailingLists(sortedMailingLists);
   }, [selectedSubjectIds, mailingLists, subjectsById]);
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // If popover is open, the popover's onClose handler will handle it
