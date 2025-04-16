@@ -231,6 +231,7 @@ const Calendar: React.FC = () => {
   };
 
   const hasConflictingEvent = (event: EventDetails) => {
+    if (!event?.start) return false;
     const dateString = formatDateForFilledDays(new Date(event.start));
     return filledDays.has(dateString);
   };
