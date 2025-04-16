@@ -25,18 +25,14 @@ export async function submitAbsence({
   lessonPlan,
   onDeclareAbsence,
   onEditAbsence,
-}: SubmitAbsenceParams): Promise<{ success: boolean; message: string }> {
+}: SubmitAbsenceParams): Promise<boolean> {
   const lessonDate = new Date(formData.lessonDate + 'T00:00:00');
 
   let lessonPlanData: { url: string; name: string; size: number } | null = null;
   if (lessonPlan) {
     const lessonPlanUrl = await uploadFile(lessonPlan);
-    if (!lessonPlanUrl) {
-      return {
-        success: false,
-        message: 'Failed to upload the lesson plan file',
-      };
-    }
+    if (!lessonPlanUrl) return false;
+
     lessonPlanData = {
       url: lessonPlanUrl,
       name: lessonPlan.name,
@@ -59,24 +55,12 @@ export async function submitAbsence({
   };
 
   if (onEditAbsence && formData.id) {
-    const response = await onEditAbsence({ ...absenceData, id: formData.id });
-    return response
-      ? { success: true, message: 'Absence updated successfully.' }
-      : { success: false, message: 'Failed to update absence' };
+    return await onEditAbsence({ ...absenceData, id: formData.id });
   }
 
   if (onDeclareAbsence) {
     const response = await onDeclareAbsence(absenceData);
-    return response
-      ? {
-          success: true,
-          message: lessonDate.toLocaleDateString('en-US', {
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric',
-          }),
-        }
-      : { success: false, message: 'Failed to declare absence' };
+    return Boolean(response);
   }
 
   throw new Error('submitAbsence called without a valid action handler');

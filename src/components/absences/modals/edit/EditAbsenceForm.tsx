@@ -101,13 +101,13 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     try {
       const formattedDate = formatFullDate(initialData.start);
 
-      const result = await submitAbsence({
+      const success = await submitAbsence({
         formData: { ...formData, id: initialData.absenceId },
         lessonPlan,
         onEditAbsence: handleEditAbsence,
       });
 
-      if (result.success) {
+      if (success) {
         showToast({
           status: 'success',
           description: (
@@ -128,15 +128,15 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         onClose?.();
       } else {
         showToast({
-          description: result.message,
           status: 'error',
+          description: 'Failed to update absence',
         });
       }
     } catch (error) {
       showToast({
-        description:
-          error instanceof Error ? error.message : 'Failed to update absence',
         status: 'error',
+        description:
+          error instanceof Error ? error.message : 'Unexpected error occurred',
       });
     } finally {
       setIsSubmitting(false);

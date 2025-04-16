@@ -11,6 +11,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { Absence, Prisma } from '@prisma/client';
+import { formatFullDate } from '@utils/formatDate';
 import { submitAbsence } from '@utils/submitAbsence';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
 import { useState } from 'react';
@@ -94,20 +95,22 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      const result = await submitAbsence({
+      const formattedDate = formatFullDate(formData.lessonDate);
+
+      const success = await submitAbsence({
         formData,
         lessonPlan,
         onDeclareAbsence: handleDeclareAbsence,
       });
 
-      if (result.success) {
+      if (success) {
         showToast({
           status: 'success',
           description: (
             <Text>
               You have successfully declared an absence on{' '}
               <Text as="span" fontWeight="bold">
-                {result.message}.
+                {formattedDate}.
               </Text>
             </Text>
           ),
@@ -124,8 +127,8 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         onClose?.();
       } else {
         showToast({
-          description: result.message,
           status: 'error',
+          description: 'Failed to declare absence',
         });
       }
     } catch (error) {
