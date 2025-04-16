@@ -16,10 +16,9 @@ import { useCallback, useEffect, useState } from 'react';
 interface UseChangeManagementProps {
   subjects: SubjectAPI[];
   locations: Location[];
-  colorGroups: { id: number; name: string; colorCodes: string[] }[];
   absenceCap: number;
   onRefresh?: () => void;
-  toast?: any;
+  showToast?: any;
 }
 
 interface UseChangeManagementReturn {
@@ -41,10 +40,9 @@ interface UseChangeManagementReturn {
 export const useChangeManagement = ({
   subjects: initialSubjects,
   locations: initialLocations,
-  colorGroups,
   absenceCap: initialAbsenceCap,
   onRefresh,
-  toast,
+  showToast,
 }: UseChangeManagementProps): UseChangeManagementReturn => {
   // Store maps of pending entity changes
   const [pendingSubjects, setPendingSubjects] = useState<
@@ -183,7 +181,7 @@ export const useChangeManagement = ({
       setPendingSettings((prev) => {
         // If new absence cap equals original, remove it from pending settings
         if (newAbsenceCap === initialAbsenceCap) {
-          const { absenceCap, ...rest } = prev;
+          const { ...rest } = prev;
           return rest;
         }
 
@@ -398,12 +396,11 @@ export const useChangeManagement = ({
         }
 
         // Show success toast
-        if (toast) {
-          toast({
+        if (showToast) {
+          showToast({
             title: 'Changes saved',
             status: 'success',
             duration: 3000,
-            isClosable: true,
           });
         }
 
@@ -418,13 +415,11 @@ export const useChangeManagement = ({
     }
 
     // Show error toast if there was a problem
-    if (!success && toast) {
-      toast({
+    if (!success && showToast) {
+      showToast({
         title: 'Error',
         description: errorMessage || 'Failed to save changes',
         status: 'error',
-        duration: 5000,
-        isClosable: true,
       });
     }
 

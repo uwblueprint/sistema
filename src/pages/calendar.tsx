@@ -20,18 +20,18 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { useAbsences } from '@hooks/useAbsences';
 import { useUserData } from '@hooks/useUserData';
-import { formatMonthYear } from '@utils/formatMonthYear';
+import { formatMonthYear } from '@utils/formatDate';
 import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import AbsenceBox from '../components/AbsenceBox';
-import AbsenceDetails from '../components/AbsenceDetails';
-import CalendarHeader from '../components/CalendarHeader';
-import CalendarSidebar from '../components/CalendarSidebar';
-import { CalendarTabs } from '../components/CalendarTabs';
-import DeclareAbsenceForm from '../components/DeclareAbsenceForm';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import AbsenceBox from '../components/absences/AbsenceBox';
+import AbsenceDetails from '../components/absences/details/AbsenceDetails';
+import DeclareAbsenceForm from '../components/absences/modals/declare/DeclareAbsenceForm';
+import { CalendarTabs } from '../components/calendar/CalendarTabs';
+import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
+import CalendarHeader from '../components/header/calendar/CalendarHeader';
 
 const Calendar: React.FC = () => {
   const { refetchUserData, ...userData } = useUserData();
@@ -77,9 +77,7 @@ const Calendar: React.FC = () => {
   const [currentMonthYear, setCurrentMonthYear] = useState(
     formatMonthYear(new Date())
   );
-  const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
-    'explore'
-  );
+  const [activeTab, setActiveTab] = useState<'explore' | 'declared'>('explore');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventDetails | null>(null);
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
@@ -224,6 +222,19 @@ const Calendar: React.FC = () => {
   useEffect(() => {
     updateMonthYearTitle();
   }, [updateMonthYearTitle]);
+
+  const formatDateForFilledDays = (date: Date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const hasConflictingEvent = (event: EventDetails) => {
+    if (!event?.start) return false;
+    const dateString = formatDateForFilledDays(new Date(event.start));
+    return filledDays.has(dateString);
+  };
 
   const handleAbsenceClick = (clickInfo: EventClickArg) => {
     setSelectedEvent({
@@ -459,6 +470,7 @@ const Calendar: React.FC = () => {
         fetchAbsences={fetchAbsences}
         onDelete={handleDeleteAbsence}
         isAdminMode={isAdminMode}
+        hasConflictingEvent={hasConflictingEvent(selectedEvent!!)}
       />
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>
