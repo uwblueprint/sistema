@@ -55,7 +55,9 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>(
+    mailingLists.map((list) => list.subjectId)
+  );
   const [localMailingLists, setLocalMailingLists] =
     useState<MailingList[]>(mailingLists);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -105,7 +107,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     });
   }, [mailingLists, selectedSubjectIds, onSubscriptionsChange]);
 
-  // Initialize selected subjects from current mailing lists
+  // Update the state when props change
   useEffect(() => {
     if (!isSaving) {
       setSelectedSubjectIds(
@@ -147,7 +149,6 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
 
     setLocalMailingLists(sortedMailingLists);
   }, [selectedSubjectIds, mailingLists, subjectsById]);
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // If popover is open, the popover's onClose handler will handle it
