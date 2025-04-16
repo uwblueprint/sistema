@@ -19,7 +19,7 @@ import { FileUpload } from '../../FileUpload';
 import { AdminTeacherFields } from '../AdminTeacherFields';
 import { DateOfAbsence } from '../DateOfAbsence';
 import { InputDropdown } from '../InputDropdown';
-import { ConfirmAbsenceModal } from './ConfirmDeclareModal';
+import { ConfirmDeclareModal } from './ConfirmDeclareModal';
 
 interface DeclareAbsenceFormProps {
   onClose?: () => void;
@@ -170,6 +170,11 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
     }));
   };
 
+  const selectedDate = new Date(formData.lessonDate + 'T00:00:00');
+  const now = new Date();
+  const isWithin14Days =
+    (selectedDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 14;
+
   return (
     <Box
       as="form"
@@ -297,13 +302,14 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
           Declare Absence
         </Button>
       </VStack>
-
-      <ConfirmAbsenceModal
+      <ConfirmDeclareModal
         isOpen={isOpen}
         onClose={closeModal}
         onConfirm={handleConfirmSubmit}
         isSubmitting={isSubmitting}
         lessonDate={formData.lessonDate}
+        hasLessonPlan={!!lessonPlan}
+        isWithin14Days={isWithin14Days}
       />
     </Box>
   );

@@ -23,6 +23,7 @@ import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import EditAbsenceForm from '../modals/edit/EditAbsenceForm';
 import AbsenceFillThanks from './AbsenceFillThanks';
+import ClaimAbsenceToast from './ClaimAbsenceToast';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import EditableNotes from './EditableNotes';
 import LessonPlanView from './LessonPlanView';
@@ -102,6 +103,13 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const handleFillConfirm = async () => {
     setIsFilling(true);
 
+    const formattedDate = new Date(event.start).toLocaleDateString('en-CA', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
     try {
       const response = await fetch('/api/editAbsence', {
         method: 'PUT',
@@ -126,21 +134,31 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       }
 
       toast({
-        title: 'Absence filled',
-        description: 'You have successfully filled this absence.',
-        status: 'success',
         isClosable: true,
+        position: 'bottom-left',
+        render: () => (
+          <ClaimAbsenceToast
+            firstName={event.absentTeacher.firstName}
+            date={formattedDate}
+            success={true}
+          />
+        ),
       });
 
       await fetchAbsences();
       setIsFillDialogOpen(false);
       setIsFillThanksOpen(true);
-    } catch (error) {
+    } catch {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to fill absence',
-        status: 'error',
         isClosable: true,
+        position: 'bottom-left',
+        render: () => (
+          <ClaimAbsenceToast
+            firstName={event.absentTeacher.firstName}
+            date={formattedDate}
+            success={false}
+          />
+        ),
       });
     } finally {
       setIsFilling(false);
