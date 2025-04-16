@@ -85,7 +85,6 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
 
     if (!validateForm()) {
       showToast({
-        title: 'Validation Error',
         description: 'Please fill in all required fields correctly.',
         status: 'error',
       });
@@ -129,14 +128,12 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         onClose?.();
       } else {
         showToast({
-          title: 'Error',
           description: result.message,
           status: 'error',
         });
       }
     } catch (error) {
       showToast({
-        title: 'Error',
         description:
           error instanceof Error ? error.message : 'Failed to update absence',
         status: 'error',

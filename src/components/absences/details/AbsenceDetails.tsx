@@ -200,7 +200,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       }
     } catch (error) {
       showToast({
-        title: 'Error',
         description: error.message || 'Failed to delete absence',
         status: 'error',
       });

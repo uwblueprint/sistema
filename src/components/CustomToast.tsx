@@ -22,13 +22,11 @@ const colorMap = (theme) => ({
 });
 
 interface CustomToastProps {
-  title?: string;
   description?: string | ReactNode;
   status?: 'success' | 'warning' | 'error' | 'info';
 }
 
 export const CustomToast: React.FC<CustomToastProps> = ({
-  title,
   description,
   status = 'info',
 }) => {
@@ -53,11 +51,6 @@ export const CustomToast: React.FC<CustomToastProps> = ({
         <Icon boxSize="30px" color={color} />
       </Box>
       <Box>
-        {title && (
-          <Text fontWeight="bold" fontSize="14px" mb="2px" color="black">
-            {title}
-          </Text>
-        )}
         {description &&
           (typeof description === 'string' ? (
             <Text fontSize="14px" color="black">
@@ -84,7 +77,6 @@ export const useCustomToast = () => {
   const toast = useToast();
 
   return ({
-    title,
     description,
     status = 'info',
   }: {
@@ -98,11 +90,7 @@ export const useCustomToast = () => {
       isClosable: true,
       position: 'bottom-left',
       render: () => (
-        <CustomToast
-          title={title}
-          description={description}
-          status={safeStatus}
-        />
+        <CustomToast description={description} status={safeStatus} />
       ),
     });
   };

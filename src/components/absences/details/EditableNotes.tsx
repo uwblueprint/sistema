@@ -77,7 +77,6 @@ function EditableNotes({
       setIsEditing(false);
     } catch (err) {
       showToast({
-        title: 'Error',
         description:
           err instanceof Error ? err.message : 'Failed to save notes',
         status: 'error',

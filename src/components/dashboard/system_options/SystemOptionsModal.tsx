@@ -79,7 +79,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     } catch (error) {
       console.error('Error fetching subjects:', error);
       showToast({
-        title: 'Error',
         description: 'Failed to load subjects',
         status: 'error',
       });
@@ -95,7 +94,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     } catch (error) {
       console.error('Error fetching locations:', error);
       showToast({
-        title: 'Error',
         description: 'Failed to load locations',
         status: 'error',
       });
@@ -111,7 +109,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     } catch (error) {
       console.error('Error fetching color groups:', error);
       showToast({
-        title: 'Error',
         description: 'Failed to load color groups',
         status: 'error',
       });

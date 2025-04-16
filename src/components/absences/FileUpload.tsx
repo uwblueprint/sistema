@@ -25,7 +25,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       setLessonPlan(file);
     } else {
       showToast({
-        title: 'Invalid File Type',
         description: 'Please upload a valid PDF file.',
         status: 'error',
       });

@@ -81,7 +81,6 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
     e.preventDefault();
     if (!validateForm()) {
       showToast({
-        title: 'Validation Error',
         description: 'Please fill in all required fields correctly.',
         status: 'error',
       });
@@ -125,14 +124,12 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         onClose?.();
       } else {
         showToast({
-          title: 'Error',
           description: result.message,
           status: 'error',
         });
       }
     } catch (error) {
       showToast({
-        title: 'Error',
         description:
           error instanceof Error ? error.message : 'Failed to declare absence',
         status: 'error',
