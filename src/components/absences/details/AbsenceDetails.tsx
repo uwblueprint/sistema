@@ -514,7 +514,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         <Modal
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
-          isCentered
         >
           <ModalOverlay />
           <ModalContent

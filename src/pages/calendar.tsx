@@ -475,13 +475,9 @@ const Calendar: React.FC = () => {
         hasConflictingEvent={hasConflictingEvent(selectedEvent!!)}
       />
 
-      <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>
+      <Modal isOpen={isInputFormOpen} onClose={onInputFormClose}>
         <ModalOverlay />
-        <ModalContent
-          width={362}
-          sx={{ padding: '33px 31px' }}
-          borderRadius="16px"
-        >
+        <ModalContent w={362} sx={{ padding: '33px 31px' }} borderRadius="16px">
           <ModalHeader fontSize={22} p="0 0 28px 0">
             Declare Absence
           </ModalHeader>

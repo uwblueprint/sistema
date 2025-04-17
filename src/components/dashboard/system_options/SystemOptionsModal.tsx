@@ -237,7 +237,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       onClose={handleClose}
       size="md"
       scrollBehavior="outside"
-      isCentered={false}
       motionPreset="slideInBottom"
     >
       <ModalOverlay bg="rgba(0, 0, 0, 0.4)" transition="all 0.3s ease" />
