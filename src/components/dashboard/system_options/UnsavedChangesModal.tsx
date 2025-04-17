@@ -15,13 +15,13 @@ import {
 import { useRef } from 'react';
 import { IoWarning } from 'react-icons/io5';
 
-interface UnsavedChangesDialogProps {
+interface UnsavedChangesModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }
 
-const UnsavedChangesDialog: React.FC<UnsavedChangesDialogProps> = ({
+const UnsavedChangesModal: React.FC<UnsavedChangesModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
@@ -104,4 +104,4 @@ const UnsavedChangesDialog: React.FC<UnsavedChangesDialogProps> = ({
   );
 };
 
-export default UnsavedChangesDialog;
+export default UnsavedChangesModal;

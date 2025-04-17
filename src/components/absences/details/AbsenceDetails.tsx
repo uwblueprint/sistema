@@ -30,7 +30,7 @@ import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import { useCustomToast } from '../../CustomToast';
 import EditAbsenceForm from '../modals/edit/EditAbsenceForm';
-import AbsenceFillThanks from './AbsenceFillThanks';
+import AbsenceFillThanks from './AbsenceFillThanksModal';
 import AbsenceStatusTag from './AbsenceStatusTag';
 import EditableNotes from './EditableNotes';
 import LessonPlanView from './LessonPlanView';
@@ -59,10 +59,10 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const theme = useTheme();
   const userData = useUserData();
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isFilling, setIsFilling] = useState(false);
-  const [isFillDialogOpen, setIsFillDialogOpen] = useState(false);
+  const [isFillModalOpen, setIsFillModalOpen] = useState(false);
   const [isFillThanksOpen, setIsFillThanksOpen] = useState(false);
 
   const showToast = useCustomToast();
@@ -81,11 +81,11 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   };
 
   const handleFillAbsenceClick = () => {
-    setIsFillDialogOpen(true);
+    setIsFillModalOpen(true);
   };
 
   const handleFillCancel = () => {
-    setIsFillDialogOpen(false);
+    setIsFillModalOpen(false);
   };
 
   const handleFillConfirm = async () => {
@@ -131,7 +131,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       });
 
       await fetchAbsences();
-      setIsFillDialogOpen(false);
+      setIsFillModalOpen(false);
       setIsFillThanksOpen(true);
       onTabChange('declared');
     } catch {
@@ -164,11 +164,11 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   };
 
   const handleDeleteClick = () => {
-    setIsDeleteDialogOpen(true);
+    setIsDeleteModalOpen(true);
   };
 
   const handleDeleteCancel = () => {
-    setIsDeleteDialogOpen(false);
+    setIsDeleteModalOpen(false);
   };
 
   const handleDeleteConfirm = async () => {
@@ -208,7 +208,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       });
 
       await fetchAbsences();
-      setIsDeleteDialogOpen(false);
+      setIsDeleteModalOpen(false);
       onClose();
 
       if (onDelete) {
@@ -444,7 +444,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
           </ModalBody>
         </ModalContent>
       </Modal>
-      <Modal isOpen={isFillDialogOpen} onClose={handleFillCancel} isCentered>
+      <Modal isOpen={isFillModalOpen} onClose={handleFillCancel} isCentered>
         <ModalOverlay />
         <ModalContent width="300px" padding="25px" alignItems="center">
           <ModalHeader
@@ -492,11 +492,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         event={event}
         absenceDate={absenceDate}
       />
-      <Modal
-        isOpen={isDeleteDialogOpen}
-        onClose={handleDeleteCancel}
-        isCentered
-      >
+      <Modal isOpen={isDeleteModalOpen} onClose={handleDeleteCancel} isCentered>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Delete Absence</ModalHeader>

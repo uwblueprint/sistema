@@ -24,7 +24,7 @@ export interface PendingEntities {
   settings: { absenceCap?: number };
 }
 
-interface SystemChangesConfirmationDialogProps {
+interface SystemChangesConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
@@ -35,8 +35,8 @@ interface SystemChangesConfirmationDialogProps {
   absenceCap: number;
 }
 
-const SystemChangesConfirmationDialog: React.FC<
-  SystemChangesConfirmationDialogProps
+const SystemChangesConfirmationModal: React.FC<
+  SystemChangesConfirmationModalProps
 > = ({
   isOpen,
   onClose,
@@ -396,4 +396,4 @@ const SystemChangesConfirmationDialog: React.FC<
   );
 };
 
-export default SystemChangesConfirmationDialog;
+export default SystemChangesConfirmationModal;
