@@ -608,7 +608,7 @@ const Calendar: React.FC = () => {
   return (
     <>
       <Global styles={getCalendarStyles} />
-      <Flex height="100vh">
+      <Flex height="100vh" overflow="hidden">
         <CalendarSidebar
           setSearchQuery={setSearchQuery}
           onDeclareAbsenceClick={handleDeclareAbsenceClick}
@@ -622,6 +622,7 @@ const Calendar: React.FC = () => {
           height="100%"
           display="flex"
           flexDirection="column"
+          overflow="hidden"
         >
           <CalendarHeader
             currentMonthYear={currentMonthYear}
@@ -633,7 +634,7 @@ const Calendar: React.FC = () => {
             setIsAdminMode={setIsAdminMode}
           />
 
-          <Box flex={1} overflow="hidden" pr={theme.space[2]}>
+          <Box flex={1} overflow="auto" pr={theme.space[2]}>
             {!isAdminMode && (
               <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
             )}
@@ -642,7 +643,7 @@ const Calendar: React.FC = () => {
               headerToolbar={false}
               plugins={[dayGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
-              height="100%"
+              height="auto"
               events={filteredEvents}
               eventContent={renderEventContent}
               timeZone="local"

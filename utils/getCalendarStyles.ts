@@ -48,4 +48,15 @@ export const getCalendarStyles = (theme: CustomTheme) => css`
   .fc-daygrid-event-harness:first-of-type {
     margin-top: 0 !important;
   }
+  .fc-scroller {
+    overflow: auto !important;
+    max-height: 100% !important;
+  }
+  .fc-view-harness {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .fc .fc-scrollgrid {
+    border: none !important;
+  }
 `;
