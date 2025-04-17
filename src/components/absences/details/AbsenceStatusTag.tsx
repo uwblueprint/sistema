@@ -4,14 +4,12 @@ import { FiCheckCircle, FiClock } from 'react-icons/fi';
 
 interface AbsenceStatusTagProps {
   isUserAbsentTeacher: boolean;
-  isUserSubstituteTeacher: boolean;
   isAdminMode: boolean;
   substituteTeacherFullName?: string;
 }
 
 const AbsenceStatusTag = ({
   isUserAbsentTeacher,
-  isUserSubstituteTeacher,
   isAdminMode,
   substituteTeacherFullName,
 }: AbsenceStatusTagProps) => {
@@ -36,12 +34,7 @@ const AbsenceStatusTag = ({
 
   let tagText, tagColor, tagBg, tagIcon;
 
-  if (substituteTeacherFullName && isUserSubstituteTeacher) {
-    tagText = `Filled by Me`;
-    tagColor = theme.colors.positiveGreen[300];
-    tagBg = theme.colors.positiveGreen[100];
-    tagIcon = <FiCheckCircle size="20px" color={tagColor} />;
-  } else if (substituteTeacherFullName) {
+  if (substituteTeacherFullName) {
     tagText = `Filled by ${substituteTeacherFullName}`;
     tagColor = theme.colors.positiveGreen[300];
     tagBg = theme.colors.positiveGreen[100];

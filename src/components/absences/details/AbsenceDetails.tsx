@@ -237,8 +237,10 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
               <Flex gap="8px" align="center">
                 <AbsenceStatusTag
                   isUserAbsentTeacher={isUserAbsentTeacher}
-                  isUserSubstituteTeacher={isUserSubstituteTeacher}
                   isAdminMode={isAdminMode}
+                  substituteTeacherFullName={
+                    event.substituteTeacherFullName ?? undefined
+                  }
                 />
                 {hasConflictingEvent &&
                   !event.substituteTeacherFullName &&
