@@ -70,7 +70,7 @@ const AbsenceBox: React.FC<AbsenceBoxProps> = ({
             color: textColor,
             transform: 'rotate(180deg)',
           }}
-          size={18}
+          size={14}
         />
       )}
       <Box className="fc-event-title-container">
