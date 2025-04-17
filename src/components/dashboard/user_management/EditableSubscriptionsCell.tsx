@@ -7,6 +7,7 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  Portal,
   Tag,
   TagLabel,
   Text,
@@ -55,7 +56,9 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>(
+    mailingLists.map((list) => list.subjectId)
+  );
   const [localMailingLists, setLocalMailingLists] =
     useState<MailingList[]>(mailingLists);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -78,14 +81,9 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
 
   // Get sorted subjects for dropdown display
   const sortedSubjects = useMemo(() => {
-    return [...allSubjects].sort((a, b) => {
-      // First sort by archived status (unarchived first)
-      if (a.archived !== b.archived) {
-        return a.archived ? 1 : -1;
-      }
-      // Then sort by ID
-      return a.id - b.id;
-    });
+    return [...allSubjects]
+      .filter((subject) => !subject.archived) // Filter out archived subjects
+      .sort((a, b) => a.id - b.id); // Now we only need to sort by ID since all subjects are unarchived
   }, [allSubjects]);
 
   // Define saveSubscriptions with useCallback so it can be used in dependency arrays
@@ -110,11 +108,17 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     });
   }, [mailingLists, selectedSubjectIds, onSubscriptionsChange]);
 
-  // Initialize selected subjects from current mailing lists
+  // Update the state when props change
   useEffect(() => {
     if (!isSaving) {
-      setSelectedSubjectIds(mailingLists.map((list) => list.subjectId));
-      setLocalMailingLists(mailingLists);
+      setSelectedSubjectIds(
+        mailingLists
+          .filter((list) => !list.subject.archived)
+          .map((list) => list.subjectId)
+      );
+      setLocalMailingLists(
+        mailingLists.filter((list) => !list.subject.archived)
+      );
     }
   }, [mailingLists, isSaving]);
 
@@ -125,12 +129,12 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
       .map((id) => {
         // Try to find existing mailing list first
         const existingList = mailingLists.find((list) => list.subjectId === id);
-        if (existingList) return existingList;
+        if (existingList && !existingList.subject.archived) return existingList;
 
         // If not, create a new one based on the subject from our full subjects list
         const subject = subjectsById[id];
 
-        if (!subject) return null;
+        if (!subject || subject.archived) return null;
 
         return {
           subjectId: subject.id,
@@ -139,19 +143,13 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
       })
       .filter(Boolean) as MailingList[];
 
-    // Sort the new mailing lists by archived status and ID
-    const sortedMailingLists = [...newMailingListsUnsorted].sort((a, b) => {
-      // First sort by archived status (unarchived first)
-      if (a.subject.archived !== b.subject.archived) {
-        return a.subject.archived ? 1 : -1;
-      }
-      // Then sort by ID
-      return a.subjectId - b.subjectId;
-    });
+    // Sort the new mailing lists by ID
+    const sortedMailingLists = [...newMailingListsUnsorted].sort(
+      (a, b) => a.subjectId - b.subjectId
+    );
 
     setLocalMailingLists(sortedMailingLists);
   }, [selectedSubjectIds, mailingLists, subjectsById]);
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // If popover is open, the popover's onClose handler will handle it
@@ -317,62 +315,64 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
           </Box>
         </PopoverTrigger>
 
-        <PopoverContent
-          width={
-            triggerRef.current?.offsetWidth
-              ? `${triggerRef.current.offsetWidth}px`
-              : '100%'
-          }
-          borderColor="neutralGray.300"
-          ref={popoverRef}
-          zIndex={1}
-          mt="2px"
-        >
-          <PopoverBody p={0} maxHeight="300px" overflowY="auto" zIndex={1}>
-            {sortedSubjects.map((subject) => {
-              const isSelected = selectedSubjectIds.includes(subject.id);
-              const bgColor = subject.colorGroup.colorCodes[1];
-              const borderColor = subject.colorGroup.colorCodes[1];
+        <Portal>
+          <PopoverContent
+            width={
+              triggerRef.current?.offsetWidth
+                ? `${triggerRef.current.offsetWidth}px`
+                : '100%'
+            }
+            borderColor="neutralGray.300"
+            ref={popoverRef}
+            zIndex={1}
+            mt="2px"
+          >
+            <PopoverBody p={0} maxHeight="300px" overflowY="auto" zIndex={1}>
+              {sortedSubjects.map((subject) => {
+                const isSelected = selectedSubjectIds.includes(subject.id);
+                const bgColor = subject.colorGroup.colorCodes[1];
+                const borderColor = subject.colorGroup.colorCodes[1];
 
-              return (
-                <Box
-                  key={subject.id}
-                  p={2.5}
-                  pl={4}
-                  display="flex"
-                  alignItems="center"
-                  _hover={{ bg: 'neutralGray.100' }}
-                  onClick={(e) => handleSubjectChange(subject.id, e)}
-                  cursor="pointer"
-                >
-                  <Checkbox
-                    isChecked={isSelected}
-                    onChange={(e) => {
-                      e.nativeEvent.stopPropagation();
-                      handleSubjectChange(subject.id);
-                    }}
-                    mr={2}
-                    _checked={{
-                      '& .chakra-checkbox__control': {
-                        bg: bgColor,
-                        borderColor: borderColor,
-                      },
-                    }}
-                    _hover={{
-                      '& .chakra-checkbox__control': {
-                        borderColor: borderColor,
-                        bg: bgColor,
-                        opacity: 0.7,
-                      },
-                    }}
-                    borderColor={borderColor}
-                  />
-                  <Text textStyle="label">{subject.name}</Text>
-                </Box>
-              );
-            })}
-          </PopoverBody>
-        </PopoverContent>
+                return (
+                  <Box
+                    key={subject.id}
+                    p={2.5}
+                    pl={4}
+                    display="flex"
+                    alignItems="center"
+                    _hover={{ bg: 'neutralGray.100' }}
+                    onClick={(e) => handleSubjectChange(subject.id, e)}
+                    cursor="pointer"
+                  >
+                    <Checkbox
+                      isChecked={isSelected}
+                      onChange={(e) => {
+                        e.nativeEvent.stopPropagation();
+                        handleSubjectChange(subject.id);
+                      }}
+                      mr={2}
+                      _checked={{
+                        '& .chakra-checkbox__control': {
+                          bg: bgColor,
+                          borderColor: borderColor,
+                        },
+                      }}
+                      _hover={{
+                        '& .chakra-checkbox__control': {
+                          borderColor: borderColor,
+                          bg: bgColor,
+                          opacity: 0.7,
+                        },
+                      }}
+                      borderColor={borderColor}
+                    />
+                    <Text textStyle="label">{subject.name}</Text>
+                  </Box>
+                );
+              })}
+            </PopoverBody>
+          </PopoverContent>
+        </Portal>
       </Popover>
     </Box>
   );

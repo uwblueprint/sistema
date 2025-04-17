@@ -3,14 +3,22 @@ import {
   Button,
   CloseButton,
   Flex,
+  Icon,
   IconButton,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
   Text,
-  VStack,
   useTheme,
+  VStack,
 } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
+import { formatFullDate } from '@utils/formatDate';
 import { EventDetails } from '@utils/types';
 import { Buildings, Calendar } from 'iconsax-react';
+import { BiSolidErrorCircle } from 'react-icons/bi';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
@@ -20,11 +28,12 @@ import LessonPlanView from './LessonPlanView';
 interface AbsenceDetailsProps {
   onClose: () => void;
   event: EventDetails;
-  onDelete?: (absenceId: number) => void;
+  onDelete: (absenceId: number) => void;
   isAdminMode: boolean;
   fetchAbsences: () => Promise<void>;
   onFillClick: () => void;
   onEditClick: () => void;
+  hasConflictingEvent: boolean;
 }
 
 // This component is the content of the popover, not the entire popover/modal
@@ -36,6 +45,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   fetchAbsences,
   onFillClick,
   onEditClick,
+  hasConflictingEvent,
 }) => {
   const theme = useTheme();
   const userData = useUserData();
@@ -46,51 +56,44 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const isUserAbsentTeacher = userId === event.absentTeacher.id;
   const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
 
-  const getOrdinalNum = (number) => {
-    let selector;
-
-    if (number <= 0) {
-      selector = 4;
-    } else if ((number > 3 && number < 21) || number % 10 > 3) {
-      selector = 0;
-    } else {
-      selector = number % 10;
-    }
-
-    return number + ['th', 'st', 'nd', 'rd', ''][selector];
-  };
-
-  const formatDate = (date: Date) => {
-    const parsedDate = new Date(date);
-    const weekday = parsedDate.toLocaleDateString('en-CA', { weekday: 'long' });
-    const month = parsedDate.toLocaleDateString('en-CA', { month: 'long' });
-    const day = parsedDate.getDate();
-
-    return `${weekday}, ${month} ${getOrdinalNum(day)}`;
-  };
-
-  const absenceDate = formatDate(event.start!!);
-
-  const handleDeleteClick = () => {
-    if (onDelete) {
-      onDelete(event.absenceId);
-    }
-  };
+  const absenceDate = formatFullDate(event.start!!);
 
   return (
     <>
       <Box>
         <Flex justify="space-between" align="center" position="relative">
-          <AbsenceStatusTag
-            isUserAbsentTeacher={isUserAbsentTeacher}
-            isUserSubstituteTeacher={isUserSubstituteTeacher}
-            isAdminMode={isAdminMode}
-            substituteTeacherFullName={
-              event.substituteTeacherFullName
-                ? event.substituteTeacherFullName
-                : undefined
-            }
-          />
+          <Flex gap="8px" align="center">
+            <AbsenceStatusTag
+              isUserAbsentTeacher={isUserAbsentTeacher}
+              isAdminMode={isAdminMode}
+              substituteTeacherFullName={
+                event.substituteTeacherFullName ?? undefined
+              }
+            />
+            {hasConflictingEvent &&
+              !event.substituteTeacherFullName &&
+              !isUserAbsentTeacher &&
+              !isAdminMode && (
+                <Popover placement="top" trigger="hover">
+                  <PopoverTrigger>
+                    <Box display="flex" alignItems="center" height="100%">
+                      <Icon
+                        as={BiSolidErrorCircle}
+                        color={theme.colors.errorRed['200']}
+                        boxSize={6}
+                      />
+                    </Box>
+                  </PopoverTrigger>
+                  <PopoverContent bg="white" width="fit-content">
+                    <PopoverArrow />
+                    <PopoverBody textStyle="caption" maxW="190px">
+                      You have already filled an absence on this date.
+                    </PopoverBody>
+                  </PopoverContent>
+                </Popover>
+              )}
+          </Flex>
+
           <Flex position="absolute" right="0">
             {isAdminMode && (
               <IconButton
@@ -112,7 +115,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                 icon={<FiTrash2 size="15px" color={theme.colors.text.body} />}
                 size="sm"
                 variant="ghost"
-                onClick={handleDeleteClick}
+                onClick={() => onDelete(event.absenceId)}
               />
             )}
             <CloseButton
@@ -126,7 +129,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         <Box
           sx={{
             padding: '20px 0 0 0',
-            maxHeight: '80vh',
+            maxHeight: '70vh',
             overflowY: 'auto',
             overflowX: 'hidden',
           }}
@@ -266,6 +269,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                   fontSize="16px"
                   fontWeight="500"
                   onClick={onFillClick}
+                  disabled={hasConflictingEvent}
                 >
                   Fill this Absence
                 </Button>

@@ -23,7 +23,6 @@ export interface AccordionProps {
   isOpen: boolean;
   toggleOpen: () => void;
   toggleItem: (id: number) => void;
-  textColor?: string;
 }
 
 const Accordion = ({
@@ -33,7 +32,6 @@ const Accordion = ({
   isOpen,
   toggleOpen,
   toggleItem,
-  textColor = 'text.body',
 }: AccordionProps) => {
   return (
     <Box width="100%">
@@ -41,22 +39,22 @@ const Accordion = ({
         onClick={toggleOpen}
         width="100%"
         variant="ghost"
-        px={1}
+        px={2}
         py={0}
         height="32px"
       >
         <Flex justify="space-between" align="center" width="100%">
-          <Text textStyle="h4" color={textColor}>
+          <Text textStyle="h4" color="text.body">
             {title}
           </Text>
           {isOpen ? (
-            <IoChevronUp size={24} color={textColor} />
+            <IoChevronUp size={24} color="text.body" />
           ) : (
-            <IoChevronDown size={24} color={textColor} />
+            <IoChevronDown size={24} color="text.body" />
           )}
         </Flex>
       </Button>
-      <Box pl={1} mt={2}>
+      <Box px={2} mt={2}>
         <Collapse in={isOpen} animateOpacity>
           <Stack spacing={2} mt={0}>
             {items.map((item) => (
@@ -82,7 +80,12 @@ const Accordion = ({
                       <Icon as={CheckIcon} color="white" w="14px" h="14px" />
                     )}
                   </Box>
-                  <Text textStyle="subtitle" color={textColor}>
+                  <Text
+                    textStyle="subtitle"
+                    color="text.body"
+                    isTruncated
+                    maxWidth="200px"
+                  >
                     {item.name}
                   </Text>
                 </Flex>

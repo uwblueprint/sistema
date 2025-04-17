@@ -10,7 +10,6 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  Portal,
   Spacer,
   Text,
   Tooltip,
@@ -80,6 +79,13 @@ const EntityTable: React.FC<EntityTableProps> = ({
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState<number | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [isDisplayFieldManuallyEdited, setIsDisplayFieldManuallyEdited] =
+    useState(false);
+  const [
+    isNewItemDisplayFieldManuallyEdited,
+    setIsNewItemDisplayFieldManuallyEdited,
+  ] = useState(false);
+
   const [newItem, setNewItem] = useState<EntityTableItem>({
     id: 0,
     name: '',
@@ -129,6 +135,21 @@ const EntityTable: React.FC<EntityTableProps> = ({
   const handleEditItem = (item: EntityTableItem) => {
     setEditingItem(item);
     setOpenMenuId(null);
+
+    // Check if abbreviation is custom (different from name prefix)
+    const namePrefix = generateAbbreviationPrefix(
+      item.name,
+      maxAbbreviationLength
+    );
+    const hasCustomAbbreviation = item.abbreviation !== namePrefix;
+
+    // Only auto-update if abbreviation isn't custom
+    setIsDisplayFieldManuallyEdited(hasCustomAbbreviation);
+  };
+
+  // Calculate prefix for abbreviation (display) field
+  const generateAbbreviationPrefix = (name: string, maxLength: number) => {
+    return name.trim().substring(0, maxLength).trim();
   };
 
   const handleSaveEditedItem = () => {
@@ -150,8 +171,17 @@ const EntityTable: React.FC<EntityTableProps> = ({
       return;
     }
 
-    // Store the current editing state
+    // If abbreviation is empty, set it to the name prefix
     const currentEditingItem = { ...editingItem };
+    if (
+      !currentEditingItem.abbreviation ||
+      currentEditingItem.abbreviation.trim() === ''
+    ) {
+      currentEditingItem.abbreviation = generateAbbreviationPrefix(
+        currentEditingItem.name,
+        maxAbbreviationLength
+      );
+    }
 
     // Reset the editing state
     setEditingItem(null);
@@ -194,11 +224,14 @@ const EntityTable: React.FC<EntityTableProps> = ({
       return;
     }
 
-    // Create a temporary item with the new data
-    const itemToAdd = {
-      ...newItem,
-      id: 0, // This will be replaced with a negative ID by the change management hook
-    };
+    // If abbreviation is empty, set it to the name prefix
+    const itemToAdd = { ...newItem };
+    if (!itemToAdd.abbreviation || itemToAdd.abbreviation.trim() === '') {
+      itemToAdd.abbreviation = generateAbbreviationPrefix(
+        itemToAdd.name,
+        maxAbbreviationLength
+      );
+    }
 
     // Reset form and close it
     handleUpdateEntity(itemToAdd);
@@ -223,6 +256,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
     setEditingItem(null);
     setIsAddingItem(false);
     setColorPickerOpen(null);
+    setIsDisplayFieldManuallyEdited(false);
+    setIsNewItemDisplayFieldManuallyEdited(false);
   };
 
   const handleArchiveItem = (item: EntityTableItem) => {
@@ -266,13 +301,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
   return (
     <Box borderWidth="1px" borderRadius="md" overflow="hidden">
       {/* Table Header */}
-      <Box
-        p={4}
-        bg="gray.50"
-        borderBottomWidth="1px"
-        display="flex"
-        width="100%"
-      >
+      <Box p={4} bg="white" borderBottomWidth="1px" display="flex" width="100%">
         <Box width={leftColumnWidth} pr={4}>
           <HStack spacing={2}>
             {entityType === 'subject' ? (
@@ -463,12 +492,22 @@ const EntityTable: React.FC<EntityTableProps> = ({
                   )}
                   <Input
                     value={editingItem.name}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const newName = e.target.value;
+                      // Auto-generate abbreviation if not manually edited
+                      const newAbbreviation = !isDisplayFieldManuallyEdited
+                        ? generateAbbreviationPrefix(
+                            newName,
+                            maxAbbreviationLength
+                          )
+                        : editingItem.abbreviation;
+
                       setEditingItem({
                         ...editingItem,
-                        name: e.target.value,
-                      })
-                    }
+                        name: newName,
+                        abbreviation: newAbbreviation,
+                      });
+                    }}
                     size="sm"
                     flex="1"
                     maxLength={maxFullNameLength}
@@ -484,37 +523,74 @@ const EntityTable: React.FC<EntityTableProps> = ({
               >
                 <Input
                   value={editingItem.abbreviation}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    // If the field is cleared, turn off manual edit mode to allow auto-updating again
+                    if (!newValue || newValue.trim() === '') {
+                      setIsDisplayFieldManuallyEdited(false);
+                    } else {
+                      setIsDisplayFieldManuallyEdited(true);
+                    }
+
                     setEditingItem({
                       ...editingItem,
-                      abbreviation: e.target.value,
-                    })
-                  }
+                      abbreviation: newValue,
+                    });
+                  }}
+                  onBlur={() => {
+                    // If the display field is empty when it loses focus, immediately fill it
+                    if (
+                      !editingItem.abbreviation ||
+                      editingItem.abbreviation.trim() === ''
+                    ) {
+                      setEditingItem({
+                        ...editingItem,
+                        abbreviation: generateAbbreviationPrefix(
+                          editingItem.name,
+                          maxAbbreviationLength
+                        ),
+                      });
+                    }
+                  }}
                   size="sm"
                   maxW="60px"
                   maxLength={maxAbbreviationLength}
                 />
-                <HStack>
-                  <Button
-                    variant="outline"
-                    onClick={handleSaveEditedItem}
-                    size="sm"
-                    borderRadius="md"
-                    p={0}
-                    transition="background-color 0.2s ease"
-                  >
-                    <IoCheckmark size={20} color={theme.colors.gray[600]} />
-                  </Button>
-                  <Button
-                    variant="outline"
+                <HStack
+                  spacing={0}
+                  boxShadow="0px 0px 10px 0px rgba(0, 0, 0, 0.15)"
+                  borderRadius="5px"
+                >
+                  <Box
+                    as="button"
+                    p={1}
+                    cursor="pointer"
+                    bg="buttonBackground"
+                    _hover={{ bg: 'neutralGray.100' }}
+                    _active={{ bg: 'neutralGray.300' }}
+                    borderRadius="5px 0 0 5px"
                     onClick={handleCancelEdit}
-                    size="sm"
-                    borderRadius="md"
-                    p={0}
-                    transition="background-color 0.2s ease"
                   >
-                    <IoCloseOutline size={20} color={theme.colors.gray[600]} />
-                  </Button>
+                    <IoCloseOutline
+                      size={24}
+                      color={theme.colors.neutralGray[600]}
+                    />
+                  </Box>
+                  <Box
+                    as="button"
+                    p={1}
+                    cursor="pointer"
+                    bg="buttonBackground"
+                    _hover={{ bg: 'neutralGray.100' }}
+                    _active={{ bg: 'neutralGray.300' }}
+                    borderRadius="0 5px 5px 0"
+                    onClick={handleSaveEditedItem}
+                  >
+                    <IoCheckmark
+                      size={24}
+                      color={theme.colors.neutralGray[600]}
+                    />
+                  </Box>
                 </HStack>
               </Box>
             </>
@@ -591,14 +667,44 @@ const EntityTable: React.FC<EntityTableProps> = ({
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
+                gap={3}
               >
-                <Text
-                  color={item.archived ? 'text.inactiveButtonText' : 'inherit'}
-                  textStyle="cellBody"
-                  transition="color 0.3s ease"
+                <Tooltip
+                  label={item.abbreviation}
+                  placement="top"
+                  openDelay={300}
+                  isDisabled={item.abbreviation.length <= 3}
+                  hasArrow
                 >
-                  {item.abbreviation}
-                </Text>
+                  <Box position="relative" overflow="hidden" flex={1}>
+                    <Text
+                      color={
+                        item.archived ? 'text.inactiveButtonText' : 'inherit'
+                      }
+                      textStyle="cellBody"
+                      transition="color 0.3s ease"
+                      noOfLines={1}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                      whiteSpace="nowrap"
+                      position="relative"
+                      pr="15px"
+                    >
+                      {item.abbreviation}
+                    </Text>
+                    <Box
+                      position="absolute"
+                      right="0"
+                      top="0"
+                      height="100%"
+                      width="15px"
+                      background={`linear-gradient(to right, transparent, ${item.archived ? 'var(--chakra-colors-neutralGray-100)' : 'white'})`}
+                      zIndex="1"
+                      pointerEvents="none"
+                      transition="background 0.3s ease"
+                    />
+                  </Box>
+                </Tooltip>
                 <Box
                   className="action-button"
                   opacity={openMenuId === item.id ? '1' : '0'}
@@ -620,97 +726,95 @@ const EntityTable: React.FC<EntityTableProps> = ({
                         transition="opacity 0.2s ease"
                       />
                     </PopoverTrigger>
-                    <Portal>
-                      <PopoverContent width="auto" boxShadow="md">
-                        <PopoverBody p={0}>
-                          <VStack align="stretch" spacing={0}>
+                    <PopoverContent width="auto" boxShadow="md">
+                      <PopoverBody p={0}>
+                        <VStack align="stretch" spacing={0}>
+                          <Button
+                            leftIcon={
+                              <FiEdit2
+                                color={theme.colors.neutralGray[600]}
+                                size={15}
+                              />
+                            }
+                            onClick={() => handleEditItem(item)}
+                            variant="ghost"
+                            justifyContent="flex-start"
+                            width="100%"
+                            textStyle="label"
+                            fontSize={12}
+                            color="body"
+                            borderRadius={0}
+                            py={2}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            leftIcon={
+                              <FiArchive
+                                color={theme.colors.neutralGray[600]}
+                                size={15}
+                              />
+                            }
+                            onClick={() => handleArchiveItem(item)}
+                            variant="ghost"
+                            justifyContent="flex-start"
+                            width="100%"
+                            textStyle="label"
+                            fontSize={12}
+                            color="body"
+                            borderRadius={0}
+                            py={2}
+                          >
+                            {item.archived ? 'Unarchive' : 'Archive'}
+                          </Button>
+                          <Tooltip
+                            label={
+                              itemsInUse.includes(item.id)
+                                ? `Cannot delete ${entityType} because it is used in existing absences`
+                                : ''
+                            }
+                            isDisabled={!itemsInUse.includes(item.id)}
+                            hasArrow
+                          >
                             <Button
                               leftIcon={
-                                <FiEdit2
+                                <FiTrash2
                                   color={theme.colors.neutralGray[600]}
                                   size={15}
                                 />
                               }
-                              onClick={() => handleEditItem(item)}
+                              onClick={() => handleDeleteItem(item)}
+                              isDisabled={itemsInUse.includes(item.id)}
                               variant="ghost"
                               justifyContent="flex-start"
                               width="100%"
                               textStyle="label"
                               fontSize={12}
                               color="body"
-                              borderRadius={0}
                               py={2}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              leftIcon={
-                                <FiArchive
-                                  color={theme.colors.neutralGray[600]}
-                                  size={15}
-                                />
-                              }
-                              onClick={() => handleArchiveItem(item)}
-                              variant="ghost"
-                              justifyContent="flex-start"
-                              width="100%"
-                              textStyle="label"
-                              fontSize={12}
-                              color="body"
                               borderRadius={0}
-                              py={2}
-                            >
-                              {item.archived ? 'Unarchive' : 'Archive'}
-                            </Button>
-                            <Tooltip
-                              label={
+                              bg={
                                 itemsInUse.includes(item.id)
-                                  ? `Cannot delete ${entityType} because it is used in existing absences`
-                                  : ''
+                                  ? 'neutralGray.100'
+                                  : undefined
                               }
-                              isDisabled={!itemsInUse.includes(item.id)}
-                              hasArrow
+                              _hover={
+                                itemsInUse.includes(item.id)
+                                  ? { bg: 'neutralGray.100' }
+                                  : undefined
+                              }
+                              cursor={
+                                itemsInUse.includes(item.id)
+                                  ? 'not-allowed'
+                                  : 'pointer'
+                              }
                             >
-                              <Button
-                                leftIcon={
-                                  <FiTrash2
-                                    color={theme.colors.neutralGray[600]}
-                                    size={15}
-                                  />
-                                }
-                                onClick={() => handleDeleteItem(item)}
-                                isDisabled={itemsInUse.includes(item.id)}
-                                variant="ghost"
-                                justifyContent="flex-start"
-                                width="100%"
-                                textStyle="label"
-                                fontSize={12}
-                                color="body"
-                                py={2}
-                                borderRadius={0}
-                                bg={
-                                  itemsInUse.includes(item.id)
-                                    ? 'neutralGray.100'
-                                    : undefined
-                                }
-                                _hover={
-                                  itemsInUse.includes(item.id)
-                                    ? { bg: 'neutralGray.100' }
-                                    : undefined
-                                }
-                                cursor={
-                                  itemsInUse.includes(item.id)
-                                    ? 'not-allowed'
-                                    : 'pointer'
-                                }
-                              >
-                                Delete
-                              </Button>
-                            </Tooltip>
-                          </VStack>
-                        </PopoverBody>
-                      </PopoverContent>
-                    </Portal>
+                              Delete
+                            </Button>
+                          </Tooltip>
+                        </VStack>
+                      </PopoverBody>
+                    </PopoverContent>
                   </Popover>
                 </Box>
               </Box>
@@ -809,12 +913,19 @@ const EntityTable: React.FC<EntityTableProps> = ({
               )}
               <Input
                 value={newItem.name}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const newName = e.target.value;
+                  // Auto-generate abbreviation if not manually edited
+                  const newAbbreviation = !isNewItemDisplayFieldManuallyEdited
+                    ? generateAbbreviationPrefix(newName, maxAbbreviationLength)
+                    : newItem.abbreviation;
+
                   setNewItem({
                     ...newItem,
-                    name: e.target.value,
-                  })
-                }
+                    name: newName,
+                    abbreviation: newAbbreviation,
+                  });
+                }}
                 placeholder={`${title} name`}
                 size="sm"
                 flex="1"
@@ -831,38 +942,72 @@ const EntityTable: React.FC<EntityTableProps> = ({
           >
             <Input
               value={newItem.abbreviation}
-              onChange={(e) =>
+              onChange={(e) => {
+                const newValue = e.target.value;
+                // If the field is cleared, turn off manual edit mode to allow auto-updating again
+                if (!newValue || newValue.trim() === '') {
+                  setIsNewItemDisplayFieldManuallyEdited(false);
+                } else {
+                  setIsNewItemDisplayFieldManuallyEdited(true);
+                }
+
                 setNewItem({
                   ...newItem,
-                  abbreviation: e.target.value,
-                })
-              }
+                  abbreviation: newValue.trim(),
+                });
+              }}
+              onBlur={() => {
+                // If the display field is empty when it loses focus, immediately fill it
+                if (
+                  !newItem.abbreviation ||
+                  newItem.abbreviation.trim() === ''
+                ) {
+                  setNewItem({
+                    ...newItem,
+                    abbreviation: generateAbbreviationPrefix(
+                      newItem.name,
+                      maxAbbreviationLength
+                    ),
+                  });
+                }
+              }}
               placeholder="Abbr."
               size="sm"
               maxW="60px"
               maxLength={maxAbbreviationLength}
             />
-            <HStack>
-              <Button
-                variant="outline"
-                onClick={handleAddItem}
-                size="sm"
-                borderRadius="md"
-                p={0}
-                transition="background-color 0.2s ease"
-              >
-                <IoCheckmark size={20} color={theme.colors.gray[600]} />
-              </Button>
-              <Button
-                variant="outline"
+            <HStack
+              spacing={0}
+              boxShadow="0px 0px 10px 0px rgba(0, 0, 0, 0.15)"
+              borderRadius="5px"
+            >
+              <Box
+                as="button"
+                p={1}
+                cursor="pointer"
+                bg="buttonBackground"
+                _hover={{ bg: 'neutralGray.100' }}
+                _active={{ bg: 'neutralGray.300' }}
+                borderRadius="5px 0 0 5px"
                 onClick={handleCancelEdit}
-                size="sm"
-                borderRadius="md"
-                p={0}
-                transition="background-color 0.2s ease"
               >
-                <IoCloseOutline size={20} color={theme.colors.gray[600]} />
-              </Button>
+                <IoCloseOutline
+                  size={24}
+                  color={theme.colors.neutralGray[600]}
+                />
+              </Box>
+              <Box
+                as="button"
+                p={1}
+                cursor="pointer"
+                bg="buttonBackground"
+                _hover={{ bg: 'neutralGray.100' }}
+                _active={{ bg: 'neutralGray.300' }}
+                borderRadius="0 5px 5px 0"
+                onClick={handleAddItem}
+              >
+                <IoCheckmark size={24} color={theme.colors.neutralGray[600]} />
+              </Box>
             </HStack>
           </Box>
         </Box>
@@ -872,7 +1017,11 @@ const EntityTable: React.FC<EntityTableProps> = ({
       <Box
         as="button"
         width="100%"
-        onClick={() => setIsAddingItem(true)}
+        onClick={() => {
+          setIsAddingItem(true);
+          // Reset the new item manually edited flag when starting to add a new item
+          setIsNewItemDisplayFieldManuallyEdited(false);
+        }}
         _hover={{ bg: 'neutralGray.100' }}
         transition="background-color 0.2s ease"
         textAlign="left"

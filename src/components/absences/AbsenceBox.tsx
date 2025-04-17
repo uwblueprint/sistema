@@ -49,6 +49,7 @@ const AbsenceBox: React.FC<AbsenceBoxProps> = ({
     <Box
       sx={{
         padding: '2px 3px 4px 3px',
+        paddingRight: lessonPlan ? '28px' : '3px',
         borderRadius: (theme) => `${theme.radii.md}`,
         backgroundColor,
         textColor,
@@ -69,7 +70,7 @@ const AbsenceBox: React.FC<AbsenceBoxProps> = ({
             color: textColor,
             transform: 'rotate(180deg)',
           }}
-          size={18}
+          size={14}
         />
       )}
       <Box className="fc-event-title-container">

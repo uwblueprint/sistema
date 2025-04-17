@@ -28,15 +28,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const subject = await prisma.subject.create({
-      data: {
-        name,
-        abbreviation: abbreviation || '',
-        colorGroupId,
-      },
-      include: {
-        colorGroup: true,
-      },
+    // Use transaction to ensure both subject creation and mailing list setup are atomic
+    const subject = await prisma.$transaction(async (tx) => {
+      // Create the new subject
+      const newSubject = await tx.subject.create({
+        data: {
+          name,
+          abbreviation: abbreviation || '',
+          colorGroupId,
+        },
+        include: {
+          colorGroup: true,
+        },
+      });
+
+      // Get all users to automatically add them to the mailing list for this subject
+      const allUsers = await tx.user.findMany({
+        select: { id: true },
+      });
+
+      // Create MailingList entries for each user with this new subject
+      for (const user of allUsers) {
+        await tx.mailingList.create({
+          data: {
+            userId: user.id,
+            subjectId: newSubject.id,
+          },
+        });
+      }
+
+      return newSubject;
     });
 
     return NextResponse.json(subject);

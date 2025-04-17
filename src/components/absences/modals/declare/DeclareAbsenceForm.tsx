@@ -9,17 +9,18 @@ import {
   Textarea,
   VStack,
   useDisclosure,
-  useToast,
 } from '@chakra-ui/react';
 import { Absence, Prisma } from '@prisma/client';
+import { formatFullDate } from '@utils/formatDate';
 import { submitAbsence } from '@utils/submitAbsence';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
 import { useState } from 'react';
+import { useCustomToast } from '../../../CustomToast';
 import { FileUpload } from '../../FileUpload';
 import { AdminTeacherFields } from '../AdminTeacherFields';
 import { DateOfAbsence } from '../DateOfAbsence';
 import { InputDropdown } from '../InputDropdown';
-import { ConfirmAbsenceModal } from './ConfirmDeclareModal';
+import { ConfirmDeclareModal } from './ConfirmDeclareModal';
 
 interface DeclareAbsenceFormProps {
   onClose?: () => void;
@@ -38,7 +39,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
   isAdminMode,
   fetchAbsences,
 }) => {
-  const toast = useToast();
+  const showToast = useCustomToast();
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -80,12 +81,9 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) {
-      toast({
-        title: 'Validation Error',
+      showToast({
         description: 'Please fill in all required fields correctly.',
         status: 'error',
-        duration: 5000,
-        isClosable: true,
       });
       return;
     }
@@ -97,19 +95,25 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      const result = await submitAbsence({
+      const formattedDate = formatFullDate(formData.lessonDate);
+
+      const success = await submitAbsence({
         formData,
         lessonPlan,
         onDeclareAbsence: handleDeclareAbsence,
       });
 
-      if (result.success) {
-        toast({
-          title: 'Success',
-          description: `You have successfully declared an absence on ${result.message}.`,
+      if (success) {
+        showToast({
           status: 'success',
-          duration: 5000,
-          isClosable: true,
+          description: (
+            <Text>
+              You have successfully declared an absence on{' '}
+              <Text as="span" fontWeight="bold">
+                {formattedDate}.
+              </Text>
+            </Text>
+          ),
         });
 
         const userIsInvolved =
@@ -122,22 +126,16 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
 
         onClose?.();
       } else {
-        toast({
-          title: 'Error',
-          description: result.message,
+        showToast({
           status: 'error',
-          duration: 5000,
-          isClosable: true,
+          description: 'Failed to declare absence',
         });
       }
     } catch (error) {
-      toast({
-        title: 'Error',
+      showToast({
         description:
           error instanceof Error ? error.message : 'Failed to declare absence',
         status: 'error',
-        duration: 5000,
-        isClosable: true,
       });
     } finally {
       setIsSubmitting(false);
@@ -173,6 +171,11 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
       lessonDate: date.toISOString().split('T')[0],
     }));
   };
+
+  const selectedDate = new Date(formData.lessonDate + 'T00:00:00');
+  const now = new Date();
+  const isWithin14Days =
+    (selectedDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 14;
 
   return (
     <Box
@@ -301,13 +304,14 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
           Declare Absence
         </Button>
       </VStack>
-
-      <ConfirmAbsenceModal
+      <ConfirmDeclareModal
         isOpen={isOpen}
         onClose={closeModal}
         onConfirm={handleConfirmSubmit}
         isSubmitting={isSubmitting}
         lessonDate={formData.lessonDate}
+        hasLessonPlan={!!lessonPlan}
+        isWithin14Days={isWithin14Days}
       />
     </Box>
   );

@@ -7,12 +7,12 @@ import {
   Link,
   Text,
   useTheme,
-  useToast,
 } from '@chakra-ui/react';
 import { LessonPlanFile } from '@utils/types';
 import { uploadFile } from '@utils/uploadFile';
 import { useEffect, useRef, useState } from 'react';
 import { FiFileText } from 'react-icons/fi';
+import { useCustomToast } from '../../CustomToast';
 import { FileUpload } from '../FileUpload';
 
 const formatFileSize = (sizeInBytes: number) => {
@@ -45,19 +45,37 @@ const LessonPlanDisplay = ({
     <Link href={href} isExternal width="100%">
       <Flex
         width="100%"
-        height="48px"
+        minHeight="48px"
         borderColor={theme.colors.neutralGray[300]}
         borderWidth="1px"
         borderRadius="10px"
-        p="16px"
-        align="center"
+        px="16px"
+        py="10px"
         bg={theme.colors.buttonBackground}
         justify="space-between"
+        align="flex-start"
+        gap={3}
+        flexWrap="wrap"
       >
         <Flex align="center">
-          <FiFileText size="24px" color={theme.colors.primaryBlue[300]} />
+          <Box
+            boxSize="24px"
+            flexShrink={0}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <FiFileText size="24px" color={theme.colors.primaryBlue[300]} />
+          </Box>
           <Box ml="12px">
-            <Text textStyle="caption">{fileName}</Text>
+            <Text
+              textStyle="caption"
+              whiteSpace="normal"
+              wordBreak="break-word"
+              maxWidth="220px"
+            >
+              {fileName}
+            </Text>
             {fileSize && (
               <Text
                 fontSize={theme.textStyles.body.fontSize}
@@ -138,7 +156,7 @@ const LessonPlanView = ({
   fetchAbsences,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const toast = useToast();
+  const showToast = useCustomToast();
   const [isUploading, setIsUploading] = useState(false);
   const [localLessonPlan, setLocalLessonPlan] = useState<LessonPlanFile | null>(
     lessonPlan
@@ -161,13 +179,11 @@ const LessonPlanView = ({
 
     const fileUrl = await uploadFile(file);
     if (!fileUrl) {
-      toast({
-        title: 'Upload failed',
+      showToast({
         description: 'Could not upload the lesson plan file.',
         status: 'error',
-        duration: 5000,
-        isClosable: true,
       });
+
       setIsUploading(false);
       return;
     }
@@ -195,22 +211,16 @@ const LessonPlanView = ({
 
       setLocalLessonPlan(updatedPlan);
 
-      toast({
-        title: 'Lesson Plan Updated',
+      showToast({
         description: 'Your lesson plan was successfully swapped.',
         status: 'success',
-        duration: 5000,
-        isClosable: true,
       });
 
       await fetchAbsences?.();
     } else {
-      toast({
-        title: 'Update failed',
+      showToast({
         description: 'There was a problem updating the lesson plan.',
         status: 'error',
-        duration: 5000,
-        isClosable: true,
       });
     }
 

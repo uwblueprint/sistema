@@ -8,17 +8,19 @@ import {
   ModalHeader,
   ModalOverlay,
   Text,
-  useToast,
 } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
-import { Role } from '@utils/types';
+import { formatFullDate } from '@utils/formatDate';
+import { EventDetails, Role } from '@utils/types';
 import { useState } from 'react';
-
+import { CustomToastOptions } from '../../CustomToast';
 interface DeleteAbsenceModalProps {
   isOpen: boolean;
   onClose: () => void;
   absenceId: number;
   onDelete: (absenceId: number) => Promise<void>;
+  event: EventDetails;
+  showToast: (options: CustomToastOptions) => void;
 }
 
 const DeleteAbsenceModal: React.FC<DeleteAbsenceModalProps> = ({
@@ -26,9 +28,11 @@ const DeleteAbsenceModal: React.FC<DeleteAbsenceModalProps> = ({
   onClose,
   absenceId,
   onDelete,
+  event,
+  showToast,
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
-  const toast = useToast();
+
   const userData = useUserData();
   const isUserAdmin = userData.role === Role.ADMIN;
 
@@ -50,23 +54,30 @@ const DeleteAbsenceModal: React.FC<DeleteAbsenceModalProps> = ({
         throw new Error('Failed to delete absence');
       }
 
-      toast({
-        title: 'Absence deleted',
-        description: 'The absence has been successfully deleted.',
+      const formattedDate = formatFullDate(event.start!!);
+
+      showToast({
         status: 'success',
-        duration: 5000,
-        isClosable: true,
+        description: (
+          <Text>
+            You have successfully deleted{' '}
+            <Text as="span" fontWeight="bold">
+              {event.absentTeacher.firstName}&apos;s
+            </Text>{' '}
+            absence on{' '}
+            <Text as="span" fontWeight="bold">
+              {formattedDate}.
+            </Text>
+          </Text>
+        ),
       });
 
-      await onDelete(absenceId);
+      onDelete(absenceId);
       onClose();
     } catch (error) {
-      toast({
-        title: 'Error',
+      showToast({
         description: error.message || 'Failed to delete absence',
         status: 'error',
-        duration: 5000,
-        isClosable: true,
       });
     } finally {
       setIsDeleting(false);

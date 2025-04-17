@@ -14,18 +14,18 @@ import {
   Text,
   useDisclosure,
   useTheme,
-  useToast,
   VStack,
 } from '@chakra-ui/react';
 import { Location, SubjectAPI } from '@utils/types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { IoCloseOutline, IoSettingsOutline } from 'react-icons/io5';
 import { useChangeManagement } from '../../../../hooks/useChangeManagement';
+import { useCustomToast } from '../../CustomToast';
 import LocationsTable from './LocationsTable';
 import SubjectsTable from './SubjectsTable';
-import SystemChangesConfirmationDialog from './SystemChangesConfirmationDialog';
+import SystemChangesConfirmationModal from './SystemChangesConfirmationModal';
 import SystemSettings from './SystemSettings';
-import UnsavedChangesDialog from './UnsavedChangesDialog';
+import UnsavedChangesModal from './UnsavedChangesModal';
 
 interface SystemOptionsModalProps {
   isOpen: boolean;
@@ -48,9 +48,9 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   const [locations, setLocations] = useState<Location[]>([]);
   const [subjectsInUse, setSubjectsInUse] = useState<number[]>([]);
   const [locationsInUse, setLocationsInUse] = useState<number[]>([]);
-  const confirmationDialog = useDisclosure();
-  const unsavedChangesDialog = useDisclosure();
-  const toast = useToast();
+  const confirmationModal = useDisclosure();
+  const unsavedChangesModal = useDisclosure();
+  const toastRef = useRef(useCustomToast());
   const theme = useTheme();
 
   // Default color group to ensure we always have at least one color group
@@ -78,15 +78,12 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       setSubjects(data);
     } catch (error) {
       console.error('Error fetching subjects:', error);
-      toast({
-        title: 'Error',
+      toastRef.current({
         description: 'Failed to load subjects',
         status: 'error',
-        duration: 3000,
-        isClosable: true,
       });
     }
-  }, [toast]);
+  }, []);
 
   const fetchLocations = useCallback(async () => {
     try {
@@ -96,15 +93,12 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       setLocations(data);
     } catch (error) {
       console.error('Error fetching locations:', error);
-      toast({
-        title: 'Error',
+      toastRef.current({
         description: 'Failed to load locations',
         status: 'error',
-        duration: 3000,
-        isClosable: true,
       });
     }
-  }, [toast]);
+  }, []);
 
   const fetchColorGroups = useCallback(async () => {
     try {
@@ -114,15 +108,12 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       setColorGroups(data);
     } catch (error) {
       console.error('Error fetching color groups:', error);
-      toast({
-        title: 'Error',
+      toastRef.current({
         description: 'Failed to load color groups',
         status: 'error',
-        duration: 3000,
-        isClosable: true,
       });
     }
-  }, [toast]);
+  }, []);
 
   const checkSubjectsInUse = useCallback(async () => {
     try {
@@ -185,7 +176,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     locations,
     absenceCap,
     onRefresh: refreshData,
-    toast,
   });
 
   // Create a wrapper for applyChanges that also closes the modal
@@ -198,7 +188,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
           onUpdateComplete();
         }
 
-        confirmationDialog.onClose();
+        confirmationModal.onClose();
         onClose();
       }
     } catch (error) {
@@ -214,14 +204,14 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       pendingEntities.settings.absenceCap !== undefined;
 
     if (hasChanges) {
-      unsavedChangesDialog.onOpen();
+      unsavedChangesModal.onOpen();
     } else {
       onClose();
     }
   };
 
   const handleCloseConfirmed = () => {
-    unsavedChangesDialog.onClose();
+    unsavedChangesModal.onClose();
     // Clear any pending changes
     clearChanges();
     onClose();
@@ -235,7 +225,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       pendingEntities.settings.absenceCap !== undefined;
 
     if (hasChanges) {
-      confirmationDialog.onOpen();
+      confirmationModal.onOpen();
     } else {
       onClose();
     }
@@ -247,7 +237,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       onClose={handleClose}
       size="md"
       scrollBehavior="outside"
-      isCentered={false}
       motionPreset="slideInBottom"
     >
       <ModalOverlay bg="rgba(0, 0, 0, 0.4)" transition="all 0.3s ease" />
@@ -282,7 +271,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                 icon={<IoCloseOutline size={40} />}
                 variant="ghost"
                 onClick={handleClose}
-                size="sm"
                 transition="background-color 0.2s ease"
               />
             </HStack>
@@ -332,10 +320,10 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
             </VStack>
           </ModalBody>
 
-          {/* SystemChangesConfirmationDialog */}
-          <SystemChangesConfirmationDialog
-            isOpen={confirmationDialog.isOpen}
-            onClose={confirmationDialog.onClose}
+          {/* SystemChangesConfirmationModal */}
+          <SystemChangesConfirmationModal
+            isOpen={confirmationModal.isOpen}
+            onClose={confirmationModal.onClose}
             onConfirm={applyChanges}
             pendingEntities={pendingEntities}
             subjects={subjects}
@@ -344,10 +332,10 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
             absenceCap={absenceCap}
           />
 
-          {/* UnsavedChangesDialog for confirming closing with unsaved changes */}
-          <UnsavedChangesDialog
-            isOpen={unsavedChangesDialog.isOpen}
-            onClose={unsavedChangesDialog.onClose}
+          {/* UnsavedChangesModal for confirming closing with unsaved changes */}
+          <UnsavedChangesModal
+            isOpen={unsavedChangesModal.isOpen}
+            onClose={unsavedChangesModal.onClose}
             onConfirm={handleCloseConfirmed}
           />
 

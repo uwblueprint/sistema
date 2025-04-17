@@ -19,7 +19,6 @@ import {
   PopoverContent,
   PopoverBody,
   Portal,
-  useToast,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
@@ -28,7 +27,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { useAbsences } from '@hooks/useAbsences';
 import { useUserData } from '@hooks/useUserData';
-import { formatMonthYear } from '@utils/formatMonthYear';
+import { formatFullDate, formatMonthYear } from '@utils/formatDate';
 import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
@@ -38,40 +37,18 @@ import AbsenceBox from '../components/absences/AbsenceBox';
 import AbsenceDetails from '../components/absences/details/AbsenceDetails';
 import { CalendarTabs } from '../components/calendar/CalendarTabs';
 import DeclareAbsenceForm from '../components/absences/modals/declare/DeclareAbsenceForm';
-import AbsenceFillThanks from '../components/absences/details/AbsenceFillThanks';
+import AbsenceFillThanksModal from '../components/absences/details/AbsenceFillThanksModal';
 import EditAbsenceForm from '../components/absences/modals/edit/EditAbsenceForm';
 import ConfirmDeleteModal from '../components/absences/modals/delete/ConfirmDeleteModal';
 import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
 import CalendarHeader from '../components/header/calendar/CalendarHeader';
+import { useCustomToast } from '../components/CustomToast';
 
 const Calendar: React.FC = () => {
   const { refetchUserData, ...userData } = useUserData();
   const router = useRouter();
 
   const searchParams = useSearchParams();
-
-  const getOrdinalNum = (number: number) => {
-    let selector;
-
-    if (number <= 0) {
-      selector = 4;
-    } else if ((number > 3 && number < 21) || number % 10 > 3) {
-      selector = 0;
-    } else {
-      selector = number % 10;
-    }
-
-    return number + ['th', 'st', 'nd', 'rd', ''][selector];
-  };
-
-  const formatDate = (date: Date) => {
-    const parsedDate = new Date(date);
-    const weekday = parsedDate.toLocaleDateString('en-CA', { weekday: 'long' });
-    const month = parsedDate.toLocaleDateString('en-CA', { month: 'long' });
-    const day = parsedDate.getDate();
-
-    return `${weekday}, ${month} ${getOrdinalNum(day)}`;
-  };
 
   useEffect(() => {
     if (!userData.isLoading && !userData.isAuthenticated) {
@@ -131,42 +108,49 @@ const Calendar: React.FC = () => {
 
   const [isClosingDetails, setIsClosingDetails] = useState(false);
   const [isFilling, setIsFilling] = useState(false);
-  const [isFillDialogOpen, setIsFillDialogOpen] = useState(false);
+  const [isFillModalOpen, setIsFillModalOpen] = useState(false);
   const [isFillThanksOpen, setIsFillThanksOpen] = useState(false);
-  const toast = useToast();
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  // State for delete modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [absenceToDelete, setAbsenceToDelete] = useState<number | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const handleDeleteClick = (absenceId: number) => {
+  const showToast = useCustomToast();
+
+  const handleDeleteClick = useCallback((absenceId: number) => {
     setAbsenceToDelete(absenceId);
     setIsDeleteModalOpen(true);
-  };
+  }, []);
 
-  const handleDeleteModalClose = () => {
+  const handleDeleteModalClose = useCallback(() => {
     setIsDeleteModalOpen(false);
     setAbsenceToDelete(null);
-  };
+  }, []);
 
-  const handleDeleteAbsence = async () => {
+  const handleDeleteAbsence = useCallback(async () => {
     await fetchAbsences();
-  };
+    setIsDeleteModalOpen(false);
+  }, [fetchAbsences]);
 
-  const handleFillThanksDone = () => {
+  const handleFillThanksDone = useCallback(() => {
     setIsFillThanksOpen(false);
-  };
+  }, []);
 
-  const handleFillAbsenceClick = () => {
-    setIsFillDialogOpen(true);
-  };
+  const handleFillAbsenceClick = useCallback(() => {
+    setIsFillModalOpen(true);
+  }, []);
 
-  const handleFillCancel = () => {
-    setIsFillDialogOpen(false);
-  };
+  const handleFillCancel = useCallback(() => {
+    setIsFillModalOpen(false);
+  }, []);
 
-  const handleFillConfirm = async () => {
+  const handleCloseDetails = useCallback(() => {
+    setClickedEventId(null);
+    onAbsenceDetailsClose();
+    setIsClosingDetails(true);
+    setTimeout(() => setIsClosingDetails(false), 100);
+  }, [onAbsenceDetailsClose]);
+
+  const handleFillConfirm = useCallback(async () => {
     if (!selectedEvent) return;
 
     setIsFilling(true);
@@ -174,9 +158,7 @@ const Calendar: React.FC = () => {
     try {
       const response = await fetch('/api/editAbsence', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: selectedEvent.absenceId,
           lessonDate: selectedEvent.start,
@@ -194,41 +176,79 @@ const Calendar: React.FC = () => {
         throw new Error('Failed to fill absence');
       }
 
-      toast({
-        title: 'Absence filled',
-        description: 'You have successfully filled this absence.',
+      const formattedDate = formatFullDate(selectedEvent.start);
+
+      showToast({
         status: 'success',
-        duration: 5000,
-        isClosable: true,
+        description: (
+          <Text>
+            You have successfully filled{' '}
+            <Text as="span" fontWeight="bold">
+              {selectedEvent.absentTeacher.firstName}&apos;s
+            </Text>{' '}
+            absence on{' '}
+            <Text as="span" fontWeight="bold">
+              {formattedDate}.
+            </Text>
+          </Text>
+        ),
       });
 
       await fetchAbsences();
-      setIsFillDialogOpen(false);
+      setIsFillModalOpen(false);
       setIsFillThanksOpen(true);
+      setActiveTab('declared');
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to fill absence',
+      console.error('Error filling absence:', error);
+
+      const formattedDate = formatFullDate(selectedEvent.start);
+
+      showToast({
         status: 'error',
-        duration: 5000,
-        isClosable: true,
+        description: (
+          <Text>
+            There was an error in filling{' '}
+            <Text as="span" fontWeight="bold">
+              {selectedEvent.absentTeacher.firstName}&apos;s
+            </Text>{' '}
+            absence on{' '}
+            <Text as="span" fontWeight="bold">
+              {formattedDate}.
+            </Text>
+          </Text>
+        ),
       });
     } finally {
       setIsFilling(false);
       handleCloseDetails();
     }
-  };
+  }, [
+    fetchAbsences,
+    handleCloseDetails,
+    selectedEvent,
+    showToast,
+    userData.id,
+  ]);
 
-  const handleEditClick = () => {
+  const handleEditClick = useCallback(() => {
     setIsEditModalOpen(true);
-  };
+  }, []);
 
-  const handleCloseDetails = () => {
-    setClickedEventId(null);
-    onAbsenceDetailsClose();
-    setIsClosingDetails(true);
-    setTimeout(() => setIsClosingDetails(false), 100);
-  };
+  const formatDateForFilledDays = useCallback((date: Date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, []);
+
+  const hasConflictingEvent = useCallback(
+    (event: EventDetails) => {
+      if (!event?.start) return false;
+      const dateString = formatDateForFilledDays(new Date(event.start));
+      return filledDays.has(dateString);
+    },
+    [filledDays, formatDateForFilledDays]
+  );
 
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => {
@@ -253,8 +273,9 @@ const Calendar: React.FC = () => {
 
       const opacity = isPastEvent ? 0.6 : 1;
       const createdByUser = absentTeacher.id === userData?.id;
+      const createdByUserOrIsAdminMode = createdByUser || isAdminMode;
 
-      const highlightText = createdByUser
+      const highlightText = createdByUserOrIsAdminMode
         ? substituteTeacherDisplayName
           ? `${absentTeacherDisplayName} -> ${substituteTeacherDisplayName}`
           : `${absentTeacherDisplayName} -> Unfilled`
@@ -285,11 +306,11 @@ const Calendar: React.FC = () => {
           title={subjectAbbreviation}
           location={locationAbbreviation}
           backgroundColor={
-            substituteTeacherDisplayName || !createdByUser
+            substituteTeacherDisplayName || !createdByUserOrIsAdminMode
               ? colors.light
               : 'white'
           }
-          borderColor={createdByUser ? colors.dark : 'transparent'}
+          borderColor={createdByUserOrIsAdminMode ? colors.dark : 'transparent'}
           textColor={colors.text}
           highlightText={highlightText}
           highlightColor={colors.medium}
@@ -349,6 +370,7 @@ const Calendar: React.FC = () => {
                     fetchAbsences={fetchAbsences}
                     onFillClick={handleFillAbsenceClick}
                     onEditClick={handleEditClick}
+                    hasConflictingEvent={hasConflictingEvent(selectedEvent!!)}
                   />
                 </PopoverBody>
               </PopoverContent>
@@ -368,6 +390,8 @@ const Calendar: React.FC = () => {
       handleDeleteClick,
       handleFillAbsenceClick,
       handleEditClick,
+      hasConflictingEvent,
+      selectedEvent,
     ]
   );
 
@@ -407,12 +431,15 @@ const Calendar: React.FC = () => {
     }
   }, []);
 
-  const handleDateClick = (arg: { date: Date }) => {
-    if (!isClosingDetails) {
-      setSelectedDate(arg.date);
-      onInputFormOpen();
-    }
-  };
+  const handleDateClick = useCallback(
+    (arg: { date: Date }) => {
+      if (!isClosingDetails) {
+        setSelectedDate(arg.date);
+        onInputFormOpen();
+      }
+    },
+    [isClosingDetails, onInputFormOpen]
+  );
 
   const handleTodayClick = useCallback(() => {
     if (calendarRef.current) {
@@ -440,31 +467,31 @@ const Calendar: React.FC = () => {
     }
   }, [updateMonthYearTitle]);
 
-  const handleDateSelect = (date: Date) => {
+  const handleDateSelect = useCallback((date: Date) => {
     setSelectedDate(date);
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       calendarApi.gotoDate(date);
     }
-  };
+  }, []);
 
   useEffect(() => {
     updateMonthYearTitle();
   }, [updateMonthYearTitle]);
 
-  const handleAbsenceClick = (clickInfo: EventClickArg) => {
+  const handleAbsenceClick = useCallback((clickInfo: EventClickArg) => {
     // Prevent default behavior so our custom handlers work
     clickInfo.jsEvent.preventDefault();
-  };
+  }, []);
 
-  const handleDeclareAbsenceClick = () => {
+  const handleDeclareAbsenceClick = useCallback(() => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       const today = calendarApi.getDate();
       setSelectedDate(today);
       onInputFormOpen();
     }
-  };
+  }, [onInputFormOpen]);
 
   useEffect(() => {
     const {
@@ -661,11 +688,7 @@ const Calendar: React.FC = () => {
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>
         <ModalOverlay />
-        <ModalContent
-          width={362}
-          sx={{ padding: '33px 31px' }}
-          borderRadius="16px"
-        >
+        <ModalContent w={362} sx={{ padding: '33px 31px' }} borderRadius="16px">
           <ModalHeader fontSize={22} p="0 0 28px 0">
             Declare Absence
           </ModalHeader>
@@ -682,7 +705,7 @@ const Calendar: React.FC = () => {
           </ModalBody>
         </ModalContent>
       </Modal>
-      <Modal isOpen={isFillDialogOpen} onClose={handleFillCancel} isCentered>
+      <Modal isOpen={isFillModalOpen} onClose={handleFillCancel} isCentered>
         <ModalOverlay />
         <ModalContent
           width="300px"
@@ -731,11 +754,11 @@ const Calendar: React.FC = () => {
         </ModalContent>
       </Modal>
       {selectedEvent && (
-        <AbsenceFillThanks
+        <AbsenceFillThanksModal
           isOpen={isFillThanksOpen}
           onClose={handleFillThanksDone}
           event={selectedEvent}
-          absenceDate={formatDate(selectedEvent.start)}
+          absenceDate={formatFullDate(selectedEvent.start)}
         />
       )}
       {selectedEvent && (

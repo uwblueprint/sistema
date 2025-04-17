@@ -108,7 +108,7 @@ export default function ArchivedAccordion({
         onClick={() => setIsOpen((prev) => !prev)}
         width="100%"
         variant="ghost"
-        px={1}
+        px={2}
         py={0}
         height="32px"
       >
@@ -123,7 +123,7 @@ export default function ArchivedAccordion({
           )}
         </Flex>
       </Button>
-      <Box pl={1} mt={2}>
+      <Box px={2} mt={2}>
         <Collapse in={isOpen} animateOpacity>
           {subjects.length > 0 && (
             <>
@@ -167,7 +167,9 @@ export default function ArchivedAccordion({
                           />
                         )}
                       </Box>
-                      <Text textStyle="subtitle">{subject.name}</Text>
+                      <Text textStyle="subtitle" isTruncated maxWidth="200px">
+                        {subject.name}
+                      </Text>
                     </Flex>
                   </Box>
                 ))}
@@ -217,7 +219,9 @@ export default function ArchivedAccordion({
                           />
                         )}
                       </Box>
-                      <Text textStyle="subtitle">{location.name}</Text>
+                      <Text textStyle="subtitle" isTruncated maxWidth="200px">
+                        {location.name}
+                      </Text>
                     </Flex>
                   </Box>
                 ))}

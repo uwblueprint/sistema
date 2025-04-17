@@ -9,13 +9,14 @@ import {
   Textarea,
   VStack,
   useDisclosure,
-  useToast,
 } from '@chakra-ui/react';
 import { Absence } from '@prisma/client';
+import { formatFullDate } from '@utils/formatDate';
 import { submitAbsence } from '@utils/submitAbsence';
 import { EventDetails } from '@utils/types';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
 import { useState } from 'react';
+import { useCustomToast } from '../../../CustomToast';
 import { FileUpload } from '../../FileUpload';
 import { AdminTeacherFields } from '../AdminTeacherFields';
 import { DateOfAbsence } from '../DateOfAbsence';
@@ -35,7 +36,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
   isAdminMode,
   fetchAbsences,
 }) => {
-  const toast = useToast();
+  const showToast = useCustomToast();
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -83,12 +84,9 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     e.preventDefault();
 
     if (!validateForm()) {
-      toast({
-        title: 'Validation Error',
+      showToast({
         description: 'Please fill in all required fields correctly.',
         status: 'error',
-        duration: 5000,
-        isClosable: true,
       });
       return;
     }
@@ -101,40 +99,44 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      const result = await submitAbsence({
+      const formattedDate = formatFullDate(initialData.start);
+
+      const success = await submitAbsence({
         formData: { ...formData, id: initialData.absenceId },
         lessonPlan,
         onEditAbsence: handleEditAbsence,
       });
 
-      if (result.success) {
-        toast({
-          title: 'Success',
-          description: `Absence updated successfully.`,
+      if (success) {
+        showToast({
           status: 'success',
-          duration: 5000,
-          isClosable: true,
+          description: (
+            <Text>
+              You have successfully edited{' '}
+              <Text as="span" fontWeight="bold">
+                {initialData.absentTeacher.firstName}&apos;s
+              </Text>{' '}
+              absence on{' '}
+              <Text as="span" fontWeight="bold">
+                {formattedDate}.
+              </Text>
+            </Text>
+          ),
         });
 
         fetchAbsences();
         onClose?.();
       } else {
-        toast({
-          title: 'Error',
-          description: result.message,
+        showToast({
           status: 'error',
-          duration: 5000,
-          isClosable: true,
+          description: 'Failed to update absence',
         });
       }
     } catch (error) {
-      toast({
-        title: 'Error',
-        description:
-          error instanceof Error ? error.message : 'Failed to update absence',
+      showToast({
         status: 'error',
-        duration: 5000,
-        isClosable: true,
+        description:
+          error instanceof Error ? error.message : 'Unexpected error occurred',
       });
     } finally {
       setIsSubmitting(false);
