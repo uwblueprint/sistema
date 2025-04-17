@@ -14,13 +14,13 @@ import {
   Text,
   useDisclosure,
   useTheme,
-  useToast,
   VStack,
 } from '@chakra-ui/react';
 import { Location, SubjectAPI } from '@utils/types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { IoCloseOutline, IoSettingsOutline } from 'react-icons/io5';
 import { useChangeManagement } from '../../../../hooks/useChangeManagement';
+import { useCustomToast } from '../../CustomToast';
 import LocationsTable from './LocationsTable';
 import SubjectsTable from './SubjectsTable';
 import SystemChangesConfirmationDialog from './SystemChangesConfirmationDialog';
@@ -50,7 +50,7 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   const [locationsInUse, setLocationsInUse] = useState<number[]>([]);
   const confirmationDialog = useDisclosure();
   const unsavedChangesDialog = useDisclosure();
-  const toast = useToast();
+  const toastRef = useRef(useCustomToast());
   const theme = useTheme();
 
   // Default color group to ensure we always have at least one color group
@@ -78,15 +78,12 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       setSubjects(data);
     } catch (error) {
       console.error('Error fetching subjects:', error);
-      toast({
-        title: 'Error',
+      toastRef.current({
         description: 'Failed to load subjects',
         status: 'error',
-        duration: 3000,
-        isClosable: true,
       });
     }
-  }, [toast]);
+  }, []);
 
   const fetchLocations = useCallback(async () => {
     try {
@@ -96,15 +93,12 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       setLocations(data);
     } catch (error) {
       console.error('Error fetching locations:', error);
-      toast({
-        title: 'Error',
+      toastRef.current({
         description: 'Failed to load locations',
         status: 'error',
-        duration: 3000,
-        isClosable: true,
       });
     }
-  }, [toast]);
+  }, []);
 
   const fetchColorGroups = useCallback(async () => {
     try {
@@ -114,15 +108,12 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       setColorGroups(data);
     } catch (error) {
       console.error('Error fetching color groups:', error);
-      toast({
-        title: 'Error',
+      toastRef.current({
         description: 'Failed to load color groups',
         status: 'error',
-        duration: 3000,
-        isClosable: true,
       });
     }
-  }, [toast]);
+  }, []);
 
   const checkSubjectsInUse = useCallback(async () => {
     try {
@@ -185,7 +176,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     locations,
     absenceCap,
     onRefresh: refreshData,
-    toast,
   });
 
   // Create a wrapper for applyChanges that also closes the modal
@@ -282,7 +272,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                 icon={<IoCloseOutline size={40} />}
                 variant="ghost"
                 onClick={handleClose}
-                size="sm"
                 transition="background-color 0.2s ease"
               />
             </HStack>

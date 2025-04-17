@@ -20,7 +20,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { useAbsences } from '@hooks/useAbsences';
 import { useUserData } from '@hooks/useUserData';
-import { formatMonthYear } from '@utils/formatMonthYear';
+import { formatMonthYear } from '@utils/formatDate';
 import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
@@ -222,6 +222,19 @@ const Calendar: React.FC = () => {
   useEffect(() => {
     updateMonthYearTitle();
   }, [updateMonthYearTitle]);
+
+  const formatDateForFilledDays = (date: Date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const hasConflictingEvent = (event: EventDetails) => {
+    if (!event?.start) return false;
+    const dateString = formatDateForFilledDays(new Date(event.start));
+    return filledDays.has(dateString);
+  };
 
   const handleAbsenceClick = (clickInfo: EventClickArg) => {
     setSelectedEvent({
@@ -457,6 +470,7 @@ const Calendar: React.FC = () => {
         fetchAbsences={fetchAbsences}
         onDelete={handleDeleteAbsence}
         isAdminMode={isAdminMode}
+        hasConflictingEvent={hasConflictingEvent(selectedEvent!!)}
       />
 
       <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>

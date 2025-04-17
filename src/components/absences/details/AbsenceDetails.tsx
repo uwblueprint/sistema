@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Flex,
+  Icon,
   IconButton,
   Modal,
   ModalBody,
@@ -10,17 +11,24 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
   Text,
-  VStack,
   useTheme,
-  useToast,
+  VStack,
 } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
+import { formatFullDate } from '@utils/formatDate';
 import { EventDetails, Role } from '@utils/types';
 import { Buildings, Calendar } from 'iconsax-react';
 import { useState } from 'react';
+import { BiSolidErrorCircle } from 'react-icons/bi';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
+import { useCustomToast } from '../../CustomToast';
 import EditAbsenceForm from '../modals/edit/EditAbsenceForm';
 import AbsenceFillThanks from './AbsenceFillThanks';
 import AbsenceStatusTag from './AbsenceStatusTag';
@@ -34,6 +42,7 @@ interface AbsenceDetailsProps {
   onDelete?: (absenceId: number) => void;
   isAdminMode: boolean;
   fetchAbsences: () => Promise<void>;
+  hasConflictingEvent: boolean;
 }
 
 const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
@@ -43,6 +52,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   onDelete,
   isAdminMode,
   fetchAbsences,
+  hasConflictingEvent,
 }) => {
   const theme = useTheme();
   const userData = useUserData();
@@ -53,7 +63,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const [isFillDialogOpen, setIsFillDialogOpen] = useState(false);
   const [isFillThanksOpen, setIsFillThanksOpen] = useState(false);
 
-  const toast = useToast();
+  const showToast = useCustomToast();
 
   if (!event) return null;
 
@@ -62,30 +72,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
   const isUserAdmin = userData.role === Role.ADMIN;
 
-  const getOrdinalNum = (number) => {
-    let selector;
-
-    if (number <= 0) {
-      selector = 4;
-    } else if ((number > 3 && number < 21) || number % 10 > 3) {
-      selector = 0;
-    } else {
-      selector = number % 10;
-    }
-
-    return number + ['th', 'st', 'nd', 'rd', ''][selector];
-  };
-
-  const formatDate = (date: Date) => {
-    const parsedDate = new Date(date);
-    const weekday = parsedDate.toLocaleDateString('en-CA', { weekday: 'long' });
-    const month = parsedDate.toLocaleDateString('en-CA', { month: 'long' });
-    const day = parsedDate.getDate();
-
-    return `${weekday}, ${month} ${getOrdinalNum(day)}`;
-  };
-
-  const absenceDate = formatDate(event.start!!);
+  const absenceDate = formatFullDate(event.start!!);
 
   const handleFillThanksDone = () => {
     setIsFillThanksOpen(false);
@@ -105,9 +92,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
     try {
       const response = await fetch('/api/editAbsence', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: event.absenceId,
           lessonDate: event.start,
@@ -125,24 +110,44 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         throw new Error('Failed to fill absence');
       }
 
-      toast({
-        title: 'Absence filled',
-        description: 'You have successfully filled this absence.',
+      const formattedDate = formatFullDate(event.start);
+
+      showToast({
         status: 'success',
-        duration: 5000,
-        isClosable: true,
+        description: (
+          <Text>
+            You have successfully filled{' '}
+            <Text as="span" fontWeight="bold">
+              {event.absentTeacher.firstName}&apos;s
+            </Text>{' '}
+            absence on{' '}
+            <Text as="span" fontWeight="bold">
+              {formattedDate}.
+            </Text>
+          </Text>
+        ),
       });
 
       await fetchAbsences();
       setIsFillDialogOpen(false);
       setIsFillThanksOpen(true);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to fill absence',
+    } catch {
+      const formattedDate = formatFullDate(event.start);
+
+      showToast({
         status: 'error',
-        duration: 5000,
-        isClosable: true,
+        description: (
+          <Text>
+            There was an error in filling{' '}
+            <Text as="span" fontWeight="bold">
+              {event.absentTeacher.firstName}&apos;s
+            </Text>{' '}
+            absence on{' '}
+            <Text as="span" fontWeight="bold">
+              {formattedDate}.
+            </Text>
+          </Text>
+        ),
       });
     } finally {
       setIsFilling(false);
@@ -181,12 +186,22 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         throw new Error('Failed to delete absence');
       }
 
-      toast({
-        title: 'Absence deleted',
-        description: 'The absence has been successfully deleted.',
+      const formattedDate = formatFullDate(event.start);
+
+      showToast({
         status: 'success',
-        duration: 5000,
-        isClosable: true,
+        description: (
+          <Text>
+            You have successfully deleted{' '}
+            <Text as="span" fontWeight="bold">
+              {event.absentTeacher.firstName}&apos;s
+            </Text>{' '}
+            absence on{' '}
+            <Text as="span" fontWeight="bold">
+              {formattedDate}.
+            </Text>
+          </Text>
+        ),
       });
 
       await fetchAbsences();
@@ -197,12 +212,9 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         onDelete(event.absenceId);
       }
     } catch (error) {
-      toast({
-        title: 'Error',
+      showToast({
         description: error.message || 'Failed to delete absence',
         status: 'error',
-        duration: 5000,
-        isClosable: true,
       });
     } finally {
       setIsDeleting(false);
@@ -219,16 +231,35 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         >
           <ModalHeader p="0">
             <Flex justify="space-between" align="center" position="relative">
-              <AbsenceStatusTag
-                isUserAbsentTeacher={isUserAbsentTeacher}
-                isUserSubstituteTeacher={isUserSubstituteTeacher}
-                isAdminMode={isAdminMode}
-                substituteTeacherFullName={
-                  event.substituteTeacherFullName
-                    ? event.substituteTeacherFullName
-                    : undefined
-                }
-              />
+              <Flex gap="8px" align="center">
+                <AbsenceStatusTag
+                  isUserAbsentTeacher={isUserAbsentTeacher}
+                  isUserSubstituteTeacher={isUserSubstituteTeacher}
+                  isAdminMode={isAdminMode}
+                />
+                {hasConflictingEvent &&
+                  !event.substituteTeacherFullName &&
+                  !isUserAbsentTeacher &&
+                  !isAdminMode && (
+                    <Popover placement="top" trigger="hover">
+                      <PopoverTrigger>
+                        <Box display="flex" alignItems="center" height="100%">
+                          <Icon
+                            as={BiSolidErrorCircle}
+                            color={theme.colors.errorRed['200']}
+                            boxSize={6}
+                          />
+                        </Box>
+                      </PopoverTrigger>
+                      <PopoverContent bg="white" width="fit-content">
+                        <PopoverArrow />
+                        <PopoverBody textStyle="caption" maxW="190px">
+                          You have already filled an absence on this date.
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+              </Flex>
               <Flex position="absolute" right="0">
                 {isAdminMode && (
                   <IconButton
@@ -367,9 +398,8 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                           </Text>{' '}
                           and{' '}
                           <Text as="span" fontWeight={700}>
-                            {event.substituteTeacher.firstName}
+                            {event.substituteTeacher.firstName}.
                           </Text>
-                          .
                         </Text>
                       </>
                     ) : isUserSubstituteTeacher ? (
@@ -383,9 +413,8 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                           </Text>{' '}
                           and{' '}
                           <Text as="span" fontWeight={700}>
-                            {event.absentTeacher.firstName}
+                            {event.absentTeacher.firstName}.
                           </Text>
-                          .
                         </Text>
                       </>
                     ) : null}
@@ -401,6 +430,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
                     fontSize="16px"
                     fontWeight="500"
                     onClick={handleFillAbsenceClick}
+                    disabled={hasConflictingEvent}
                   >
                     Fill this Absence
                   </Button>

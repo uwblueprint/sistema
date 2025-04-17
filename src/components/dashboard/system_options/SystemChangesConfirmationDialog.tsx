@@ -134,17 +134,6 @@ const SystemChangesConfirmationDialog: React.FC<
           let label = 'Updated Display';
           let details = `"${originalSubject.abbreviation}" → "${updatedSubject.abbreviation}"`;
 
-          // Handle empty to value case: "Added Display"
-          if (originalSubject.abbreviation === '') {
-            label = 'Added Display';
-            details = `"${updatedSubject.abbreviation}" to "${updatedSubject.name}"`;
-          }
-          // Handle value to empty case: "Removed Display"
-          else if (updatedSubject.abbreviation === '') {
-            label = 'Removed Display';
-            details = `"${originalSubject.abbreviation}" from "${updatedSubject.name}"`;
-          }
-
           displayChanges.push({
             icon: getChangeIcon('update'),
             label,
@@ -254,17 +243,7 @@ const SystemChangesConfirmationDialog: React.FC<
           let label = 'Updated Display';
           let details = `"${originalLocation.abbreviation}" → "${updatedLocation.abbreviation}"`;
 
-          // Handle empty to value case: "Added Display"
-          if (originalLocation.abbreviation === '') {
-            label = 'Added Display';
-            details = `"${updatedLocation.abbreviation}" to "${updatedLocation.name}"`;
-          }
-          // Handle value to empty case: "Removed Display"
-          else if (updatedLocation.abbreviation === '') {
-            label = 'Removed Display';
-            details = `"${originalLocation.abbreviation}" from "${updatedLocation.name}"`;
-          }
-
+          // Display fields can only be updated, not added or removed
           displayChanges.push({
             icon: getChangeIcon('update'),
             label,
