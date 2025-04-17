@@ -23,7 +23,6 @@ export interface AccordionProps {
   isOpen: boolean;
   toggleOpen: () => void;
   toggleItem: (id: number) => void;
-  textColor?: string;
 }
 
 const Accordion = ({
@@ -33,7 +32,6 @@ const Accordion = ({
   isOpen,
   toggleOpen,
   toggleItem,
-  textColor = 'text.body',
 }: AccordionProps) => {
   return (
     <Box width="100%">
@@ -46,13 +44,13 @@ const Accordion = ({
         height="32px"
       >
         <Flex justify="space-between" align="center" width="100%">
-          <Text textStyle="h4" color={textColor}>
+          <Text textStyle="h4" color="text.body">
             {title}
           </Text>
           {isOpen ? (
-            <IoChevronUp size={24} color={textColor} />
+            <IoChevronUp size={24} color="text.body" />
           ) : (
-            <IoChevronDown size={24} color={textColor} />
+            <IoChevronDown size={24} color="text.body" />
           )}
         </Flex>
       </Button>
@@ -84,7 +82,7 @@ const Accordion = ({
                   </Box>
                   <Text
                     textStyle="subtitle"
-                    color={textColor}
+                    color="text.body"
                     isTruncated
                     maxWidth="200px"
                   >

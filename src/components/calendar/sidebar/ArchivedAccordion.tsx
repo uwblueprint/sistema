@@ -167,7 +167,9 @@ export default function ArchivedAccordion({
                           />
                         )}
                       </Box>
-                      <Text textStyle="subtitle">{subject.name}</Text>
+                      <Text textStyle="subtitle" isTruncated maxWidth="200px">
+                        {subject.name}
+                      </Text>
                     </Flex>
                   </Box>
                 ))}
@@ -217,7 +219,9 @@ export default function ArchivedAccordion({
                           />
                         )}
                       </Box>
-                      <Text textStyle="subtitle">{location.name}</Text>
+                      <Text textStyle="subtitle" isTruncated maxWidth="200px">
+                        {location.name}
+                      </Text>
                     </Flex>
                   </Box>
                 ))}
