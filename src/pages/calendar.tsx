@@ -330,6 +330,7 @@ const Calendar: React.FC = () => {
           closeOnBlur={true}
           closeOnEsc={true}
           gutter={16}
+          isLazy
         >
           <PopoverTrigger>
             <Box
