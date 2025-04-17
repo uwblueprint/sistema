@@ -123,6 +123,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
         onClose={onClose}
         placement="bottom-start"
         autoFocus={false}
+        isLazy
       >
         <PopoverTrigger>
           <InputGroup>
