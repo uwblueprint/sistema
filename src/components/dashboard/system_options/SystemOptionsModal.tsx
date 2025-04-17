@@ -18,7 +18,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { Location, SubjectAPI } from '@utils/types';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { IoCloseOutline, IoSettingsOutline } from 'react-icons/io5';
 import { useChangeManagement } from '../../../../hooks/useChangeManagement';
 import LocationsTable from './LocationsTable';
@@ -69,8 +69,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       colorCodes: string[];
     }[]
   >([defaultColorGroup]);
-
-  const [isConfirmingClose, setIsConfirmingClose] = useState(false);
 
   const fetchSubjects = useCallback(async () => {
     try {
@@ -185,7 +183,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   } = useChangeManagement({
     subjects,
     locations,
-    colorGroups,
     absenceCap,
     onRefresh: refreshData,
     toast,
@@ -217,7 +214,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       pendingEntities.settings.absenceCap !== undefined;
 
     if (hasChanges) {
-      setIsConfirmingClose(true);
       unsavedChangesDialog.onOpen();
     } else {
       onClose();
@@ -226,7 +222,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
 
   const handleCloseConfirmed = () => {
     unsavedChangesDialog.onClose();
-    setIsConfirmingClose(false);
     // Clear any pending changes
     clearChanges();
     onClose();
@@ -240,7 +235,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       pendingEntities.settings.absenceCap !== undefined;
 
     if (hasChanges) {
-      setIsConfirmingClose(false);
       confirmationDialog.onOpen();
     } else {
       onClose();

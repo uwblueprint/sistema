@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
   Text,
 } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 
 export type Option = { name: string; id: number };
@@ -106,7 +106,7 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
         <PopoverArrow />
         <PopoverBody p={0}>
           {options.map((option, index) => (
-            <React.Fragment key={option.id}>
+            <Fragment key={option.id}>
               <Box
                 onClick={() => handleOptionSelect(option)}
                 sx={{
@@ -125,7 +125,7 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
               {index < options.length - 1 && (
                 <Divider borderColor="neutralGray.300" opacity={1} />
               )}
-            </React.Fragment>
+            </Fragment>
           ))}
         </PopoverBody>
       </PopoverContent>

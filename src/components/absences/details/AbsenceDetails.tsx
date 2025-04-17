@@ -7,10 +7,9 @@ import {
   Text,
   VStack,
   useTheme,
-  useToast,
 } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
-import { EventDetails, Role } from '@utils/types';
+import { EventDetails } from '@utils/types';
 import { Buildings, Calendar } from 'iconsax-react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
@@ -41,14 +40,11 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const theme = useTheme();
   const userData = useUserData();
 
-  const toast = useToast();
-
   if (!event) return null;
 
   const userId = userData.id;
   const isUserAbsentTeacher = userId === event.absentTeacher.id;
   const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
-  const isUserAdmin = userData.role === Role.ADMIN;
 
   const getOrdinalNum = (number) => {
     let selector;

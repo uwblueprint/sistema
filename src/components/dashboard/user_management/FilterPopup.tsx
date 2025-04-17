@@ -17,7 +17,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { ComparisonOperator, FilterOptions, Role } from '@utils/types';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { BiRevision } from 'react-icons/bi';
 import { IoFilterOutline } from 'react-icons/io5';
 import OperatorMenu from './OperatorMenu';

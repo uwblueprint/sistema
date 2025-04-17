@@ -18,7 +18,6 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  PopoverArrow,
   Portal,
   useToast,
 } from '@chakra-ui/react';
@@ -32,18 +31,18 @@ import { useUserData } from '@hooks/useUserData';
 import { formatMonthYear } from '@utils/formatMonthYear';
 import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
-import { EventDetails, Role } from '@utils/types';
+import { EventDetails } from '@utils/types';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import AbsenceBox from '../components/absences/AbsenceBox';
 import AbsenceDetails from '../components/absences/details/AbsenceDetails';
-import CalendarHeader from '../components/calendar/header/CalendarHeader';
-import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
 import { CalendarTabs } from '../components/calendar/CalendarTabs';
-import DeclareAbsenceForm from '../components/absences/declare/DeclareAbsenceForm';
+import DeclareAbsenceForm from '../components/absences/modals/declare/DeclareAbsenceForm';
 import AbsenceFillThanks from '../components/absences/details/AbsenceFillThanks';
-import EditAbsenceForm from '../components/absences/edit/EditAbsenceForm';
-import DeleteAbsenceModal from '../components/absences/delete/DeleteAbsenceModal';
+import EditAbsenceForm from '../components/absences/modals/edit/EditAbsenceForm';
+import ConfirmDeleteModal from '../components/absences/modals/delete/ConfirmDeleteModal';
+import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
+import CalendarHeader from '../components/header/calendar/CalendarHeader';
 
 const Calendar: React.FC = () => {
   const { refetchUserData, ...userData } = useUserData();
@@ -113,9 +112,7 @@ const Calendar: React.FC = () => {
   const [currentMonthYear, setCurrentMonthYear] = useState(
     formatMonthYear(new Date())
   );
-  const [activeTab, setActiveTab] = React.useState<'explore' | 'declared'>(
-    'explore'
-  );
+  const [activeTab, setActiveTab] = useState<'explore' | 'declared'>('explore');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventDetails | null>(null);
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
@@ -153,7 +150,7 @@ const Calendar: React.FC = () => {
     setAbsenceToDelete(null);
   };
 
-  const handleDeleteAbsence = async (absenceId: string | number) => {
+  const handleDeleteAbsence = async () => {
     await fetchAbsences();
   };
 
@@ -359,6 +356,8 @@ const Calendar: React.FC = () => {
       isAbsenceDetailsOpen,
       onAbsenceDetailsOpen,
       clickedEventId,
+      fetchAbsences,
+      handleCloseDetails,
       handleDeleteClick,
       handleFillAbsenceClick,
       handleEditClick,
@@ -768,7 +767,7 @@ const Calendar: React.FC = () => {
       )}
       {/* Delete Absence Modal */}
       {absenceToDelete && (
-        <DeleteAbsenceModal
+        <ConfirmDeleteModal
           isOpen={isDeleteModalOpen}
           onClose={handleDeleteModalClose}
           absenceId={absenceToDelete}

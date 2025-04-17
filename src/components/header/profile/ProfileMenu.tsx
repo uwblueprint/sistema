@@ -15,7 +15,6 @@ import { NEXT_PUBLIC_PROD_URL } from '@utils/config';
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { Role, UserData } from '@utils/types';
 import { signOut } from 'next-auth/react';
-import React from 'react';
 import { IoLinkOutline } from 'react-icons/io5';
 
 interface ProfileMenuProps {
