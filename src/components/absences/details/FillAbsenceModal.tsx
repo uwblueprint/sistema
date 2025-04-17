@@ -1,38 +1,33 @@
 import {
-  Button,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
   ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
   Text,
 } from '@chakra-ui/react';
 
-interface ConfirmEditModalProps {
+interface FillAbsenceModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  isSubmitting?: boolean;
+  isLoading: boolean;
 }
 
-export const ConfirmEditModal: React.FC<ConfirmEditModalProps> = ({
+const FillAbsenceModal: React.FC<FillAbsenceModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
-  isSubmitting = false,
+  isLoading,
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent width="300px" padding="25px" alignItems="center">
-        <ModalHeader
-          textStyle="h3"
-          fontSize="16px"
-          padding="0"
-          textAlign="center"
-        >
-          Save Changes?
+        <ModalHeader textStyle="h3" padding="0" textAlign="center">
+          Are you sure you want to fill this absence?
         </ModalHeader>
         <ModalBody
           textStyle="subtitle"
@@ -40,9 +35,8 @@ export const ConfirmEditModal: React.FC<ConfirmEditModalProps> = ({
           padding="0"
           mt="12px"
           mb="16px"
-          textAlign="center"
         >
-          <Text>Would you like to save the changes you&apos;ve made?</Text>
+          <Text>You won&apos;t be able to undo.</Text>
         </ModalBody>
         <ModalFooter padding="0">
           <Button
@@ -52,19 +46,21 @@ export const ConfirmEditModal: React.FC<ConfirmEditModalProps> = ({
             fontWeight="500"
             mr="10px"
           >
-            Back
+            Cancel
           </Button>
           <Button
             onClick={onConfirm}
-            isLoading={isSubmitting}
             textStyle="button"
             fontWeight="500"
+            isLoading={isLoading}
             ml="10px"
           >
-            Save
+            Confirm
           </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
   );
 };
+
+export default FillAbsenceModal;

@@ -3,12 +3,6 @@ import {
   Box,
   Flex,
   Image,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
   Text,
   useDisclosure,
   useTheme,
@@ -28,7 +22,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import AbsenceBox from '../components/absences/AbsenceBox';
 import AbsenceDetails from '../components/absences/details/AbsenceDetails';
-import DeclareAbsenceForm from '../components/absences/modals/declare/DeclareAbsenceForm';
+import DeclareAbsenceModal from '../components/absences/modals/declare/DeclareAbsenceModal';
 import { CalendarTabs } from '../components/calendar/CalendarTabs';
 import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
 import CalendarHeader from '../components/header/calendar/CalendarHeader';
@@ -463,7 +457,6 @@ const Calendar: React.FC = () => {
           </Box>
         </Box>
       </Flex>
-
       <AbsenceDetails
         isOpen={isAbsenceDetailsOpen}
         onClose={onAbsenceDetailsClose}
@@ -474,26 +467,15 @@ const Calendar: React.FC = () => {
         isAdminMode={isAdminMode}
         hasConflictingEvent={hasConflictingEvent(selectedEvent!!)}
       />
-
-      <Modal isOpen={isInputFormOpen} onClose={onInputFormClose}>
-        <ModalOverlay />
-        <ModalContent w={362} sx={{ padding: '33px 31px' }} borderRadius="16px">
-          <ModalHeader fontSize={22} p="0 0 28px 0">
-            Declare Absence
-          </ModalHeader>
-          <ModalCloseButton top="33px" right="28px" color="text.header" />
-          <ModalBody p={0}>
-            <DeclareAbsenceForm
-              onClose={onInputFormClose}
-              initialDate={selectedDate!!}
-              userId={userData.id}
-              onTabChange={setActiveTab}
-              isAdminMode={isAdminMode}
-              fetchAbsences={fetchAbsences}
-            />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      <DeclareAbsenceModal
+        isOpen={isInputFormOpen}
+        onClose={onInputFormClose}
+        initialDate={selectedDate!!}
+        userId={userData.id}
+        onTabChange={setActiveTab}
+        isAdminMode={isAdminMode}
+        fetchAbsences={fetchAbsences}
+      />
     </>
   );
 };

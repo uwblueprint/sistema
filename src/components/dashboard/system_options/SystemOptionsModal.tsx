@@ -252,7 +252,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
         transform={isOpen ? 'translateY(0)' : 'translateY(20px)'}
         opacity={isOpen ? 1 : 0}
         transition="transform 0.3s ease, opacity 0.3s ease, height 0.3s ease"
-        marginY="2.5vh"
       >
         <Flex direction="column" width="100%">
           <ModalHeader padding={0}>
