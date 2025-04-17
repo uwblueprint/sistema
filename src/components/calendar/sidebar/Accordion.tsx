@@ -82,7 +82,12 @@ const Accordion = ({
                       <Icon as={CheckIcon} color="white" w="14px" h="14px" />
                     )}
                   </Box>
-                  <Text textStyle="subtitle" color={textColor}>
+                  <Text
+                    textStyle="subtitle"
+                    color={textColor}
+                    isTruncated
+                    maxWidth="180px"
+                  >
                     {item.name}
                   </Text>
                 </Flex>
