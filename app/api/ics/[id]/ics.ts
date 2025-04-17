@@ -23,7 +23,7 @@ export const convertAbsenceToICSEvent = (
       startDate.getDate(),
     ],
     end: [endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate()],
-    title: `${absence.subject.name}: ${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName[0]}${substituteTeacherString}`,
+    title: `${absence.location.abbreviation}: ${absence.subject.name}: ${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName[0]} ${substituteTeacherString}`,
     description: `Subject: ${absence.subject.name}\nLesson Plan: ${lessonString}${notesLine}${roomString}`,
     location: absence.location.name,
     calName,

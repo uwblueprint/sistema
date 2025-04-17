@@ -49,6 +49,7 @@ const AbsenceBox: React.FC<AbsenceBoxProps> = ({
     <Box
       sx={{
         padding: '2px 3px 4px 3px',
+        paddingRight: lessonPlan ? '28px' : '3px',
         borderRadius: (theme) => `${theme.radii.md}`,
         backgroundColor,
         textColor,

@@ -86,7 +86,7 @@ const Accordion = ({
                     textStyle="subtitle"
                     color={textColor}
                     isTruncated
-                    maxWidth="180px"
+                    maxWidth="200px"
                   >
                     {item.name}
                   </Text>
