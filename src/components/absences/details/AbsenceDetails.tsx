@@ -12,7 +12,6 @@ import {
 import { useUserData } from '@hooks/useUserData';
 import { EventDetails, Role } from '@utils/types';
 import { Buildings, Calendar } from 'iconsax-react';
-import { useState } from 'react';
 import { FiEdit2, FiMapPin, FiTrash2, FiUser } from 'react-icons/fi';
 import { IoEyeOutline } from 'react-icons/io5';
 import AbsenceStatusTag from './AbsenceStatusTag';
@@ -128,7 +127,14 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
           </Flex>
         </Flex>
 
-        <Box sx={{ padding: '20px 0 0 0' }}>
+        <Box
+          sx={{
+            padding: '20px 0 0 0',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+          }}
+        >
           <VStack spacing="18px" align="stretch">
             <Text textStyle="h2">{event.title}</Text>
             <Flex gap="13px">
