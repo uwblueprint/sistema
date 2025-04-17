@@ -223,6 +223,13 @@ const Calendar: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
+  const handleCloseDetails = () => {
+    setClickedEventId(null);
+    onAbsenceDetailsClose();
+    setIsClosingDetails(true);
+    setTimeout(() => setIsClosingDetails(false), 100);
+  };
+
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => {
       const {
@@ -505,13 +512,6 @@ const Calendar: React.FC = () => {
 
     setFilteredEvents(filtered);
   }, [searchQuery, events, activeTab, userData.id, isAdminMode]);
-
-  const handleCloseDetails = () => {
-    setClickedEventId(null);
-    onAbsenceDetailsClose();
-    setIsClosingDetails(true);
-    setTimeout(() => setIsClosingDetails(false), 100);
-  };
 
   if (userData.isLoading) {
     return null;
