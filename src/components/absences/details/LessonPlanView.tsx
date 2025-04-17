@@ -120,7 +120,7 @@ const NoLessonPlanViewingDisplay = ({
       align="center"
       justify="center"
       gap="20px"
-      width="302px"
+      width="100%"
       sx={{
         padding: '24px',
         borderRadius: '10px',

@@ -131,7 +131,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
             padding: '20px 0 0 0',
             maxHeight: '70vh',
             overflowY: 'auto',
-            overflowX: 'hidden',
           }}
         >
           <VStack spacing="18px" align="stretch">
