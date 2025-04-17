@@ -45,19 +45,37 @@ const LessonPlanDisplay = ({
     <Link href={href} isExternal width="100%">
       <Flex
         width="100%"
-        height="48px"
+        minHeight="48px"
         borderColor={theme.colors.neutralGray[300]}
         borderWidth="1px"
         borderRadius="10px"
-        p="16px"
-        align="center"
+        px="16px"
+        py="10px"
         bg={theme.colors.buttonBackground}
         justify="space-between"
+        align="flex-start"
+        gap={3}
+        flexWrap="wrap"
       >
         <Flex align="center">
-          <FiFileText size="24px" color={theme.colors.primaryBlue[300]} />
+          <Box
+            boxSize="24px"
+            flexShrink={0}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <FiFileText size="24px" color={theme.colors.primaryBlue[300]} />
+          </Box>
           <Box ml="12px">
-            <Text textStyle="caption">{fileName}</Text>
+            <Text
+              textStyle="caption"
+              whiteSpace="normal"
+              wordBreak="break-word"
+              maxWidth="220px"
+            >
+              {fileName}
+            </Text>
             {fileSize && (
               <Text
                 fontSize={theme.textStyles.body.fontSize}
