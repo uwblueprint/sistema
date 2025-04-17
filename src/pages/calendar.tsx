@@ -32,7 +32,7 @@ import { useUserData } from '@hooks/useUserData';
 import { formatMonthYear } from '@utils/formatMonthYear';
 import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
-import { EventDetails } from '@utils/types';
+import { EventDetails, Role } from '@utils/types';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import AbsenceBox from '../components/absences/AbsenceBox';
@@ -43,6 +43,7 @@ import { CalendarTabs } from '../components/calendar/CalendarTabs';
 import DeclareAbsenceForm from '../components/absences/declare/DeclareAbsenceForm';
 import AbsenceFillThanks from '../components/absences/details/AbsenceFillThanks';
 import EditAbsenceForm from '../components/absences/edit/EditAbsenceForm';
+import DeleteAbsenceModal from '../components/absences/delete/DeleteAbsenceModal';
 
 const Calendar: React.FC = () => {
   const { refetchUserData, ...userData } = useUserData();
@@ -137,6 +138,20 @@ const Calendar: React.FC = () => {
   const [isFillThanksOpen, setIsFillThanksOpen] = useState(false);
   const toast = useToast();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // State for delete modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [absenceToDelete, setAbsenceToDelete] = useState<number | null>(null);
+
+  const handleDeleteClick = (absenceId: number) => {
+    setAbsenceToDelete(absenceId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteModalClose = () => {
+    setIsDeleteModalOpen(false);
+    setAbsenceToDelete(null);
+  };
 
   const handleDeleteAbsence = async (absenceId: string | number) => {
     await fetchAbsences();
@@ -326,7 +341,7 @@ const Calendar: React.FC = () => {
                     event={eventDetails}
                     isAdminMode={isAdminMode}
                     onClose={handleCloseDetails}
-                    onDelete={handleDeleteAbsence}
+                    onDelete={handleDeleteClick}
                     fetchAbsences={fetchAbsences}
                     onFillClick={handleFillAbsenceClick}
                     onEditClick={handleEditClick}
@@ -344,7 +359,7 @@ const Calendar: React.FC = () => {
       isAbsenceDetailsOpen,
       onAbsenceDetailsOpen,
       clickedEventId,
-      handleDeleteAbsence,
+      handleDeleteClick,
       handleFillAbsenceClick,
       handleEditClick,
     ]
@@ -749,6 +764,15 @@ const Calendar: React.FC = () => {
             </ModalBody>
           </ModalContent>
         </Modal>
+      )}
+      {/* Delete Absence Modal */}
+      {absenceToDelete && (
+        <DeleteAbsenceModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleDeleteModalClose}
+          absenceId={absenceToDelete}
+          onDelete={handleDeleteAbsence}
+        />
       )}
     </>
   );

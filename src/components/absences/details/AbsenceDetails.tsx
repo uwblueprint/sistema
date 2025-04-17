@@ -4,13 +4,6 @@ import {
   CloseButton,
   Flex,
   IconButton,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Text,
   VStack,
   useTheme,
@@ -48,8 +41,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
 }) => {
   const theme = useTheme();
   const userData = useUserData();
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const toast = useToast();
 
@@ -86,56 +77,8 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const absenceDate = formatDate(event.start!!);
 
   const handleDeleteClick = () => {
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleDeleteCancel = () => {
-    setIsDeleteDialogOpen(false);
-  };
-
-  const handleDeleteConfirm = async () => {
-    try {
-      setIsDeleting(true);
-      const response = await fetch(`/api/deleteAbsence`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          isUserAdmin,
-          absenceId: event.absenceId,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete absence');
-      }
-
-      toast({
-        title: 'Absence deleted',
-        description: 'The absence has been successfully deleted.',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
-
-      await fetchAbsences();
-      setIsDeleteDialogOpen(false);
-      onClose();
-
-      if (onDelete) {
-        onDelete(event.absenceId);
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to delete absence',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    } finally {
-      setIsDeleting(false);
+    if (onDelete) {
+      onDelete(event.absenceId);
     }
   };
 
@@ -328,28 +271,6 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
           </VStack>
         </Box>
       </Box>
-      <Modal
-        isOpen={isDeleteDialogOpen}
-        onClose={handleDeleteCancel}
-        isCentered
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Delete Absence</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text>Are you sure you want to delete this absence?</Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={handleDeleteCancel} mr={3}>
-              Cancel
-            </Button>
-            <Button onClick={handleDeleteConfirm} isLoading={isDeleting}>
-              Delete
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </>
   );
 };
