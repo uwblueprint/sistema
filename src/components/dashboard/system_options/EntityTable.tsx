@@ -10,7 +10,6 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  Portal,
   Spacer,
   Text,
   Tooltip,
@@ -557,27 +556,41 @@ const EntityTable: React.FC<EntityTableProps> = ({
                   maxW="60px"
                   maxLength={maxAbbreviationLength}
                 />
-                <HStack>
-                  <Button
-                    variant="outline"
-                    onClick={handleSaveEditedItem}
-                    size="sm"
-                    borderRadius="md"
-                    p={0}
-                    transition="background-color 0.2s ease"
-                  >
-                    <IoCheckmark size={20} color={theme.colors.gray[600]} />
-                  </Button>
-                  <Button
-                    variant="outline"
+                <HStack
+                  spacing={0}
+                  boxShadow="0px 0px 10px 0px rgba(0, 0, 0, 0.15)"
+                  borderRadius="5px"
+                >
+                  <Box
+                    as="button"
+                    p={1}
+                    cursor="pointer"
+                    bg="buttonBackground"
+                    _hover={{ bg: 'neutralGray.100' }}
+                    _active={{ bg: 'neutralGray.300' }}
+                    borderRadius="5px 0 0 5px"
                     onClick={handleCancelEdit}
-                    size="sm"
-                    borderRadius="md"
-                    p={0}
-                    transition="background-color 0.2s ease"
                   >
-                    <IoCloseOutline size={20} color={theme.colors.gray[600]} />
-                  </Button>
+                    <IoCloseOutline
+                      size={24}
+                      color={theme.colors.neutralGray[600]}
+                    />
+                  </Box>
+                  <Box
+                    as="button"
+                    p={1}
+                    cursor="pointer"
+                    bg="buttonBackground"
+                    _hover={{ bg: 'neutralGray.100' }}
+                    _active={{ bg: 'neutralGray.300' }}
+                    borderRadius="0 5px 5px 0"
+                    onClick={handleSaveEditedItem}
+                  >
+                    <IoCheckmark
+                      size={24}
+                      color={theme.colors.neutralGray[600]}
+                    />
+                  </Box>
                 </HStack>
               </Box>
             </>
@@ -654,14 +667,44 @@ const EntityTable: React.FC<EntityTableProps> = ({
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
+                gap={3}
               >
-                <Text
-                  color={item.archived ? 'text.inactiveButtonText' : 'inherit'}
-                  textStyle="cellBody"
-                  transition="color 0.3s ease"
+                <Tooltip
+                  label={item.abbreviation}
+                  placement="top"
+                  openDelay={300}
+                  isDisabled={item.abbreviation.length <= 3}
+                  hasArrow
                 >
-                  {item.abbreviation}
-                </Text>
+                  <Box position="relative" overflow="hidden" flex={1}>
+                    <Text
+                      color={
+                        item.archived ? 'text.inactiveButtonText' : 'inherit'
+                      }
+                      textStyle="cellBody"
+                      transition="color 0.3s ease"
+                      noOfLines={1}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                      whiteSpace="nowrap"
+                      position="relative"
+                      pr="15px"
+                    >
+                      {item.abbreviation}
+                    </Text>
+                    <Box
+                      position="absolute"
+                      right="0"
+                      top="0"
+                      height="100%"
+                      width="15px"
+                      background={`linear-gradient(to right, transparent, ${item.archived ? 'var(--chakra-colors-neutralGray-100)' : 'white'})`}
+                      zIndex="1"
+                      pointerEvents="none"
+                      transition="background 0.3s ease"
+                    />
+                  </Box>
+                </Tooltip>
                 <Box
                   className="action-button"
                   opacity={openMenuId === item.id ? '1' : '0'}
@@ -683,97 +726,95 @@ const EntityTable: React.FC<EntityTableProps> = ({
                         transition="opacity 0.2s ease"
                       />
                     </PopoverTrigger>
-                    <Portal>
-                      <PopoverContent width="auto" boxShadow="md">
-                        <PopoverBody p={0}>
-                          <VStack align="stretch" spacing={0}>
+                    <PopoverContent width="auto" boxShadow="md">
+                      <PopoverBody p={0}>
+                        <VStack align="stretch" spacing={0}>
+                          <Button
+                            leftIcon={
+                              <FiEdit2
+                                color={theme.colors.neutralGray[600]}
+                                size={15}
+                              />
+                            }
+                            onClick={() => handleEditItem(item)}
+                            variant="ghost"
+                            justifyContent="flex-start"
+                            width="100%"
+                            textStyle="label"
+                            fontSize={12}
+                            color="body"
+                            borderRadius={0}
+                            py={2}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            leftIcon={
+                              <FiArchive
+                                color={theme.colors.neutralGray[600]}
+                                size={15}
+                              />
+                            }
+                            onClick={() => handleArchiveItem(item)}
+                            variant="ghost"
+                            justifyContent="flex-start"
+                            width="100%"
+                            textStyle="label"
+                            fontSize={12}
+                            color="body"
+                            borderRadius={0}
+                            py={2}
+                          >
+                            {item.archived ? 'Unarchive' : 'Archive'}
+                          </Button>
+                          <Tooltip
+                            label={
+                              itemsInUse.includes(item.id)
+                                ? `Cannot delete ${entityType} because it is used in existing absences`
+                                : ''
+                            }
+                            isDisabled={!itemsInUse.includes(item.id)}
+                            hasArrow
+                          >
                             <Button
                               leftIcon={
-                                <FiEdit2
+                                <FiTrash2
                                   color={theme.colors.neutralGray[600]}
                                   size={15}
                                 />
                               }
-                              onClick={() => handleEditItem(item)}
+                              onClick={() => handleDeleteItem(item)}
+                              isDisabled={itemsInUse.includes(item.id)}
                               variant="ghost"
                               justifyContent="flex-start"
                               width="100%"
                               textStyle="label"
                               fontSize={12}
                               color="body"
-                              borderRadius={0}
                               py={2}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              leftIcon={
-                                <FiArchive
-                                  color={theme.colors.neutralGray[600]}
-                                  size={15}
-                                />
-                              }
-                              onClick={() => handleArchiveItem(item)}
-                              variant="ghost"
-                              justifyContent="flex-start"
-                              width="100%"
-                              textStyle="label"
-                              fontSize={12}
-                              color="body"
                               borderRadius={0}
-                              py={2}
-                            >
-                              {item.archived ? 'Unarchive' : 'Archive'}
-                            </Button>
-                            <Tooltip
-                              label={
+                              bg={
                                 itemsInUse.includes(item.id)
-                                  ? `Cannot delete ${entityType} because it is used in existing absences`
-                                  : ''
+                                  ? 'neutralGray.100'
+                                  : undefined
                               }
-                              isDisabled={!itemsInUse.includes(item.id)}
-                              hasArrow
+                              _hover={
+                                itemsInUse.includes(item.id)
+                                  ? { bg: 'neutralGray.100' }
+                                  : undefined
+                              }
+                              cursor={
+                                itemsInUse.includes(item.id)
+                                  ? 'not-allowed'
+                                  : 'pointer'
+                              }
                             >
-                              <Button
-                                leftIcon={
-                                  <FiTrash2
-                                    color={theme.colors.neutralGray[600]}
-                                    size={15}
-                                  />
-                                }
-                                onClick={() => handleDeleteItem(item)}
-                                isDisabled={itemsInUse.includes(item.id)}
-                                variant="ghost"
-                                justifyContent="flex-start"
-                                width="100%"
-                                textStyle="label"
-                                fontSize={12}
-                                color="body"
-                                py={2}
-                                borderRadius={0}
-                                bg={
-                                  itemsInUse.includes(item.id)
-                                    ? 'neutralGray.100'
-                                    : undefined
-                                }
-                                _hover={
-                                  itemsInUse.includes(item.id)
-                                    ? { bg: 'neutralGray.100' }
-                                    : undefined
-                                }
-                                cursor={
-                                  itemsInUse.includes(item.id)
-                                    ? 'not-allowed'
-                                    : 'pointer'
-                                }
-                              >
-                                Delete
-                              </Button>
-                            </Tooltip>
-                          </VStack>
-                        </PopoverBody>
-                      </PopoverContent>
-                    </Portal>
+                              Delete
+                            </Button>
+                          </Tooltip>
+                        </VStack>
+                      </PopoverBody>
+                    </PopoverContent>
                   </Popover>
                 </Box>
               </Box>
@@ -935,27 +976,38 @@ const EntityTable: React.FC<EntityTableProps> = ({
               maxW="60px"
               maxLength={maxAbbreviationLength}
             />
-            <HStack>
-              <Button
-                variant="outline"
-                onClick={handleAddItem}
-                size="sm"
-                borderRadius="md"
-                p={0}
-                transition="background-color 0.2s ease"
-              >
-                <IoCheckmark size={20} color={theme.colors.gray[600]} />
-              </Button>
-              <Button
-                variant="outline"
+            <HStack
+              spacing={0}
+              boxShadow="0px 0px 10px 0px rgba(0, 0, 0, 0.15)"
+              borderRadius="5px"
+            >
+              <Box
+                as="button"
+                p={1}
+                cursor="pointer"
+                bg="buttonBackground"
+                _hover={{ bg: 'neutralGray.100' }}
+                _active={{ bg: 'neutralGray.300' }}
+                borderRadius="5px 0 0 5px"
                 onClick={handleCancelEdit}
-                size="sm"
-                borderRadius="md"
-                p={0}
-                transition="background-color 0.2s ease"
               >
-                <IoCloseOutline size={20} color={theme.colors.gray[600]} />
-              </Button>
+                <IoCloseOutline
+                  size={24}
+                  color={theme.colors.neutralGray[600]}
+                />
+              </Box>
+              <Box
+                as="button"
+                p={1}
+                cursor="pointer"
+                bg="buttonBackground"
+                _hover={{ bg: 'neutralGray.100' }}
+                _active={{ bg: 'neutralGray.300' }}
+                borderRadius="0 5px 5px 0"
+                onClick={handleAddItem}
+              >
+                <IoCheckmark size={24} color={theme.colors.neutralGray[600]} />
+              </Box>
             </HStack>
           </Box>
         </Box>
