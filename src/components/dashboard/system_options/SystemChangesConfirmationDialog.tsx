@@ -243,7 +243,7 @@ const SystemChangesConfirmationDialog: React.FC<
           let label = 'Updated Display';
           let details = `"${originalLocation.abbreviation}" → "${updatedLocation.abbreviation}"`;
 
-          // Display fields can now only be updated, not added or removed
+          // Display fields can only be updated, not added or removed
           displayChanges.push({
             icon: getChangeIcon('update'),
             label,

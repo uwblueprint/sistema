@@ -272,7 +272,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                 icon={<IoCloseOutline size={40} />}
                 variant="ghost"
                 onClick={handleClose}
-                size="sm"
                 transition="background-color 0.2s ease"
               />
             </HStack>
