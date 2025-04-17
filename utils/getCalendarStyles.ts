@@ -65,5 +65,4 @@ export const getCalendarStyles = (theme: CustomTheme) => css`
     text-transform: uppercase;
     font-size: 14px;
   }
-    */
 `;
