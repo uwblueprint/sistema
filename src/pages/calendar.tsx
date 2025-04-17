@@ -469,6 +469,7 @@ const Calendar: React.FC = () => {
         event={selectedEvent!!}
         fetchAbsences={fetchAbsences}
         onDelete={handleDeleteAbsence}
+        onTabChange={setActiveTab}
         isAdminMode={isAdminMode}
         hasConflictingEvent={hasConflictingEvent(selectedEvent!!)}
       />

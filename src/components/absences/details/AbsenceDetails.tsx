@@ -40,6 +40,7 @@ interface AbsenceDetailsProps {
   onClose: () => void;
   event: EventDetails;
   onDelete?: (absenceId: number) => void;
+  onTabChange: (tab: 'explore' | 'declared') => void;
   isAdminMode: boolean;
   fetchAbsences: () => Promise<void>;
   hasConflictingEvent: boolean;
@@ -50,6 +51,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   onClose,
   event,
   onDelete,
+  onTabChange,
   isAdminMode,
   fetchAbsences,
   hasConflictingEvent,
@@ -131,6 +133,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       await fetchAbsences();
       setIsFillDialogOpen(false);
       setIsFillThanksOpen(true);
+      onTabChange('declared');
     } catch {
       const formattedDate = formatFullDate(event.start);
 
@@ -441,13 +444,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       </Modal>
       <Modal isOpen={isFillDialogOpen} onClose={handleFillCancel} isCentered>
         <ModalOverlay />
-        <ModalContent
-          width="300px"
-          padding="25px"
-          sx={{
-            alignItems: 'center',
-          }}
-        >
+        <ModalContent width="300px" padding="25px" alignItems="center">
           <ModalHeader
             textStyle="h3"
             fontSize="16px"
