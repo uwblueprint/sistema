@@ -5,6 +5,7 @@ import {
 import { prisma } from '@utils/prisma';
 import { sendEmail } from '@utils/sendEmail';
 import { NextResponse } from 'next/server';
+import { getAdminEmails } from '@utils/getAdminEmails';
 
 function addBusinessDays(startDate: Date, days: number): Date {
   const date = new Date(startDate);
@@ -23,22 +24,6 @@ function getUTCDateWithoutTime(baseDate: Date, daysToAdd: number): Date {
   return new Date(
     Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
   );
-}
-
-async function getAdminEmails(allowedDomain: string): Promise<string[]> {
-  try {
-    const adminUsers = await prisma.user.findMany({
-      where: { role: 'ADMIN' },
-      select: { email: true },
-    });
-
-    return adminUsers
-      .map((user) => user.email)
-      .filter((email) => email.endsWith(`@${allowedDomain}`));
-  } catch (error) {
-    console.error('Error fetching admin emails:', error);
-    return [];
-  }
 }
 
 async function getUsersWithPendingLessonPlans(targetDate: Date, nextDay: Date) {
@@ -87,7 +72,7 @@ async function sendReminders(
     return 0;
   }
 
-  const adminEmails = await getAdminEmails(allowedDomain);
+  const adminEmails = await getAdminEmails();
 
   const emailPromises = users.flatMap((user) =>
     user.absences.map(async (absence) => {
@@ -102,7 +87,7 @@ async function sendReminders(
         ? createUrgentLessonPlanReminderEmailBody(user, absence)
         : createLessonPlanReminderEmailBody(user, absence);
       const emailContent = {
-        to: user.email,
+        to: [user.email],
         cc: isUrgent ? adminEmails : undefined,
         subject: isUrgent
           ? `URGENT - Sistema Toronto Tacet - submit your lesson plan ASAP`

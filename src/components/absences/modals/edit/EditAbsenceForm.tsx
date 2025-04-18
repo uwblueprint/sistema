@@ -1,9 +1,11 @@
 import {
   Box,
   Button,
+  Circle,
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Image,
   Input,
   Text,
   Textarea,
@@ -16,6 +18,7 @@ import { submitAbsence } from '@utils/submitAbsence';
 import { EventDetails } from '@utils/types';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
 import { useState } from 'react';
+import { IoMailOutline } from 'react-icons/io5';
 import { useCustomToast } from '../../../CustomToast';
 import { FileUpload } from '../../FileUpload';
 import { AdminTeacherFields } from '../AdminTeacherFields';
@@ -23,6 +26,30 @@ import { DateOfAbsence } from '../DateOfAbsence';
 import { InputDropdown } from '../InputDropdown';
 import { ConfirmEditModal } from './ConfirmEditModal';
 import { NotifyTeachersModal } from './NotifyTeachersModal';
+
+const EditIcon = ({ bg }: { bg: string }) => (
+  <Circle
+    size="30px"
+    bg={bg}
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+  >
+    <Image src="/images/edit.svg" boxSize="16px" alt="edit icon" />
+  </Circle>
+);
+
+const MailIcon = ({ bg }: { bg: string }) => (
+  <Circle
+    size="30px"
+    bg={bg}
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+  >
+    <IoMailOutline size={20} color="white" />
+  </Circle>
+);
 
 interface EditAbsenceFormProps {
   onClose?: () => void;
@@ -52,6 +79,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
   } = useDisclosure();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isNotifying, setIsNotifying] = useState(false);
   const [formData, setFormData] = useState({
     reasonOfAbsence: initialData.reasonOfAbsence,
     absentTeacherId: String(initialData.absentTeacher.id),
@@ -123,6 +151,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
               </Text>
             </Text>
           ),
+          icon: <EditIcon bg="positiveGreen.200" />,
         });
 
         await fetchAbsences();
@@ -131,6 +160,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         showToast({
           status: 'error',
           description: 'Failed to update absence',
+          icon: <EditIcon bg="errorRed.200" />,
         });
       }
     } catch (error) {
@@ -138,6 +168,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         status: 'error',
         description:
           error instanceof Error ? error.message : 'Unexpected error occurred',
+        icon: <EditIcon bg="errorRed.200" />,
       });
     } finally {
       setIsSubmitting(false);
@@ -173,6 +204,33 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
   const handleCloseNotify = () => {
     closeNotify();
     onClose?.();
+  };
+
+  const handleNotifyConfirm = async () => {
+    setIsNotifying(true);
+    try {
+      const res = await fetch('/api/emails/editAbsence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ absenceId: initialData.absenceId }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || res.statusText);
+
+      showToast({
+        status: 'success',
+        description: 'Confirmation emails have been sent',
+        icon: <MailIcon bg="positiveGreen.200" />,
+      });
+    } catch (err: any) {
+      showToast({
+        status: 'error',
+        description: err.message || 'Failed to send confirmations',
+        icon: <MailIcon bg="errorRed.200" />,
+      });
+    } finally {
+      setIsNotifying(false);
+      handleCloseNotify();
+    }
   };
 
   return (
@@ -318,7 +376,8 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
       <NotifyTeachersModal
         isOpen={isNotifyOpen}
         onClose={handleCloseNotify}
-        onConfirm={handleCloseNotify}
+        onConfirm={handleNotifyConfirm}
+        isSubmitting={isNotifying}
       />
     </Box>
   );

@@ -6,11 +6,13 @@ type ToastStatus = 'success' | 'error';
 interface CustomToastProps {
   description?: string | ReactNode;
   status?: ToastStatus;
+  icon?: ReactNode;
 }
 
 export const CustomToast: React.FC<CustomToastProps> = ({
   description,
   status = 'success',
+  icon,
 }) => {
   return (
     <Alert
@@ -18,7 +20,7 @@ export const CustomToast: React.FC<CustomToastProps> = ({
       variant="subtle"
       bg="white"
       border="1px solid"
-      borderColor={status === 'error' ? '#BF3232' : '#5A8934'}
+      borderColor={status === 'error' ? 'errorRed.200' : 'positiveGreen.200'}
       borderRadius="md"
       px={3}
       py={3}
@@ -27,14 +29,14 @@ export const CustomToast: React.FC<CustomToastProps> = ({
       boxShadow="md"
       sx={{
         '& [data-status="success"] svg': {
-          color: '#5A8934',
+          color: 'positiveGreen.200',
         },
         '& [data-status="error"] svg': {
-          color: '#BF3232',
+          color: 'errorRed.200',
         },
       }}
     >
-      <AlertIcon boxSize="30px" />
+      {icon ?? <AlertIcon boxSize="30px" />}
       <Box pl={2}>
         {typeof description === 'string' ? (
           <Text fontSize="14px" color="black">
@@ -56,9 +58,11 @@ export const useCustomToast = () => {
   return ({
     description,
     status = 'success',
+    icon,
   }: {
     description?: string | ReactNode;
     status?: string;
+    icon?: ReactNode;
   }) => {
     const validStatuses = ['success', 'error'] as const;
     const safeStatus = validStatuses.includes(status as ToastStatus)
@@ -69,7 +73,11 @@ export const useCustomToast = () => {
       isClosable: true,
       position: 'bottom-left',
       render: () => (
-        <CustomToast description={description} status={safeStatus} />
+        <CustomToast
+          description={description}
+          status={safeStatus}
+          icon={icon}
+        />
       ),
     });
   };

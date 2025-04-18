@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 
 type EmailBody = {
-  to: string;
+  to: string[];
   cc?: string[];
   bcc?: string[];
   subject: string;
@@ -13,6 +13,7 @@ const CLIENT_SECRET = process.env.AUTH_GOOGLE_SECRET!;
 const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
 const REFRESH_TOKEN = process.env.GOOGLE_REFRESH_TOKEN!;
 const EMAIL_USER = process.env.EMAIL_USER!;
+const ALLOWED_DOMAIN = process.env.SISTEMA_EMAIL_DOMAIN!;
 
 const oAuth2Client = new google.auth.OAuth2(
   CLIENT_ID,
@@ -23,15 +24,29 @@ oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
 export async function sendEmail({ to, cc, bcc, subject, html }: EmailBody) {
   try {
-    if (!to || !subject || !html) {
+    const filterByDomain = (addr: string) =>
+      addr.trim().toLowerCase().endsWith(`@${ALLOWED_DOMAIN}`);
+
+    const toList = to.filter(filterByDomain);
+    const ccList = cc?.filter(filterByDomain) ?? [];
+    const bccList = bcc?.filter(filterByDomain) ?? [];
+
+    if (toList.length === 0) {
+      console.warn(
+        'sendEmail aborted: no valid "To" recipients after filtering'
+      );
+      return { success: false, error: 'No valid recipients' };
+    }
+
+    if (!subject || !html) {
       throw new Error('Missing required email fields');
     }
 
     const emailParts = [
       `From: ${EMAIL_USER}`,
-      `To: ${to}`,
-      cc?.length ? `Cc: ${cc.join(', ')}` : '',
-      bcc?.length ? `Bcc: ${bcc.join(', ')}` : '',
+      `To: ${toList.join(',')}`,
+      ccList.length ? `Cc: ${ccList.join(',')}` : '',
+      bccList.length ? `Bcc: ${bccList.join(',')}` : '',
       `Subject: ${subject}`,
       'MIME-Version: 1.0',
       'Content-Type: text/html; charset="UTF-8"',
@@ -48,7 +63,6 @@ export async function sendEmail({ to, cc, bcc, subject, html }: EmailBody) {
       .replace(/=+$/, '');
 
     const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
-
     const result = await gmail.users.messages.send({
       userId: 'me',
       requestBody: { raw: encodedEmail },
