@@ -90,6 +90,7 @@ const Calendar: React.FC = () => {
         subjectAbbreviation,
         lessonPlan,
       } = eventInfo.event.extendedProps;
+      const subjectName = eventInfo.event.title;
 
       const eventDate = new Date(eventInfo.event.start!!);
       const now = new Date();
@@ -112,7 +113,8 @@ const Calendar: React.FC = () => {
       return (
         <Box cursor="pointer">
           <AbsenceBox
-            title={subjectAbbreviation}
+            title={subjectName}
+            abbreviation={subjectAbbreviation}
             location={locationAbbreviation}
             backgroundColor={
               substituteTeacherDisplayName || !createdByUserOrIsAdminMode

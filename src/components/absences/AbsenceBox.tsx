@@ -5,6 +5,7 @@ import { FiPaperclip } from 'react-icons/fi';
 
 interface AbsenceBoxProps {
   title: string;
+  abbreviation: string;
   location: string;
   backgroundColor: string;
   borderColor: string;
@@ -17,6 +18,7 @@ interface AbsenceBoxProps {
 
 const AbsenceBox: React.FC<AbsenceBoxProps> = ({
   title,
+  abbreviation,
   location,
   backgroundColor,
   borderColor,
@@ -82,7 +84,7 @@ const AbsenceBox: React.FC<AbsenceBoxProps> = ({
             fontSize: '16px !important',
           }}
         >
-          {title}
+          {title.length > 9 ? abbreviation : title}
         </Box>
       </Box>
       <Box
