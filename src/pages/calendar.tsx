@@ -412,7 +412,6 @@ const Calendar: React.FC = () => {
           display="flex"
           flexDirection="column"
           pt={4}
-          pb={4}
           pr={4}
           minW="1240px"
         >
@@ -428,24 +427,36 @@ const Calendar: React.FC = () => {
           {!isAdminMode && (
             <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
           )}
-          <FullCalendar
-            ref={calendarRef}
-            headerToolbar={false}
-            plugins={[dayGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            height="100%"
-            events={filteredEvents}
-            eventContent={renderEventContent}
-            timeZone="local"
-            datesSet={updateMonthYearTitle}
-            fixedWeekCount={false}
-            dayCellClassNames={({ date }) =>
-              getDayCellClassNames(date, selectedDate)
-            }
-            dayCellContent={dayCellContent}
-            eventClick={handleAbsenceClick}
-            dateClick={handleDateClick}
-          />
+          <Box position="relative" height="100%" flex={1}>
+            <FullCalendar
+              ref={calendarRef}
+              headerToolbar={false}
+              plugins={[dayGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              height="100%"
+              events={filteredEvents}
+              eventContent={renderEventContent}
+              timeZone="local"
+              datesSet={updateMonthYearTitle}
+              fixedWeekCount={false}
+              dayCellClassNames={({ date }) =>
+                getDayCellClassNames(date, selectedDate)
+              }
+              dayCellContent={dayCellContent}
+              eventClick={handleAbsenceClick}
+              dateClick={handleDateClick}
+            />
+            <Box
+              position="absolute"
+              bottom={0}
+              left={0}
+              right={0}
+              height="50px"
+              pointerEvents="none"
+              background="linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%)"
+              zIndex={1}
+            />
+          </Box>
         </Box>
       </Flex>
       <AbsenceDetails
