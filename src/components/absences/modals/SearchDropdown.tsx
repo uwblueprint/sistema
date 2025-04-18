@@ -62,7 +62,11 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   }, [fetchData]);
 
   useEffect(() => {
-    if (defaultValueId && options.length > 0) {
+    if (
+      defaultValueId &&
+      options.length > 0 &&
+      selectedOption?.id !== defaultValueId
+    ) {
       const match = options.find((opt) => opt.id === defaultValueId);
       if (match) {
         setSelectedOption(match);
@@ -71,7 +75,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
         onChange(match);
       }
     }
-  }, [defaultValueId, options, onChange]);
+  }, [defaultValueId, options, selectedOption, onChange]);
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -53,14 +53,18 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
   }, [fetchData]);
 
   useEffect(() => {
-    if (options.length > 0 && defaultValueId) {
+    if (
+      defaultValueId &&
+      options.length > 0 &&
+      selectedOption?.id !== defaultValueId
+    ) {
       const match = options.find((opt) => opt.id === defaultValueId);
       if (match) {
         setSelectedOption(match);
         onChange(match);
       }
     }
-  }, [options, defaultValueId, onChange]);
+  }, [options, defaultValueId, selectedOption, onChange]);
 
   const handleOptionSelect = (option: Option) => {
     setSelectedOption(option);
