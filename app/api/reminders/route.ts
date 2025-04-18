@@ -1,8 +1,10 @@
+import {
+  createLessonPlanReminderEmailBody,
+  createUrgentLessonPlanReminderEmailBody,
+} from '@utils/emailTemplates';
 import { prisma } from '@utils/prisma';
 import { sendEmail } from '@utils/sendEmail';
 import { NextResponse } from 'next/server';
-
-const UPLOAD_LINK = `${process.env.NEXT_PUBLIC_PROD_URL!}/calendar`;
 
 function addBusinessDays(startDate: Date, days: number): Date {
   const date = new Date(startDate);
@@ -69,39 +71,6 @@ async function getUsersWithPendingLessonPlans(targetDate: Date, nextDay: Date) {
   }
 }
 
-function createEmailBody(user: any, absence: any, isUrgent: boolean): string {
-  const dateFormatter = new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-  const formattedDate = dateFormatter.format(absence.lessonDate);
-
-  return isUrgent
-    ? `
-      <html>
-        <body>
-          <p>Hello ${user.firstName},</p>
-          <p>Your planned absence from ${absence.subject.name} at ${absence.location.name} 
-          is in 2 business days, and we have not received your lesson plan.</p>
-          <p><strong><span style="color: red;">Please upload the lesson plan today.</span></strong></p>
-          <p><strong>Click the link below to upload:</strong><br/><a href="${UPLOAD_LINK}" target="_blank">Tacet Calendar</a></p>
-          <p>Sistema Toronto</p>
-        </body>
-      </html>
-    `
-    : `
-      <html>
-        <body>
-          <p>Hello ${user.firstName},</p>
-          <p>Please upload your lesson plan for your upcoming absence on ${formattedDate}.</p>
-          <p><strong>Click the link below to upload:</strong><br/><a href="${UPLOAD_LINK}" target="_blank">Tacet Calendar</a></p>
-          <p>Sistema Toronto</p>
-        </body>
-      </html>
-    `;
-}
-
 async function sendReminders(
   daysBefore: number,
   isUrgent: boolean
@@ -129,7 +98,9 @@ async function sendReminders(
         return false;
       }
 
-      const emailBody = createEmailBody(user, absence, isUrgent);
+      const emailBody = isUrgent
+        ? createUrgentLessonPlanReminderEmailBody(user, absence)
+        : createLessonPlanReminderEmailBody(user, absence);
       const emailContent = {
         to: user.email,
         cc: isUrgent ? adminEmails : undefined,
