@@ -31,7 +31,7 @@ import DeclareAbsenceModal from '../components/absences/modals/declare/DeclareAb
 import { CalendarTabs } from '../components/calendar/CalendarTabs';
 import AbsenceFillThanksModal from '../components/absences/details/AbsenceFillThanksModal';
 import EditAbsenceModal from '../components/absences/modals/edit/EditAbsenceModal';
-import ConfirmDeleteModal from '../components/absences/modals/delete/ConfirmDeleteModal';
+import DeleteAbsenceModal from '../components/absences/details/DeleteAbsenceModal';
 import FillAbsenceModal from '../components/absences/details/FillAbsenceModal';
 import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
 import CalendarHeader from '../components/header/calendar/CalendarHeader';
@@ -714,7 +714,7 @@ const Calendar: React.FC = () => {
       )}
       {/* Delete Absence Modal */}
       {absenceToDelete && (
-        <ConfirmDeleteModal
+        <DeleteAbsenceModal
           isOpen={isDeleteModalOpen}
           onClose={handleDeleteModalClose}
           absenceId={absenceToDelete}

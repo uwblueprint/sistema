@@ -50,15 +50,16 @@ export const CustomToast: React.FC<CustomToastProps> = ({
   );
 };
 
-export interface CustomToastOptions {
-  description?: string | ReactNode;
-  status?: ToastStatus;
-}
-
 export const useCustomToast = () => {
   const toast = useToast();
 
-  return ({ description, status = 'success' }: CustomToastOptions) => {
+  return ({
+    description,
+    status = 'success',
+  }: {
+    description?: string | ReactNode;
+    status?: string;
+  }) => {
     const validStatuses = ['success', 'error'] as const;
     const safeStatus = validStatuses.includes(status as ToastStatus)
       ? (status as ToastStatus)
