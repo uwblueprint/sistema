@@ -25,18 +25,13 @@ const AbsenceFillThanksModal = ({ isOpen, onClose, event, absenceDate }) => {
           alignItems: 'center',
         }}
       >
-        <ModalHeader
-          textStyle="h3"
-          fontSize="16px"
-          padding="0"
-          textAlign="center"
-        >
+        <ModalHeader p="0">
           <Flex align="center" justify="center" gap={2}>
             <FiCheckCircle
               size="20px"
               color={theme.colors.positiveGreen[200]}
             />
-            <Text>Thank you!</Text>
+            <Text textStyle="h3">Thank you!</Text>
           </Flex>
         </ModalHeader>
 

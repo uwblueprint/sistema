@@ -22,6 +22,7 @@ import { AdminTeacherFields } from '../AdminTeacherFields';
 import { DateOfAbsence } from '../DateOfAbsence';
 import { InputDropdown } from '../InputDropdown';
 import { ConfirmEditModal } from './ConfirmEditModal';
+import { NotifyTeachersModal } from './NotifyTeachersModal';
 
 interface EditAbsenceFormProps {
   onClose?: () => void;
@@ -37,7 +38,19 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
   fetchAbsences,
 }) => {
   const showToast = useCustomToast();
-  const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
+
+  const {
+    isOpen: isConfirmOpen,
+    onOpen: openConfirm,
+    onClose: closeConfirm,
+  } = useDisclosure();
+
+  const {
+    isOpen: isNotifyOpen,
+    onOpen: openNotify,
+    onClose: closeNotify,
+  } = useDisclosure();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     reasonOfAbsence: initialData.reasonOfAbsence,
@@ -51,10 +64,8 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     lessonDate: initialData.start.toLocaleDateString('en-CA'),
     notes: initialData.notes || '',
   });
-
   const [lessonPlan, setLessonPlan] = useState<File | null>(null);
   const existingLessonPlan = initialData.lessonPlan || null;
-
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
@@ -67,22 +78,14 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
+      setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) {
       showToast({
         description: 'Please fill in all required fields correctly.',
@@ -90,17 +93,15 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
       });
       return;
     }
-
-    onOpen();
+    openConfirm();
   };
 
   const handleConfirmSubmit = async () => {
-    closeModal();
+    closeConfirm();
     setIsSubmitting(true);
 
     try {
       const formattedDate = formatFullDate(initialData.start);
-
       const success = await submitAbsence({
         formData: { ...formData, id: initialData.absenceId },
         lessonPlan,
@@ -124,8 +125,8 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
           ),
         });
 
-        fetchAbsences();
-        onClose?.();
+        await fetchAbsences();
+        openNotify();
       } else {
         showToast({
           status: 'error',
@@ -152,11 +153,8 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(absence),
       });
-
-      if (!res.ok) {
+      if (!res.ok)
         throw new Error(`Failed to update absence: ${res.statusText}`);
-      }
-
       await fetchAbsences();
       return true;
     } catch (error) {
@@ -172,13 +170,16 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     }));
   };
 
+  const handleCloseNotify = () => {
+    closeNotify();
+    onClose?.();
+  };
+
   return (
     <Box
       as="form"
       onSubmit={handleSubmit}
-      sx={{
-        label: { fontSize: '14px', fontWeight: '400' },
-      }}
+      sx={{ label: { fontSize: '14px', fontWeight: '400' } }}
     >
       <VStack sx={{ gap: '24px' }}>
         {isAdminMode && (
@@ -308,10 +309,16 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         </Button>
       </VStack>
       <ConfirmEditModal
-        isOpen={isOpen}
-        onClose={closeModal}
+        isOpen={isConfirmOpen}
+        onClose={closeConfirm}
         onConfirm={handleConfirmSubmit}
         isSubmitting={isSubmitting}
+      />
+
+      <NotifyTeachersModal
+        isOpen={isNotifyOpen}
+        onClose={handleCloseNotify}
+        onConfirm={handleCloseNotify}
       />
     </Box>
   );

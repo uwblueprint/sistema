@@ -27,13 +27,8 @@ export const ConfirmEditModal: React.FC<ConfirmEditModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent width="300px" padding="25px" alignItems="center">
-        <ModalHeader
-          textStyle="h3"
-          fontSize="16px"
-          padding="0"
-          textAlign="center"
-        >
-          Save Changes?
+        <ModalHeader p="0" textAlign="center">
+          <Text textStyle="h3">Save Changes?</Text>
         </ModalHeader>
         <ModalBody
           textStyle="subtitle"

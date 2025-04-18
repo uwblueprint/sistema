@@ -26,13 +26,10 @@ const DeleteAbsenceModal: React.FC<DeleteAbsenceModalProps> = ({
   <Modal isOpen={isOpen} onClose={onClose} isCentered>
     <ModalOverlay />
     <ModalContent width="300px" padding="25px" alignItems="center">
-      <ModalHeader
-        textStyle="h3"
-        fontSize="16px"
-        padding="0"
-        textAlign="center"
-      >
-        Are you sure you want to delete this absence?
+      <ModalHeader p="0">
+        <Text textStyle="h3" textAlign="center">
+          Are you sure you want to delete this absence?
+        </Text>
       </ModalHeader>
       <ModalBody
         textStyle="subtitle"

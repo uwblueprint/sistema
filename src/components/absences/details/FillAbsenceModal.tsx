@@ -27,8 +27,10 @@ const FillAbsenceModal: React.FC<FillAbsenceModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent width="300px" padding="25px" alignItems="center">
-        <ModalHeader textStyle="h3" padding="0" textAlign="center">
-          Are you sure you want to fill this absence?
+        <ModalHeader p="0">
+          <Text textStyle="h3" textAlign="center">
+            Are you sure you want to fill this absence?
+          </Text>
         </ModalHeader>
         <ModalBody
           textStyle="subtitle"

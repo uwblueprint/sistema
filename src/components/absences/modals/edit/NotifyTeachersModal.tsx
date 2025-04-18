@@ -27,13 +27,8 @@ export const NotifyTeachersModal: React.FC<NotifyTeachersModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent width="300px" padding="25px" alignItems="center">
-        <ModalHeader
-          textStyle="h3"
-          fontSize="16px"
-          padding="0"
-          textAlign="center"
-        >
-          Notify Teachers?
+        <ModalHeader padding="0">
+          <Text textStyle="h3">Notify Teachers?</Text>
         </ModalHeader>
         <ModalBody
           textStyle="subtitle"
