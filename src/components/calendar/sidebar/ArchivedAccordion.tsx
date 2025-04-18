@@ -148,6 +148,7 @@ export default function ArchivedAccordion({
             <Text
               textStyle="subtitle"
               color={theme.colors.text.subtitle}
+              width="200px"
               whiteSpace="nowrap"
               noOfLines={1}
               pr="30px"
