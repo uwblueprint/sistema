@@ -9,7 +9,7 @@ import {
   MenuList,
   Text,
 } from '@chakra-ui/react';
-import { NEXT_PUBLIC_PROD_URL } from '@utils/config';
+import { NEXT_PUBLIC_PROD_URL } from '@utils/consts';
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { Role, UserData } from '@utils/types';
 import { signOut } from 'next-auth/react';

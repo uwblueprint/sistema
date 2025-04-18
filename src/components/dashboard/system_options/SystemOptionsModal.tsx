@@ -16,6 +16,10 @@ import {
   useTheme,
   VStack,
 } from '@chakra-ui/react';
+import {
+  MAX_LOCATION_ABBREVIATION_LENGTH,
+  MAX_SUBJECT_ABBREVIATION_LENGTH,
+} from '@utils/consts';
 import { Location, SubjectAPI } from '@utils/types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { IoCloseOutline, IoSettingsOutline } from 'react-icons/io5';
@@ -40,10 +44,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   absenceCap,
   onUpdateComplete,
 }) => {
-  // Constants for character limits
-  const MAX_SUBJECT_ABBREVIATION_LENGTH = 9;
-  const MAX_LOCATION_ABBREVIATION_LENGTH = 12;
-
   const [subjects, setSubjects] = useState<SubjectAPI[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [subjectsInUse, setSubjectsInUse] = useState<number[]>([]);
