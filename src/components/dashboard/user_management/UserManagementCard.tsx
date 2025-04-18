@@ -1,18 +1,7 @@
-import {
-  Box,
-  Button,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Box, useDisclosure } from '@chakra-ui/react';
 import { MailingList, Role, SubjectAPI, UserAPI } from '@utils/types';
 import { useCallback, useEffect, useState } from 'react';
+import ConfirmRoleChangeModal from './ConfirmRoleChangeModal';
 import { UserManagementTable } from './UserManagementTable';
 
 interface UserManagementCardProps {
@@ -216,28 +205,13 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
         isLoading={loading}
       />
 
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Confirm Role Change</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text>
-              Are you sure you want to change{' '}
-              <strong>
-                {pendingUser?.firstName} {pendingUser?.lastName}
-              </strong>
-              &rsquo;s role to <strong>{pendingRole}</strong>?
-            </Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={onClose} mr={3}>
-              Cancel
-            </Button>
-            <Button onClick={confirmUpdateUserRole}>Confirm</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <ConfirmRoleChangeModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onConfirm={confirmUpdateUserRole}
+        pendingUser={pendingUser}
+        pendingRole={pendingRole}
+      />
     </Box>
   );
 };

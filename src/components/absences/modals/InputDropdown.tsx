@@ -76,6 +76,7 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
         setTimeout(() => inputRef.current?.focus(), 0);
       }}
       onClose={() => setIsOpen(false)}
+      isLazy
     >
       <PopoverTrigger>
         <InputGroup>

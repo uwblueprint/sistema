@@ -82,7 +82,7 @@ const AbsenceDetailsModal: React.FC<AbsenceDetailsModalProps> = ({
                 !event.substituteTeacherFullName &&
                 !isUserAbsentTeacher &&
                 !isAdminMode && (
-                  <Popover placement="top" trigger="hover">
+                  <Popover placement="top" trigger="hover" isLazy>
                     <PopoverTrigger>
                       <Box display="flex" alignItems="center" height="100%">
                         <Icon

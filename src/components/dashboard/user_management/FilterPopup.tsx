@@ -116,6 +116,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
       onOpen={onOpen}
       onClose={onClose}
       placement="bottom-end"
+      isLazy
     >
       <PopoverTrigger>
         <Button

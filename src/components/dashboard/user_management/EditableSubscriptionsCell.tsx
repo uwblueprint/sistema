@@ -263,6 +263,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
         autoFocus={false}
         closeOnBlur={true}
         gutter={0}
+        isLazy
       >
         <PopoverTrigger>
           <Box
