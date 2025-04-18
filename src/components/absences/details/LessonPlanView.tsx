@@ -52,10 +52,9 @@ const LessonPlanDisplay = ({
         px="16px"
         py="10px"
         bg={theme.colors.buttonBackground}
+        align="center"
         justify="space-between"
-        align="flex-start"
         gap={3}
-        flexWrap="wrap"
       >
         <Flex align="center">
           <Box
@@ -85,24 +84,24 @@ const LessonPlanDisplay = ({
               </Text>
             )}
           </Box>
-          {isUserAbsentTeacher && !isAdminMode && (
-            <IconButton
-              aria-label="Swap Lesson Plan"
-              icon={
-                <Image
-                  src="/images/arrow_swap.svg"
-                  alt="Swap icon"
-                  width="15px"
-                  height="15px"
-                />
-              }
-              size="sm"
-              variant="ghost"
-              onClick={onSwap}
-              isDisabled={isDisabled}
-            />
-          )}
         </Flex>
+        {isUserAbsentTeacher && !isAdminMode && (
+          <IconButton
+            aria-label="Swap Lesson Plan"
+            icon={
+              <Image
+                src="/images/arrow_swap.svg"
+                alt="Swap icon"
+                width="15px"
+                height="15px"
+              />
+            }
+            size="sm"
+            variant="ghost"
+            onClick={onSwap}
+            isDisabled={isDisabled}
+          />
+        )}
       </Flex>
     </Link>
   );
@@ -211,7 +210,7 @@ const LessonPlanView = ({
       setLocalLessonPlan(updatedPlan);
 
       showToast({
-        description: 'Your lesson plan was successfully swapped.',
+        description: 'The lesson plan was successfully updated.',
         status: 'success',
       });
 
