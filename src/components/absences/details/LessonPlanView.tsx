@@ -85,25 +85,24 @@ const LessonPlanDisplay = ({
               </Text>
             )}
           </Box>
+          {isUserAbsentTeacher && !isAdminMode && (
+            <IconButton
+              aria-label="Swap Lesson Plan"
+              icon={
+                <Image
+                  src="/images/arrow_swap.svg"
+                  alt="Swap icon"
+                  width="15px"
+                  height="15px"
+                />
+              }
+              size="sm"
+              variant="ghost"
+              onClick={onSwap}
+              isDisabled={isDisabled}
+            />
+          )}
         </Flex>
-
-        {isUserAbsentTeacher && !isAdminMode && (
-          <IconButton
-            aria-label="Swap Lesson Plan"
-            icon={
-              <Image
-                src="/images/arrow_swap.svg"
-                alt="Swap icon"
-                width="15px"
-                height="15px"
-              />
-            }
-            size="sm"
-            variant="ghost"
-            onClick={onSwap}
-            isDisabled={isDisabled}
-          />
-        )}
       </Flex>
     </Link>
   );
