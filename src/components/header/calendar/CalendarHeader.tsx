@@ -56,7 +56,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
 
   return (
     <Flex
-      ml={theme.space[2]}
+      pl={theme.space[2]}
       marginBottom={theme.space[4]}
       alignItems="center"
       width="100%"

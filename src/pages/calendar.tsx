@@ -1,12 +1,4 @@
-import {
-  Badge,
-  Box,
-  Flex,
-  Image,
-  Text,
-  useDisclosure,
-  useTheme,
-} from '@chakra-ui/react';
+import { Badge, Box, Flex, Image, Text, useDisclosure } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -75,7 +67,6 @@ const Calendar: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventDetails | null>(null);
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
-  const theme = useTheme();
   const {
     isOpen: isAbsenceDetailsOpen,
     onOpen: onAbsenceDetailsOpen,
@@ -417,10 +408,13 @@ const Calendar: React.FC = () => {
         />
         <Box
           flex={1}
-          paddingTop={theme.space[4]}
           height="100%"
           display="flex"
           flexDirection="column"
+          pt={4}
+          pb={4}
+          pr={4}
+          minW="1240px"
         >
           <CalendarHeader
             currentMonthYear={currentMonthYear}
@@ -431,30 +425,27 @@ const Calendar: React.FC = () => {
             isAdminMode={isAdminMode}
             setIsAdminMode={setIsAdminMode}
           />
-
-          <Box flex={1} overflow="hidden" pr={theme.space[2]}>
-            {!isAdminMode && (
-              <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
-            )}
-            <FullCalendar
-              ref={calendarRef}
-              headerToolbar={false}
-              plugins={[dayGridPlugin, interactionPlugin]}
-              initialView="dayGridMonth"
-              height="100%"
-              events={filteredEvents}
-              eventContent={renderEventContent}
-              timeZone="local"
-              datesSet={updateMonthYearTitle}
-              fixedWeekCount={false}
-              dayCellClassNames={({ date }) =>
-                getDayCellClassNames(date, selectedDate)
-              }
-              dayCellContent={dayCellContent}
-              eventClick={handleAbsenceClick}
-              dateClick={handleDateClick}
-            />
-          </Box>
+          {!isAdminMode && (
+            <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          )}
+          <FullCalendar
+            ref={calendarRef}
+            headerToolbar={false}
+            plugins={[dayGridPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            height="100%"
+            events={filteredEvents}
+            eventContent={renderEventContent}
+            timeZone="local"
+            datesSet={updateMonthYearTitle}
+            fixedWeekCount={false}
+            dayCellClassNames={({ date }) =>
+              getDayCellClassNames(date, selectedDate)
+            }
+            dayCellContent={dayCellContent}
+            eventClick={handleAbsenceClick}
+            dateClick={handleDateClick}
+          />
         </Box>
       </Flex>
       <AbsenceDetails
