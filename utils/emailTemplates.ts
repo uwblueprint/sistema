@@ -111,3 +111,50 @@ export function createAbsenceModificationEmailBody(
     </html>
   `;
 }
+
+export function createAbsenceFillConfirmationEmailBody(
+  fillingTeacher: { firstName: string; lastName: string },
+  reportingTeacher: { firstName: string; lastName: string },
+  absence: {
+    lessonDate: Date;
+    subject: { name: string };
+    location: { name: string };
+    lessonPlan?: { name: string; url: string } | null;
+  }
+): string {
+  const formattedDate = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(absence.lessonDate);
+
+  return `
+    <html>
+      <body>
+        <p>Hello ${fillingTeacher.firstName} ${fillingTeacher.lastName},</p>
+        <p>
+          This email confirms you have successfully filled
+          <strong>${reportingTeacher.firstName} ${reportingTeacher.lastName}’s</strong>
+          <strong>${absence.subject.name}</strong> absence from
+          <strong>${absence.location.name}</strong> on
+          <strong>${formattedDate}</strong>.
+        </p>
+        <p>
+          <strong>Click the link below to view:</strong><br/>
+          <a href="${UPLOAD_LINK}" target="_blank">Tacet Calendar</a>
+        </p>
+        ${
+          absence.lessonPlan
+            ? `<p>
+                 <strong>Lesson Plan:</strong><br/>
+                 <a href="${absence.lessonPlan.url}" target="_blank">
+                   ${absence.lessonPlan.name}
+                 </a>
+               </p>`
+            : ``
+        }
+        <p>Sistema Toronto</p>
+      </body>
+    </html>
+  `;
+}

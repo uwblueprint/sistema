@@ -81,20 +81,28 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
           roomNumber: event.roomNumber,
         }),
       });
-
       if (!response.ok) {
         throw new Error('Failed to fill absence');
       }
 
-      const formattedDate = formatFullDate(event.start);
+      const emailRes = await fetch('/api/emails/fillAbsence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ absenceId: event.absenceId }),
+      });
+      if (!emailRes.ok) {
+        console.error('Claim email failed:', await emailRes.text());
+      }
 
+      const formattedDate = formatFullDate(event.start);
       showToast({
         status: 'success',
         description: (
           <Text>
             You have successfully filled{' '}
             <Text as="span" fontWeight="bold">
-              {event.absentTeacher.firstName}&apos;s
+              {event.absentTeacher.firstName}
+              &apos;s
             </Text>{' '}
             absence on{' '}
             <Text as="span" fontWeight="bold">
@@ -108,16 +116,18 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       setIsFillModalOpen(false);
       setIsFillThanksOpen(true);
       onTabChange('declared');
-    } catch {
+    } catch (err: any) {
       const formattedDate = formatFullDate(event.start);
-
       showToast({
         status: 'error',
         description: (
           <Text>
-            There was an error in filling{' '}
+            {err.message.includes('email')
+              ? 'Failed to send confirmation email.'
+              : 'There was an error in filling '}
             <Text as="span" fontWeight="bold">
-              {event.absentTeacher.firstName}&apos;s
+              {event.absentTeacher.firstName}
+              &apos;s
             </Text>{' '}
             absence on{' '}
             <Text as="span" fontWeight="bold">
