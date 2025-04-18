@@ -132,33 +132,40 @@ const AbsenceDetailsModal: React.FC<AbsenceDetailsModalProps> = ({
         <ModalBody sx={{ padding: '20px 0 0 0' }}>
           <VStack spacing="18px" align="stretch">
             <Text textStyle="h2">{event.title}</Text>
-            <Flex gap="13px">
-              <FiMapPin size="20px" color={theme.colors.primaryBlue[300]} />
+            <Flex gap="13px" align="center">
+              <FiMapPin
+                size="20px"
+                color={theme.colors.primaryBlue[300]}
+                style={{ strokeWidth: 1.5 }}
+              />
               <Text textStyle="subtitle" color={theme.colors.text.body}>
                 {event.location}
               </Text>
             </Flex>
-            <Flex gap="13px" mt="-8px">
+            <Flex gap="13px" mt="-8px" align="center">
               <Calendar size="20px" color={theme.colors.primaryBlue[300]} />
               <Text textStyle="subtitle" color={theme.colors.text.body}>
                 {absenceDate}
               </Text>
             </Flex>
-            <Flex gap="13px" mt="-8px">
-              <FiUser size="20px" color={theme.colors.primaryBlue[300]} />
+            <Flex gap="13px" mt="-8px" align="center">
+              <FiUser
+                size="20px"
+                color={theme.colors.primaryBlue[300]}
+                style={{ strokeWidth: 1.5 }}
+              />
               <Text textStyle="subtitle" color={theme.colors.text.body}>
                 {event.absentTeacherFullName}
               </Text>
             </Flex>
             {event.roomNumber && (
-              <Flex gap="13px" mt="-8px">
+              <Flex gap="13px" mt="-8px" align="center">
                 <Buildings size="20px" color={theme.colors.primaryBlue[300]} />
                 <Text textStyle="subtitle" color={theme.colors.text.body}>
                   Room {event.roomNumber}
                 </Text>
               </Flex>
             )}
-
             <Box>
               <Text textStyle="h4" mb="9px">
                 Lesson Plan
