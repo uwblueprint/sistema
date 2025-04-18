@@ -110,21 +110,25 @@ const Calendar: React.FC = () => {
         : undefined;
 
       return (
-        <AbsenceBox
-          title={subjectAbbreviation}
-          location={locationAbbreviation}
-          backgroundColor={
-            substituteTeacherDisplayName || !createdByUserOrIsAdminMode
-              ? colors.light
-              : 'white'
-          }
-          borderColor={createdByUserOrIsAdminMode ? colors.dark : 'transparent'}
-          textColor={colors.text}
-          highlightText={highlightText}
-          highlightColor={colors.medium}
-          lessonPlan={lessonPlan}
-          opacity={opacity}
-        />
+        <Box cursor="pointer">
+          <AbsenceBox
+            title={subjectAbbreviation}
+            location={locationAbbreviation}
+            backgroundColor={
+              substituteTeacherDisplayName || !createdByUserOrIsAdminMode
+                ? colors.light
+                : 'white'
+            }
+            borderColor={
+              createdByUserOrIsAdminMode ? colors.dark : 'transparent'
+            }
+            textColor={colors.text}
+            highlightText={highlightText}
+            highlightColor={colors.medium}
+            lessonPlan={lessonPlan}
+            opacity={opacity}
+          />
+        </Box>
       );
     },
     [userData?.id, isAdminMode]
