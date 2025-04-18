@@ -44,6 +44,7 @@ export default function YearDropdown({
         setTimeout(() => inputRef.current?.focus(), 0);
       }}
       onClose={onClose}
+      isLazy
     >
       <PopoverTrigger>
         <Button

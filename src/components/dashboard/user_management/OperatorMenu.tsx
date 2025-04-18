@@ -36,6 +36,7 @@ const OperatorMenu: React.FC<OperatorMenuProps> = ({
         isOpen={operatorMenuOpen}
         onClose={() => setOperatorMenuOpen(false)}
         placement="bottom-start"
+        isLazy
       >
         <PopoverTrigger>
           <Button

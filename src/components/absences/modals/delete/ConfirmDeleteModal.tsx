@@ -58,7 +58,7 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
         isClosable: true,
       });
 
-      await onDelete();
+      await onDelete(absenceId);
       onClose();
     } catch (error) {
       toast({

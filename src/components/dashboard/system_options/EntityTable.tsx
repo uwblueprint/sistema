@@ -716,6 +716,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                     onOpen={() => setOpenMenuId(item.id)}
                     onClose={() => setOpenMenuId(null)}
                     placement="bottom-end"
+                    isLazy
                   >
                     <PopoverTrigger>
                       <IconButton

@@ -72,6 +72,7 @@ export const DateOfAbsence: React.FC<DateOfAbsenceProps> = ({
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         placement="bottom-start"
+        isLazy
       >
         <PopoverTrigger>
           <Box>

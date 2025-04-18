@@ -1,16 +1,8 @@
 import {
   Badge,
   Box,
-  Button,
   Flex,
   Image,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Text,
   useDisclosure,
   useTheme,
@@ -35,11 +27,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import AbsenceBox from '../components/absences/AbsenceBox';
 import AbsenceDetails from '../components/absences/details/AbsenceDetails';
+import DeclareAbsenceModal from '../components/absences/modals/declare/DeclareAbsenceModal';
 import { CalendarTabs } from '../components/calendar/CalendarTabs';
-import DeclareAbsenceForm from '../components/absences/modals/declare/DeclareAbsenceForm';
 import AbsenceFillThanksModal from '../components/absences/details/AbsenceFillThanksModal';
-import EditAbsenceForm from '../components/absences/modals/edit/EditAbsenceForm';
+import EditAbsenceModal from '../components/absences/modals/edit/EditAbsenceModal';
 import ConfirmDeleteModal from '../components/absences/modals/delete/ConfirmDeleteModal';
+import FillAbsenceModal from '../components/absences/details/FillAbsenceModal';
 import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
 import CalendarHeader from '../components/header/calendar/CalendarHeader';
 import { useCustomToast } from '../components/CustomToast';
@@ -687,73 +680,21 @@ const Calendar: React.FC = () => {
         </Box>
       </Flex>
 
-      <Modal isOpen={isInputFormOpen} onClose={onInputFormClose} isCentered>
-        <ModalOverlay />
-        <ModalContent w={362} sx={{ padding: '33px 31px' }} borderRadius="16px">
-          <ModalHeader fontSize={22} p="0 0 28px 0">
-            Declare Absence
-          </ModalHeader>
-          <ModalCloseButton top="33px" right="28px" color="text.header" />
-          <ModalBody p={0}>
-            <DeclareAbsenceForm
-              onClose={onInputFormClose}
-              initialDate={selectedDate!!}
-              userId={userData.id}
-              onTabChange={setActiveTab}
-              isAdminMode={isAdminMode}
-              fetchAbsences={fetchAbsences}
-            />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-      <Modal isOpen={isFillModalOpen} onClose={handleFillCancel} isCentered>
-        <ModalOverlay />
-        <ModalContent
-          width="300px"
-          padding="25px"
-          sx={{
-            alignItems: 'center',
-          }}
-        >
-          <ModalHeader
-            textStyle="h3"
-            fontSize="16px"
-            padding="0"
-            textAlign="center"
-          >
-            Are you sure you want to fill this absence?
-          </ModalHeader>
-          <ModalBody
-            textStyle="subtitle"
-            color="text"
-            padding="0"
-            mt="12px"
-            mb="16px"
-          >
-            <Text>{"You won't be able to undo."}</Text>
-          </ModalBody>
-          <ModalFooter padding="0">
-            <Button
-              onClick={handleFillCancel}
-              variant="outline"
-              textStyle="button"
-              fontWeight="500"
-              mr="10px"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleFillConfirm}
-              textStyle="button"
-              fontWeight="500"
-              isLoading={isFilling}
-              ml="10px"
-            >
-              Confirm
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <DeclareAbsenceModal
+        isOpen={isInputFormOpen}
+        onClose={onInputFormClose}
+        initialDate={selectedDate!!}
+        userId={userData.id}
+        onTabChange={setActiveTab}
+        isAdminMode={isAdminMode}
+        fetchAbsences={fetchAbsences}
+      />
+      <FillAbsenceModal
+        isOpen={isFillModalOpen}
+        onClose={handleFillCancel}
+        onConfirm={handleFillConfirm}
+        isLoading={isFilling}
+      />
       {selectedEvent && (
         <AbsenceFillThanksModal
           isOpen={isFillThanksOpen}
@@ -763,31 +704,13 @@ const Calendar: React.FC = () => {
         />
       )}
       {selectedEvent && (
-        <Modal
+        <EditAbsenceModal
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
-          isCentered
-        >
-          <ModalOverlay />
-          <ModalContent
-            width={362}
-            sx={{ padding: '33px 31px' }}
-            borderRadius="16px"
-          >
-            <ModalHeader fontSize={22} p="0 0 28px 0">
-              Edit Absence
-            </ModalHeader>
-            <ModalCloseButton top="33px" right="28px" color="text.header" />
-            <ModalBody p={0}>
-              <EditAbsenceForm
-                initialData={selectedEvent}
-                isAdminMode={isAdminMode}
-                fetchAbsences={fetchAbsences}
-                onClose={() => setIsEditModalOpen(false)}
-              />
-            </ModalBody>
-          </ModalContent>
-        </Modal>
+          initialData={selectedEvent}
+          isAdminMode={isAdminMode}
+          fetchAbsences={fetchAbsences}
+        />
       )}
       {/* Delete Absence Modal */}
       {absenceToDelete && (

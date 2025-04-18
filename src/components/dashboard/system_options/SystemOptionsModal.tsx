@@ -239,21 +239,8 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       scrollBehavior="outside"
       motionPreset="slideInBottom"
     >
-      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" transition="all 0.3s ease" />
-      <ModalContent
-        height="auto"
-        minHeight="min-content"
-        width="100%"
-        maxWidth="lg"
-        position="relative"
-        overflow="visible"
-        paddingX="43px"
-        paddingY="42px"
-        transform={isOpen ? 'translateY(0)' : 'translateY(20px)'}
-        opacity={isOpen ? 1 : 0}
-        transition="transform 0.3s ease, opacity 0.3s ease, height 0.3s ease"
-        marginY="2.5vh"
-      >
+      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" />
+      <ModalContent width="100%" maxWidth="lg" paddingX="43px" paddingY="42px">
         <Flex direction="column" width="100%">
           <ModalHeader padding={0}>
             <HStack spacing={0} width="100%">
@@ -271,7 +258,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                 icon={<IoCloseOutline size={40} />}
                 variant="ghost"
                 onClick={handleClose}
-                transition="background-color 0.2s ease"
               />
             </HStack>
           </ModalHeader>
@@ -349,7 +335,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                 borderRadius="md"
                 textStyle="button"
                 onClick={handleClose}
-                transition="background-color 0.2s ease"
               >
                 Cancel
               </Button>
@@ -361,7 +346,6 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
                 borderRadius="md"
                 textStyle="button"
                 onClick={handleSave}
-                transition="background-color 0.2s ease"
               >
                 Save
               </Button>

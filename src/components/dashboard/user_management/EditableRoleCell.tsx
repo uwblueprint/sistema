@@ -103,6 +103,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
         closeOnBlur={false}
         placement="bottom"
         gutter={1}
+        isLazy
       >
         <PopoverTrigger>
           <Box
@@ -169,7 +170,12 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
       </Popover>
 
       {isEditing && (
-        <Popover isOpen={isButtonsOpen} placement="right" closeOnBlur={false}>
+        <Popover
+          isOpen={isButtonsOpen}
+          placement="right"
+          closeOnBlur={false}
+          isLazy
+        >
           <PopoverTrigger>
             <Box position="absolute" right="0" opacity="0" />
           </PopoverTrigger>
