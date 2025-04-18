@@ -1,10 +1,10 @@
 import {
   Modal,
-  ModalOverlay,
+  ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
-  ModalBody,
+  ModalOverlay,
 } from '@chakra-ui/react';
 import DeclareAbsenceForm from './DeclareAbsenceForm';
 

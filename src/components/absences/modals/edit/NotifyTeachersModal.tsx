@@ -46,7 +46,7 @@ export const NotifyTeachersModal: React.FC<NotifyTeachersModalProps> = ({
               onClick={onClose}
               variant="outline"
               textStyle="button"
-              width="100px"
+              width="110px"
               height="35px"
             >
               Don&apos;t Send
@@ -55,7 +55,7 @@ export const NotifyTeachersModal: React.FC<NotifyTeachersModalProps> = ({
               onClick={onConfirm}
               isLoading={isSubmitting}
               textStyle="button"
-              width="100px"
+              width="110px"
               height="35px"
             >
               Send

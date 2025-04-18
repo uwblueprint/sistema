@@ -279,16 +279,19 @@ const EntityTable: React.FC<EntityTableProps> = ({
   // Tooltip component for showing the abbreviation preview
   const AbbreviationPreview = ({
     subject,
+    abbreviation,
     location,
     colorCodes,
   }: {
     subject: string;
+    abbreviation: string;
     location: string;
     colorCodes: string[];
   }) => {
     return (
       <AbsenceBox
         title={subject}
+        abbreviation={abbreviation}
         location={location}
         backgroundColor={colorCodes[3]}
         borderColor={colorCodes[1]}
@@ -388,7 +391,8 @@ const EntityTable: React.FC<EntityTableProps> = ({
                     characters.
                   </Text>
                   <AbbreviationPreview
-                    subject="STR"
+                    subject="Percussion"
+                    abbreviation="PER"
                     location="Lambton"
                     colorCodes={colorGroups[0].colorCodes}
                   />
