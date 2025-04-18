@@ -7,6 +7,7 @@ import {
   Icon,
   Stack,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 
@@ -57,12 +58,16 @@ const Accordion = ({
       <Box px={2} mt={2}>
         <Collapse in={isOpen} animateOpacity>
           <Stack spacing={2} mt={0}>
-            {items.map((item) => (
-              <Box key={item.id}>
+            {items.map((item) => {
+              const needsTooltip = item.name.length > 20;
+
+              return (
                 <Flex
+                  key={item.id}
                   align="center"
                   cursor="pointer"
                   onClick={() => toggleItem(item.id)}
+                  width="100%"
                 >
                   <Box
                     width="20px"
@@ -80,17 +85,40 @@ const Accordion = ({
                       <Icon as={CheckIcon} color="white" w="14px" h="14px" />
                     )}
                   </Box>
-                  <Text
-                    textStyle="subtitle"
-                    color="text.body"
-                    isTruncated
-                    maxWidth="200px"
+
+                  <Tooltip
+                    label={item.name}
+                    placement="top"
+                    openDelay={300}
+                    isDisabled={!needsTooltip}
+                    hasArrow
+                    shouldWrapChildren
                   >
-                    {item.name}
-                  </Text>
+                    <Box flex="1" position="relative" overflow="hidden">
+                      <Text
+                        textStyle="subtitle"
+                        color="text.body"
+                        width="200px"
+                        whiteSpace="nowrap"
+                        noOfLines={1}
+                        pr="30px"
+                      >
+                        {item.name}
+                      </Text>
+                      <Box
+                        position="absolute"
+                        top="0"
+                        right="0"
+                        width="30px"
+                        height="100%"
+                        pointerEvents="none"
+                        bgGradient="linear(to-r, transparent, white)"
+                      />
+                    </Box>
+                  </Tooltip>
                 </Flex>
-              </Box>
-            ))}
+              );
+            })}
           </Stack>
         </Collapse>
       </Box>

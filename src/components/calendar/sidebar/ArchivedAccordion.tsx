@@ -7,6 +7,7 @@ import {
   Icon,
   Stack,
   Text,
+  Tooltip,
   useTheme,
 } from '@chakra-ui/react';
 import type { Location, SubjectAPI } from '@utils/types';
@@ -88,7 +89,6 @@ export default function ArchivedAccordion({
     },
     [setSubjectFilter]
   );
-
   const toggleLocation = useCallback(
     (locationId: number) => {
       setSelectedLocationIds((prev) => {
@@ -101,6 +101,73 @@ export default function ArchivedAccordion({
     },
     [setLocationFilter]
   );
+
+  const bgColor = theme.colors.white;
+
+  const renderItem = (
+    item: Item,
+    isSelected: boolean,
+    onToggle: (id: number) => void
+  ) => {
+    const needsTooltip = item.name.length > 20;
+
+    return (
+      <Flex
+        key={item.id}
+        align="center"
+        cursor="pointer"
+        onClick={() => onToggle(item.id)}
+        width="100%"
+      >
+        <Box
+          width="20px"
+          height="20px"
+          mr={2}
+          flexShrink={0}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          borderRadius="2px"
+          bg={isSelected ? item.color : 'white'}
+          border={`2px solid ${item.color}`}
+        >
+          {isSelected && (
+            <Icon as={CheckIcon} color="white" w="14px" h="14px" />
+          )}
+        </Box>
+
+        <Tooltip
+          label={item.name}
+          placement="top"
+          openDelay={300}
+          isDisabled={!needsTooltip}
+          hasArrow
+          shouldWrapChildren
+        >
+          <Box flex="1" position="relative" overflow="hidden">
+            <Text
+              textStyle="subtitle"
+              color={theme.colors.text.subtitle}
+              whiteSpace="nowrap"
+              noOfLines={1}
+              pr="30px"
+            >
+              {item.name}
+            </Text>
+            <Box
+              position="absolute"
+              top="0"
+              right="0"
+              width="30px"
+              height="100%"
+              pointerEvents="none"
+              bgGradient={`linear(to-r, transparent, ${bgColor})`}
+            />
+          </Box>
+        </Tooltip>
+      </Flex>
+    );
+  };
 
   return (
     <Box width="100%">
@@ -123,6 +190,7 @@ export default function ArchivedAccordion({
           )}
         </Flex>
       </Button>
+
       <Box px={2} mt={2}>
         <Collapse in={isOpen} animateOpacity>
           {subjects.length > 0 && (
@@ -134,49 +202,17 @@ export default function ArchivedAccordion({
               >
                 Subjects
               </Text>
-              <Stack spacing={2} mt={0} mb={3}>
-                {subjects.map((subject) => (
-                  <Box key={subject.id}>
-                    <Flex
-                      align="center"
-                      cursor="pointer"
-                      onClick={() => toggleSubject(subject.id)}
-                    >
-                      <Box
-                        width="20px"
-                        height="20px"
-                        mr={2}
-                        flexShrink={0}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        borderRadius="2px"
-                        bg={
-                          selectedSubjectIds.includes(subject.id)
-                            ? subject.color
-                            : 'white'
-                        }
-                        border={`2px solid ${subject.color}`}
-                      >
-                        {selectedSubjectIds.includes(subject.id) && (
-                          <Icon
-                            as={CheckIcon}
-                            color="white"
-                            w="14px"
-                            h="14px"
-                          />
-                        )}
-                      </Box>
-                      <Text textStyle="subtitle" isTruncated maxWidth="200px">
-                        {subject.name}
-                      </Text>
-                    </Flex>
-                  </Box>
-                ))}
+              <Stack spacing={2} mb={3}>
+                {subjects.map((s) =>
+                  renderItem(
+                    s,
+                    selectedSubjectIds.includes(s.id),
+                    toggleSubject
+                  )
+                )}
               </Stack>
             </>
           )}
-
           {locations.length > 0 && (
             <>
               <Text
@@ -186,45 +222,14 @@ export default function ArchivedAccordion({
               >
                 Locations
               </Text>
-              <Stack spacing={2} mt={0}>
-                {locations.map((location) => (
-                  <Box key={location.id}>
-                    <Flex
-                      align="center"
-                      cursor="pointer"
-                      onClick={() => toggleLocation(location.id)}
-                    >
-                      <Box
-                        width="20px"
-                        height="20px"
-                        mr={2}
-                        flexShrink={0}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        borderRadius="2px"
-                        bg={
-                          selectedLocationIds.includes(location.id)
-                            ? location.color
-                            : 'white'
-                        }
-                        border={`2px solid ${location.color}`}
-                      >
-                        {selectedLocationIds.includes(location.id) && (
-                          <Icon
-                            as={CheckIcon}
-                            color="white"
-                            w="14px"
-                            h="14px"
-                          />
-                        )}
-                      </Box>
-                      <Text textStyle="subtitle" isTruncated maxWidth="200px">
-                        {location.name}
-                      </Text>
-                    </Flex>
-                  </Box>
-                ))}
+              <Stack spacing={2}>
+                {locations.map((l) =>
+                  renderItem(
+                    l,
+                    selectedLocationIds.includes(l.id),
+                    toggleLocation
+                  )
+                )}
               </Stack>
             </>
           )}
