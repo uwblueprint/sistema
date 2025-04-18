@@ -57,10 +57,13 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>(
-    mailingLists.map((list) => list.subjectId)
+    mailingLists
+      .filter((list) => !list.subject.archived)
+      .map((list) => list.subjectId)
   );
-  const [localMailingLists, setLocalMailingLists] =
-    useState<MailingList[]>(mailingLists);
+  const [localMailingLists, setLocalMailingLists] = useState<MailingList[]>(
+    mailingLists.filter((list) => !list.subject.archived)
+  );
   const containerRef = useRef<HTMLDivElement | null>(null);
   const popoverRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLDivElement | null>(null);
