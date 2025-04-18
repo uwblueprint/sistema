@@ -75,29 +75,28 @@ const UnsavedChangesModal: React.FC<UnsavedChangesModalProps> = ({
         </ModalBody>
 
         <ModalFooter p={0}>
-          <Button
-            ref={cancelRef}
-            onClick={onClose}
-            flex="1"
-            size="lg"
-            colorScheme="blue"
-            variant="outline"
-            height="35px"
-            textStyle="button"
-          >
-            Keep Editing
-          </Button>
-          <Button
-            colorScheme="blue"
-            onClick={onConfirm}
-            ml={3}
-            flex="1"
-            size="lg"
-            height="35px"
-            textStyle="button"
-          >
-            Discard
-          </Button>
+          <HStack spacing="20px">
+            <Button
+              ref={cancelRef}
+              onClick={onClose}
+              colorScheme="blue"
+              variant="outline"
+              width="100px"
+              height="35px"
+              textStyle="button"
+            >
+              Keep Editing
+            </Button>
+            <Button
+              colorScheme="blue"
+              onClick={onConfirm}
+              width="100px"
+              height="35px"
+              textStyle="button"
+            >
+              Discard
+            </Button>
+          </HStack>
         </ModalFooter>
       </ModalContent>
     </Modal>

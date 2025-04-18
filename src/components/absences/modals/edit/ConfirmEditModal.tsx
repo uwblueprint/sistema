@@ -1,5 +1,6 @@
 import {
   Button,
+  HStack,
   Modal,
   ModalBody,
   ModalContent,
@@ -44,25 +45,27 @@ export const ConfirmEditModal: React.FC<ConfirmEditModalProps> = ({
         >
           <Text>Would you like to save the changes you&apos;ve made?</Text>
         </ModalBody>
-        <ModalFooter padding="0">
-          <Button
-            onClick={onClose}
-            variant="outline"
-            textStyle="button"
-            fontWeight="500"
-            mr="10px"
-          >
-            Back
-          </Button>
-          <Button
-            onClick={onConfirm}
-            isLoading={isSubmitting}
-            textStyle="button"
-            fontWeight="500"
-            ml="10px"
-          >
-            Save
-          </Button>
+        <ModalFooter p={0}>
+          <HStack spacing="20px">
+            <Button
+              onClick={onClose}
+              variant="outline"
+              textStyle="button"
+              width="100px"
+              height="35px"
+            >
+              Back
+            </Button>
+            <Button
+              onClick={onConfirm}
+              isLoading={isSubmitting}
+              textStyle="button"
+              width="100px"
+              height="35px"
+            >
+              Save
+            </Button>
+          </HStack>
         </ModalFooter>
       </ModalContent>
     </Modal>

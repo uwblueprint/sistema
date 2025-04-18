@@ -54,7 +54,7 @@ export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
             {hasLessonPlan ? 'Confirm Absence' : 'No Lesson Plan Added'}
           </Text>
         </ModalHeader>
-        <ModalBody display="flex" justifyContent="center" mb={2}>
+        <ModalBody display="flex" justifyContent="center" padding="0">
           <Box maxW="224px" w="100%">
             <VStack align="start" pl={1}>
               <Text textStyle="subtitle" color="black">
@@ -89,33 +89,32 @@ export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
             </VStack>
           </Box>
         </ModalBody>
-
-        <ModalFooter
-          display="flex"
-          justifyContent="center"
-          gap={5}
-          px={0}
-          pt={0}
-        >
-          <Button
-            onClick={onClose}
-            flex="1"
-            maxW="104px"
-            h="40px"
-            variant="outline"
-          >
-            Back
-          </Button>
-          <Button
-            colorScheme="blue"
-            onClick={onConfirm}
-            isLoading={isSubmitting}
-            flex="1"
-            maxW="104px"
-            h="40px"
-          >
-            Confirm
-          </Button>
+        <ModalFooter p={0}>
+          <HStack spacing="20px">
+            <Button
+              onClick={onClose}
+              flex="1"
+              h="40px"
+              variant="outline"
+              textStyle="button"
+              width="100px"
+              height="35px"
+            >
+              Back
+            </Button>
+            <Button
+              colorScheme="blue"
+              onClick={onConfirm}
+              isLoading={isSubmitting}
+              flex="1"
+              h="40px"
+              textStyle="button"
+              width="100px"
+              height="35px"
+            >
+              Confirm
+            </Button>
+          </HStack>
         </ModalFooter>
       </ModalContent>
     </Modal>

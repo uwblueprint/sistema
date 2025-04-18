@@ -5,6 +5,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  HStack,
   Button,
   Text,
 } from '@chakra-ui/react';
@@ -38,25 +39,27 @@ const FillAbsenceModal: React.FC<FillAbsenceModalProps> = ({
         >
           <Text>You won&apos;t be able to undo.</Text>
         </ModalBody>
-        <ModalFooter padding="0">
-          <Button
-            onClick={onClose}
-            variant="outline"
-            textStyle="button"
-            fontWeight="500"
-            mr="10px"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={onConfirm}
-            textStyle="button"
-            fontWeight="500"
-            isLoading={isLoading}
-            ml="10px"
-          >
-            Confirm
-          </Button>
+        <ModalFooter p={0}>
+          <HStack spacing="20px">
+            <Button
+              onClick={onClose}
+              variant="outline"
+              textStyle="button"
+              width="100px"
+              height="35px"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={onConfirm}
+              textStyle="button"
+              isLoading={isLoading}
+              width="100px"
+              height="35px"
+            >
+              Confirm
+            </Button>
+          </HStack>
         </ModalFooter>
       </ModalContent>
     </Modal>
