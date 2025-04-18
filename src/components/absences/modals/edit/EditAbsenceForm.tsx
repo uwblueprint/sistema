@@ -27,7 +27,7 @@ import { InputDropdown } from '../InputDropdown';
 import { ConfirmEditModal } from './ConfirmEditModal';
 import { NotifyTeachersModal } from './NotifyTeachersModal';
 
-const EditIcon = ({ bg }: { bg: string }) => (
+export const EditIcon = ({ bg }: { bg: string }) => (
   <Circle
     size="30px"
     bg={bg}

@@ -11,6 +11,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { FiEdit2 } from 'react-icons/fi';
 import { useCustomToast } from '../../CustomToast';
+import { EditIcon } from '../modals/edit/EditAbsenceForm';
 
 interface EditableNotesProps {
   notes: string;
@@ -55,7 +56,7 @@ function EditableNotes({
     setIsSaving(true);
 
     try {
-      const response = await fetch('/api/editAbsence', {
+      const saveRes = await fetch('/api/editAbsence', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -63,23 +64,32 @@ function EditableNotes({
           notes: tempNotes || null,
         }),
       });
+      if (!saveRes.ok) throw new Error('Failed to save notes');
 
-      if (!response.ok) {
-        throw new Error('Failed to save notes');
+      const emailRes = await fetch('/api/emails/editAbsence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ absenceId }),
+      });
+      if (!emailRes.ok) {
+        const err = await emailRes.json();
+        throw new Error(err.error || 'Failed to send confirmation emails');
       }
 
       setSavedNotes(tempNotes);
-      showToast({
-        description: 'Your notes were successfully updated.',
-        status: 'success',
-      });
-
       setIsEditing(false);
-    } catch (err) {
+
       showToast({
-        description:
-          err instanceof Error ? err.message : 'Failed to save notes',
+        status: 'success',
+        description: 'Notes saved and confirmation emails sent.',
+        icon: <EditIcon bg="positiveGreen.200" />,
+      });
+    } catch (err: any) {
+      showToast({
         status: 'error',
+        description:
+          err instanceof Error ? err.message : 'An unexpected error occurred',
+        icon: <EditIcon bg="errorRed.200" />,
       });
     } finally {
       setIsSaving(false);
