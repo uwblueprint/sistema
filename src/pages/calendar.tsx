@@ -6,6 +6,11 @@ import {
   Text,
   useDisclosure,
   useTheme,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  Portal,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
@@ -14,7 +19,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { useAbsences } from '@hooks/useAbsences';
 import { useUserData } from '@hooks/useUserData';
-import { formatMonthYear } from '@utils/formatDate';
+import { formatFullDate, formatMonthYear } from '@utils/formatDate';
 import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
@@ -24,8 +29,13 @@ import AbsenceBox from '../components/absences/AbsenceBox';
 import AbsenceDetails from '../components/absences/details/AbsenceDetails';
 import DeclareAbsenceModal from '../components/absences/modals/declare/DeclareAbsenceModal';
 import { CalendarTabs } from '../components/calendar/CalendarTabs';
+import AbsenceFillThanksModal from '../components/absences/details/AbsenceFillThanksModal';
+import EditAbsenceModal from '../components/absences/modals/edit/EditAbsenceModal';
+import DeleteAbsenceModal from '../components/absences/details/DeleteAbsenceModal';
+import FillAbsenceModal from '../components/absences/details/FillAbsenceModal';
 import CalendarSidebar from '../components/calendar/sidebar/CalendarSidebar';
 import CalendarHeader from '../components/header/calendar/CalendarHeader';
+import { useCustomToast } from '../components/CustomToast';
 
 const Calendar: React.FC = () => {
   const { refetchUserData, ...userData } = useUserData();
@@ -51,6 +61,7 @@ const Calendar: React.FC = () => {
   }, [searchParams]);
 
   const { events, fetchAbsences } = useAbsences(refetchUserData);
+  const [clickedEventId, setClickedEventId] = useState<string | null>(null);
   const [filledDays, setFilledDays] = useState<Set<string>>(new Set());
 
   const calendarRef = useRef<FullCalendar>(null);
@@ -88,6 +99,150 @@ const Calendar: React.FC = () => {
     onClose: onInputFormClose,
   } = useDisclosure();
 
+  const [isClosingDetails, setIsClosingDetails] = useState(false);
+  const [isFilling, setIsFilling] = useState(false);
+  const [isFillModalOpen, setIsFillModalOpen] = useState(false);
+  const [isFillThanksOpen, setIsFillThanksOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [absenceToDelete, setAbsenceToDelete] = useState<number | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const showToast = useCustomToast();
+
+  const handleDeleteClick = useCallback((absenceId: number) => {
+    setAbsenceToDelete(absenceId);
+    setIsDeleteModalOpen(true);
+  }, []);
+
+  const handleDeleteModalClose = useCallback(() => {
+    setIsDeleteModalOpen(false);
+    setAbsenceToDelete(null);
+  }, []);
+
+  const handleDeleteAbsence = useCallback(async () => {
+    await fetchAbsences();
+    setIsDeleteModalOpen(false);
+  }, [fetchAbsences]);
+
+  const handleFillThanksDone = useCallback(() => {
+    setIsFillThanksOpen(false);
+  }, []);
+
+  const handleFillAbsenceClick = useCallback(() => {
+    setIsFillModalOpen(true);
+  }, []);
+
+  const handleFillCancel = useCallback(() => {
+    setIsFillModalOpen(false);
+  }, []);
+
+  const handleCloseDetails = useCallback(() => {
+    setClickedEventId(null);
+    onAbsenceDetailsClose();
+    setIsClosingDetails(true);
+    setTimeout(() => setIsClosingDetails(false), 100);
+  }, [onAbsenceDetailsClose]);
+
+  const handleFillConfirm = useCallback(async () => {
+    if (!selectedEvent) return;
+
+    setIsFilling(true);
+
+    try {
+      const response = await fetch('/api/editAbsence', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: selectedEvent.absenceId,
+          lessonDate: selectedEvent.start,
+          reasonOfAbsence: selectedEvent.reasonOfAbsence,
+          notes: selectedEvent.notes,
+          absentTeacherId: selectedEvent.absentTeacher.id,
+          substituteTeacherId: userData.id,
+          locationId: selectedEvent.locationId,
+          subjectId: selectedEvent.subjectId,
+          roomNumber: selectedEvent.roomNumber,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fill absence');
+      }
+
+      const formattedDate = formatFullDate(selectedEvent.start);
+
+      showToast({
+        status: 'success',
+        description: (
+          <Text>
+            You have successfully filled{' '}
+            <Text as="span" fontWeight="bold">
+              {selectedEvent.absentTeacher.firstName}&apos;s
+            </Text>{' '}
+            absence on{' '}
+            <Text as="span" fontWeight="bold">
+              {formattedDate}.
+            </Text>
+          </Text>
+        ),
+      });
+
+      await fetchAbsences();
+      setIsFillModalOpen(false);
+      setIsFillThanksOpen(true);
+      setActiveTab('declared');
+    } catch (error) {
+      console.error('Error filling absence:', error);
+
+      const formattedDate = formatFullDate(selectedEvent.start);
+
+      showToast({
+        status: 'error',
+        description: (
+          <Text>
+            There was an error in filling{' '}
+            <Text as="span" fontWeight="bold">
+              {selectedEvent.absentTeacher.firstName}&apos;s
+            </Text>{' '}
+            absence on{' '}
+            <Text as="span" fontWeight="bold">
+              {formattedDate}.
+            </Text>
+          </Text>
+        ),
+      });
+    } finally {
+      setIsFilling(false);
+      handleCloseDetails();
+    }
+  }, [
+    fetchAbsences,
+    handleCloseDetails,
+    selectedEvent,
+    showToast,
+    userData.id,
+  ]);
+
+  const handleEditClick = useCallback(() => {
+    setIsEditModalOpen(true);
+  }, []);
+
+  const formatDateForFilledDays = useCallback((date: Date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, []);
+
+  const hasConflictingEvent = useCallback(
+    (event: EventDetails) => {
+      if (!event?.start) return false;
+      const dateString = formatDateForFilledDays(new Date(event.start));
+      return filledDays.has(dateString);
+    },
+    [filledDays, formatDateForFilledDays]
+  );
+
   const renderEventContent = useCallback(
     (eventInfo: EventContentArg) => {
       const {
@@ -98,6 +253,7 @@ const Calendar: React.FC = () => {
         locationAbbreviation,
         subjectAbbreviation,
         lessonPlan,
+        absenceId,
       } = eventInfo.event.extendedProps;
 
       const eventDate = new Date(eventInfo.event.start!!);
@@ -118,7 +274,27 @@ const Calendar: React.FC = () => {
           : `${absentTeacherDisplayName} -> Unfilled`
         : undefined;
 
-      return (
+      const eventDetails = {
+        title: eventInfo.event.title,
+        start: eventInfo.event.start!!,
+        absentTeacher: eventInfo.event.extendedProps.absentTeacher,
+        absentTeacherFullName:
+          eventInfo.event.extendedProps.absentTeacherFullName,
+        substituteTeacher:
+          eventInfo.event.extendedProps.substituteTeacher || null,
+        substituteTeacherFullName:
+          eventInfo.event.extendedProps.substituteTeacherFullName || '',
+        location: eventInfo.event.extendedProps.location,
+        locationId: eventInfo.event.extendedProps.locationId,
+        subjectId: eventInfo.event.extendedProps.subjectId,
+        lessonPlan: eventInfo.event.extendedProps.lessonPlan || null,
+        roomNumber: eventInfo.event.extendedProps.roomNumber || '',
+        reasonOfAbsence: eventInfo.event.extendedProps.reasonOfAbsence,
+        notes: eventInfo.event.extendedProps.notes || '',
+        absenceId: eventInfo.event.extendedProps.absenceId,
+      };
+
+      const absenceBox = (
         <AbsenceBox
           title={subjectAbbreviation}
           location={locationAbbreviation}
@@ -135,8 +311,82 @@ const Calendar: React.FC = () => {
           opacity={opacity}
         />
       );
+
+      const isCurrentEvent = absenceId === clickedEventId;
+
+      // Use Popover component with Portal for proper positioning
+      return (
+        <Popover
+          isOpen={isCurrentEvent && isAbsenceDetailsOpen}
+          onClose={handleCloseDetails}
+          placement="right-start"
+          closeOnBlur={true}
+          closeOnEsc={true}
+          gutter={16}
+          isLazy
+        >
+          <PopoverTrigger>
+            <Box
+              onClick={() => {
+                setSelectedEvent(eventDetails);
+                setClickedEventId(absenceId);
+                onAbsenceDetailsOpen();
+              }}
+              display="inline-block"
+              position="relative"
+              width="100%"
+              height="100%"
+              cursor="pointer"
+            >
+              {absenceBox}
+            </Box>
+          </PopoverTrigger>
+          {isCurrentEvent && (
+            <Portal>
+              <PopoverContent
+                width="362px"
+                borderRadius="15px"
+                padding="30px"
+                marginY={5}
+                boxShadow="0px 0px 25px 0px rgba(0, 0, 0, 0.25)"
+                zIndex={1500}
+                _focus={{
+                  boxShadow: '0px 0px 25px 0px rgba(0, 0, 0, 0.25)',
+                  outline: 'none',
+                }}
+              >
+                <PopoverBody p={0}>
+                  <AbsenceDetails
+                    event={eventDetails}
+                    isAdminMode={isAdminMode}
+                    onClose={handleCloseDetails}
+                    onDelete={handleDeleteClick}
+                    fetchAbsences={fetchAbsences}
+                    onFillClick={handleFillAbsenceClick}
+                    onEditClick={handleEditClick}
+                    hasConflictingEvent={hasConflictingEvent(selectedEvent!!)}
+                  />
+                </PopoverBody>
+              </PopoverContent>
+            </Portal>
+          )}
+        </Popover>
+      );
     },
-    [userData?.id, isAdminMode]
+    [
+      userData?.id,
+      isAdminMode,
+      isAbsenceDetailsOpen,
+      onAbsenceDetailsOpen,
+      clickedEventId,
+      fetchAbsences,
+      handleCloseDetails,
+      handleDeleteClick,
+      handleFillAbsenceClick,
+      handleEditClick,
+      hasConflictingEvent,
+      selectedEvent,
+    ]
   );
 
   useEffect(() => {
@@ -175,10 +425,15 @@ const Calendar: React.FC = () => {
     }
   }, []);
 
-  const handleDateClick = (arg: { date: Date }) => {
-    setSelectedDate(arg.date);
-    onInputFormOpen();
-  };
+  const handleDateClick = useCallback(
+    (arg: { date: Date }) => {
+      if (!isClosingDetails) {
+        setSelectedDate(arg.date);
+        onInputFormOpen();
+      }
+    },
+    [isClosingDetails, onInputFormOpen]
+  );
 
   const handleTodayClick = useCallback(() => {
     if (calendarRef.current) {
@@ -206,62 +461,32 @@ const Calendar: React.FC = () => {
     }
   }, [updateMonthYearTitle]);
 
-  const handleDateSelect = (date: Date) => {
+  const handleDateSelect = useCallback((date: Date) => {
     setSelectedDate(date);
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       calendarApi.gotoDate(date);
     }
-  };
+  }, []);
 
   useEffect(() => {
     updateMonthYearTitle();
   }, [updateMonthYearTitle]);
 
-  const formatDateForFilledDays = (date: Date) => {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
+  const handleAbsenceClick = useCallback((clickInfo: EventClickArg) => {
+    // Prevent default behavior so our custom handlers work
+    clickInfo.jsEvent.preventDefault();
+  }, []);
 
-  const hasConflictingEvent = (event: EventDetails) => {
-    if (!event?.start) return false;
-    const dateString = formatDateForFilledDays(new Date(event.start));
-    return filledDays.has(dateString);
-  };
-
-  const handleAbsenceClick = (clickInfo: EventClickArg) => {
-    setSelectedEvent({
-      title: clickInfo.event.title,
-      start: clickInfo.event.start!!,
-      absentTeacher: clickInfo.event.extendedProps.absentTeacher,
-      absentTeacherFullName:
-        clickInfo.event.extendedProps.absentTeacherFullName,
-      substituteTeacher:
-        clickInfo.event.extendedProps.substituteTeacher || null,
-      substituteTeacherFullName:
-        clickInfo.event.extendedProps.substituteTeacherFullName || '',
-      location: clickInfo.event.extendedProps.location,
-      locationId: clickInfo.event.extendedProps.locationId,
-      subjectId: clickInfo.event.extendedProps.subjectId,
-      lessonPlan: clickInfo.event.extendedProps.lessonPlan || null,
-      roomNumber: clickInfo.event.extendedProps.roomNumber || '',
-      reasonOfAbsence: clickInfo.event.extendedProps.reasonOfAbsence,
-      notes: clickInfo.event.extendedProps.notes || '',
-      absenceId: clickInfo.event.extendedProps.absenceId,
-    });
-    onAbsenceDetailsOpen();
-  };
-
-  const handleDeclareAbsenceClick = () => {
+  const handleDeclareAbsenceClick = useCallback(() => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       const today = calendarApi.getDate();
       setSelectedDate(today);
       onInputFormOpen();
     }
-  };
+  }, [onInputFormOpen]);
+
   useEffect(() => {
     const {
       activeAbsenceStatusIds,
@@ -308,10 +533,6 @@ const Calendar: React.FC = () => {
 
     setFilteredEvents(filtered);
   }, [searchQuery, events, activeTab, userData.id, isAdminMode]);
-
-  const handleDeleteAbsence = async () => {
-    await fetchAbsences();
-  };
 
   if (userData.isLoading) {
     return null;
@@ -407,7 +628,7 @@ const Calendar: React.FC = () => {
   return (
     <>
       <Global styles={getCalendarStyles} />
-      <Flex height="100vh">
+      <Flex height="100vh" overflow="hidden">
         <CalendarSidebar
           setSearchQuery={setSearchQuery}
           onDeclareAbsenceClick={handleDeclareAbsenceClick}
@@ -421,6 +642,7 @@ const Calendar: React.FC = () => {
           height="100%"
           display="flex"
           flexDirection="column"
+          overflow="hidden"
         >
           <CalendarHeader
             currentMonthYear={currentMonthYear}
@@ -432,7 +654,7 @@ const Calendar: React.FC = () => {
             setIsAdminMode={setIsAdminMode}
           />
 
-          <Box flex={1} overflow="hidden" pr={theme.space[2]}>
+          <Box flex={1} overflow="auto" pr={theme.space[2]}>
             {!isAdminMode && (
               <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
             )}
@@ -441,7 +663,7 @@ const Calendar: React.FC = () => {
               headerToolbar={false}
               plugins={[dayGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
-              height="100%"
+              height="auto"
               events={filteredEvents}
               eventContent={renderEventContent}
               timeZone="local"
@@ -457,16 +679,7 @@ const Calendar: React.FC = () => {
           </Box>
         </Box>
       </Flex>
-      <AbsenceDetails
-        isOpen={isAbsenceDetailsOpen}
-        onClose={onAbsenceDetailsClose}
-        event={selectedEvent!!}
-        fetchAbsences={fetchAbsences}
-        onDelete={handleDeleteAbsence}
-        onTabChange={setActiveTab}
-        isAdminMode={isAdminMode}
-        hasConflictingEvent={hasConflictingEvent(selectedEvent!!)}
-      />
+
       <DeclareAbsenceModal
         isOpen={isInputFormOpen}
         onClose={onInputFormClose}
@@ -476,6 +689,38 @@ const Calendar: React.FC = () => {
         isAdminMode={isAdminMode}
         fetchAbsences={fetchAbsences}
       />
+      <FillAbsenceModal
+        isOpen={isFillModalOpen}
+        onClose={handleFillCancel}
+        onConfirm={handleFillConfirm}
+        isLoading={isFilling}
+      />
+      {selectedEvent && (
+        <AbsenceFillThanksModal
+          isOpen={isFillThanksOpen}
+          onClose={handleFillThanksDone}
+          event={selectedEvent}
+          absenceDate={formatFullDate(selectedEvent.start)}
+        />
+      )}
+      {selectedEvent && (
+        <EditAbsenceModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          initialData={selectedEvent}
+          isAdminMode={isAdminMode}
+          fetchAbsences={fetchAbsences}
+        />
+      )}
+      {/* Delete Absence Modal */}
+      {absenceToDelete && (
+        <DeleteAbsenceModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleDeleteModalClose}
+          absenceId={absenceToDelete}
+          onDelete={handleDeleteAbsence}
+        />
+      )}
     </>
   );
 };
