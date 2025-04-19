@@ -342,9 +342,9 @@ const EntityTable: React.FC<EntityTableProps> = ({
         <Box width={leftColumnWidth} pr={4}>
           <HStack spacing={2}>
             {entityType === 'subject' ? (
-              <IoBookOutline size={18} color={theme.colors.text.subtitle} />
+              <Icon as={IoBookOutline} boxSize="18px" color="text.subtitle" />
             ) : (
-              <FiMapPin size={18} color={theme.colors.text.subtitle} />
+              <Icon as={FiMapPin} boxSize="18px" color="text.subtitle" />
             )}
             <Text
               textStyle="h4"
@@ -397,7 +397,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
         </Box>
         <Box width={rightColumnWidth} pl={4}>
           <HStack spacing={2}>
-            <FiType size={18} color={theme.colors.text.subtitle} />
+            <Icon as={FiType} boxSize="18px" color="text.subtitle" />
             <Text
               textStyle="h4"
               fontWeight="500"
