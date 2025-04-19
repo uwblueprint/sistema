@@ -168,7 +168,7 @@ export const FilterPopup: React.FC<FilterPopupProps> = ({
         boxShadow="md"
         border="1px solid"
         borderColor="neutralGray.300"
-        zIndex={5000}
+        // zIndex={5000}
       >
         <Flex justifyContent="space-between" alignItems="center" mb={5}>
           <Text textStyle="h3">Filter Options</Text>
