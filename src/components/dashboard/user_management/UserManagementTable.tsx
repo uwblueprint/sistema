@@ -242,7 +242,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       borderColor="neutralGray.300"
       height="100%"
     >
-      <HStack justify="space-between" mx={5} my={3}>
+      <HStack justify="space-between" mx={5} my={3} zIndex={5000}>
         <Text textStyle="h2" fontSize="18px" fontWeight={700} lineHeight="33px">
           User Management
         </Text>
@@ -286,7 +286,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           <Thead
             position="sticky"
             top={0}
-            zIndex={1000} // Make sure it's above the popover for editing email subscriptions
+            zIndex={3000} // Make sure it's above the popover for editing email subscriptions but below the filter popup
             bg="white"
             boxShadow="0 1px 1px rgba(227, 227, 227, 1)"
           >
