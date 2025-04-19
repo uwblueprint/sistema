@@ -235,12 +235,16 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      size="md"
       scrollBehavior="outside"
       motionPreset="slideInBottom"
     >
       <ModalOverlay bg="rgba(0, 0, 0, 0.4)" />
-      <ModalContent width="100%" maxWidth="lg" paddingX="43px" paddingY="42px">
+      <ModalContent
+        width="510px"
+        maxWidth="510px"
+        paddingX="43px"
+        paddingY="42px"
+      >
         <Flex direction="column" width="100%">
           <ModalHeader padding={0}>
             <HStack spacing={0} width="100%">
