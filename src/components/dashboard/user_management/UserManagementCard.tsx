@@ -35,8 +35,13 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
         '/api/users?getAbsences=true&getMailingLists=true'
       );
       if (!usersResponse.ok) throw new Error('Failed to fetch users');
-      const usersData = await usersResponse.json();
-      setUsers(usersData);
+      const usersData: UserAPI[] = await usersResponse.json();
+
+      const usersWithSortedLists = usersData.map((u) => ({
+        ...u,
+        mailingLists: sortMailingLists(u.mailingLists || []),
+      }));
+      setUsers(usersWithSortedLists);
 
       const settingsResponse = await fetch('/api/settings');
       if (!settingsResponse.ok) throw new Error('Failed to fetch settings');
@@ -128,7 +133,7 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
     if (!user) return;
 
     // Get the complete subject objects for all selected subject IDs
-    const unsortedMailingLists = subjectIds.map((subjectId) => {
+    const updatedMailingLists = subjectIds.map((subjectId) => {
       // Find this subject in our subjects list
       const subjectData = subjects.find((s) => s.id === subjectId);
 
@@ -150,9 +155,6 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
         subject: subjectData || user.mailingLists?.[0]?.subject || null,
       };
     });
-
-    // Sort the mailing lists by archived status and ID
-    const updatedMailingLists = sortMailingLists(unsortedMailingLists);
 
     // Optimistically update UI with complete data
     setUsers((prevUsers) =>

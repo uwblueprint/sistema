@@ -62,8 +62,12 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
       .map((list) => list.subjectId)
   );
   const [localMailingLists, setLocalMailingLists] = useState<MailingList[]>(
-    mailingLists.filter((list) => !list.subject.archived)
+    () =>
+      [...mailingLists]
+        .filter((list) => !list.subject.archived)
+        .sort((a, b) => a.subjectId - b.subjectId)
   );
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const popoverRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLDivElement | null>(null);
@@ -114,14 +118,12 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
   // Update the state when props change
   useEffect(() => {
     if (!isSaving) {
-      setSelectedSubjectIds(
-        mailingLists
-          .filter((list) => !list.subject.archived)
-          .map((list) => list.subjectId)
-      );
-      setLocalMailingLists(
-        mailingLists.filter((list) => !list.subject.archived)
-      );
+      const sorted = [...mailingLists]
+        .filter((list) => !list.subject.archived)
+        .sort((a, b) => a.subjectId - b.subjectId);
+
+      setSelectedSubjectIds(sorted.map((list) => list.subjectId));
+      setLocalMailingLists(sorted);
     }
   }, [mailingLists, isSaving]);
 
