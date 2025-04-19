@@ -46,8 +46,11 @@ const useUserFiltering = (
       }
 
       if (disabledTags && disabledTags.length > 0) {
-        const userTags =
-          user.mailingLists?.map((list) => list.subject.name) || [];
+        // Get active (non-archived) mailing lists only
+        const activeMailingLists =
+          user.mailingLists?.filter((list) => !list.subject.archived) || [];
+
+        const userTags = activeMailingLists.map((list) => list.subject.name);
 
         if (userTags.length === 0) {
           return !disabledTags.includes(NO_EMAIL_TAGS);
