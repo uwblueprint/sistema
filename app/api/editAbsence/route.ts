@@ -1,5 +1,6 @@
 import { prisma } from '@utils/prisma';
 import { NextResponse } from 'next/server';
+import { deleteDriveFile } from '@utils/googleDrive';
 
 export async function PUT(req: Request) {
   try {
@@ -24,7 +25,6 @@ export async function PUT(req: Request) {
       }
 
       const dataToUpdate: any = {};
-
       if ('lessonDate' in fields)
         dataToUpdate.lessonDate = new Date(fields.lessonDate);
       if ('reasonOfAbsence' in fields)
@@ -40,7 +40,14 @@ export async function PUT(req: Request) {
         dataToUpdate.roomNumber = fields.roomNumber || null;
 
       if (lessonPlanFile) {
-        if (existing.lessonPlanId) {
+        if (existing.lessonPlanId && existing.lessonPlan) {
+          const maybeFileId = existing.lessonPlan.url
+            .split('/d/')[1]
+            ?.split('/')[0];
+          if (maybeFileId) {
+            await deleteDriveFile(maybeFileId);
+          }
+
           await tx.absence.update({
             where: { id },
             data: { lessonPlanId: null },
@@ -57,7 +64,6 @@ export async function PUT(req: Request) {
             size: lessonPlanFile.size,
           },
         });
-
         dataToUpdate.lessonPlanId = newLessonPlan.id;
       }
 
@@ -70,7 +76,7 @@ export async function PUT(req: Request) {
     });
 
     return NextResponse.json(updatedAbsence, { status: 200 });
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error in PUT /api/editAbsence:', err.message || err);
     return NextResponse.json(
       { error: 'Internal Server Error', details: err.message },
