@@ -319,7 +319,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [editingItem, isAddingItem, newItem]);
+  }, [editingItem, isAddingItem, newItem, handleAddItem, handleSaveEditedItem]);
 
   return (
     <Box borderWidth="1px" borderRadius="md" overflow="hidden">
