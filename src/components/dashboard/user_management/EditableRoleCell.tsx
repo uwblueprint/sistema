@@ -122,6 +122,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
             p={2}
             borderRadius="5px"
             width="100px"
+            transition="background-color 0.3s ease-in-out"
           >
             <Text textStyle="cellBody" flexGrow={1}>
               {newRole === 'TEACHER' ? 'Teacher' : 'Admin'}
