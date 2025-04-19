@@ -286,7 +286,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           <Thead
             position="sticky"
             top={0}
-            zIndex={3000} // Make sure it's above the popover for editing email subscriptions but below the filter popup
+            // zIndex={3000} // Make sure it's above the popover for editing email subscriptions but below the filter popup
             bg="white"
             boxShadow="0 1px 1px rgba(227, 227, 227, 1)"
           >
