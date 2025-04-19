@@ -242,12 +242,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       borderColor="neutralGray.300"
       height="100%"
     >
-      <HStack
-        justify="space-between"
-        mx={5}
-        my={3}
-        //  zIndex={5000}
-      >
+      <HStack justify="space-between" mx={5} my={3} zIndex={5000}>
         <Text textStyle="h2" fontSize="18px" fontWeight={700} lineHeight="33px">
           User Management
         </Text>

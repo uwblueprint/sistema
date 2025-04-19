@@ -44,7 +44,7 @@ const UnsavedChangesModal: React.FC<UnsavedChangesModalProps> = ({
         width="sm"
         maxHeight="80vh"
         boxShadow="2xl"
-        // zIndex={1500}
+        zIndex={1500}
       >
         <ModalHeader fontSize="lg" fontWeight="bold" pb={4} pt={0} px={0}>
           <Text textStyle="h3" fontWeight="600">
