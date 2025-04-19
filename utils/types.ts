@@ -21,9 +21,19 @@ export interface LessonPlanFile {
 export interface EventDetails {
   title: string;
   start: Date;
-  absentTeacher: { id: number; firstName: string; lastName: string };
+  absentTeacher: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
   absentTeacherFullName: string;
-  substituteTeacher: { id: number; firstName: string; lastName: string } | null;
+  substituteTeacher: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+  } | null;
   substituteTeacherFullName: string | null;
   location: string;
   locationId: number;

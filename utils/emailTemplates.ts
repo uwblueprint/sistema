@@ -1,3 +1,5 @@
+import { formatLongDate } from '@utils/formatDate';
+
 const UPLOAD_LINK = `${process.env.NEXT_PUBLIC_PROD_URL!}/calendar`;
 
 export function createLessonPlanReminderEmailBody(
@@ -8,12 +10,7 @@ export function createLessonPlanReminderEmailBody(
     location: { name: string };
   }
 ): string {
-  const dateFormatter = new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-  const formattedDate = dateFormatter.format(absence.lessonDate);
+  const formattedDate = formatLongDate(absence.lessonDate);
 
   return `
     <html>
@@ -74,12 +71,7 @@ export function createAbsenceModificationEmailBody(
     lessonPlan?: { name: string; url: string } | null;
   }
 ): string {
-  const dateFormatter = new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-  const formattedDate = dateFormatter.format(absence.lessonDate);
+  const formattedDate = formatLongDate(absence.lessonDate);
 
   return `
     <html>
@@ -122,11 +114,7 @@ export function createAbsenceFillConfirmationEmailBody(
     lessonPlan?: { name: string; url: string } | null;
   }
 ): string {
-  const formattedDate = new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(absence.lessonDate);
+  const formattedDate = formatLongDate(absence.lessonDate);
 
   return `
     <html>
@@ -153,6 +141,33 @@ export function createAbsenceFillConfirmationEmailBody(
                </p>`
             : ``
         }
+        <p>Sistema Toronto</p>
+      </body>
+    </html>
+  `;
+}
+
+export function createAbsenceDeletionEmailBody(
+  teacher: { firstName: string; lastName: string },
+  absence: {
+    lessonDate: Date;
+    subject: { name: string };
+    location: { name: string };
+  }
+): string {
+  const formattedDate = formatLongDate(absence.lessonDate);
+
+  return `
+    <html>
+      <body>
+        <p>Hello,</p>
+        <p>
+          An absence has been deleted for
+          <strong>${teacher.firstName} ${teacher.lastName}’s</strong>
+          <strong>${absence.subject.name}</strong> class at
+          <strong>${absence.location.name}</strong> on
+          <strong>${formattedDate}</strong>.
+        </p>
         <p>Sistema Toronto</p>
       </body>
     </html>
