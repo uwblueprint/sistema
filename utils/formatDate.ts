@@ -1,3 +1,12 @@
+export function formatLongDate(input: Date | string): string {
+  const date = typeof input === 'string' ? new Date(input) : input;
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(date);
+}
+
 export const formatMonthYear = (date: Date): string => {
   return new Intl.DateTimeFormat('en-US', {
     month: 'long',

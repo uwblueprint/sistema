@@ -16,15 +16,9 @@ import {
   useTheme,
   VStack,
 } from '@chakra-ui/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiArchive, FiEdit2, FiMapPin, FiTrash2, FiType } from 'react-icons/fi';
-import {
-  IoAdd,
-  IoBookOutline,
-  IoCheckmark,
-  IoCloseOutline,
-  IoEllipsisHorizontal,
-} from 'react-icons/io5';
+import { IoAdd, IoBookOutline, IoEllipsisHorizontal } from 'react-icons/io5';
 import { LuInfo } from 'react-icons/lu';
 import AbsenceBox from '../../absences/AbsenceBox';
 
@@ -152,7 +146,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
     return name.trim().substring(0, maxLength).trim();
   };
 
-  const handleSaveEditedItem = () => {
+  const handleSaveEditedItem = useCallback(() => {
     // Only require name to be present, abbreviation is now optional
     if (!editingItem || !editingItem.name) return;
 
@@ -203,9 +197,16 @@ const EntityTable: React.FC<EntityTableProps> = ({
     if (hasChanges) {
       handleUpdateEntity(currentEditingItem);
     }
-  };
+  }, [
+    editingItem,
+    items,
+    handleUpdateEntity,
+    maxAbbreviationLength,
+    maxFullNameLength,
+    entityType,
+  ]);
 
-  const handleAddItem = () => {
+  const handleAddItem = useCallback(() => {
     // Only require name to be present, abbreviation is now optional
     if (!newItem.name) return;
 
@@ -250,7 +251,14 @@ const EntityTable: React.FC<EntityTableProps> = ({
     });
     setIsAddingItem(false);
     setColorPickerOpen(null);
-  };
+  }, [
+    newItem,
+    maxAbbreviationLength,
+    maxFullNameLength,
+    handleUpdateEntity,
+    colorGroups,
+    entityType,
+  ]);
 
   const handleCancelEdit = () => {
     setEditingItem(null);
@@ -300,6 +308,32 @@ const EntityTable: React.FC<EntityTableProps> = ({
       />
     );
   };
+
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        editingRowRef.current &&
+        !editingRowRef.current.contains(event.target as Node)
+      ) {
+        if (editingItem) {
+          handleSaveEditedItem();
+        } else if (isAddingItem) {
+          // Cancel adding if name is empty - just close the form without adding
+          if (!newItem.name.trim()) {
+            handleCancelEdit();
+          } else {
+            handleAddItem();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [editingItem, isAddingItem, newItem, handleAddItem, handleSaveEditedItem]);
 
   return (
     <Box borderWidth="1px" borderRadius="md" overflow="hidden">
@@ -415,7 +449,6 @@ const EntityTable: React.FC<EntityTableProps> = ({
         <Box
           px={4}
           py={2}
-          borderBottomWidth="1px"
           _last={{ borderBottomWidth: 0 }}
           ref={editingItem?.id === item.id ? editingRowRef : undefined}
           bg={item.archived ? 'neutralGray.100' : 'white'}
@@ -426,11 +459,25 @@ const EntityTable: React.FC<EntityTableProps> = ({
           key={item.id}
           transition="background-color 0.3s ease"
           height={ROW_HEIGHT}
+          borderColor={
+            editingItem?.id === item.id
+              ? theme.colors.primaryBlue[300]
+              : theme.colors.neutralGray[200]
+          }
+          borderWidth={editingItem?.id === item.id ? '1px' : '0px'}
+          borderBottomWidth="1px"
+          borderRadius={editingItem?.id === item.id ? '5px' : '0px'}
+          position={editingItem?.id === item.id ? 'relative' : 'static'}
         >
           {editingItem && editingItem.id === item.id ? (
             <>
-              <Box width={leftColumnWidth} pr={4}>
-                <HStack spacing={5}>
+              <Box
+                width={leftColumnWidth}
+                pr={4}
+                display="flex"
+                alignItems="center"
+              >
+                <HStack spacing={2} alignItems="center">
                   {entityType === 'subject' && (
                     <Box position="relative">
                       <Circle
@@ -494,6 +541,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                       )}
                     </Box>
                   )}
+                  {entityType === 'subject' && <Box width={3} />}
                   <Input
                     value={editingItem.name}
                     onChange={(e) => {
@@ -512,9 +560,18 @@ const EntityTable: React.FC<EntityTableProps> = ({
                         abbreviation: newAbbreviation,
                       });
                     }}
+                    placeholder={`${title} name`}
                     size="sm"
                     flex="1"
                     maxLength={maxFullNameLength}
+                    border="none"
+                    _focus={{ boxShadow: 'none' }}
+                    textStyle="cellBody"
+                    fontSize="15px"
+                    px="0"
+                    borderRadius="0"
+                    height="auto"
+                    ml={entityType !== 'subject' ? '0' : undefined}
                   />
                 </HStack>
               </Box>
@@ -538,7 +595,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
 
                     setEditingItem({
                       ...editingItem,
-                      abbreviation: newValue,
+                      abbreviation: newValue.trim(),
                     });
                   }}
                   onBlur={() => {
@@ -556,46 +613,18 @@ const EntityTable: React.FC<EntityTableProps> = ({
                       });
                     }
                   }}
+                  placeholder="Abbr."
                   size="sm"
-                  maxW="60px"
+                  maxW="100px"
                   maxLength={maxAbbreviationLength}
+                  border="none"
+                  _focus={{ boxShadow: 'none' }}
+                  textStyle="cellBody"
+                  fontSize="15px"
+                  px="0"
+                  borderRadius="0"
+                  height="auto"
                 />
-                <HStack
-                  spacing={0}
-                  boxShadow="0px 0px 10px 0px rgba(0, 0, 0, 0.15)"
-                  borderRadius="5px"
-                >
-                  <Box
-                    as="button"
-                    p={1}
-                    cursor="pointer"
-                    bg="buttonBackground"
-                    _hover={{ bg: 'neutralGray.100' }}
-                    _active={{ bg: 'neutralGray.300' }}
-                    borderRadius="5px 0 0 5px"
-                    onClick={handleCancelEdit}
-                  >
-                    <IoCloseOutline
-                      size={24}
-                      color={theme.colors.neutralGray[600]}
-                    />
-                  </Box>
-                  <Box
-                    as="button"
-                    p={1}
-                    cursor="pointer"
-                    bg="buttonBackground"
-                    _hover={{ bg: 'neutralGray.100' }}
-                    _active={{ bg: 'neutralGray.300' }}
-                    borderRadius="0 5px 5px 0"
-                    onClick={handleSaveEditedItem}
-                  >
-                    <IoCheckmark
-                      size={24}
-                      color={theme.colors.neutralGray[600]}
-                    />
-                  </Box>
-                </HStack>
               </Box>
             </>
           ) : (
@@ -845,9 +874,19 @@ const EntityTable: React.FC<EntityTableProps> = ({
             },
           }}
           height={ROW_HEIGHT}
+          borderWidth="1px"
+          borderColor={theme.colors.primaryBlue[300]}
+          borderRadius="5px"
+          position="relative"
+          zIndex="1"
         >
-          <Box width={leftColumnWidth} pr={4}>
-            <HStack spacing={5}>
+          <Box
+            width={leftColumnWidth}
+            pr={4}
+            display="flex"
+            alignItems="center"
+          >
+            <HStack spacing={2} alignItems="center">
               {entityType === 'subject' && (
                 <Box position="relative">
                   <Circle
@@ -916,6 +955,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                   )}
                 </Box>
               )}
+              {entityType === 'subject' && <Box width={3} />}
               <Input
                 value={newItem.name}
                 onChange={(e) => {
@@ -935,6 +975,14 @@ const EntityTable: React.FC<EntityTableProps> = ({
                 size="sm"
                 flex="1"
                 maxLength={maxFullNameLength}
+                border="none"
+                _focus={{ boxShadow: 'none' }}
+                textStyle="cellBody"
+                fontSize="15px"
+                px="0"
+                borderRadius="0"
+                height="auto"
+                ml={entityType !== 'subject' ? '0' : undefined}
               />
             </HStack>
           </Box>
@@ -978,42 +1026,16 @@ const EntityTable: React.FC<EntityTableProps> = ({
               }}
               placeholder="Abbr."
               size="sm"
-              maxW="60px"
+              maxW="100px"
               maxLength={maxAbbreviationLength}
+              border="none"
+              _focus={{ boxShadow: 'none' }}
+              textStyle="cellBody"
+              fontSize="15px"
+              px="0"
+              borderRadius="0"
+              height="auto"
             />
-            <HStack
-              spacing={0}
-              boxShadow="0px 0px 10px 0px rgba(0, 0, 0, 0.15)"
-              borderRadius="5px"
-            >
-              <Box
-                as="button"
-                p={1}
-                cursor="pointer"
-                bg="buttonBackground"
-                _hover={{ bg: 'neutralGray.100' }}
-                _active={{ bg: 'neutralGray.300' }}
-                borderRadius="5px 0 0 5px"
-                onClick={handleCancelEdit}
-              >
-                <IoCloseOutline
-                  size={24}
-                  color={theme.colors.neutralGray[600]}
-                />
-              </Box>
-              <Box
-                as="button"
-                p={1}
-                cursor="pointer"
-                bg="buttonBackground"
-                _hover={{ bg: 'neutralGray.100' }}
-                _active={{ bg: 'neutralGray.300' }}
-                borderRadius="0 5px 5px 0"
-                onClick={handleAddItem}
-              >
-                <IoCheckmark size={24} color={theme.colors.neutralGray[600]} />
-              </Box>
-            </HStack>
           </Box>
         </Box>
       ) : null}

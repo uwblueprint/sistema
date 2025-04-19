@@ -39,7 +39,7 @@ export const EditIcon = ({ bg }: { bg: string }) => (
   </Circle>
 );
 
-const MailIcon = ({ bg }: { bg: string }) => (
+export const MailIcon = ({ bg }: { bg: string }) => (
   <Circle
     size="30px"
     bg={bg}
