@@ -7,7 +7,6 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  Portal,
   Tag,
   TagLabel,
   Text,
@@ -316,64 +315,63 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
           </Box>
         </PopoverTrigger>
 
-        <Portal>
-          <PopoverContent
-            width={
-              triggerRef.current?.offsetWidth
-                ? `${triggerRef.current.offsetWidth}px`
-                : '100%'
-            }
-            borderColor="neutralGray.300"
-            ref={popoverRef}
-            zIndex={1}
-            mt="2px"
-          >
-            <PopoverBody p={0} maxHeight="300px" overflowY="auto" zIndex={1}>
-              {sortedSubjects.map((subject) => {
-                const isSelected = selectedSubjectIds.includes(subject.id);
-                const bgColor = subject.colorGroup.colorCodes[1];
-                const borderColor = subject.colorGroup.colorCodes[1];
+        <PopoverContent
+          width={
+            triggerRef.current?.offsetWidth
+              ? `${triggerRef.current.offsetWidth}px`
+              : '100%'
+          }
+          maxWidth="80vw"
+          borderColor="neutralGray.300"
+          ref={popoverRef}
+          zIndex={1}
+          mt="2px"
+        >
+          <PopoverBody p={0} maxHeight="300px" overflowY="auto" zIndex={1}>
+            {sortedSubjects.map((subject) => {
+              const isSelected = selectedSubjectIds.includes(subject.id);
+              const bgColor = subject.colorGroup.colorCodes[1];
+              const borderColor = subject.colorGroup.colorCodes[1];
 
-                return (
-                  <Box
-                    key={subject.id}
-                    p={2.5}
-                    pl={4}
-                    display="flex"
-                    alignItems="center"
-                    _hover={{ bg: 'neutralGray.100' }}
-                    onClick={(e) => handleSubjectChange(subject.id, e)}
-                    cursor="pointer"
-                  >
-                    <Checkbox
-                      isChecked={isSelected}
-                      onChange={(e) => {
-                        e.nativeEvent.stopPropagation();
-                        handleSubjectChange(subject.id);
-                      }}
-                      mr={2}
-                      _checked={{
-                        '& .chakra-checkbox__control': {
-                          bg: bgColor,
-                          borderColor: borderColor,
-                        },
-                      }}
-                      _hover={{
-                        '& .chakra-checkbox__control': {
-                          borderColor: borderColor,
-                          bg: bgColor,
-                          opacity: 0.7,
-                        },
-                      }}
-                      borderColor={borderColor}
-                    />
-                    <Text textStyle="label">{subject.name}</Text>
-                  </Box>
-                );
-              })}
-            </PopoverBody>
-          </PopoverContent>
-        </Portal>
+              return (
+                <Box
+                  key={subject.id}
+                  p={2.5}
+                  pl={4}
+                  display="flex"
+                  alignItems="center"
+                  _hover={{ bg: 'neutralGray.100' }}
+                  onClick={(e) => handleSubjectChange(subject.id, e)}
+                  cursor="pointer"
+                >
+                  <Checkbox
+                    isChecked={isSelected}
+                    onChange={(e) => {
+                      e.nativeEvent.stopPropagation();
+                      handleSubjectChange(subject.id);
+                    }}
+                    mr={2}
+                    _checked={{
+                      '& .chakra-checkbox__control': {
+                        bg: bgColor,
+                        borderColor: borderColor,
+                      },
+                    }}
+                    _hover={{
+                      '& .chakra-checkbox__control': {
+                        borderColor: borderColor,
+                        bg: bgColor,
+                        opacity: 0.7,
+                      },
+                    }}
+                    borderColor={borderColor}
+                  />
+                  <Text textStyle="label">{subject.name}</Text>
+                </Box>
+              );
+            })}
+          </PopoverBody>
+        </PopoverContent>
       </Popover>
     </Box>
   );
