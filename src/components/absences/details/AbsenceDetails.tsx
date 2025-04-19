@@ -237,8 +237,8 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         body: JSON.stringify({ isUserAdmin, absenceId: event.absenceId }),
       });
       if (!response.ok) throw new Error('Failed to delete absence');
-      onDelete?.(event.absenceId);
 
+      onDelete?.(event.absenceId);
       await fetchAbsences();
       setIsDeleteModalOpen(false);
 
@@ -259,7 +259,11 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         ),
       });
 
-      openNotify();
+      if (isAdminMode) {
+        openNotify();
+      } else {
+        onClose();
+      }
     } catch (err: any) {
       const formattedDate = formatFullDate(event.start);
       showToast({
