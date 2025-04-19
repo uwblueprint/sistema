@@ -16,7 +16,7 @@ import {
   useTheme,
   VStack,
 } from '@chakra-ui/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiArchive, FiEdit2, FiMapPin, FiTrash2, FiType } from 'react-icons/fi';
 import { IoAdd, IoBookOutline, IoEllipsisHorizontal } from 'react-icons/io5';
 import { LuInfo } from 'react-icons/lu';
@@ -146,7 +146,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
     return name.trim().substring(0, maxLength).trim();
   };
 
-  const handleSaveEditedItem = () => {
+  const handleSaveEditedItem = useCallback(() => {
     // Only require name to be present, abbreviation is now optional
     if (!editingItem || !editingItem.name) return;
 
@@ -197,9 +197,16 @@ const EntityTable: React.FC<EntityTableProps> = ({
     if (hasChanges) {
       handleUpdateEntity(currentEditingItem);
     }
-  };
+  }, [
+    editingItem,
+    items,
+    handleUpdateEntity,
+    maxAbbreviationLength,
+    maxFullNameLength,
+    entityType,
+  ]);
 
-  const handleAddItem = () => {
+  const handleAddItem = useCallback(() => {
     // Only require name to be present, abbreviation is now optional
     if (!newItem.name) return;
 
@@ -244,7 +251,14 @@ const EntityTable: React.FC<EntityTableProps> = ({
     });
     setIsAddingItem(false);
     setColorPickerOpen(null);
-  };
+  }, [
+    newItem,
+    maxAbbreviationLength,
+    maxFullNameLength,
+    handleUpdateEntity,
+    colorGroups,
+    entityType,
+  ]);
 
   const handleCancelEdit = () => {
     setEditingItem(null);
