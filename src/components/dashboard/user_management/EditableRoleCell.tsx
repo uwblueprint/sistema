@@ -13,16 +13,17 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { FiChevronDown, FiChevronUp, FiEdit2 } from 'react-icons/fi';
 import { IoCheckmark, IoCloseOutline } from 'react-icons/io5';
+import { Role } from '@utils/types';
 
 type EditableRoleCellProps = {
-  role: string;
-  onRoleChange: (newRole: string) => void;
+  role: Role;
+  onRoleChange: (newRole: Role) => void;
 };
 
 const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
+  const [newRole, setNewRole] = useState<Role>(role);
   const [isEditing, setIsEditing] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [newRole, setNewRole] = useState(role);
   const [isHovered, setIsHovered] = useState(false);
   const theme = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -64,7 +65,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
     }
   };
 
-  const handleRoleChange = (selectedRole: string) => {
+  const handleRoleChange = (selectedRole: Role) => {
     setNewRole(selectedRole);
     setIsDropdownOpen(false);
   };
@@ -81,7 +82,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
     setIsDropdownOpen(false);
   };
 
-  const oppositeRole = newRole === 'TEACHER' ? 'ADMIN' : 'TEACHER';
+  const oppositeRole = newRole === Role.TEACHER ? Role.ADMIN : Role.TEACHER;
 
   return (
     <Box
@@ -125,7 +126,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
             transition="background-color 0.3s ease-in-out"
           >
             <Text textStyle="cellBody" flexGrow={1}>
-              {newRole === 'TEACHER' ? 'Teacher' : 'Admin'}
+              {newRole === Role.TEACHER ? 'Teacher' : 'Admin'}
             </Text>
 
             <Box display="flex" alignItems="center">
@@ -164,7 +165,7 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
             onClick={() => handleRoleChange(oppositeRole)}
           >
             <Text textStyle="cellBody" flexGrow={1}>
-              {oppositeRole === 'TEACHER' ? 'Teacher' : 'Admin'}
+              {oppositeRole === Role.TEACHER ? 'Teacher' : 'Admin'}
             </Text>
           </Box>
         </PopoverContent>
