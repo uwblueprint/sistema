@@ -38,13 +38,19 @@ const UnsavedChangesModal: React.FC<UnsavedChangesModalProps> = ({
       closeOnOverlayClick={false}
       preserveScrollBarGap
     >
-      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" transition="all 0.3s ease" />
+      <ModalOverlay
+        bg="rgba(0, 0, 0, 0.4)"
+        transition="all 0.3s ease"
+        zIndex={1501}
+      />
       <ModalContent
         p={8}
         width="sm"
         maxHeight="80vh"
         boxShadow="2xl"
-        zIndex={1500}
+        containerProps={{
+          zIndex: '1501',
+        }}
       >
         <ModalHeader fontSize="lg" fontWeight="bold" pb={4} pt={0} px={0}>
           <Text textStyle="h3" fontWeight="600">

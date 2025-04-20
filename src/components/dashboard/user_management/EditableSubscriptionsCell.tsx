@@ -266,7 +266,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
         placement="bottom-start"
         autoFocus={false}
         closeOnBlur={true}
-        gutter={0}
+        gutter={5}
         isLazy
       >
         <PopoverTrigger>
@@ -321,18 +321,15 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
         </PopoverTrigger>
 
         <PopoverContent
-          width={
-            triggerRef.current?.offsetWidth
-              ? `${triggerRef.current.offsetWidth}px`
-              : '100%'
-          }
-          maxWidth="80vw"
           borderColor="neutralGray.300"
           ref={popoverRef}
-          zIndex={1}
+          width="580px"
+          maxWidth="580px"
+          zIndex={0}
           mt="2px"
+          overflowX="hidden"
         >
-          <PopoverBody p={0} maxHeight="300px" overflowY="auto" zIndex={1}>
+          <PopoverBody p={0} maxH="300px" overflowY="auto" overflowX="hidden">
             {sortedSubjects.map((subject) => {
               const isSelected = selectedSubjectIds.includes(subject.id);
               const bgColor = subject.colorGroup.colorCodes[1];
@@ -371,7 +368,9 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
                     }}
                     borderColor={borderColor}
                   />
-                  <Text textStyle="label">{subject.name}</Text>
+                  <Text isTruncated textStyle="label">
+                    {subject.name}
+                  </Text>
                 </Box>
               );
             })}

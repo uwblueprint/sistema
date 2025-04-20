@@ -238,12 +238,15 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
       scrollBehavior="outside"
       motionPreset="slideInBottom"
     >
-      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" />
+      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" zIndex={1501} />
       <ModalContent
         width="510px"
         maxWidth="510px"
         paddingX="43px"
         paddingY="42px"
+        containerProps={{
+          zIndex: '1501',
+        }}
       >
         <Flex direction="column" width="100%">
           <ModalHeader padding={0}>

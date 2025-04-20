@@ -10,10 +10,10 @@ import {
   useOutsideClick,
   useTheme,
 } from '@chakra-ui/react';
+import { Role } from '@utils/types';
 import { useEffect, useRef, useState } from 'react';
 import { FiChevronDown, FiChevronUp, FiEdit2 } from 'react-icons/fi';
 import { IoCheckmark, IoCloseOutline } from 'react-icons/io5';
-import { Role } from '@utils/types';
 
 type EditableRoleCellProps = {
   role: Role;
@@ -184,11 +184,14 @@ const EditableRoleCell = ({ role, onRoleChange }: EditableRoleCellProps) => {
           <PopoverContent
             width="auto"
             p={0}
-            shadow="md"
-            borderColor="neutralGray.300"
             _focus={{ boxShadow: 'none', outline: 'none' }}
+            border="none"
           >
-            <HStack spacing={0}>
+            <HStack
+              spacing={0}
+              boxShadow="0px 0px 10px 0px rgba(0, 0, 0, 0.15)"
+              borderRadius="5px"
+            >
               <Box
                 p={1}
                 cursor="pointer"
