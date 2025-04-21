@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FiFileText } from 'react-icons/fi';
 import { useCustomToast } from '../../CustomToast';
 import { FileUpload } from '../FileUpload';
+import { MailIcon } from '../modals/edit/EditAbsenceForm';
 
 const formatFileSize = (sizeInBytes: number) => {
   if (sizeInBytes === 0) return '0 B';
@@ -212,8 +213,9 @@ const LessonPlanView = ({
       setLocalLessonPlan(uploadedPlan);
 
       showToast({
-        description: 'The lesson plan was successfully uploaded.',
+        description: 'Confirmation emails have been sent.',
         status: 'success',
+        icon: <MailIcon bg="positiveGreen.200" />,
       });
 
       await fetchAbsences?.();
@@ -237,6 +239,7 @@ const LessonPlanView = ({
       showToast({
         description: 'There was a problem updating the lesson plan.',
         status: 'error',
+        icon: <MailIcon bg="errorRed.200" />,
       });
     }
 
