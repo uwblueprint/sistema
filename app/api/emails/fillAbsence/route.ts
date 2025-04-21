@@ -57,7 +57,7 @@ export async function POST(req: Request) {
   const { success, error } = await sendEmail({
     to,
     cc,
-    subject: 'Sistema Toronto Tacet - an absence has been filled',
+    subject: 'Sistema Toronto Tacet – An Absence Has Been Filled',
     html,
   });
 

@@ -88,8 +88,8 @@ async function sendReminders(
         to: [user.email],
         cc: isUrgent ? adminEmails : undefined,
         subject: isUrgent
-          ? `URGENT - Sistema Toronto Tacet - submit your lesson plan ASAP`
-          : `Sistema Toronto Tacet - reminder to upload lesson plan`,
+          ? 'URGENT – Sistema Toronto Tacet – Submit Your Lesson Plan ASAP'
+          : 'Sistema Toronto Tacet – Reminder to Upload Lesson Plan',
         html: emailBody,
       };
 
