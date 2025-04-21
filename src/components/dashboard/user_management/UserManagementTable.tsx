@@ -350,17 +350,20 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                     </HStack>
                   </Td>
                   <Td color="gray.600" py="6px">
-                    <Text textStyle="cellBody">{user.email}</Text>
+                    <Text textStyle="cellBody" whiteSpace="nowrap">
+                      {user.email}
+                    </Text>
                   </Td>
                   <Td textAlign="center" py="6px">
                     <Text
                       textStyle="cellBold"
+                      whiteSpace="nowrap"
                       color={getAbsenceColor(
                         getSelectedYearAbsences(user.absences),
                         absenceCap
                       )}
                     >
-                      {getSelectedYearAbsences(user.absences)}{' '}
+                      {getSelectedYearAbsences(user.absences)}
                     </Text>
                   </Td>
                   <Td py="6px">
@@ -392,7 +395,12 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                   py={8}
                   border="none"
                 >
-                  <Text textStyle="h2" fontSize="18px" color="text.subtitle">
+                  <Text
+                    textStyle="h2"
+                    fontSize="18px"
+                    color="text.subtitle"
+                    whiteSpace="nowrap"
+                  >
                     No Users Found
                   </Text>
                 </Td>
