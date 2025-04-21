@@ -1,6 +1,6 @@
 import { formatLongDate } from '@utils/formatDate';
 
-const UPLOAD_LINK = `${process.env.NEXT_PUBLIC_PROD_URL!}/calendar`;
+const CALENDAR_URL = `${process.env.NEXT_PUBLIC_PROD_URL!}/calendar`;
 
 export function createLessonPlanReminderEmailBody(
   teacher: { firstName: string; lastName: string },
@@ -22,7 +22,7 @@ export function createLessonPlanReminderEmailBody(
         </p>
         <p>
           <strong>Click the link below to upload:</strong><br/>
-          <a href="${UPLOAD_LINK}" target="_blank">Tacet Calendar</a>
+          <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
         </p>
         <p>Sistema Toronto</p>
       </body>
@@ -54,7 +54,7 @@ export function createUrgentLessonPlanReminderEmailBody(
         </p>
         <p>
           <strong>Click the link below to upload:</strong><br/>
-          <a href="${UPLOAD_LINK}" target="_blank">Tacet Calendar</a>
+          <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
         </p>
         <p>Sistema Toronto</p>
       </body>
@@ -86,7 +86,7 @@ export function createAbsenceModificationEmailBody(
         </p>
         <p>
           <strong>Click the link below to view:</strong><br/>
-          <a href="${UPLOAD_LINK}" target="_blank">Tacet Calendar</a>
+          <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
         </p>
         ${
           absence.lessonPlan
@@ -129,7 +129,7 @@ export function createAbsenceFillConfirmationEmailBody(
         </p>
         <p>
           <strong>Click the link below to view:</strong><br/>
-          <a href="${UPLOAD_LINK}" target="_blank">Tacet Calendar</a>
+          <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
         </p>
         ${
           absence.lessonPlan
@@ -233,7 +233,7 @@ export function createLessonPlanUploadedEmailBody(
         </p>
         <p>
           <strong>Click the link below to view:</strong><br/>
-          <a href="${UPLOAD_LINK}" target="_blank">Tacet Calendar</a>
+          <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
         </p>
         ${
           absence.lessonPlan
@@ -274,7 +274,49 @@ export function createUpcomingClaimedClassReminderEmailBody(
         </p>
         <p>
           <strong>Click the link below to view details:</strong><br/>
-          <a href="${UPLOAD_LINK}" target="_blank">Tacet Calendar</a>
+          <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
+        </p>
+        <p>Sistema Toronto</p>
+      </body>
+    </html>
+  `;
+}
+
+export function createUpcomingUnfilledAbsencesEmailBody(
+  teacher: { firstName: string; lastName: string },
+  absences: {
+    lessonDate: Date;
+    subject: { name: string };
+    location: { name: string };
+  }[]
+): string {
+  const sorted = [...absences].sort(
+    (a, b) => a.lessonDate.getTime() - b.lessonDate.getTime()
+  );
+
+  const itemsHtml = sorted
+    .map(({ lessonDate, location, subject }) => {
+      const dateStr = formatLongDate(lessonDate);
+      return `<li><strong>${dateStr}</strong> – ${location.name} – ${subject.name}</li>`;
+    })
+    .join('');
+
+  return `
+    <html>
+      <body>
+        <p>Hello ${teacher.firstName} ${teacher.lastName},</p>
+        <p>
+          The following classes in the next <strong>3 business days</strong> are still unclaimed:
+        </p>
+        <ul style="padding-left:1em;">
+          ${itemsHtml}
+        </ul>
+        <p>
+          Please help us run a smooth program by claiming any of these classes if you’re able to.
+        </p>
+        <p>
+          <strong>Click below to view and claim:</strong><br/>
+          <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
         </p>
         <p>Sistema Toronto</p>
       </body>
