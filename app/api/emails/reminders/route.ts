@@ -1,11 +1,12 @@
 import {
   createLessonPlanReminderEmailBody,
+  createUpcomingClaimedClassesEmailBody,
   createUrgentLessonPlanReminderEmailBody,
 } from '@utils/emailTemplates';
+import { getAdminEmails } from '@utils/getAdminEmails';
 import { prisma } from '@utils/prisma';
 import { sendEmail } from '@utils/sendEmail';
 import { NextResponse } from 'next/server';
-import { getAdminEmails } from '@utils/getAdminEmails';
 
 function addBusinessDays(startDate: Date, days: number): Date {
   const date = new Date(startDate);
@@ -62,9 +63,13 @@ async function sendReminders(
 ): Promise<number> {
   const today = new Date();
   const targetDate = getUTCDateWithoutTime(today, daysBefore);
-  const nextDay = new Date(targetDate.getTime() + 86400000);
-  const allowedDomain = process.env.SISTEMA_EMAIL_DOMAIN!;
-
+  const nextDay = new Date(
+    Date.UTC(
+      targetDate.getUTCFullYear(),
+      targetDate.getUTCMonth(),
+      targetDate.getUTCDate() + 1
+    )
+  );
   const users = await getUsersWithPendingLessonPlans(targetDate, nextDay);
 
   if (users.length === 0) {
@@ -76,13 +81,6 @@ async function sendReminders(
 
   const emailPromises = users.flatMap((user) =>
     user.absences.map(async (absence) => {
-      if (!user.email.endsWith(`@${allowedDomain}`)) {
-        console.warn(
-          `Skipped email to ${user.email} due to domain restriction`
-        );
-        return false;
-      }
-
       const emailBody = isUrgent
         ? createUrgentLessonPlanReminderEmailBody(user, absence)
         : createLessonPlanReminderEmailBody(user, absence);
@@ -108,6 +106,55 @@ async function sendReminders(
   return successfulEmails;
 }
 
+async function sendClaimSummaries(): Promise<number> {
+  const today = new Date();
+  const start = getUTCDateWithoutTime(today, 0);
+  const end = getUTCDateWithoutTime(today, 7);
+
+  const users = await prisma.user.findMany({
+    where: {
+      substitutes: {
+        some: { lessonDate: { gte: start, lt: end } },
+      },
+    },
+    include: {
+      substitutes: {
+        where: { lessonDate: { gte: start, lt: end } },
+        include: {
+          location: { select: { name: true } },
+          subject: { select: { name: true } },
+        },
+      },
+    },
+  });
+  if (users.length === 0) return 0;
+
+  const adminEmails = await getAdminEmails();
+
+  const tasks = users.map(async (user) => {
+    const absences = user.substitutes.map((absence) => ({
+      lessonDate: absence.lessonDate,
+      location: absence.location,
+      subject: absence.subject,
+    }));
+    const html = createUpcomingClaimedClassesEmailBody(
+      { firstName: user.firstName, lastName: user.lastName },
+      absences
+    );
+    const { success } = await sendEmail({
+      to: [user.email],
+      cc: adminEmails,
+      subject: 'Sistema Toronto Tacet - Your Upcoming Claimed Classes',
+      html,
+    });
+    return success;
+  });
+
+  const results = await Promise.allSettled(tasks);
+  return results.filter((r) => r.status === 'fulfilled' && r.value === true)
+    .length;
+}
+
 export async function GET(req: Request) {
   if (
     req.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`
@@ -121,11 +168,14 @@ export async function GET(req: Request) {
       sendReminders(2, true),
     ]);
 
+    const summaryCount = await sendClaimSummaries();
+
     return NextResponse.json({
-      message: `Sent ${sevenDayCount + twoDayCount} reminders successfully`,
+      message: `Sent ${sevenDayCount + twoDayCount} lesson‑plan reminders and ${summaryCount} claim summaries successfully`,
       breakdown: {
         sevenDayReminders: sevenDayCount,
         twoDayReminders: twoDayCount,
+        claimedClassSummaries: summaryCount,
       },
     });
   } catch (error) {

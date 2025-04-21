@@ -173,3 +173,36 @@ export function createAbsenceDeletionEmailBody(
     </html>
   `;
 }
+
+export function createUpcomingClaimedClassesEmailBody(
+  teacher: { firstName: string; lastName: string },
+  absences: {
+    lessonDate: Date;
+    location: { name: string };
+    subject: { name: string };
+  }[]
+): string {
+  const sorted = [...absences].sort(
+    (a, b) => a.lessonDate.getTime() - b.lessonDate.getTime()
+  );
+
+  const itemsHtml = sorted
+    .map(({ lessonDate, location, subject }) => {
+      const dateStr = formatLongDate(lessonDate);
+      return `<li>${dateStr} – ${location.name} – ${subject.name}</li>`;
+    })
+    .join('');
+
+  return `
+    <html>
+      <body>
+        <p>Hello ${teacher.firstName} ${teacher.lastName},</p>
+        <p>You have the following absences coming up in the next 7 days:</p>
+        <ul style="padding-left:1em;">
+          ${itemsHtml}
+        </ul>
+        <p>Sistema Toronto</p>
+      </body>
+    </html>
+  `;
+}
