@@ -3,6 +3,7 @@ import {
   createUpcomingClaimedClassesEmailBody,
   createUrgentLessonPlanReminderEmailBody,
   createUpcomingClaimedClassReminderEmailBody,
+  createUpcomingUnfilledAbsencesEmailBody,
 } from '@utils/emailTemplates';
 import { getAdminEmails } from '@utils/getAdminEmails';
 import { prisma } from '@utils/prisma';
@@ -206,6 +207,57 @@ async function sendUpcomingClaimedClassReminders(): Promise<number> {
   return results.filter((r) => r.status === 'fulfilled' && r.value).length;
 }
 
+async function sendUnfilledAbsenceOpportunities(): Promise<number> {
+  const today = new Date();
+  const weekday = today.getUTCDay();
+  if (weekday === 0 || weekday === 6) return 0;
+
+  const start = getUTCDateWithoutTime(today, 0);
+  const end = getUTCDateWithoutTime(today, 3);
+  const nextDay = new Date(
+    Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate() + 1)
+  );
+
+  const absences = await prisma.absence.findMany({
+    where: {
+      substituteTeacherId: null,
+      lessonDate: { gte: start, lt: nextDay },
+    },
+    include: {
+      location: { select: { name: true } },
+      subject: { select: { name: true } },
+    },
+  });
+  if (absences.length === 0) return 0;
+
+  const teachers = await prisma.user.findMany({
+    select: { firstName: true, lastName: true, email: true },
+  });
+
+  const tasks = teachers.map((teacher) => {
+    const html = createUpcomingUnfilledAbsencesEmailBody(
+      { firstName: teacher.firstName, lastName: teacher.lastName },
+      absences.map((a) => ({
+        lessonDate: a.lessonDate,
+        location: a.location,
+        subject: a.subject,
+      }))
+    );
+
+    return sendEmail({
+      to: [teacher.email],
+      subject:
+        'Sistema Toronto Tacet - Unclaimed Classes in the Next 3 Business Days',
+      html,
+    })
+      .then((r) => r.success)
+      .catch(() => false);
+  });
+
+  const results = await Promise.allSettled(tasks);
+  return results.filter((r) => r.status === 'fulfilled' && r.value).length;
+}
+
 export async function GET(req: Request) {
   if (
     req.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`
@@ -225,16 +277,20 @@ export async function GET(req: Request) {
 
     const tomorrowCount = await sendUpcomingClaimedClassReminders();
 
+    const unfilledCount = await sendUnfilledAbsenceOpportunities();
+
     return NextResponse.json({
-      message: `Sent ${sevenDayCount + twoDayCount} lesson‑plan reminders, ${
-        tomorrowCount
-      } tomorrow‑class reminders${
-        isFriday ? ` and ${summaryCount} claimed‑classes summaries.` : '.'
-      }`,
+      message: [
+        `Sent ${sevenDayCount + twoDayCount} lesson‑plan reminders`,
+        `${tomorrowCount} tomorrow‑class reminders`,
+        `${unfilledCount} unclaimed‑classes opportunity emails`,
+        isFriday ? `and ${summaryCount} weekly summaries.` : '.',
+      ].join(', '),
       breakdown: {
         sevenDayReminders: sevenDayCount,
         twoDayReminders: twoDayCount,
         tomorrowClassReminders: tomorrowCount,
+        unfilledOpportunities: unfilledCount,
         weeklyClaimSummaries: summaryCount,
       },
     });
