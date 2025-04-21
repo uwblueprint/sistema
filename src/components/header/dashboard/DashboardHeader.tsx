@@ -92,7 +92,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         </Text>
       </HStack>
       <Spacer />
-      <HStack spacing={theme.space[4]}>
+      <HStack spacing={theme.space[5]}>
         {hasData && (
           <YearDropdown
             selectedRange={selectedYearRange}

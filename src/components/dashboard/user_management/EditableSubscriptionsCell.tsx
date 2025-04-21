@@ -385,7 +385,7 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
                   ? 'neutralGray.100'
                   : 'transparent'
             }
-            p={2}
+            p={1}
             borderRadius="md"
             width="100%"
             transition="background-color 0.3s ease-in-out"

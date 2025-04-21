@@ -115,8 +115,8 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
 
   return (
     <Flex
-      minWidth="280px"
-      width="280px"
+      minWidth="265px"
+      width="265px"
       flexDirection="column"
       alignItems="center"
       height="100vh"
@@ -147,7 +147,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         </Flex>
       </Box>
       <Box ref={scrollRef} overflowY="auto" pb={6}>
-        <Box px={4} pb={4}>
+        <Box px={3} pb={4}>
           <MiniCalendar
             initialDate={new Date()}
             onDateSelect={onDateSelect}
@@ -155,7 +155,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
           />
         </Box>
         <Box
-          px={2}
+          px={3}
           gap={theme.space[4]}
           display="flex"
           flex="1"

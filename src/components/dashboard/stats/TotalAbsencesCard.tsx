@@ -54,8 +54,8 @@ export default function TotalAbsencesCard({
       border="1px solid"
       borderColor="neutralGray.300"
     >
-      <CardHeader pb={0} display="flex" alignItems="center">
-        <Text textStyle="h2" fontSize="18px" fontWeight={700} pb="13px">
+      <CardHeader py="14px" display="flex" alignItems="center">
+        <Text textStyle="h2" fontSize="18px" fontWeight={700}>
           Total Absences
         </Text>
       </CardHeader>

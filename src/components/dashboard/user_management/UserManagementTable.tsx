@@ -243,7 +243,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       borderColor="neutralGray.300"
       height="100%"
     >
-      <HStack justify="space-between" mx={5} my={3} zIndex={1502}>
+      <HStack justify="space-between" px={5} py="10px" zIndex={1502}>
         <Text textStyle="h2" fontSize="18px" fontWeight={700} lineHeight="33px">
           User Management
         </Text>
@@ -334,7 +334,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                     ':last-child td': { borderBottom: 'none' },
                   }}
                 >
-                  <Td py="2px">
+                  <Td py="6px">
                     <HStack spacing={5}>
                       <Avatar
                         size="sm"
@@ -349,10 +349,10 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       </Text>
                     </HStack>
                   </Td>
-                  <Td color="gray.600" py="2px">
+                  <Td color="gray.600" py="6px">
                     <Text textStyle="cellBody">{user.email}</Text>
                   </Td>
-                  <Td textAlign="center" py="2px">
+                  <Td textAlign="center" py="6px">
                     <Text
                       textStyle="cellBold"
                       color={getAbsenceColor(
@@ -363,7 +363,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       {getSelectedYearAbsences(user.absences)}{' '}
                     </Text>
                   </Td>
-                  <Td py="2px">
+                  <Td py="6px">
                     <EditableRoleCell
                       key={`role-cell-${user.id}`}
                       role={user.role}
@@ -372,7 +372,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       }
                     />
                   </Td>
-                  <Td py="2px">
+                  <Td py="6px">
                     <EditableSubscriptionsCell
                       mailingLists={user.mailingLists || []}
                       allSubjects={allSubjects}

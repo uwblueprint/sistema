@@ -148,7 +148,7 @@ export default function MiniCalendar({
 
         <Grid
           templateColumns="repeat(7, 1fr)"
-          gap={1}
+          gap="2px"
           width="100%"
           justifyItems="center"
           alignItems="center"
@@ -171,7 +171,7 @@ export default function MiniCalendar({
 
         <Grid
           templateColumns="repeat(7, 1fr)"
-          gap={1}
+          gap="2px"
           width="100%"
           justifyItems="center"
         >

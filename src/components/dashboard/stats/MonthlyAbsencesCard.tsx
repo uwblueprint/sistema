@@ -77,14 +77,8 @@ export default function MonthlyAbsencesCard({
       borderColor="neutralGray.300"
       height="100%"
     >
-      <CardHeader pb={0} display="flex" alignItems="center">
-        <Text
-          textStyle="h2"
-          fontSize="18px"
-          fontWeight={700}
-          pb="13px"
-          lineHeight="33px"
-        >
+      <CardHeader py="14px" display="flex" alignItems="center">
+        <Text textStyle="h2" fontSize="18px" fontWeight={700} lineHeight="33px">
           Monthly Absences
         </Text>
       </CardHeader>

@@ -67,7 +67,13 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
           ignoreFallback
         />
       </MenuButton>
-      <MenuList width="280px" p={4} textAlign="center" boxShadow="lg">
+      <MenuList
+        zIndex={1503}
+        width="280px"
+        p={4}
+        textAlign="center"
+        boxShadow="lg"
+      >
         <Avatar
           name={userData?.name ?? ''}
           src={userData?.image}
