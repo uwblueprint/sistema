@@ -1,4 +1,4 @@
-name: Send Email Reminders for Missing Lessons
+name: Send Email Reminders
 
 on:
   schedule:
