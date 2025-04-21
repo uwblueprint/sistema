@@ -224,7 +224,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     } catch (err: any) {
       showToast({
         status: 'error',
-        description: err.message || 'Failed to send confirmations',
+        description: err.message || 'Failed to send confirmation emails',
         icon: <MailIcon bg="errorRed.200" />,
       });
     } finally {

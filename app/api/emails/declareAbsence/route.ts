@@ -1,11 +1,14 @@
-import { createUrgentLastMinuteAbsenceEmailBody } from '@utils/emailTemplates';
+import {
+  createUrgentAbsenceEmailBody,
+  createNonUrgentAbsenceEmailBody,
+} from '@utils/emailTemplates';
 import { getAdminEmails } from '@utils/getAdminEmails';
 import { prisma } from '@utils/prisma';
 import { sendEmail } from '@utils/sendEmail';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
-  const { absenceId } = await req.json();
+  const { absenceId, isUrgent } = await req.json();
 
   const absence = await prisma.absence.findUnique({
     where: { id: absenceId },
@@ -19,39 +22,43 @@ export async function POST(req: Request) {
   if (!absence) {
     return NextResponse.json({ error: 'Absence not found' }, { status: 404 });
   }
-  if (absence.substituteTeacherId) {
-    return NextResponse.json(
-      { error: 'This absence has already been claimed' },
-      { status: 400 }
-    );
-  }
 
-  const html = createUrgentLastMinuteAbsenceEmailBody({
-    lessonDate: absence.lessonDate,
-    location: absence.location,
-    subject: absence.subject,
-    lessonPlan: absence.lessonPlan,
-  });
+  const html = isUrgent
+    ? createUrgentAbsenceEmailBody(absence)
+    : createNonUrgentAbsenceEmailBody(absence);
+
+  const subjectLine = isUrgent
+    ? 'URGENT - Sistema Toronto Tacet - Last-Minute Absence Available to Claim'
+    : 'Sistema Toronto Tacet - New Absence Available to Claim';
 
   const adminEmails = await getAdminEmails();
 
-  const teachers = await prisma.user.findMany({
-    where: { role: 'TEACHER' },
-    select: { email: true },
-  });
-  const bccList = teachers.map((t) => t.email);
+  let bccList: string[] = [];
+
+  if (isUrgent) {
+    const teachers = await prisma.user.findMany({
+      where: { role: 'TEACHER' },
+      select: { email: true },
+    });
+    bccList = teachers.map((t) => t.email);
+  } else {
+    const mailingListEntries = await prisma.mailingList.findMany({
+      where: { subjectId: absence.subjectId },
+      select: { user: { select: { email: true } } },
+    });
+    bccList = mailingListEntries.map((entry) => entry.user.email);
+  }
 
   const { success, error } = await sendEmail({
     to: [],
     cc: adminEmails,
     bcc: bccList,
-    subject:
-      'URGENT - Sistema Toronto Tacet - Last-Minute Absence Available to Claim',
+    subject: subjectLine,
     html,
   });
 
   if (!success) {
-    console.error('Urgent absence alert failed:', error);
+    console.error('Absence notification email failed:', error);
     return NextResponse.json({ error }, { status: 500 });
   }
 

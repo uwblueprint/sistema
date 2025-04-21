@@ -19,6 +19,8 @@ import { useCustomToast } from '../../../CustomToast';
 import { FileUpload } from '../../FileUpload';
 import { AdminTeacherFields } from '../AdminTeacherFields';
 import { DateOfAbsence } from '../DateOfAbsence';
+import { MailIcon } from '../edit/EditAbsenceForm';
+import { NotifyTeachersModal } from '../edit/NotifyTeachersModal';
 import { InputDropdown } from '../InputDropdown';
 import { ConfirmDeclareModal } from './ConfirmDeclareModal';
 
@@ -41,6 +43,16 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
 }) => {
   const showToast = useCustomToast();
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
+  const {
+    isOpen: isNotifyOpen,
+    onOpen: openNotifyModal,
+    onClose: closeNotify,
+  } = useDisclosure();
+  const [isNotifying, setIsNotifying] = useState(false);
+  const [lastDeclaredAbsenceId, setLastDeclaredAbsenceId] = useState<
+    number | null
+  >(null);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     reasonOfAbsence: '',
@@ -90,20 +102,20 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
     onOpen();
   };
 
-  const handleConfirmSubmit = async () => {
+  const handleConfirmSubmit = (isUrgent: boolean) => async () => {
     closeModal();
     setIsSubmitting(true);
 
     try {
       const formattedDate = formatFullDate(formData.lessonDate);
 
-      const success = await submitAbsence({
+      const absence = await submitAbsence({
         formData,
         lessonPlan,
         onDeclareAbsence: handleDeclareAbsence,
       });
 
-      if (success) {
+      if (absence) {
         showToast({
           status: 'success',
           description: (
@@ -115,6 +127,24 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
             </Text>
           ),
         });
+        setLastDeclaredAbsenceId(absence.id);
+        if (isAdminMode) {
+          openNotifyModal();
+        } else {
+          if (isUrgent) {
+            fetch('/api/emails/declareAbsence', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                absenceId: absence.id,
+                isUrgent,
+              }),
+            }).catch((err) => {
+              console.error('Failed to send declare absence email:', err);
+            });
+          }
+          onClose?.();
+        }
 
         const userIsInvolved =
           parseInt(formData.substituteTeacherId, 10) === userId ||
@@ -123,8 +153,6 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         if (userIsInvolved) {
           onTabChange('declared');
         }
-
-        onClose?.();
       } else {
         showToast({
           status: 'error',
@@ -139,6 +167,42 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCloseNotify = () => {
+    closeNotify();
+    onClose?.();
+  };
+
+  const handleNotifyConfirm = (isUrgent: boolean) => async () => {
+    setIsNotifying(true);
+    try {
+      const res = await fetch('/api/emails/declareAbsence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          absenceId: lastDeclaredAbsenceId,
+          isUrgent,
+        }),
+      });
+
+      if (!res.ok) throw new Error((await res.json()).error || res.statusText);
+
+      showToast({
+        status: 'success',
+        description: 'Confirmation emails have been sent',
+        icon: <MailIcon bg="positiveGreen.200" />,
+      });
+    } catch (err: any) {
+      showToast({
+        status: 'error',
+        description: err.message || 'Failed to send confirmation emails',
+        icon: <MailIcon bg="errorRed.200" />,
+      });
+    } finally {
+      setIsNotifying(false);
+      handleCloseNotify();
     }
   };
 
@@ -158,23 +222,6 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
 
       const addedAbsence = await res.json();
       await fetchAbsences();
-
-      const now = new Date();
-      const lessonDate = new Date(addedAbsence.lessonDate);
-      const diffDays =
-        (lessonDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-      if (!addedAbsence.substituteTeacherId && diffDays <= 7) {
-        fetch('/api/emails/declareAbsence', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ absenceId: addedAbsence.id }),
-        }).catch((err) => {
-          console.error(
-            'Failed to send declare last‑minute absence email:',
-            err
-          );
-        });
-      }
       return addedAbsence;
     } catch (error) {
       console.error('Error adding absence:', error);
@@ -193,6 +240,8 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
   const now = new Date();
   const isWithin14Days =
     (selectedDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 14;
+  const isUrgent =
+    (selectedDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 7;
 
   return (
     <Box
@@ -324,12 +373,25 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
       <ConfirmDeclareModal
         isOpen={isOpen}
         onClose={closeModal}
-        onConfirm={handleConfirmSubmit}
+        onConfirm={handleConfirmSubmit(isUrgent)}
         isSubmitting={isSubmitting}
         lessonDate={formData.lessonDate}
         hasLessonPlan={!!lessonPlan}
         isWithin14Days={isWithin14Days}
       />
+      {isAdminMode && (
+        <NotifyTeachersModal
+          isOpen={isNotifyOpen}
+          onClose={handleCloseNotify}
+          onConfirm={handleNotifyConfirm(isUrgent)}
+          isSubmitting={isNotifying}
+          description={
+            isUrgent
+              ? 'Would you like to send emails to all teachers?'
+              : 'Would you like to send emails to subscribed teachers?'
+          }
+        />
+      )}
     </Box>
   );
 };

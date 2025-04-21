@@ -324,7 +324,7 @@ export function createUpcomingUnfilledAbsencesEmailBody(
   `;
 }
 
-export function createUrgentLastMinuteAbsenceEmailBody(absence: {
+export function createUrgentAbsenceEmailBody(absence: {
   lessonDate: Date;
   subject: { name: string };
   location: { name: string };
@@ -358,6 +358,109 @@ export function createUrgentLastMinuteAbsenceEmailBody(absence: {
         }
         <p>
           Please help us run a smooth program and claim this class if you are able to.
+        </p>
+        <p>Sistema Toronto</p>
+      </body>
+    </html>
+  `;
+}
+
+export function createNonUrgentAbsenceEmailBody(absence: {
+  lessonDate: Date;
+  subject: { name: string };
+  location: { name: string };
+  lessonPlan?: { name: string; url: string } | null;
+}): string {
+  const formattedDate = formatLongDate(absence.lessonDate);
+
+  return `
+    <html>
+      <body>
+        <p><strong>Sistema Toronto Tacet — New absence available to claim</strong></p>
+        <p>A new absence has been declared:</p>
+        <p>
+          <strong>Date:</strong> ${formattedDate}<br/>
+          <strong>Location:</strong> ${absence.location.name}<br/>
+          <strong>Class:</strong> ${absence.subject.name}
+        </p>
+        <p>
+          <strong>Click the link below to claim:</strong><br/>
+          <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
+        </p>
+        ${
+          absence.lessonPlan
+            ? `<p>
+                <strong>Lesson Plan (attached):</strong><br/>
+                <a href="${absence.lessonPlan.url}" target="_blank">
+                  ${absence.lessonPlan.name}
+                </a>
+              </p>`
+            : ''
+        }
+        <p>
+          Please help us run a smooth program and claim this class if you are able to.
+        </p>
+        <p>Sistema Toronto</p>
+      </body>
+    </html>
+  `;
+}
+
+interface AbsenceInfo {
+  lessonDate: Date;
+  subject: { name: string };
+  location: { name: string };
+  lessonPlan?: { name: string; url: string } | null;
+}
+
+export function createDailyDeclarationDigestEmailBody(
+  teacher: { firstName: string; lastName: string },
+  urgentAbsences: AbsenceInfo[],
+  nonUrgentAbsences: AbsenceInfo[]
+): string {
+  const grouped: Record<string, AbsenceInfo[]> = {};
+  nonUrgentAbsences.forEach((a) => {
+    const key = a.subject.name;
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(a);
+  });
+
+  const renderAbsenceItem = (a: AbsenceInfo) => {
+    const dateStr = formatLongDate(a.lessonDate);
+    const planLink = a.lessonPlan
+      ? `<br/><strong>Lesson Plan:</strong> <a href="${a.lessonPlan.url}" target="_blank">${a.lessonPlan.name}</a>`
+      : '';
+    return `<li>${dateStr} – ${a.location.name} – ${a.subject.name}${planLink}</li>`;
+  };
+
+  const urgentHtml = urgentAbsences.length
+    ? `
+      <p style="color:red;"><strong>Urgent Absences (≤ 7 days away):</strong></p>
+      <ul style="padding-left:1em;">
+        ${urgentAbsences.map(renderAbsenceItem).join('')}
+      </ul>`
+    : '';
+
+  const nonUrgentHtml = Object.entries(grouped)
+    .map(
+      ([subjectName, list]) => `
+      <p><strong>${subjectName}</strong></p>
+      <ul style="padding-left:1em;">
+        ${list.map(renderAbsenceItem).join('')}
+      </ul>`
+    )
+    .join('');
+
+  return `
+    <html>
+      <body>
+        <p>Hello ${teacher.firstName} ${teacher.lastName},</p>
+        <p>Here is your daily declaration digest of upcoming unfilled absences:</p>
+        ${urgentHtml}
+        ${nonUrgentHtml}
+        <p>
+          <strong>Click below to claim or view details:</strong><br/>
+          <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
         </p>
         <p>Sistema Toronto</p>
       </body>

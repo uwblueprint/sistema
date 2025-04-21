@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Absence, Prisma } from '@prisma/client';
 import { uploadFile } from './uploadFile';
 
 type SubmitAbsenceBase = {
@@ -25,13 +25,13 @@ export async function submitAbsence({
   lessonPlan,
   onDeclareAbsence,
   onEditAbsence,
-}: SubmitAbsenceParams): Promise<boolean> {
+}: SubmitAbsenceParams): Promise<Absence | null> {
   const lessonDate = new Date(formData.lessonDate + 'T00:00:00');
 
   let lessonPlanData: { url: string; name: string; size: number } | null = null;
   if (lessonPlan) {
     const lessonPlanUrl = await uploadFile(lessonPlan);
-    if (!lessonPlanUrl) return false;
+    if (!lessonPlanUrl) return null;
 
     lessonPlanData = {
       url: lessonPlanUrl,
@@ -59,8 +59,7 @@ export async function submitAbsence({
   }
 
   if (onDeclareAbsence) {
-    const response = await onDeclareAbsence(absenceData);
-    return Boolean(response);
+    return await onDeclareAbsence(absenceData);
   }
 
   throw new Error('submitAbsence called without a valid action handler');
