@@ -110,16 +110,19 @@ async function sendClaimSummaries(): Promise<number> {
   const today = new Date();
   const start = getUTCDateWithoutTime(today, 0);
   const end = getUTCDateWithoutTime(today, 7);
+  const nextDay = new Date(
+    Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate() + 1)
+  );
 
   const users = await prisma.user.findMany({
     where: {
       substitutes: {
-        some: { lessonDate: { gte: start, lte: end } },
+        some: { lessonDate: { gte: start, lt: nextDay } },
       },
     },
     include: {
       substitutes: {
-        where: { lessonDate: { gte: start, lte: end } },
+        where: { lessonDate: { gte: start, lt: nextDay } },
         include: {
           location: { select: { name: true } },
           subject: { select: { name: true } },
