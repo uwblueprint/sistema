@@ -13,7 +13,7 @@ function addBusinessDays(startDate: Date, days: number): Date {
   let count = 0;
   while (count < days) {
     date.setDate(date.getDate() + 1);
-    if (date.getDay() !== 6 && date.getDay() !== 0) {
+    if (date.getUTCDay() !== 6 && date.getUTCDay() !== 0) {
       count++;
     }
   }
@@ -168,10 +168,17 @@ export async function GET(req: Request) {
       sendReminders(2, true),
     ]);
 
-    const summaryCount = await sendClaimSummaries();
+    const today = new Date();
+    const isFriday = today.getUTCDay() === 5;
+    let summaryCount = 0;
+    if (isFriday) {
+      summaryCount = await sendClaimSummaries();
+    }
 
     return NextResponse.json({
-      message: `Sent ${sevenDayCount + twoDayCount} lesson‑plan reminders and ${summaryCount} claim summaries successfully`,
+      message:
+        `Sent ${sevenDayCount + twoDayCount} lesson‑plan reminders` +
+        (isFriday ? ` and ${summaryCount} claimed‑classes summaries.` : '.'),
       breakdown: {
         sevenDayReminders: sevenDayCount,
         twoDayReminders: twoDayCount,
