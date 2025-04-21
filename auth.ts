@@ -3,7 +3,9 @@ import { Role } from '@utils/types';
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 
-const allowedDomain = process.env.SISTEMA_EMAIL_DOMAIN;
+const ALLOWED_DOMAINS = new Set(
+  process.env.ALLOWED_EMAIL_DOMAINS?.split(',') ?? []
+);
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [GoogleProvider],
@@ -17,7 +19,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         throw new Error('MissingCredentials');
       }
 
-      if (!user.email.endsWith(`@${allowedDomain}`)) {
+      const emailDomain = user.email.split('@')[1]?.toLowerCase();
+      if (!ALLOWED_DOMAINS.has(emailDomain)) {
         throw new Error('InvalidEmailDomain');
       }
 
