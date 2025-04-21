@@ -428,9 +428,9 @@ export function createDailyDeclarationDigestEmailBody(
   const renderAbsenceItem = (a: AbsenceInfo) => {
     const dateStr = formatLongDate(a.lessonDate);
     const planLink = a.lessonPlan
-      ? `<br/><strong>Lesson Plan:</strong> <a href="${a.lessonPlan.url}" target="_blank">${a.lessonPlan.name}</a>`
+      ? `<br/>Lesson Plan: <a href="${a.lessonPlan.url}" target="_blank">${a.lessonPlan.name}</a>`
       : '';
-    return `<li>${dateStr} – ${a.location.name} – ${a.subject.name}${planLink}</li>`;
+    return `<li>${dateStr} - ${a.location.name} - ${a.subject.name}${planLink}</li>`;
   };
 
   const urgentHtml = urgentAbsences.length
@@ -455,7 +455,7 @@ export function createDailyDeclarationDigestEmailBody(
     <html>
       <body>
         <p>Hello ${teacher.firstName} ${teacher.lastName},</p>
-        <p>Here is your daily declaration digest of upcoming unfilled absences:</p>
+        <p>Here are the upcoming unfilled absences declared in the past 24 hours:</p>
         ${urgentHtml}
         ${nonUrgentHtml}
         <p>
