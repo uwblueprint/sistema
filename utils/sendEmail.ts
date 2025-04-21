@@ -31,13 +31,6 @@ export async function sendEmail({ to, cc, bcc, subject, html }: EmailBody) {
     const ccList = cc?.filter(filterByDomain) ?? [];
     const bccList = bcc?.filter(filterByDomain) ?? [];
 
-    if (toList.length === 0) {
-      console.warn(
-        'sendEmail aborted: no valid "To" recipients after filtering'
-      );
-      return { success: false, error: 'No valid recipients' };
-    }
-
     if (!subject || !html) {
       throw new Error('Missing required email fields');
     }

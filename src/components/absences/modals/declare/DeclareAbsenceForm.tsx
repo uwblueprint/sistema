@@ -158,6 +158,23 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
 
       const addedAbsence = await res.json();
       await fetchAbsences();
+
+      const now = new Date();
+      const lessonDate = new Date(addedAbsence.lessonDate);
+      const diffDays =
+        (lessonDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+      if (!addedAbsence.substituteTeacherId && diffDays <= 7) {
+        fetch('/api/emails/declareAbsence', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ absenceId: addedAbsence.id }),
+        }).catch((err) => {
+          console.error(
+            'Failed to send declare last‑minute absence email:',
+            err
+          );
+        });
+      }
       return addedAbsence;
     } catch (error) {
       console.error('Error adding absence:', error);

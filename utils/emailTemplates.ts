@@ -297,7 +297,7 @@ export function createUpcomingUnfilledAbsencesEmailBody(
   const itemsHtml = sorted
     .map(({ lessonDate, location, subject }) => {
       const dateStr = formatLongDate(lessonDate);
-      return `<li><strong>${dateStr}</strong> – ${location.name} – ${subject.name}</li>`;
+      return `<li><strong>${dateStr}</strong> - ${location.name} - ${subject.name}</li>`;
     })
     .join('');
 
@@ -317,6 +317,47 @@ export function createUpcomingUnfilledAbsencesEmailBody(
         <p>
           <strong>Click below to view and claim:</strong><br/>
           <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
+        </p>
+        <p>Sistema Toronto</p>
+      </body>
+    </html>
+  `;
+}
+
+export function createUrgentLastMinuteAbsenceEmailBody(absence: {
+  lessonDate: Date;
+  subject: { name: string };
+  location: { name: string };
+  lessonPlan?: { name: string; url: string } | null;
+}): string {
+  const formattedDate = formatLongDate(absence.lessonDate);
+
+  return `
+    <html>
+      <body>
+        <p><strong>Attention teachers</strong>,</p>
+        <p>The following unclaimed absence is coming up very soon:</p>
+        <p>
+          <strong>Date:</strong> ${formattedDate}<br/>
+          <strong>Location:</strong> ${absence.location.name}<br/>
+          <strong>Class:</strong> ${absence.subject.name}
+        </p>
+        <p>
+          <strong>Click the link below to claim:</strong><br/>
+          <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
+        </p>
+        ${
+          absence.lessonPlan
+            ? `<p>
+                 <strong>Lesson Plan (attached):</strong><br/>
+                 <a href="${absence.lessonPlan.url}" target="_blank">
+                   ${absence.lessonPlan.name}
+                 </a>
+               </p>`
+            : ``
+        }
+        <p>
+          Please help us run a smooth program and claim this class if you are able to.
         </p>
         <p>Sistema Toronto</p>
       </body>
