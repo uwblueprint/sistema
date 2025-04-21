@@ -14,5 +14,5 @@ jobs:
 
       - name: Call reminders API
         run: |
-          curl -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/reminders" \
+          curl -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/emails/reminders" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
