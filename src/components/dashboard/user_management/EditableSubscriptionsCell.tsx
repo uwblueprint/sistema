@@ -10,10 +10,18 @@ import {
   Tag,
   TagLabel,
   Text,
+  Tooltip,
   WrapItem,
 } from '@chakra-ui/react';
 import { MailingList, SubjectAPI } from '@utils/types';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { FiChevronDown, FiChevronUp, FiEdit2 } from 'react-icons/fi';
 
 interface SubjectTagProps {
@@ -250,6 +258,100 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
     setCloseTriggeredByTriggerClick(false);
   };
 
+  interface SubjectListItemProps {
+    subject: SubjectAPI;
+    isSelected: boolean;
+    onToggle: (id: number) => void;
+  }
+
+  const SubjectListItem: React.FC<SubjectListItemProps> = ({
+    subject,
+    isSelected,
+    onToggle,
+  }) => {
+    const bgColor = subject.colorGroup.colorCodes[1];
+    const borderColor = subject.colorGroup.colorCodes[1];
+
+    const textRef = useRef<HTMLDivElement>(null);
+    const [isTruncated, setIsTruncated] = useState(false);
+
+    useLayoutEffect(() => {
+      const el = textRef.current;
+      if (el) {
+        setIsTruncated(el.scrollWidth > el.clientWidth);
+      }
+    }, [subject.name]);
+
+    return (
+      <Tooltip
+        label={subject.name}
+        placement="top"
+        openDelay={300}
+        isDisabled={!isTruncated}
+        hasArrow
+      >
+        <Flex
+          align="center"
+          cursor="pointer"
+          onClick={() => onToggle(subject.id)}
+          px={4}
+          py={2.5}
+          _hover={{ bg: 'neutralGray.100' }}
+        >
+          <Checkbox
+            isChecked={isSelected}
+            onChange={(e) => {
+              e.stopPropagation();
+              onToggle(subject.id);
+            }}
+            mr={2}
+            borderColor={borderColor}
+            _checked={{
+              '& .chakra-checkbox__control': {
+                bg: bgColor,
+                borderColor,
+              },
+            }}
+            _hover={{
+              '& .chakra-checkbox__control': {
+                bg: bgColor,
+                borderColor,
+                opacity: 0.8,
+              },
+            }}
+          />
+
+          <Box
+            flex="1"
+            minW={0}
+            position="relative"
+            overflow="hidden"
+            whiteSpace="nowrap"
+            sx={{
+              ...(isTruncated && {
+                maskImage: 'linear-gradient(to right, black 80%, transparent)',
+                WebkitMaskImage:
+                  'linear-gradient(to right, black 80%, transparent)',
+              }),
+            }}
+          >
+            <Text
+              ref={textRef}
+              noOfLines={1}
+              whiteSpace="nowrap"
+              overflow="hidden"
+              textOverflow="ellipsis"
+              pr="30px"
+              textStyle="label"
+            >
+              {subject.name}
+            </Text>
+          </Box>
+        </Flex>
+      </Tooltip>
+    );
+  };
+
   return (
     <Box
       position="relative"
@@ -330,50 +432,14 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
           overflowX="hidden"
         >
           <PopoverBody p={0} maxH="300px" overflowY="auto" overflowX="hidden">
-            {sortedSubjects.map((subject) => {
-              const isSelected = selectedSubjectIds.includes(subject.id);
-              const bgColor = subject.colorGroup.colorCodes[1];
-              const borderColor = subject.colorGroup.colorCodes[1];
-
-              return (
-                <Box
-                  key={subject.id}
-                  p={2.5}
-                  pl={4}
-                  display="flex"
-                  alignItems="center"
-                  _hover={{ bg: 'neutralGray.100' }}
-                  onClick={(e) => handleSubjectChange(subject.id, e)}
-                  cursor="pointer"
-                >
-                  <Checkbox
-                    isChecked={isSelected}
-                    onChange={(e) => {
-                      e.nativeEvent.stopPropagation();
-                      handleSubjectChange(subject.id);
-                    }}
-                    mr={2}
-                    _checked={{
-                      '& .chakra-checkbox__control': {
-                        bg: bgColor,
-                        borderColor: borderColor,
-                      },
-                    }}
-                    _hover={{
-                      '& .chakra-checkbox__control': {
-                        borderColor: borderColor,
-                        bg: bgColor,
-                        opacity: 0.7,
-                      },
-                    }}
-                    borderColor={borderColor}
-                  />
-                  <Text isTruncated textStyle="label">
-                    {subject.name}
-                  </Text>
-                </Box>
-              );
-            })}
+            {sortedSubjects.map((subject) => (
+              <SubjectListItem
+                key={subject.id}
+                subject={subject}
+                isSelected={selectedSubjectIds.includes(subject.id)}
+                onToggle={handleSubjectChange}
+              />
+            ))}
           </PopoverBody>
         </PopoverContent>
       </Popover>
