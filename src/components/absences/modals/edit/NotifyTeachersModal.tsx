@@ -15,6 +15,8 @@ interface NotifyTeachersModalProps {
   onClose: () => void;
   onConfirm: () => void;
   isSubmitting?: boolean;
+  title?: string;
+  description?: string;
 }
 
 export const NotifyTeachersModal: React.FC<NotifyTeachersModalProps> = ({
@@ -22,13 +24,15 @@ export const NotifyTeachersModal: React.FC<NotifyTeachersModalProps> = ({
   onClose,
   onConfirm,
   isSubmitting = false,
+  title = 'Notify Teachers?',
+  description = 'Would you like to send emails to teachers involved?',
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent width="300px" padding="25px" alignItems="center">
         <ModalHeader padding="0">
-          <Text textStyle="h3">Notify Teachers?</Text>
+          <Text textStyle="h3">{title}</Text>
         </ModalHeader>
         <ModalBody
           textStyle="subtitle"
@@ -38,7 +42,7 @@ export const NotifyTeachersModal: React.FC<NotifyTeachersModalProps> = ({
           mb="16px"
           textAlign="center"
         >
-          <Text>Would you like to send emails to teachers involved?</Text>
+          <Text>{description}</Text>
         </ModalBody>
         <ModalFooter p={0}>
           <HStack spacing="20px">
