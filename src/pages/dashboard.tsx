@@ -1,12 +1,14 @@
 import { Box, HStack, useTheme } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
 import { Role, YearlyAbsenceData } from '@utils/types';
+import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import MonthlyAbsencesCard from '../components/dashboard/stats/MonthlyAbsencesCard';
 import TotalAbsencesCard from '../components/dashboard/stats/TotalAbsencesCard';
 import UserManagementCard from '../components/dashboard/user_management/UserManagementCard';
 import DashboardHeader from '../components/header/dashboard/DashboardHeader';
+
 export default function DashboardPage() {
   const theme = useTheme();
   const userData = useUserData();
@@ -147,44 +149,54 @@ export default function DashboardPage() {
   );
 
   return (
-    <Box height="100vh" display="flex" flexDirection="column" overflow="hidden">
-      <DashboardHeader
-        userData={userData}
-        selectedYearRange={selectedYearRange}
-        setSelectedYearRange={setSelectedYearRange}
-        yearRanges={sortedYearRanges}
-        hasData={hasAbsenceData}
-        onSystemOptionsUpdate={handleSystemOptionsUpdate}
-        setRefreshFunction={setDashboardHeaderRefresh}
-      />
+    <>
+      <Head>
+        <title>Dashboard</title>
+      </Head>
       <Box
-        px={14}
-        py={3}
+        height="100vh"
         display="flex"
         flexDirection="column"
-        flex="1"
-        minHeight="0"
-        backgroundColor={theme.colors.neutralGray[50]}
+        overflow="hidden"
       >
-        <HStack mb={3} spacing={3} height="215px">
-          <TotalAbsencesCard
-            width="40%"
-            filled={yearlyAbsencesFilled}
-            total={totalAbsenceCount}
-            startYear={startYear}
-            endYear={endYear}
-          />
-          <MonthlyAbsencesCard
-            width="60%"
-            monthlyData={selectedYearData.yearlyData}
-            highestMonthlyAbsence={highestMonthlyAbsence}
-          />
-        </HStack>
-        <UserManagementCard
+        <DashboardHeader
+          userData={userData}
           selectedYearRange={selectedYearRange}
-          setRefreshFunction={setUserManagementRefresh}
+          setSelectedYearRange={setSelectedYearRange}
+          yearRanges={sortedYearRanges}
+          hasData={hasAbsenceData}
+          onSystemOptionsUpdate={handleSystemOptionsUpdate}
+          setRefreshFunction={setDashboardHeaderRefresh}
         />
+        <Box
+          px={14}
+          py={3}
+          display="flex"
+          flexDirection="column"
+          flex="1"
+          minHeight="0"
+          backgroundColor={theme.colors.neutralGray[50]}
+        >
+          <HStack mb={3} spacing={3} height="215px">
+            <TotalAbsencesCard
+              width="40%"
+              filled={yearlyAbsencesFilled}
+              total={totalAbsenceCount}
+              startYear={startYear}
+              endYear={endYear}
+            />
+            <MonthlyAbsencesCard
+              width="60%"
+              monthlyData={selectedYearData.yearlyData}
+              highestMonthlyAbsence={highestMonthlyAbsence}
+            />
+          </HStack>
+          <UserManagementCard
+            selectedYearRange={selectedYearRange}
+            setRefreshFunction={setUserManagementRefresh}
+          />
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 }

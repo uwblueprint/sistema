@@ -10,6 +10,7 @@ import { formatMonthYear } from '@utils/formatDate';
 import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
+import Head from 'next/head';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import AbsenceBox from '../components/absences/AbsenceBox';
@@ -337,67 +338,72 @@ const Calendar: React.FC = () => {
       args.date.getDate() === selectedDate.getDate();
 
     return (
-      <Box
-        position="relative"
-        width="100%"
-        height="100%"
-        display="flex"
-        alignItems="center"
-      >
+      <>
+        <Head>
+          <title>Calendar</title>
+        </Head>
         <Box
-          width="26px"
-          height="26px"
-          borderRadius="50%"
-          backgroundColor={
-            isToday
-              ? 'primaryBlue.300'
-              : isSelected
-                ? 'primaryBlue.50'
-                : 'transparent'
-          }
+          position="relative"
+          width="100%"
+          height="100%"
           display="flex"
           alignItems="center"
-          justifyContent="center"
         >
-          <Text
-            textStyle="body"
-            color={
-              isToday ? 'white' : isSelected ? 'primaryBlue.300' : 'text.body'
+          <Box
+            width="26px"
+            height="26px"
+            borderRadius="50%"
+            backgroundColor={
+              isToday
+                ? 'primaryBlue.300'
+                : isSelected
+                  ? 'primaryBlue.50'
+                  : 'transparent'
             }
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
           >
-            {args.date.getDate()}
-          </Text>
-        </Box>
-
-        {!isAdminMode &&
-          activeTab === 'explore' &&
-          filledDays.has(eventDateString) && (
-            <Badge
-              border="1px solid"
-              borderColor="neutralGray.300"
-              bg="transparent"
-              color="neutralGray.900"
-              padding="2px 4px"
-              borderRadius="5px"
-              textTransform="none"
-              display="flex"
-              alignItems="center"
-              width="68px"
-              marginLeft="auto"
-              cursor="default"
+            <Text
+              textStyle="body"
+              color={
+                isToday ? 'white' : isSelected ? 'primaryBlue.300' : 'text.body'
+              }
             >
-              <Image
-                src="images/conflict.svg"
-                alt="Conflict"
-                boxSize="12px"
-                mx={1}
-              />
-              <Text textStyle="semibold" isTruncated>
-                Busy
-              </Text>
-            </Badge>
-          )}
-      </Box>
+              {args.date.getDate()}
+            </Text>
+          </Box>
+
+          {!isAdminMode &&
+            activeTab === 'explore' &&
+            filledDays.has(eventDateString) && (
+              <Badge
+                border="1px solid"
+                borderColor="neutralGray.300"
+                bg="transparent"
+                color="neutralGray.900"
+                padding="2px 4px"
+                borderRadius="5px"
+                textTransform="none"
+                display="flex"
+                alignItems="center"
+                width="68px"
+                marginLeft="auto"
+                cursor="default"
+              >
+                <Image
+                  src="images/conflict.svg"
+                  alt="Conflict"
+                  boxSize="12px"
+                  mx={1}
+                />
+                <Text textStyle="semibold" isTruncated>
+                  Busy
+                </Text>
+              </Badge>
+            )}
+        </Box>
+      </>
     );
   };
 

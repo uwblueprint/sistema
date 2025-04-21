@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { TacetLogo } from '../components/TacetLogo';
 import { SignInButton } from '../components/SignInButton';
+import Head from 'next/head';
 
 export default function Index(): JSX.Element | null {
   const { status } = useSession();
@@ -18,16 +19,21 @@ export default function Index(): JSX.Element | null {
   if (status === 'loading' || status === 'authenticated') return null;
 
   return (
-    <Flex direction="column" align="center" justify="center" height="100vh">
-      <Box width="280px" height="auto" mb="5" mr="5">
-        <TacetLogo />
-      </Box>
+    <>
+      <Head>
+        <title>Sign In</title>
+      </Head>
+      <Flex direction="column" align="center" justify="center" height="100vh">
+        <Box width="280px" height="auto" mb="5" mr="5">
+          <TacetLogo />
+        </Box>
 
-      <Text color="text" fontSize="small" mb="3">
-        Only sign in with a Sistema email.
-      </Text>
+        <Text color="text" fontSize="small" mb="3">
+          Only sign in with a Sistema email.
+        </Text>
 
-      <SignInButton />
-    </Flex>
+        <SignInButton />
+      </Flex>
+    </>
   );
 }
