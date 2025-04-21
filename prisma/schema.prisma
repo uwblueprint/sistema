@@ -24,7 +24,7 @@ model Absence {
   location            Location        @relation(fields: [locationId], references: [id])
   subject             Subject         @relation(fields: [subjectId], references: [id])
   createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  updatedAt           DateTime        @default(now()) @updatedAt
 }
 
 model LessonPlanFile {
@@ -34,7 +34,7 @@ model LessonPlanFile {
   size      Int
   absence   Absence? @relation
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model User {
@@ -50,7 +50,7 @@ model User {
   subjects       Subject[]     @relation("MailingLists")
   mailingLists   MailingList[]
   createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  updatedAt      DateTime      @default(now()) @updatedAt
 }
 
 model Location {
@@ -60,7 +60,7 @@ model Location {
   archived     Boolean   @default(false)
   Absence      Absence[]
   createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  updatedAt    DateTime  @default(now()) @updatedAt
 }
 
 model MailingList {
@@ -69,7 +69,7 @@ model MailingList {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@id([userId, subjectId])
   @@map("MailingList")
@@ -86,7 +86,7 @@ model Subject {
   users        User[]        @relation("MailingLists")
   userSubjects MailingList[]
   createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  updatedAt    DateTime      @default(now()) @updatedAt
 }
 
 model ColorGroup {
@@ -95,14 +95,14 @@ model ColorGroup {
   colorCodes String[]
   Subject    Subject[]
   createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  updatedAt  DateTime  @default(now()) @updatedAt
 }
 
 model GlobalSettings {
   id         Int      @id @default(autoincrement())
   absenceCap Int      @default(10)
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  updatedAt  DateTime @default(now()) @updatedAt
 }
 
 enum Role {
