@@ -9,7 +9,6 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalHeader,
-  ModalOverlay,
   Popover,
   PopoverArrow,
   PopoverBody,
@@ -61,7 +60,6 @@ const AbsenceDetailsModal: React.FC<AbsenceDetailsModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
-      <ModalOverlay />
       <ModalContent
         width="362px"
         borderRadius="15px"
