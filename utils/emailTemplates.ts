@@ -197,7 +197,7 @@ export function createUpcomingClaimedClassesEmailBody(
     <html>
       <body>
         <p>Hello ${teacher.firstName} ${teacher.lastName},</p>
-        <p>You have the following absences coming up in the next 7 days:</p>
+        <p>You have the following absences coming up in the next 7 business days:</p>
         <ul style="padding-left:1em;">
           ${itemsHtml}
         </ul>

@@ -114,12 +114,12 @@ async function sendClaimSummaries(): Promise<number> {
   const users = await prisma.user.findMany({
     where: {
       substitutes: {
-        some: { lessonDate: { gte: start, lt: end } },
+        some: { lessonDate: { gte: start, lte: end } },
       },
     },
     include: {
       substitutes: {
-        where: { lessonDate: { gte: start, lt: end } },
+        where: { lessonDate: { gte: start, lte: end } },
         include: {
           location: { select: { name: true } },
           subject: { select: { name: true } },
