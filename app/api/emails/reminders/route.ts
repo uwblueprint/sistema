@@ -2,6 +2,7 @@ import {
   createLessonPlanReminderEmailBody,
   createUpcomingClaimedClassesEmailBody,
   createUrgentLessonPlanReminderEmailBody,
+  createUpcomingClaimedClassReminderEmailBody,
 } from '@utils/emailTemplates';
 import { getAdminEmails } from '@utils/getAdminEmails';
 import { prisma } from '@utils/prisma';
@@ -155,6 +156,56 @@ async function sendClaimSummaries(): Promise<number> {
     .length;
 }
 
+async function sendUpcomingClaimedClassReminders(): Promise<number> {
+  const today = new Date();
+  const next = getUTCDateWithoutTime(today, 1);
+  const nextDay = new Date(
+    Date.UTC(next.getUTCFullYear(), next.getUTCMonth(), next.getUTCDate() + 1)
+  );
+
+  const users = await prisma.user.findMany({
+    where: {
+      substitutes: {
+        some: { lessonDate: { gte: next, lt: nextDay } },
+      },
+    },
+    include: {
+      substitutes: {
+        where: { lessonDate: { gte: next, lt: nextDay } },
+        include: {
+          location: { select: { name: true } },
+          subject: { select: { name: true } },
+        },
+      },
+    },
+  });
+
+  if (users.length === 0) return 0;
+
+  const emailTasks = users.flatMap((user) =>
+    user.substitutes.map((absence) => {
+      const html = createUpcomingClaimedClassReminderEmailBody(
+        { firstName: user.firstName, lastName: user.lastName },
+        {
+          lessonDate: absence.lessonDate,
+          subject: absence.subject,
+          location: absence.location,
+        }
+      );
+      return sendEmail({
+        to: [user.email],
+        subject: 'Sistema Toronto Tacet – Upcoming Claimed Class Reminder',
+        html,
+      })
+        .then((r) => r.success)
+        .catch(() => false);
+    })
+  );
+
+  const results = await Promise.allSettled(emailTasks);
+  return results.filter((r) => r.status === 'fulfilled' && r.value).length;
+}
+
 export async function GET(req: Request) {
   if (
     req.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`
@@ -170,19 +221,21 @@ export async function GET(req: Request) {
 
     const today = new Date();
     const isFriday = today.getUTCDay() === 5;
-    let summaryCount = 0;
-    if (isFriday) {
-      summaryCount = await sendClaimSummaries();
-    }
+    const summaryCount = isFriday ? await sendClaimSummaries() : 0;
+
+    const tomorrowCount = await sendUpcomingClaimedClassReminders();
 
     return NextResponse.json({
-      message:
-        `Sent ${sevenDayCount + twoDayCount} lesson‑plan reminders` +
-        (isFriday ? ` and ${summaryCount} claimed‑classes summaries.` : '.'),
+      message: `Sent ${sevenDayCount + twoDayCount} lesson‑plan reminders, ${
+        tomorrowCount
+      } tomorrow‑class reminders${
+        isFriday ? ` and ${summaryCount} claimed‑classes summaries.` : '.'
+      }`,
       breakdown: {
         sevenDayReminders: sevenDayCount,
         twoDayReminders: twoDayCount,
-        claimedClassSummaries: summaryCount,
+        tomorrowClassReminders: tomorrowCount,
+        weeklyClaimSummaries: summaryCount,
       },
     });
   } catch (error) {

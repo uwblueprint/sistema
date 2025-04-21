@@ -249,3 +249,35 @@ export function createLessonPlanUploadedEmailBody(
     </html>
   `;
 }
+
+export function createUpcomingClaimedClassReminderEmailBody(
+  teacher: { firstName: string; lastName: string },
+  absence: {
+    lessonDate: Date;
+    subject: { name: string };
+    location: { name: string };
+  }
+): string {
+  const formattedDate = formatLongDate(absence.lessonDate);
+
+  return `
+    <html>
+      <body>
+        <p>Hello ${teacher.firstName} ${teacher.lastName},</p>
+        <p>
+          This is a reminder that you have claimed the following class:
+        </p>
+        <p>
+          <strong>${formattedDate}</strong> — 
+          <strong>${absence.location.name}</strong> — 
+          <strong>${absence.subject.name}</strong>
+        </p>
+        <p>
+          <strong>Click the link below to view details:</strong><br/>
+          <a href="${UPLOAD_LINK}" target="_blank">Tacet Calendar</a>
+        </p>
+        <p>Sistema Toronto</p>
+      </body>
+    </html>
+  `;
+}
