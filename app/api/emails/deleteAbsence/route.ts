@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import { sendEmail } from '@utils/sendEmail';
-import { getAdminEmails } from '@utils/getAdminEmails';
 import { createAbsenceDeletionEmailBody } from '@utils/emailTemplates';
+import { getAdminEmails } from '@utils/getAdminEmails';
+import { sendEmail } from '@utils/sendEmail';
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   const {

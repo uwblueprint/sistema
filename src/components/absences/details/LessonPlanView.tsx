@@ -186,6 +186,8 @@ const LessonPlanView = ({
       return;
     }
 
+    const wasSwap = localLessonPlan !== null;
+
     const res = await fetch('/api/editAbsence', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -200,21 +202,37 @@ const LessonPlanView = ({
     });
 
     if (res.ok) {
-      const updatedPlan: LessonPlanFile = {
+      const uploadedPlan: LessonPlanFile = {
         id: -1,
         name: file.name,
         size: file.size,
         url: fileUrl,
       };
 
-      setLocalLessonPlan(updatedPlan);
+      setLocalLessonPlan(uploadedPlan);
 
       showToast({
-        description: 'The lesson plan was successfully updated.',
+        description: 'The lesson plan was successfully uploaded.',
         status: 'success',
       });
 
       await fetchAbsences?.();
+
+      try {
+        const uploadFileEmailRes = await fetch('/api/emails/uploadFile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ absenceId, isSwap: wasSwap }),
+        });
+        if (!uploadFileEmailRes.ok) {
+          console.error(
+            'Upload file email failed',
+            await uploadFileEmailRes.text()
+          );
+        }
+      } catch (err) {
+        console.error('Error hitting upload file email endpoint', err);
+      }
     } else {
       showToast({
         description: 'There was a problem updating the lesson plan.',

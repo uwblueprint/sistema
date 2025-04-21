@@ -1,11 +1,11 @@
-import { createAbsenceModificationEmailBody } from '@utils/emailTemplates';
+import { createLessonPlanUploadedEmailBody } from '@utils/emailTemplates';
 import { getAdminEmails } from '@utils/getAdminEmails';
 import { prisma } from '@utils/prisma';
 import { sendEmail } from '@utils/sendEmail';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
-  const { absenceId } = await req.json();
+  const { absenceId, isSwap = false } = await req.json();
 
   const absence = await prisma.absence.findUnique({
     where: { id: absenceId },
@@ -19,11 +19,12 @@ export async function POST(req: Request) {
       lessonPlan: { select: { name: true, url: true } },
     },
   });
+
   if (!absence) {
     return NextResponse.json({ error: 'Absence not found' }, { status: 404 });
   }
 
-  const html = createAbsenceModificationEmailBody(
+  const html = createLessonPlanUploadedEmailBody(
     {
       firstName: absence.absentTeacher.firstName,
       lastName: absence.absentTeacher.lastName,
@@ -37,15 +38,20 @@ export async function POST(req: Request) {
   );
 
   const to = [absence.absentTeacher.email];
+  const cc: string[] = [];
   if (absence.substituteTeacher?.email) {
-    to.push(absence.substituteTeacher.email);
+    cc.push(absence.substituteTeacher.email);
   }
-  const cc = await getAdminEmails();
+
+  if (!isSwap) {
+    const admins = await getAdminEmails();
+    cc.push(...admins);
+  }
 
   const { success, error } = await sendEmail({
     to,
     cc,
-    subject: 'Sistema Toronto Tacet - A Change Has Been Made',
+    subject: 'Sistema Toronto Tacet - A Lesson Plan Has Been Uploaded',
     html,
   });
 
