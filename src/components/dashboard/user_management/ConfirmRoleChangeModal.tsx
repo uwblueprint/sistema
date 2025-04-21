@@ -28,13 +28,13 @@ const ConfirmRoleChangeModal: React.FC<ConfirmRoleChangeModalProps> = ({
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay zIndex={1501} />
+      <ModalOverlay zIndex={1502} />
       <ModalContent
         width="300px"
         padding="25px"
         alignItems="center"
         containerProps={{
-          zIndex: '1501',
+          zIndex: '1502',
         }}
       >
         <ModalHeader p="0">

@@ -299,14 +299,14 @@ const SystemChangesConfirmationModal: React.FC<
       closeOnOverlayClick={false}
       preserveScrollBarGap
     >
-      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" zIndex={1501} />
+      <ModalOverlay bg="rgba(0, 0, 0, 0.4)" zIndex={1502} />
       <ModalContent
         p={8}
         width="sm"
         maxHeight="80vh"
         boxShadow="2xl"
         containerProps={{
-          zIndex: '1501',
+          zIndex: '1502',
         }}
       >
         <ModalHeader fontSize="lg" fontWeight="bold" pb={4} pt={0} px={0}>

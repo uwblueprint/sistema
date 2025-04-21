@@ -41,7 +41,7 @@ const UnsavedChangesModal: React.FC<UnsavedChangesModalProps> = ({
       <ModalOverlay
         bg="rgba(0, 0, 0, 0.4)"
         transition="all 0.3s ease"
-        zIndex={1501}
+        zIndex={1502}
       />
       <ModalContent
         p={8}
@@ -49,7 +49,7 @@ const UnsavedChangesModal: React.FC<UnsavedChangesModalProps> = ({
         maxHeight="80vh"
         boxShadow="2xl"
         containerProps={{
-          zIndex: '1501',
+          zIndex: '1502',
         }}
       >
         <ModalHeader fontSize="lg" fontWeight="bold" pb={4} pt={0} px={0}>
