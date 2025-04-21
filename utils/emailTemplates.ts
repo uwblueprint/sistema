@@ -189,7 +189,7 @@ export function createUpcomingClaimedClassesEmailBody(
   const itemsHtml = sorted
     .map(({ lessonDate, location, subject }) => {
       const dateStr = formatLongDate(lessonDate);
-      return `<li>${dateStr} – ${location.name} – ${subject.name}</li>`;
+      return `<li>${dateStr} - ${location.name} - ${subject.name}</li>`;
     })
     .join('');
 

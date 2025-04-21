@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   const { success, error } = await sendEmail({
     to,
     cc,
-    subject: 'Sistema Toronto Tacet – Absence Deleted',
+    subject: 'Sistema Toronto Tacet - Absence Deleted',
     html,
   });
 

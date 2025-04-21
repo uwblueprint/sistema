@@ -194,7 +194,7 @@ async function sendUpcomingClaimedClassReminders(): Promise<number> {
       );
       return sendEmail({
         to: [user.email],
-        subject: 'Sistema Toronto Tacet – Upcoming Claimed Class Reminder',
+        subject: 'Sistema Toronto Tacet - Upcoming Claimed Class Reminder',
         html,
       })
         .then((r) => r.success)
