@@ -71,8 +71,14 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             }
             aria-label="Previous"
             variant="outline"
+            h="45px"
           />
-          <Button onClick={onTodayClick} variant="outline" paddingX="20px">
+          <Button
+            onClick={onTodayClick}
+            variant="outline"
+            paddingX="20px"
+            h="45px"
+          >
             Today
           </Button>
           <IconButton
@@ -85,6 +91,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             }
             aria-label="Next"
             variant="outline"
+            h="45px"
           />
         </HStack>
         <Text textStyle="h1" whiteSpace="nowrap" overflow="hidden">
@@ -105,6 +112,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
                 }
                 variant="outline"
                 onClick={() => router.push('/dashboard')}
+                h="45px"
               >
                 Admin Dashboard
               </Button>

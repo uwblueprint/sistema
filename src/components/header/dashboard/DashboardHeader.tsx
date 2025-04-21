@@ -80,6 +80,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           }
           variant="outline"
           onClick={() => router.push('/calendar?isAdminMode=true')}
+          h="45px"
         />
         <Text
           textStyle="h1"
@@ -111,6 +112,8 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           }
           variant="outline"
           onClick={onOpen}
+          h="45px"
+          w="45px"
         />
         {hasData && <ExportAbsencesButton selectedRange={selectedYearRange} />}
         <ProfileMenu userData={userData} absenceCap={absenceCap} />

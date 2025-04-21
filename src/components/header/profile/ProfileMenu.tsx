@@ -61,8 +61,8 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
         <Avatar
           name={userData?.name ?? ''}
           src={userData?.image}
-          width="40px"
-          height="40px"
+          width="45px"
+          height="45px"
           loading="eager"
           ignoreFallback
         />

@@ -54,7 +54,7 @@ export default function YearDropdown({
           borderRadius="7px"
           py="11px"
           px="15px"
-          height="40px"
+          height="45px"
           width="200px"
           _hover={{ bg: theme.colors.primaryBlue[50] }}
           _active={{ bg: theme.colors.primaryBlue[50] }}

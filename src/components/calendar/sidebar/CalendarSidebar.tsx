@@ -131,7 +131,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         borderBottom={showDivider ? '1px solid' : 'none'}
         borderColor="neutralGray.200"
       >
-        <Flex direction="column" align="center" gap={4}>
+        <Flex direction="column" align="center" gap={5}>
           <Box width="110px" display="flex" justifyContent="center">
             <TacetLogo />
           </Box>
@@ -141,6 +141,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
             borderColor={theme.colors.neutralGray[300]}
             onClick={onDeclareAbsenceClick}
             leftIcon={<AddIcon color={theme.colors.primaryBlue[300]} />}
+            h="45px"
           >
             Declare Absence
           </Button>

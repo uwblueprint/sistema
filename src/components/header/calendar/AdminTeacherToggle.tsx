@@ -14,7 +14,7 @@ export const AdminTeacherToggle: React.FC<AdminTeacherToggleProps> = ({
     <Box
       position="relative"
       width="300px"
-      height="40px"
+      height="45px"
       borderRadius="8px"
       border="1px solid"
       borderColor="neutralGray.300"
@@ -26,7 +26,7 @@ export const AdminTeacherToggle: React.FC<AdminTeacherToggleProps> = ({
         transform="translateY(-50%)"
         left={isAdminMode ? '152px' : '2px'}
         width="144px"
-        height="34px"
+        height="39px"
         bg="primaryBlue.50"
         borderRadius="6px"
         transition="left 0.3s ease"
