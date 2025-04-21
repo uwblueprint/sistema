@@ -23,15 +23,18 @@ model Absence {
   substituteTeacher   User?           @relation("substituteTeacher", fields: [substituteTeacherId], references: [id])
   location            Location        @relation(fields: [locationId], references: [id])
   subject             Subject         @relation(fields: [subjectId], references: [id])
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
 }
 
 model LessonPlanFile {
-  id   Int    @id @default(autoincrement())
-  url  String
-  name String
-  size Int
-
-  absence Absence? @relation
+  id        Int      @id @default(autoincrement())
+  url       String
+  name      String
+  size      Int
+  absence   Absence? @relation
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model User {
@@ -46,6 +49,8 @@ model User {
   substitutes    Absence[]     @relation("substituteTeacher")
   subjects       Subject[]     @relation("MailingLists")
   mailingLists   MailingList[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 }
 
 model Location {
@@ -54,13 +59,17 @@ model Location {
   abbreviation String
   archived     Boolean   @default(false)
   Absence      Absence[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model MailingList {
   userId    Int
   subjectId Int
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@id([userId, subjectId])
   @@map("MailingList")
@@ -76,6 +85,8 @@ model Subject {
   colorGroup   ColorGroup    @relation(fields: [colorGroupId], references: [id])
   users        User[]        @relation("MailingLists")
   userSubjects MailingList[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model ColorGroup {
@@ -83,11 +94,15 @@ model ColorGroup {
   name       String
   colorCodes String[]
   Subject    Subject[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model GlobalSettings {
-  id         Int @id @default(autoincrement())
-  absenceCap Int @default(10)
+  id         Int      @id @default(autoincrement())
+  absenceCap Int      @default(10)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 enum Role {
