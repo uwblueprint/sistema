@@ -244,7 +244,13 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       height="100%"
     >
       <HStack justify="space-between" px={5} py="10px" zIndex={1502}>
-        <Text textStyle="h2" fontSize="18px" fontWeight={700} lineHeight="33px">
+        <Text
+          textStyle="h2"
+          fontSize="18px"
+          fontWeight={700}
+          lineHeight="33px"
+          whiteSpace="nowrap"
+        >
           User Management
         </Text>
         <HStack spacing={4}>
@@ -291,7 +297,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           'scrollbar-width': 'none',
         }}
       >
-        <Table variant="simple">
+        <Table variant="simple" width="100%">
           <Thead
             position="sticky"
             top={0}
