@@ -215,6 +215,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         onClick={() => handleSort(field)}
         cursor="pointer"
         textAlign={centered ? 'center' : 'left'}
+        py="11px"
       >
         <HStack spacing={2} justifyContent={centered ? 'center' : 'flex-start'}>
           <Icon as={icon} boxSize={4} color={color} />
@@ -333,7 +334,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                     ':last-child td': { borderBottom: 'none' },
                   }}
                 >
-                  <Td py="6px">
+                  <Td py="2px">
                     <HStack spacing={5}>
                       <Avatar
                         size="sm"
@@ -348,10 +349,10 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       </Text>
                     </HStack>
                   </Td>
-                  <Td color="gray.600">
+                  <Td color="gray.600" py="2px">
                     <Text textStyle="cellBody">{user.email}</Text>
                   </Td>
-                  <Td textAlign="center" py="6px">
+                  <Td textAlign="center" py="2px">
                     <Text
                       textStyle="cellBold"
                       color={getAbsenceColor(
@@ -362,7 +363,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       {getSelectedYearAbsences(user.absences)}{' '}
                     </Text>
                   </Td>
-                  <Td py="6px">
+                  <Td py="2px">
                     <EditableRoleCell
                       key={`role-cell-${user.id}`}
                       role={user.role}
@@ -371,7 +372,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       }
                     />
                   </Td>
-                  <Td py={0}>
+                  <Td py="2px">
                     <EditableSubscriptionsCell
                       mailingLists={user.mailingLists || []}
                       allSubjects={allSubjects}
