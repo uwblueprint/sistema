@@ -132,8 +132,6 @@ async function sendClaimSummaries(): Promise<number> {
   });
   if (users.length === 0) return 0;
 
-  const adminEmails = await getAdminEmails();
-
   const tasks = users.map(async (user) => {
     const absences = user.substitutes.map((absence) => ({
       lessonDate: absence.lessonDate,
@@ -146,7 +144,6 @@ async function sendClaimSummaries(): Promise<number> {
     );
     const { success } = await sendEmail({
       to: [user.email],
-      cc: adminEmails,
       subject: 'Sistema Toronto Tacet - Your Upcoming Claimed Classes',
       html,
     });

@@ -206,3 +206,39 @@ export function createUpcomingClaimedClassesEmailBody(
     </html>
   `;
 }
+
+export function createLessonPlanUploadedEmailBody(
+  declaringTeacher: { firstName: string; lastName: string },
+  absence: {
+    lessonDate: Date;
+    location: { name: string };
+  },
+  lessonPlan: { name: string; url: string }
+): string {
+  const fullName = `${declaringTeacher.firstName} ${declaringTeacher.lastName}`;
+  const formattedDate = formatLongDate(absence.lessonDate);
+
+  return `
+    <html>
+      <body>
+        <p>Hello ${fullName},</p>
+        <p>
+          The lesson plan for <strong>${fullName}’s</strong> absence from
+          <strong>${absence.location.name}</strong> on
+          <strong>${formattedDate}</strong> has been uploaded. Please find it attached.
+        </p>
+        <p>
+          <strong>Click the link below to view:</strong><br/>
+          <a href="${UPLOAD_LINK}" target="_blank">Tacet Calendar</a>
+        </p>
+        <p>
+          <strong>Lesson Plan:</strong><br/>
+          <a href="${lessonPlan.url}" target="_blank">
+            ${lessonPlan.name}
+          </a>
+        </p>
+        <p>Sistema Toronto</p>
+      </body>
+    </html>
+  `;
+}
