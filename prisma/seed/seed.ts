@@ -201,8 +201,10 @@ const main = async () => {
         const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
           probability: 0.5,
         });
-        const randomSubstitute = faker.helpers.maybe(
-          () => faker.helpers.arrayElement(userIds),
+        const absentTeacherId = faker.helpers.arrayElement(userIds);
+        const possibleSubs = userIds.filter((id) => id !== absentTeacherId);
+        const maybeSubstitute = faker.helpers.maybe(
+          () => faker.helpers.arrayElement(possibleSubs),
           {
             probability: 0.5,
           }
@@ -221,7 +223,8 @@ const main = async () => {
             'A5',
             'C12',
           ]),
-          substituteTeacherId: randomSubstitute ?? null,
+          absentTeacherId,
+          substituteTeacherId: maybeSubstitute ?? null,
         };
       })
     );
@@ -236,8 +239,10 @@ const main = async () => {
         const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
           probability: 0.5,
         });
-        const randomSubstitute = faker.helpers.maybe(
-          () => faker.helpers.arrayElement(userIds),
+        const absentTeacherId = faker.helpers.arrayElement(userIds);
+        const possibleSubs = userIds.filter((id) => id !== absentTeacherId);
+        const maybeSubstitute = faker.helpers.maybe(
+          () => faker.helpers.arrayElement(possibleSubs),
           {
             probability: 0.5,
           }
@@ -256,7 +261,8 @@ const main = async () => {
             'A5',
             'C12',
           ]),
-          substituteTeacherId: randomSubstitute ?? null,
+          absentTeacherId,
+          substituteTeacherId: maybeSubstitute ?? null,
         };
       })
     );
