@@ -14,7 +14,6 @@
 - If you intend to contribute to this project ensure you have been added to the [UW Blueprint Github Organization](https://github.com/uwblueprint/).
 - Install [Node.js](https://nodejs.org/en/download/) (v22 tested). It's recommended to use [NVM (Node Version Manager)](https://github.com/nvm-sh/nvm) to manage your Node.js versions.
 - Install Docker Desktop ([MacOS](https://docs.docker.com/desktop/setup/install/mac-install/) | [Windows](https://docs.docker.com/desktop/install/windows-install/) | [Linux](https://docs.docker.com/desktop/setup/install/linux/)) and ensure that it is running.
--
 
 ## Clone and Install
 
