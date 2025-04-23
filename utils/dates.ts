@@ -30,3 +30,25 @@ export const formatFullDate = (input: string | Date): string => {
 
   return `${weekday}, ${month} ${day}`;
 };
+
+export const addBusinessDays = (startDate: Date, days: number): Date => {
+  const date = new Date(startDate);
+  let count = 0;
+  while (count < days) {
+    date.setDate(date.getDate() + 1);
+    if (date.getUTCDay() !== 6 && date.getUTCDay() !== 0) {
+      count++;
+    }
+  }
+  return date;
+};
+
+export const getUTCDateWithoutTime = (
+  baseDate: Date,
+  daysToAdd: number
+): Date => {
+  const date = addBusinessDays(baseDate, daysToAdd);
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+  );
+};

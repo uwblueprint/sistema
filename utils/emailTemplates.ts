@@ -1,4 +1,4 @@
-import { formatLongDate } from '@utils/formatDate';
+import { formatLongDate } from '@utils/dates';
 
 const CALENDAR_URL = `${process.env.NEXT_PUBLIC_PROD_URL!}/calendar`;
 

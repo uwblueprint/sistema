@@ -11,7 +11,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { Absence, Prisma } from '@prisma/client';
-import { formatFullDate } from '@utils/formatDate';
+import { formatFullDate } from '@utils/dates';
 import { submitAbsence } from '@utils/submitAbsence';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
 import { useState } from 'react';

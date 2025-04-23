@@ -1,16 +1,16 @@
 import { Text, useDisclosure } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
-import { formatFullDate } from '@utils/formatDate';
+import { formatFullDate } from '@utils/dates';
 import { EventDetails, Role } from '@utils/types';
 import { useState } from 'react';
 import { useCustomToast } from '../../CustomToast';
+import { MailIcon } from '../modals/edit/EditAbsenceForm';
 import EditAbsenceModal from '../modals/edit/EditAbsenceModal';
 import { NotifyTeachersModal } from '../modals/edit/NotifyTeachersModal';
 import AbsenceDetailsModal from './AbsenceDetailsModal';
 import AbsenceFillThanksModal from './AbsenceFillThanksModal';
 import DeleteAbsenceModal from './DeleteAbsenceModal';
 import FillAbsenceModal from './FillAbsenceModal';
-import { MailIcon } from '../modals/edit/EditAbsenceForm';
 
 interface AbsenceDetailsProps {
   isOpen: boolean;

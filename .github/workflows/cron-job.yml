@@ -12,7 +12,27 @@ jobs:
       - name: Log current time
         run: date -u
 
-      - name: Call reminders API
+      - name: Call lesson-plan reminders
         run: |
-          curl -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/emails/reminders" \
+          curl -s -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/emails/reminders/lessonPlans" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+
+      - name: Call claim summaries
+        run: |
+          curl -s -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/emails/reminders/claimSummaries" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+
+      - name: Call upcoming claimed class reminders
+        run: |
+          curl -s -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/emails/reminders/upcomingClaimed" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+
+      - name: Call unfilled absence opportunities
+        run: |
+          curl -s -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/emails/reminders/unfilledAbsences" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+
+      - name: Call daily declaration digests
+        run: |
+          curl -s -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/emails/reminders/dailyDigest" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

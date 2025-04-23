@@ -6,7 +6,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import { useAbsences } from '@hooks/useAbsences';
 import { useUserData } from '@hooks/useUserData';
-import { formatMonthYear } from '@utils/formatDate';
+import { formatMonthYear } from '@utils/dates';
 import { getCalendarStyles } from '@utils/getCalendarStyles';
 import { getDayCellClassNames } from '@utils/getDayCellClassNames';
 import { EventDetails } from '@utils/types';
