@@ -8,9 +8,10 @@ import {
   Text,
   useTheme,
 } from '@chakra-ui/react';
-import { FiFileText } from 'react-icons/fi';
+import { formatFileSize } from '@utils/formatFileSize';
 import { LessonPlanFile } from '@utils/types';
-import { useRef, useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { FiFileText } from 'react-icons/fi';
 import { useCustomToast } from '../CustomToast';
 
 interface FileUploadProps {
@@ -19,21 +20,6 @@ interface FileUploadProps {
   existingFile?: LessonPlanFile | null;
   isDisabled?: boolean;
 }
-
-const formatFileSize = (sizeInBytes: number) => {
-  if (sizeInBytes === 0) return '0 B';
-
-  const units = ['B', 'KB', 'MB', 'GB'];
-  let index = 0;
-  let size = sizeInBytes;
-
-  while (size >= 1024 && index < units.length - 1) {
-    size /= 1024;
-    index++;
-  }
-
-  return `${size.toFixed(1)} ${units[index]}`;
-};
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   lessonPlan,

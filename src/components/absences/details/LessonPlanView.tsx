@@ -8,6 +8,7 @@ import {
   Text,
   useTheme,
 } from '@chakra-ui/react';
+import { formatFileSize } from '@utils/formatFileSize';
 import { LessonPlanFile } from '@utils/types';
 import { uploadFile } from '@utils/uploadFile';
 import { useEffect, useRef, useState } from 'react';
@@ -15,21 +16,6 @@ import { FiFileText } from 'react-icons/fi';
 import { useCustomToast } from '../../CustomToast';
 import { FileUpload } from '../FileUpload';
 import { MailIcon } from '../modals/edit/EditAbsenceForm';
-
-const formatFileSize = (sizeInBytes: number) => {
-  if (sizeInBytes === 0) return '0 B';
-
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  let unitIndex = 0;
-  let size = sizeInBytes;
-
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024;
-    unitIndex++;
-  }
-
-  return `${size.toFixed(1)} ${units[unitIndex]}`;
-};
 
 const LessonPlanDisplay = ({
   href,
