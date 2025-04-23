@@ -93,15 +93,7 @@ const Calendar: React.FC = () => {
       } = eventInfo.event.extendedProps;
       const subjectName = eventInfo.event.title;
 
-      const eventDate = new Date(eventInfo.event.start!!);
-      const now = new Date();
-      const isSameDay =
-        eventDate.getFullYear() === now.getFullYear() &&
-        eventDate.getMonth() === now.getMonth() &&
-        eventDate.getDate() === now.getDate();
-      const isPastEvent = eventDate < now && !isSameDay;
-
-      const opacity = isPastEvent ? 0.6 : 1;
+      const opacity = isPastEvent(eventInfo.event.start!!) ? 0.6 : 1;
       const createdByUser = absentTeacher.id === userData?.id;
       const createdByUserOrIsAdminMode = createdByUser || isAdminMode;
 
@@ -227,6 +219,21 @@ const Calendar: React.FC = () => {
     if (!event?.start) return false;
     const dateString = formatDateForFilledDays(new Date(event.start));
     return filledDays.has(dateString);
+  };
+
+  const isPastEvent = (
+    dateLike: Date | string | number | undefined
+  ): boolean => {
+    if (!dateLike) return false;
+    const eventDate = new Date(dateLike);
+    const now = new Date();
+
+    const isSameDay =
+      eventDate.getFullYear() === now.getFullYear() &&
+      eventDate.getMonth() === now.getMonth() &&
+      eventDate.getDate() === now.getDate();
+
+    return eventDate < now && !isSameDay;
   };
 
   const handleAbsenceClick = (clickInfo: EventClickArg) => {
@@ -480,6 +487,7 @@ const Calendar: React.FC = () => {
         onTabChange={setActiveTab}
         isAdminMode={isAdminMode}
         hasConflictingEvent={hasConflictingEvent(selectedEvent!!)}
+        isPastEvent={isPastEvent(selectedEvent?.start)}
       />
       <DeclareAbsenceModal
         isOpen={isInputFormOpen}

@@ -21,6 +21,7 @@ interface AbsenceDetailsProps {
   isAdminMode: boolean;
   fetchAbsences: () => Promise<void>;
   hasConflictingEvent: boolean;
+  isPastEvent: boolean;
 }
 
 const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
@@ -32,6 +33,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   isAdminMode,
   fetchAbsences,
   hasConflictingEvent,
+  isPastEvent,
 }) => {
   const userData = useUserData();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -302,6 +304,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         handleEditClick={handleEditClick}
         handleDeleteClick={handleDeleteClick}
         handleFillAbsenceClick={handleFillAbsenceClick}
+        isPastEvent={isPastEvent}
       />
       <FillAbsenceModal
         isOpen={isFillModalOpen}
