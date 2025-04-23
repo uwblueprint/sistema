@@ -147,7 +147,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
           </Button>
         </Flex>
       </Box>
-      <Box ref={scrollRef} overflowY="auto" pb={6}>
+      <Box ref={scrollRef} overflowY="auto" pb={6} width="100%">
         <Box px={3} pb={4}>
           <MiniCalendar
             initialDate={new Date()}
