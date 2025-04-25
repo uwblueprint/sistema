@@ -40,6 +40,7 @@ interface AbsenceDetailsModalProps {
   handleEditClick: () => void;
   handleDeleteClick: () => void;
   handleFillAbsenceClick: () => void;
+  blockScrollOnMount: boolean;
 }
 
 const AbsenceDetailsModal: React.FC<AbsenceDetailsModalProps> = ({
@@ -55,11 +56,18 @@ const AbsenceDetailsModal: React.FC<AbsenceDetailsModalProps> = ({
   handleEditClick,
   handleDeleteClick,
   handleFillAbsenceClick,
+  blockScrollOnMount,
 }) => {
   const theme = useTheme();
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="lg"
+      isCentered
+      blockScrollOnMount={blockScrollOnMount}
+    >
       <ModalContent
         width="362px"
         borderRadius="15px"
