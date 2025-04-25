@@ -2,6 +2,8 @@
 
 import { faker } from '@faker-js/faker';
 import { createSeedClient } from '@snaplet/seed';
+import { COLOR_GROUPS, ROOM_NUMBERS, SCHOOLS, SUBJECTS } from '@utils/consts';
+import { Role } from '@utils/types';
 
 const main = async () => {
   const seed = await createSeedClient({
@@ -10,32 +12,9 @@ const main = async () => {
 
   await seed.$resetDatabase();
 
-  enum RoleEnum {
-    TEACHER = 'TEACHER',
-    ADMIN = 'ADMIN',
-  }
-
-  const subjects = [
-    { name: 'Strings', abbreviation: 'STR', colorGroupId: 3 },
-    { name: 'Choir', abbreviation: 'CHO', colorGroupId: 2 },
-    {
-      name: 'Music & Movement',
-      abbreviation: 'M&M',
-      colorGroupId: 4,
-    },
-    { name: 'Percussion', abbreviation: 'PER', colorGroupId: 7 },
-    { name: 'Trumpet/Clarinets', abbreviation: 'T&C', colorGroupId: 1 },
-    {
-      name: 'Harpsichord',
-      abbreviation: 'HPS',
-      colorGroupId: 5,
-      archived: true,
-    },
-  ];
-
   const numUsers = 100;
   const numAbsences = 600;
-  const numSubjects = subjects.length;
+  const numSubjects = SUBJECTS.length;
   const userIds = Array.from({ length: numUsers + 1 }, (_, i) => i + 1);
   const subjectIds = Array.from({ length: numSubjects }, (_, i) => i + 1);
   const absenceIds = Array.from({ length: numAbsences }, (_, i) => i + 1);
@@ -48,7 +27,7 @@ const main = async () => {
         firstName: 'Sistema',
         lastName: 'Blueprint',
         profilePicture: `https://lh3.googleusercontent.com/a/ACg8ocKxepJIC2yHao12N7K58_vzFKhY4GLrzOzpLKhBJRC14k2E_Q=s96-c`,
-        role: RoleEnum.ADMIN,
+        role: Role.ADMIN,
       };
     })
   );
@@ -63,24 +42,12 @@ const main = async () => {
         firstName: firstName,
         lastName: lastName,
         profilePicture: `https://i.pravatar.cc/50?u=${faker.string.uuid()}`,
-        role: RoleEnum.TEACHER,
+        role: Role.TEACHER,
       };
     })
   );
 
-  const schools = [
-    { name: 'Lambton Park Community School', abbreviation: 'Lambton' },
-    { name: 'St Martin de Porres Catholic School', abbreviation: 'St Martin' },
-    { name: 'Yorkwoods Public School', abbreviation: 'Yorkwoods' },
-    { name: 'Parkdale Junior Senior Public School', abbreviation: 'Parkdale' },
-    {
-      name: 'St Gertrude Elementary School',
-      abbreviation: 'SG',
-      archived: true,
-    },
-  ];
-
-  for (const school of schools) {
+  for (const school of SCHOOLS) {
     await seed.location((createMany) =>
       createMany(1, () => ({
         name: school.name,
@@ -90,50 +57,7 @@ const main = async () => {
     );
   }
 
-  const colorGroups = [
-    {
-      id: 1,
-      name: 'Coral',
-      colorCodes: ['#8B2321', '#F06E6B', '#FFBFBD', '#FFEBEB'],
-    },
-    {
-      id: 2,
-      name: 'Orange',
-      colorCodes: ['#7E3E02', '#F7A75C', '#FBD38D', '#FEEED5'],
-    },
-    {
-      id: 3,
-      name: 'Purple',
-      colorCodes: ['#5F2D66', '#9F65A8', '#D2AED8', '#EED5F2'],
-    },
-    {
-      id: 4,
-      name: 'Turquoise',
-      colorCodes: ['#0D5A53', '#25BAAB', '#81E6D9', '#D5F6F3'],
-    },
-    {
-      id: 5,
-      name: 'Blue',
-      colorCodes: ['#263C71', '#6592FF', '#A7C1FF', '#D9E4FF'],
-    },
-    {
-      id: 6,
-      name: 'Yellow',
-      colorCodes: ['#615219', '#F9DC5C', '#FCEFB4', '#FDF8E1'],
-    },
-    {
-      id: 7,
-      name: 'Orchid',
-      colorCodes: ['#3D324F', '#615574', '#AEA2C3', '#D8CCED'],
-    },
-    {
-      id: 8,
-      name: 'Green',
-      colorCodes: ['#2D4F12', '#79A854', '#C0E3A4', '#DDFBDD'],
-    },
-  ];
-
-  for (const colorGroup of colorGroups) {
+  for (const colorGroup of COLOR_GROUPS) {
     await seed.colorGroup((createMany) =>
       createMany(1, () => ({
         name: colorGroup.name,
@@ -144,37 +68,12 @@ const main = async () => {
 
   await seed.subject((createMany) =>
     createMany(numSubjects, (curSubject) => ({
-      name: subjects[curSubject.index].name,
-      abbreviation: subjects[curSubject.index].abbreviation,
-      colorGroupId: subjects[curSubject.index].colorGroupId,
-      archived: subjects[curSubject.index].archived,
+      name: SUBJECTS[curSubject.index].name,
+      abbreviation: SUBJECTS[curSubject.index].abbreviation,
+      colorGroupId: SUBJECTS[curSubject.index].colorGroupId,
+      archived: SUBJECTS[curSubject.index].archived,
     }))
   );
-
-  const isESTWeekday = (date: Date): boolean => {
-    const weekdayInEST = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/New_York',
-      weekday: 'short',
-    }).format(date);
-
-    return !['Sat', 'Sun'].includes(weekdayInEST);
-  };
-
-  const generateWeekdayFutureDate = (): Date => {
-    let date: Date;
-    do {
-      date = faker.date.future({ years: 2 });
-    } while (!isESTWeekday(date));
-    return date;
-  };
-
-  const generateWeekdayPastDate = (): Date => {
-    let date: Date;
-    do {
-      date = faker.date.past({ years: 2 });
-    } while (!isESTWeekday(date));
-    return date;
-  };
 
   await seed.lessonPlanFile((createMany) =>
     createMany(Math.floor(numAbsences / 2), () => {
@@ -190,11 +89,36 @@ const main = async () => {
       };
     })
   );
+
+  const isWeekday = (date: Date): boolean => {
+    const day = date.getDay();
+    return day !== 0 && day !== 6;
+  };
+
+  const generateWeekdayFutureDate = (): Date => {
+    let date: Date;
+    do {
+      date = faker.date.future({ years: 2 });
+    } while (!isWeekday(date));
+    return date;
+  };
+
+  const generateWeekdayPastDate = (): Date => {
+    let date: Date;
+    do {
+      date = faker.date.past({ years: 2 });
+    } while (!isWeekday(date));
+    return date;
+  };
+
   const halfAbsences = Math.floor(absenceIds.length / 2);
 
-  for (let i = 0; i < halfAbsences; i++) {
+  for (let i = 0; i < absenceIds.length; i++) {
     const absenceId = absenceIds[i];
     const lessonPlanId = absenceId % 2 === 0 ? Math.floor(absenceId / 2) : null;
+
+    const getLessonDate =
+      i < halfAbsences ? generateWeekdayPastDate : generateWeekdayFutureDate;
 
     await seed.absence((createMany) =>
       createMany(1, () => {
@@ -210,57 +134,11 @@ const main = async () => {
           }
         );
         return {
-          lessonDate: generateWeekdayPastDate(),
-          lessonPlanId: lessonPlanId,
+          lessonDate: getLessonDate(),
+          lessonPlanId,
           reasonOfAbsence: faker.lorem.sentence(),
           notes: maybeNotes ?? null,
-          roomNumber: faker.helpers.arrayElement([
-            '101',
-            '202',
-            '303',
-            '404',
-            'B1',
-            'A5',
-            'C12',
-          ]),
-          absentTeacherId,
-          substituteTeacherId: maybeSubstitute ?? null,
-        };
-      })
-    );
-  }
-
-  for (let i = halfAbsences; i < absenceIds.length; i++) {
-    const absenceId = absenceIds[i];
-    const lessonPlanId = absenceId % 2 === 0 ? Math.floor(absenceId / 2) : null;
-
-    await seed.absence((createMany) =>
-      createMany(1, () => {
-        const maybeNotes = faker.helpers.maybe(() => faker.lorem.paragraph(), {
-          probability: 0.5,
-        });
-        const absentTeacherId = faker.helpers.arrayElement(userIds);
-        const possibleSubs = userIds.filter((id) => id !== absentTeacherId);
-        const maybeSubstitute = faker.helpers.maybe(
-          () => faker.helpers.arrayElement(possibleSubs),
-          {
-            probability: 0.5,
-          }
-        );
-        return {
-          lessonDate: generateWeekdayFutureDate(),
-          lessonPlanId: lessonPlanId,
-          reasonOfAbsence: faker.lorem.sentence(),
-          notes: maybeNotes ?? null,
-          roomNumber: faker.helpers.arrayElement([
-            '101',
-            '202',
-            '303',
-            '404',
-            'B1',
-            'A5',
-            'C12',
-          ]),
+          roomNumber: faker.helpers.arrayElement(ROOM_NUMBERS),
           absentTeacherId,
           substituteTeacherId: maybeSubstitute ?? null,
         };
