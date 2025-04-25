@@ -1,14 +1,13 @@
-import { useToast } from '@chakra-ui/react';
 import { EventInput } from '@fullcalendar/core';
 import { AbsenceAPI, mapColorCodes } from '@utils/types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCustomToast } from '../src/components/CustomToast';
 
 const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
   title: absenceData.subject.name,
   start: absenceData.lessonDate,
   allDay: true,
   display: 'auto',
-
   location: absenceData.location.name,
   absentTeacher: absenceData.absentTeacher,
   substituteTeacher: absenceData.substituteTeacher,
@@ -35,7 +34,10 @@ const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
 
 export const useAbsences = (refetchUserData?: () => void) => {
   const [events, setEvents] = useState<EventInput[]>([]);
-  const toast = useToast();
+  const showToast = useCustomToast();
+
+  const showToastRef = useRef(showToast);
+  showToastRef.current = showToast;
 
   const fetchAbsences = useCallback(async () => {
     try {
@@ -52,16 +54,13 @@ export const useAbsences = (refetchUserData?: () => void) => {
       }
     } catch (error) {
       console.error('Error fetching absences:', error);
-      toast({
-        title: 'Failed to fetch absences',
+      showToastRef.current({
         description:
           'There was an error loading the absence data. Please try again later.',
         status: 'error',
-        duration: 5000,
-        isClosable: true,
       });
     }
-  }, [refetchUserData, toast]);
+  }, [refetchUserData]);
 
   useEffect(() => {
     fetchAbsences();
