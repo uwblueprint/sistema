@@ -14,6 +14,7 @@ interface AbsenceBoxProps {
   highlightColor?: string;
   lessonPlan?: LessonPlanFile;
   opacity: number;
+  isSelected: boolean;
 }
 
 const AbsenceBox: React.FC<AbsenceBoxProps> = ({
@@ -27,6 +28,7 @@ const AbsenceBox: React.FC<AbsenceBoxProps> = ({
   highlightColor,
   lessonPlan,
   opacity,
+  isSelected,
 }) => {
   const textRef = useRef<HTMLDivElement | null>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -61,6 +63,8 @@ const AbsenceBox: React.FC<AbsenceBoxProps> = ({
         position: 'relative',
         opacity,
         maxWidth: '100%',
+        boxShadow: isSelected ? '0px 0px 15px 6px rgba(0, 0, 0, 0.10)' : 'none',
+        transition: 'box-shadow 0.3s ease',
       }}
     >
       {lessonPlan && (

@@ -74,6 +74,11 @@ const Calendar: React.FC = () => {
     onClose: onAbsenceDetailsClose,
   } = useDisclosure();
 
+  const handleAbsenceDetailsClose = () => {
+    setSelectedEvent(null);
+    onAbsenceDetailsClose();
+  };
+
   const {
     isOpen: isInputFormOpen,
     onOpen: onInputFormOpen,
@@ -91,6 +96,7 @@ const Calendar: React.FC = () => {
         locationAbbreviation,
         subjectAbbreviation,
         lessonPlan,
+        absenceId,
       } = eventInfo.event.extendedProps;
       const subjectName = eventInfo.event.title;
 
@@ -114,6 +120,8 @@ const Calendar: React.FC = () => {
           : `${absentTeacherDisplayName} -> Unfilled`
         : undefined;
 
+      const isSelected = selectedEvent?.absenceId === absenceId;
+
       return (
         <Box cursor="pointer">
           <AbsenceBox
@@ -131,11 +139,12 @@ const Calendar: React.FC = () => {
             highlightColor={colors.medium}
             lessonPlan={lessonPlan}
             opacity={opacity}
+            isSelected={isSelected}
           />
         </Box>
       );
     },
-    [userData?.id, isAdminMode]
+    [userData?.id, isAdminMode, selectedEvent]
   );
 
   useEffect(() => {
@@ -474,7 +483,7 @@ const Calendar: React.FC = () => {
       </Flex>
       <AbsenceDetails
         isOpen={isAbsenceDetailsOpen}
-        onClose={onAbsenceDetailsClose}
+        onClose={handleAbsenceDetailsClose}
         event={selectedEvent!!}
         fetchAbsences={fetchAbsences}
         onDelete={handleDeleteAbsence}
