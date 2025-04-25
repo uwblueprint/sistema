@@ -3,11 +3,12 @@
 ## Preview
 
 ### Absence Calendar
+
   <img width="1728" alt="image" src="https://github.com/user-attachments/assets/a8558004-c7d7-45da-abac-97d982705cab" />
 
 ### Admin Dashboard
-<img width="1728" alt="image" src="https://github.com/user-attachments/assets/4052066d-55d8-4af8-9b7d-f6a3651e2b20" />
 
+<img width="1728" alt="image" src="https://github.com/user-attachments/assets/4052066d-55d8-4af8-9b7d-f6a3651e2b20" />
 
 ## Prerequisites
 
