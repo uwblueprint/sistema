@@ -85,6 +85,7 @@ const Calendar: React.FC = () => {
       const {
         absentTeacher,
         absentTeacherDisplayName,
+        substituteTeacher,
         substituteTeacherDisplayName,
         colors,
         locationAbbreviation,
@@ -103,9 +104,11 @@ const Calendar: React.FC = () => {
 
       const opacity = isPastEvent ? 0.6 : 1;
       const createdByUser = absentTeacher.id === userData?.id;
-      const createdByUserOrIsAdminMode = createdByUser || isAdminMode;
+      const claimedByUser = substituteTeacher?.id == userData?.id;
+      const userRelatedOrIsAdminMode =
+        createdByUser || isAdminMode || claimedByUser;
 
-      const highlightText = createdByUserOrIsAdminMode
+      const highlightText = userRelatedOrIsAdminMode
         ? substituteTeacherDisplayName
           ? `${absentTeacherDisplayName} -> ${substituteTeacherDisplayName}`
           : `${absentTeacherDisplayName} -> Unfilled`
@@ -118,13 +121,11 @@ const Calendar: React.FC = () => {
             abbreviation={subjectAbbreviation}
             location={locationAbbreviation}
             backgroundColor={
-              substituteTeacherDisplayName || !createdByUserOrIsAdminMode
+              substituteTeacherDisplayName || !userRelatedOrIsAdminMode
                 ? colors.light
                 : 'white'
             }
-            borderColor={
-              createdByUserOrIsAdminMode ? colors.dark : 'transparent'
-            }
+            borderColor={userRelatedOrIsAdminMode ? colors.dark : 'transparent'}
             textColor={colors.text}
             highlightText={highlightText}
             highlightColor={colors.medium}
