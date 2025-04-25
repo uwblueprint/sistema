@@ -36,7 +36,6 @@ interface AbsenceDetailsModalProps {
   isUserSubstituteTeacher: boolean;
   isAdminMode: boolean;
   hasConflictingEvent: boolean;
-  isPastEvent: boolean;
   fetchAbsences: () => Promise<void>;
   handleEditClick: () => void;
   handleDeleteClick: () => void;
@@ -52,7 +51,6 @@ const AbsenceDetailsModal: React.FC<AbsenceDetailsModalProps> = ({
   isUserSubstituteTeacher,
   isAdminMode,
   hasConflictingEvent,
-  isPastEvent,
   fetchAbsences,
   handleEditClick,
   handleDeleteClick,
@@ -246,7 +244,7 @@ const AbsenceDetailsModal: React.FC<AbsenceDetailsModalProps> = ({
                   fontSize="16px"
                   fontWeight="500"
                   onClick={handleFillAbsenceClick}
-                  disabled={hasConflictingEvent || isPastEvent}
+                  disabled={hasConflictingEvent}
                 >
                   Fill this Absence
                 </Button>
