@@ -123,25 +123,23 @@ const Calendar: React.FC = () => {
       const isSelected = selectedEvent?.absenceId === absenceId;
 
       return (
-        <Box cursor="pointer">
-          <AbsenceBox
-            title={subjectName}
-            abbreviation={subjectAbbreviation}
-            location={locationAbbreviation}
-            backgroundColor={
-              substituteTeacherDisplayName || !userRelatedOrIsAdminMode
-                ? colors.light
-                : 'white'
-            }
-            borderColor={userRelatedOrIsAdminMode ? colors.dark : 'transparent'}
-            textColor={colors.text}
-            highlightText={highlightText}
-            highlightColor={colors.medium}
-            lessonPlan={lessonPlan}
-            opacity={opacity}
-            isSelected={isSelected}
-          />
-        </Box>
+        <AbsenceBox
+          title={subjectName}
+          abbreviation={subjectAbbreviation}
+          location={locationAbbreviation}
+          backgroundColor={
+            substituteTeacherDisplayName || !userRelatedOrIsAdminMode
+              ? colors.light
+              : 'white'
+          }
+          borderColor={userRelatedOrIsAdminMode ? colors.dark : 'transparent'}
+          textColor={colors.text}
+          highlightText={highlightText}
+          highlightColor={colors.medium}
+          lessonPlan={lessonPlan}
+          opacity={opacity}
+          isSelected={isSelected}
+        />
       );
     },
     [userData?.id, isAdminMode, selectedEvent]

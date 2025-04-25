@@ -51,6 +51,7 @@ const AbsenceBox: React.FC<AbsenceBoxProps> = ({
 
   return (
     <Box
+      cursor="pointer"
       sx={{
         padding: '2px 3px 4px 3px',
         paddingRight: lessonPlan ? '28px' : '3px',

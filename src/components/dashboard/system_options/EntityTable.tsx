@@ -305,6 +305,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
         borderColor={colorCodes[1]}
         textColor={colorCodes[0]}
         opacity={1}
+        isSelected={false}
       />
     );
   };
