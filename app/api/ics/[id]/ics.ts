@@ -1,3 +1,4 @@
+import { getUTCDateWithoutTime } from '@utils/dates';
 import { AbsenceAPI } from '@utils/types';
 import { EventAttributes, createEvents } from 'ics';
 
@@ -16,13 +17,11 @@ export const convertAbsenceToICSEvent = (
   const endDate = new Date(absence.lessonDate);
   endDate.setDate(startDate.getDate() + 1);
 
+  const d0 = getUTCDateWithoutTime(new Date(absence.lessonDate), 0);
+  const d1 = getUTCDateWithoutTime(new Date(absence.lessonDate), 1);
   return {
-    start: [
-      startDate.getFullYear(),
-      startDate.getMonth() + 1,
-      startDate.getDate(),
-    ],
-    end: [endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate()],
+    start: [d0.getUTCFullYear(), d0.getUTCMonth() + 1, d0.getUTCDate()],
+    end: [d1.getUTCFullYear(), d1.getUTCMonth() + 1, d1.getUTCDate()],
     title: `${absence.location.abbreviation}: ${absence.subject.name}: ${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName[0]} ${substituteTeacherString}`,
     description: `Subject: ${absence.subject.name}\nLesson Plan: ${lessonString}${notesLine}${roomString}`,
     location: absence.location.name,
