@@ -1,3 +1,5 @@
+import { parseErrorResponse } from './safeFetch';
+
 export const uploadFile = async (file: File): Promise<string | null> => {
   const formData = new FormData();
   formData.append('file', file);
@@ -9,8 +11,9 @@ export const uploadFile = async (file: File): Promise<string | null> => {
   });
 
   if (!res.ok) {
-    const data = await res.json();
-    throw new Error(data.message || 'Failed to upload file');
+    const errorMessage = await parseErrorResponse(res);
+    console.error(errorMessage);
+    throw new Error(errorMessage);
   }
 
   const data = await res.json();

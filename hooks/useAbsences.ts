@@ -1,6 +1,7 @@
 import { EventInput } from '@fullcalendar/core';
+import { parseErrorResponse } from '@utils/safeFetch';
 import { AbsenceAPI, mapColorCodes } from '@utils/types';
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useCustomToast } from '../src/components/CustomToast';
 
 const convertAbsenceToEvent = (absenceData: AbsenceAPI): EventInput => ({
@@ -43,7 +44,9 @@ export const useAbsences = (refetchUserData?: () => void) => {
     try {
       const res = await fetch('/api/getAbsences/');
       if (!res.ok) {
-        throw new Error(`Failed to fetch: ${res.statusText}`);
+        const errorMessage = await parseErrorResponse(res);
+        console.error(errorMessage);
+        throw new Error(errorMessage);
       }
       const data = await res.json();
       const formattedEvents = data.events.map(convertAbsenceToEvent);
