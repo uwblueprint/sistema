@@ -297,7 +297,6 @@ const LessonPlanView = ({
       lessonPlan={null}
       setLessonPlan={handleFileUpload}
       existingFile={null}
-      isDisabled={isUploading}
     />
   ) : (
     <NoLessonPlanViewingDisplay

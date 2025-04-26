@@ -17,21 +17,20 @@ import { useCustomToast } from '../CustomToast';
 
 interface FileUploadProps {
   lessonPlan: File | null;
-  setLessonPlan: (file: File | null) => void;
+  setLessonPlan: (file: File | null) => void | Promise<void>;
   existingFile?: LessonPlanFile | null;
-  isDisabled?: boolean;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   lessonPlan,
   setLessonPlan,
   existingFile,
-  isDisabled,
 }) => {
   const theme = useTheme();
   const showToast = useCustomToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const [localUrl, setLocalUrl] = useState<string | null>(null);
+  const [isBusy, setIsBusy] = useState(false);
 
   useEffect(() => {
     if (lessonPlan) {
@@ -43,115 +42,114 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     }
   }, [lessonPlan]);
 
-  const validateAndSetFile = (file: File) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
     const { valid } = validateFileWithToast(file, showToast);
     if (!valid) {
-      setLessonPlan(null);
+      setIsBusy(false);
+      await Promise.resolve(setLessonPlan(null));
       return;
     }
-    setLessonPlan(file);
-  };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isDisabled) return;
-    const file = e.target.files?.[0];
-    if (file) validateAndSetFile(file);
+    setIsBusy(true);
+    try {
+      await Promise.resolve(setLessonPlan(file));
+    } finally {
+      setIsBusy(false);
+    }
   };
 
   const handleSwap = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    inputRef.current?.click();
+    if (!isBusy) inputRef.current?.click();
   };
 
   const fileToDisplay = lessonPlan
-    ? {
-        name: lessonPlan.name,
-        size: lessonPlan.size,
-        url: localUrl,
-      }
+    ? { name: lessonPlan.name, size: lessonPlan.size, url: localUrl! }
     : existingFile;
 
-  return fileToDisplay ? (
-    <>
-      <Link href={fileToDisplay.url || '#'} isExternal width="100%">
-        <Flex
-          width="100%"
-          minHeight="48px"
-          borderColor={theme.colors.neutralGray[300]}
-          borderWidth="1px"
-          borderRadius="10px"
-          px="16px"
-          py="10px"
-          bg={theme.colors.buttonBackground}
-          align="center"
-          justify="space-between"
-          gap={3}
-        >
-          <Flex align="center">
-            <Box
-              boxSize="24px"
-              flexShrink={0}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <FiFileText size="24px" color={theme.colors.primaryBlue[300]} />
-            </Box>
-            <Box ml="12px">
-              <Text textStyle="caption" wordBreak="break-word" maxWidth="220px">
-                {fileToDisplay.name}
-              </Text>
-              {fileToDisplay.size && (
-                <Text
-                  fontSize={theme.textStyles.body.fontSize}
-                  color={theme.colors.text.subtitle}
-                >
-                  {formatFileSize(fileToDisplay.size)}
+  const disabled = isBusy;
+
+  if (fileToDisplay) {
+    return (
+      <>
+        <Link href={fileToDisplay.url} isExternal w="100%">
+          <Flex
+            w="100%"
+            minH="48px"
+            border="1px solid"
+            borderColor={theme.colors.neutralGray[300]}
+            borderRadius="10px"
+            px="16px"
+            py="10px"
+            bg={theme.colors.buttonBackground}
+            align="center"
+            justify="space-between"
+            gap={3}
+          >
+            <Flex align="center">
+              <Box boxSize="24px">
+                <FiFileText size="24px" color={theme.colors.primaryBlue[300]} />
+              </Box>
+              <Box ml="12px">
+                <Text textStyle="caption" wordBreak="break-word" maxW="220px">
+                  {fileToDisplay.name}
                 </Text>
-              )}
-            </Box>
+                {fileToDisplay.size && (
+                  <Text
+                    fontSize={theme.textStyles.body.fontSize}
+                    color={theme.colors.text.subtitle}
+                  >
+                    {formatFileSize(fileToDisplay.size)}
+                  </Text>
+                )}
+              </Box>
+            </Flex>
+            <IconButton
+              aria-label="Swap file"
+              icon={
+                <Image
+                  src="/images/arrow_swap.svg"
+                  alt="Swap icon"
+                  boxSize="15px"
+                />
+              }
+              size="sm"
+              variant="ghost"
+              onClick={handleSwap}
+              isDisabled={disabled}
+            />
           </Flex>
-          <IconButton
-            aria-label="Swap file"
-            icon={
-              <Image
-                src="/images/arrow_swap.svg"
-                alt="Swap icon"
-                width="15px"
-                height="15px"
-              />
-            }
-            size="sm"
-            variant="ghost"
-            onClick={handleSwap}
-            isDisabled={isDisabled}
-          />
-        </Flex>
-      </Link>
-      <Input
-        ref={inputRef}
-        type="file"
-        accept="application/pdf"
-        display="none"
-        onChange={handleFileChange}
-        disabled={isDisabled}
-      />
-    </>
-  ) : (
+        </Link>
+        <Input
+          ref={inputRef}
+          type="file"
+          accept="application/pdf"
+          display="none"
+          onChange={handleFileChange}
+          disabled={disabled}
+        />
+      </>
+    );
+  }
+
+  return (
     <>
       <Box
-        as="label"
-        htmlFor="fileUpload"
+        onClick={handleSwap}
         border="1px dashed"
         borderColor="outline"
-        bg={isDisabled ? 'neutralGray.50' : 'transparent'}
-        opacity={isDisabled ? 0.6 : 1}
-        pointerEvents={isDisabled ? 'none' : 'auto'}
+        bg={disabled ? 'neutralGray.50' : 'transparent'}
+        opacity={disabled ? 0.6 : 1}
+        pointerEvents={disabled ? 'none' : 'auto'}
         borderRadius="10px"
         p={5}
         textAlign="center"
-        cursor={isDisabled ? 'not-allowed' : 'pointer'}
+        cursor={disabled ? 'not-allowed' : 'pointer'}
         display="flex"
         flexDirection="column"
         alignItems="center"
@@ -165,10 +163,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         name="fileUpload"
         ref={inputRef}
         type="file"
-        onChange={handleFileChange}
         accept="application/pdf"
         display="none"
-        disabled={isDisabled}
+        onChange={handleFileChange}
+        disabled={disabled}
       />
     </>
   );
