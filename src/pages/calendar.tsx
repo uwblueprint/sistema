@@ -110,9 +110,9 @@ const Calendar: React.FC = () => {
 
       const opacity = isPastEvent ? 0.6 : 1;
       const createdByUser = absentTeacher.id === userData?.id;
-      const claimedByUser = substituteTeacher?.id == userData?.id;
+      const filledByUser = substituteTeacher?.id == userData?.id;
       const userRelatedOrIsAdminMode =
-        createdByUser || isAdminMode || claimedByUser;
+        createdByUser || isAdminMode || filledByUser;
 
       const highlightText = userRelatedOrIsAdminMode
         ? substituteTeacherDisplayName

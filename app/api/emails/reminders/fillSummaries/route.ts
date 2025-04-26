@@ -1,10 +1,10 @@
 import { getUTCDateWithoutTime } from '@utils/dates';
-import { createUpcomingClaimedClassesEmailBody } from '@utils/emailTemplates';
+import { createUpcomingFilledClassesEmailBody } from '@utils/emailTemplates';
 import { prisma } from '@utils/prisma';
 import { sendEmail } from '@utils/sendEmail';
 import { NextResponse } from 'next/server';
 
-async function sendClaimSummaries(): Promise<number> {
+async function sendFillSummaries(): Promise<number> {
   const today = new Date();
   const start = getUTCDateWithoutTime(today, 0);
   const end = getUTCDateWithoutTime(today, 7);
@@ -36,13 +36,13 @@ async function sendClaimSummaries(): Promise<number> {
       location: absence.location,
       subject: absence.subject,
     }));
-    const html = createUpcomingClaimedClassesEmailBody(
+    const html = createUpcomingFilledClassesEmailBody(
       { firstName: user.firstName, lastName: user.lastName },
       absences
     );
     const { success } = await sendEmail({
       to: [user.email],
-      subject: 'Sistema Toronto Tacet - Your Upcoming Claimed Classes',
+      subject: 'Sistema Toronto Tacet - Your Upcoming Filled Classes',
       html,
     });
     return success;
@@ -63,7 +63,7 @@ export async function GET(req: Request) {
     // Only run on Fridays
     const today = new Date();
     const isFriday = today.getUTCDay() === 5;
-    const weeklySummaries = isFriday ? await sendClaimSummaries() : 0;
+    const weeklySummaries = isFriday ? await sendFillSummaries() : 0;
 
     const message = `Sent ${weeklySummaries} weekly summaries.`;
 
@@ -72,7 +72,7 @@ export async function GET(req: Request) {
       breakdown: { weeklySummaries },
     });
   } catch (err) {
-    console.error('Claim summaries failed:', err);
+    console.error('Fill summaries failed:', err);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 }

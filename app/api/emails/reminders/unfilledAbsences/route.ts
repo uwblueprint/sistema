@@ -44,7 +44,7 @@ async function sendUnfilledAbsenceOpportunities(): Promise<number> {
     return sendEmail({
       to: [teacher.email],
       subject:
-        'Sistema Toronto Tacet - Unclaimed Classes in the Next 3 Business Days',
+        'Sistema Toronto Tacet - Unfilled Classes in the Next 3 Business Days',
       html,
     })
       .then((r) => r.success)
@@ -64,7 +64,7 @@ export async function GET(req: Request) {
   try {
     const unfilledCount = await sendUnfilledAbsenceOpportunities();
 
-    const message = `Sent ${unfilledCount} unclaimed-classes opportunity emails`;
+    const message = `Sent ${unfilledCount} unfilled-classes opportunity emails`;
 
     return NextResponse.json({
       message,

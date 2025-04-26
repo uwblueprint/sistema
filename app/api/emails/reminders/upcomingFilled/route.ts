@@ -1,10 +1,10 @@
 import { getUTCDateWithoutTime } from '@utils/dates';
-import { createUpcomingClaimedClassReminderEmailBody } from '@utils/emailTemplates';
+import { createUpcomingFilledClassReminderEmailBody } from '@utils/emailTemplates';
 import { prisma } from '@utils/prisma';
 import { sendEmail } from '@utils/sendEmail';
 import { NextResponse } from 'next/server';
 
-async function sendUpcomingClaimedClassReminders(): Promise<number> {
+async function sendUpcomingFilledClassReminders(): Promise<number> {
   const today = new Date();
   const next = getUTCDateWithoutTime(today, 1);
   const nextDay = new Date(
@@ -32,7 +32,7 @@ async function sendUpcomingClaimedClassReminders(): Promise<number> {
 
   const emailTasks = users.flatMap((user) =>
     user.substitutes.map((absence) => {
-      const html = createUpcomingClaimedClassReminderEmailBody(
+      const html = createUpcomingFilledClassReminderEmailBody(
         { firstName: user.firstName, lastName: user.lastName },
         {
           lessonDate: absence.lessonDate,
@@ -42,7 +42,7 @@ async function sendUpcomingClaimedClassReminders(): Promise<number> {
       );
       return sendEmail({
         to: [user.email],
-        subject: 'Sistema Toronto Tacet - Upcoming Claimed Class Reminder',
+        subject: 'Sistema Toronto Tacet - Upcoming Filled Class Reminder',
         html,
       })
         .then((r) => r.success)
@@ -61,7 +61,7 @@ export async function GET(req: Request) {
   }
 
   try {
-    const tomorrowClassReminders = await sendUpcomingClaimedClassReminders();
+    const tomorrowClassReminders = await sendUpcomingFilledClassReminders();
 
     const message = `Sent ${tomorrowClassReminders} tomorrow-class reminders`;
 
@@ -70,7 +70,7 @@ export async function GET(req: Request) {
       breakdown: { tomorrowClassReminders },
     });
   } catch (err) {
-    console.error('Upcoming claimed class reminders failed:', err);
+    console.error('Upcoming filled class reminders failed:', err);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 }

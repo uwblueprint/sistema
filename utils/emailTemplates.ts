@@ -174,7 +174,7 @@ export function createAbsenceDeletionEmailBody(
   `;
 }
 
-export function createUpcomingClaimedClassesEmailBody(
+export function createUpcomingFilledClassesEmailBody(
   teacher: { firstName: string; lastName: string },
   absences: {
     lessonDate: Date;
@@ -250,7 +250,7 @@ export function createLessonPlanUploadedEmailBody(
   `;
 }
 
-export function createUpcomingClaimedClassReminderEmailBody(
+export function createUpcomingFilledClassReminderEmailBody(
   teacher: { firstName: string; lastName: string },
   absence: {
     lessonDate: Date;
@@ -265,7 +265,7 @@ export function createUpcomingClaimedClassReminderEmailBody(
       <body>
         <p>Hello ${teacher.firstName} ${teacher.lastName},</p>
         <p>
-          This is a reminder that you have claimed the following class:
+          This is a reminder that you have filled the following class:
         </p>
         <p>
           <strong>${formattedDate}</strong> — 
@@ -306,16 +306,16 @@ export function createUpcomingUnfilledAbsencesEmailBody(
       <body>
         <p>Hello ${teacher.firstName} ${teacher.lastName},</p>
         <p>
-          The following classes in the next <strong>3 business days</strong> are still unclaimed:
+          The following classes in the next <strong>3 business days</strong> are still unfilled:
         </p>
         <ul style="padding-left:1em;">
           ${itemsHtml}
         </ul>
         <p>
-          Please help us run a smooth program by claiming any of these classes if you’re able to.
+          Please help us run a smooth program by filling any of these classes if you’re able to.
         </p>
         <p>
-          <strong>Click below to view and claim:</strong><br/>
+          <strong>Click below to view and fill:</strong><br/>
           <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
         </p>
         <p>Sistema Toronto</p>
@@ -336,14 +336,14 @@ export function createUrgentAbsenceEmailBody(absence: {
     <html>
       <body>
         <p><strong>Attention teachers</strong>,</p>
-        <p>The following unclaimed absence is coming up very soon:</p>
+        <p>The following unfilled absence is coming up very soon:</p>
         <p>
           <strong>Date:</strong> ${formattedDate}<br/>
           <strong>Location:</strong> ${absence.location.name}<br/>
           <strong>Class:</strong> ${absence.subject.name}
         </p>
         <p>
-          <strong>Click the link below to claim:</strong><br/>
+          <strong>Click the link below to fill:</strong><br/>
           <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
         </p>
         ${
@@ -357,7 +357,7 @@ export function createUrgentAbsenceEmailBody(absence: {
             : ``
         }
         <p>
-          Please help us run a smooth program and claim this class if you are able to.
+          Please help us run a smooth program and fill this class if you are able to.
         </p>
         <p>Sistema Toronto</p>
       </body>
@@ -376,7 +376,7 @@ export function createNonUrgentAbsenceEmailBody(absence: {
   return `
     <html>
       <body>
-        <p><strong>Sistema Toronto Tacet — New absence available to claim</strong></p>
+        <p><strong>Sistema Toronto Tacet — New absence available to fill</strong></p>
         <p>A new absence has been declared:</p>
         <p>
           <strong>Date:</strong> ${formattedDate}<br/>
@@ -384,7 +384,7 @@ export function createNonUrgentAbsenceEmailBody(absence: {
           <strong>Class:</strong> ${absence.subject.name}
         </p>
         <p>
-          <strong>Click the link below to claim:</strong><br/>
+          <strong>Click the link below to fill:</strong><br/>
           <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
         </p>
         ${
@@ -398,7 +398,7 @@ export function createNonUrgentAbsenceEmailBody(absence: {
             : ''
         }
         <p>
-          Please help us run a smooth program and claim this class if you are able to.
+          Please help us run a smooth program and fill this class if you are able to.
         </p>
         <p>Sistema Toronto</p>
       </body>
@@ -459,7 +459,7 @@ export function createDailyDeclarationDigestEmailBody(
         ${urgentHtml}
         ${nonUrgentHtml}
         <p>
-          <strong>Click below to claim or view details:</strong><br/>
+          <strong>Click below to fill or view details:</strong><br/>
           <a href="${CALENDAR_URL}" target="_blank">Tacet Calendar</a>
         </p>
         <p>Sistema Toronto</p>

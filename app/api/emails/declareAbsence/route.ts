@@ -1,6 +1,6 @@
 import {
-  createUrgentAbsenceEmailBody,
   createNonUrgentAbsenceEmailBody,
+  createUrgentAbsenceEmailBody,
 } from '@utils/emailTemplates';
 import { getAdminEmails } from '@utils/getAdminEmails';
 import { prisma } from '@utils/prisma';
@@ -28,8 +28,8 @@ export async function POST(req: Request) {
     : createNonUrgentAbsenceEmailBody(absence);
 
   const subjectLine = isUrgent
-    ? 'URGENT - Sistema Toronto Tacet - Last-Minute Absence Available to Claim'
-    : 'Sistema Toronto Tacet - New Absence Available to Claim';
+    ? 'URGENT - Sistema Toronto Tacet - Last-Minute Absence Available to Fill'
+    : 'Sistema Toronto Tacet - New Absence Available to Fill';
 
   const adminEmails = await getAdminEmails();
 

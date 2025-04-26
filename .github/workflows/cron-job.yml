@@ -17,14 +17,14 @@ jobs:
           curl -s -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/emails/reminders/lessonPlans" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
 
-      - name: Call claim summaries
+      - name: Call fill summaries
         run: |
-          curl -s -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/emails/reminders/claimSummaries" \
+          curl -s -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/emails/reminders/fillSummaries" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
 
-      - name: Call upcoming claimed class reminders
+      - name: Call upcoming filled class reminders
         run: |
-          curl -s -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/emails/reminders/upcomingClaimed" \
+          curl -s -X GET "${{ secrets.NEXT_PUBLIC_PROD_URL }}/api/emails/reminders/upcomingFilled" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
 
       - name: Call unfilled absence opportunities
