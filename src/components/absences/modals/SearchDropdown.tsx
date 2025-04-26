@@ -15,6 +15,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { useCustomToast } from '../../CustomToast';
 
 export type Option = { name: string; id: number; profilePicture: string };
 
@@ -40,20 +41,46 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const showToast = useCustomToast();
+  const showToastRef = useRef(showToast);
+  showToastRef.current = showToast;
+
   const fetchData = useCallback(async () => {
     try {
       const res = await fetch('/api/formDropdown');
-      if (res.ok) {
-        const data = await res.json();
+      if (!res.ok) {
+        let errorMessage = `Failed to fetch options: `;
+        try {
+          const errorData = await res.json();
+          errorMessage += errorData?.error || res.statusText || 'Unknown error';
+        } catch {
+          errorMessage += res.statusText || 'Unknown error';
+        }
 
-        const sortedOptions = data.userOptions.sort((a: Option, b: Option) =>
-          a.name.localeCompare(b.name)
-        );
-        setOptions(sortedOptions);
-        setFilteredOptions(sortedOptions);
+        console.error(errorMessage);
+        showToastRef.current({
+          status: 'error',
+          description: errorMessage,
+        });
+        return;
       }
-    } catch (error) {
-      console.error(`Failed to fetch options:`, error);
+
+      const data = await res.json();
+
+      const sortedOptions = data.userOptions.sort((a: Option, b: Option) =>
+        a.name.localeCompare(b.name)
+      );
+      setOptions(sortedOptions);
+      setFilteredOptions(sortedOptions);
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to fetch options: ${error.message}`
+        : `Failed to fetch options.`;
+      console.error(errorMessage);
+      showToastRef.current({
+        status: 'error',
+        description: errorMessage,
+      });
     }
   }, []);
 

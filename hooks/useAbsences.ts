@@ -53,10 +53,12 @@ export const useAbsences = (refetchUserData?: () => void) => {
         refetchUserData();
       }
     } catch (error) {
-      console.error('Error fetching absences:', error);
+      const errorMessage = error.message
+        ? `'Error fetching absences:': ${error.message}`
+        : 'Error fetching absences.';
+      console.error(errorMessage, error);
       showToastRef.current({
-        description:
-          'There was an error loading the absence data. Please try again later.',
+        description: errorMessage,
         status: 'error',
       });
     }

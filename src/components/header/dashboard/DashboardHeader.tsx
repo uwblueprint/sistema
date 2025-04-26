@@ -9,8 +9,9 @@ import {
 } from '@chakra-ui/react';
 import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { IoChevronBack, IoSettingsOutline } from 'react-icons/io5';
+import { useCustomToast } from '../../CustomToast';
 import SystemOptionsModal from '../../dashboard/system_options/SystemOptionsModal';
 import ProfileMenu from '../profile/ProfileMenu';
 import ExportAbsencesButton from './ExportAbsencesButton';
@@ -39,15 +40,38 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const router = useRouter();
   const [absenceCap, setAbsenceCap] = useState<number>(10);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const showToast = useCustomToast();
+  const toastRef = useRef(showToast);
 
   const fetchSettings = useCallback(async () => {
     try {
       const response = await fetch('/api/settings');
-      if (!response.ok) throw new Error('Failed to fetch settings');
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        const errorMessage = errorData?.error
+          ? `Failed to fetch settings: ${errorData.error}`
+          : `Failed to fetch settings: ${response.statusText || 'Unknown error'}`;
+
+        console.error(errorMessage);
+        toastRef.current({
+          description: errorMessage,
+          status: 'error',
+        });
+        return;
+      }
+
       const data = await response.json();
       setAbsenceCap(data.absenceCap);
-    } catch (error) {
-      console.error('Error fetching settings:', error);
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to fetch settings: ${error.message}`
+        : 'Failed to fetch settings.';
+      console.error(errorMessage, error);
+      toastRef.current({
+        description: errorMessage,
+        status: 'error',
+      });
     }
   }, []);
 

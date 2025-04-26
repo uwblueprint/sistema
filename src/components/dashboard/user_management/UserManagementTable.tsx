@@ -21,7 +21,7 @@ import useUserFiltering from '@hooks/useUserFiltering';
 import { getAbsenceColor } from '@utils/getAbsenceColor';
 import { getSelectedYearAbsences as computeYearlyAbsences } from '@utils/getSelectedYearAbsences';
 import { FilterOptions, Role, SubjectAPI, UserAPI } from '@utils/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   FiClock,
   FiLock,
@@ -30,6 +30,7 @@ import {
   FiTag,
   FiUser,
 } from 'react-icons/fi';
+import { useCustomToast } from '../../CustomToast';
 import EditableRoleCell from './EditableRoleCell';
 import EditableSubscriptionsCell from './EditableSubscriptionsCell';
 import FilterPopup, { NO_EMAIL_TAGS } from './FilterPopup';
@@ -70,6 +71,8 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   const [tagColors, setTagColors] = useState<Record<string, string[]>>({});
   const [allSubjects, setAllSubjects] = useState<SubjectAPI[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const showToast = useCustomToast();
+  const toastRef = useRef(showToast);
   const getSelectedYearAbsences = (absences?: any[]) =>
     computeYearlyAbsences(absences, selectedYearRange);
 
@@ -94,22 +97,38 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   }, [availableTags, filters, allSubjects]);
 
   useEffect(() => {
-    // Use subjects from props if available, otherwise fetch them
     if (propSubjects && propSubjects.length > 0) {
       setAllSubjects(propSubjects);
     } else {
-      // Fetch all available subjects
       const fetchSubjects = async () => {
         try {
           const response = await fetch('/api/subjects');
-          if (response.ok) {
-            const data = await response.json();
-            setAllSubjects(data);
-          } else {
-            console.error('Failed to fetch subjects');
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            const errorMessage = errorData?.error
+              ? `Failed to fetch subjects: ${errorData.error}`
+              : `Failed to fetch subjects: ${response.statusText || 'Unknown error'}`;
+
+            console.error(errorMessage);
+            toastRef.current({
+              description: errorMessage,
+              status: 'error',
+            });
+            return;
           }
-        } catch (error) {
-          console.error('Error fetching subjects:', error);
+
+          const data = await response.json();
+          setAllSubjects(data);
+        } catch (error: any) {
+          const errorMessage = error?.message
+            ? `Failed to fetch subjects: ${error.message}`
+            : 'Failed to fetch subjects.';
+          console.error(errorMessage, error);
+          toastRef.current({
+            description: errorMessage,
+            status: 'error',
+          });
         }
       };
 

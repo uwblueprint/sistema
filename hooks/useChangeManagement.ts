@@ -407,16 +407,13 @@ export const useChangeManagement = ({
         clearChanges();
       }
     } catch (error) {
-      console.error('Error applying changes:', error);
+      const errorMessage = error.message
+        ? `Failed to save changes: ${error.message}`
+        : 'Failed to save changes.';
+      console.error(errorMessage, error);
       success = false;
-      errorMessage =
-        error instanceof Error ? error.message : 'Failed to save changes';
-    }
-
-    // Show error toast if there was a problem
-    if (!success && showToast) {
       showToast({
-        description: errorMessage || 'Failed to save changes',
+        description: errorMessage,
         status: 'error',
       });
     }

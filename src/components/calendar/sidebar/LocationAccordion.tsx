@@ -1,6 +1,7 @@
 import { useTheme } from '@chakra-ui/react';
 import type { Location } from '@utils/types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCustomToast } from '../../CustomToast';
 import Accordion, { AccordionItem } from './Accordion';
 
 interface LocationAccordionProps {
@@ -11,6 +12,8 @@ export default function LocationAccordion({
   setFilter,
 }: LocationAccordionProps) {
   const theme = useTheme();
+  const showToast = useCustomToast();
+  const showToastRef = useRef(showToast);
   const [isOpen, setIsOpen] = useState(true);
   const [locations, setLocations] = useState<AccordionItem[]>([]);
   const [selectedLocationIds, setSelectedLocationIds] = useState<number[]>([]);
@@ -19,9 +22,21 @@ export default function LocationAccordion({
     async function fetchLocations() {
       try {
         const response = await fetch('/api/filter/locations?archived=false');
+
         if (!response.ok) {
-          throw new Error('Failed to fetch locations');
+          let errorMessage = 'Failed to fetch locations: ';
+          try {
+            const errorData = await response.json();
+            errorMessage +=
+              errorData?.error || response.statusText || 'Unknown error';
+          } catch {
+            errorMessage += response.statusText || 'Unknown error';
+          }
+          console.error(errorMessage);
+          showToastRef.current({ description: errorMessage, status: 'error' });
+          return;
         }
+
         const data = await response.json();
         if (data.locations) {
           const fetchedLocations = data.locations.map((location: Location) => ({
@@ -38,8 +53,12 @@ export default function LocationAccordion({
           setSelectedLocationIds(allLocationIds);
           setFilter(allLocationIds);
         }
-      } catch (error) {
-        console.error('Error fetching locations:', error);
+      } catch (error: any) {
+        const errorMessage = error?.message
+          ? `Failed to fetch locations: ${error.message}`
+          : 'Failed to fetch locations.';
+        console.error(errorMessage, error);
+        showToastRef.current({ description: errorMessage, status: 'error' });
       }
     }
 

@@ -11,8 +11,9 @@ import {
   useTheme,
 } from '@chakra-ui/react';
 import type { Location, SubjectAPI } from '@utils/types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
+import { useCustomToast } from '../../CustomToast';
 
 interface ArchivedAccordionProps {
   setSubjectFilter: (subjectIds: number[]) => void;
@@ -31,6 +32,9 @@ export default function ArchivedAccordion({
   setLocationFilter,
 }: ArchivedAccordionProps) {
   const theme = useTheme();
+  const showToast = useCustomToast();
+  const showToastRef = useRef(showToast);
+
   const [isOpen, setIsOpen] = useState(false);
   const [subjects, setSubjects] = useState<Item[]>([]);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
@@ -41,7 +45,19 @@ export default function ArchivedAccordion({
     async function fetchSubjects() {
       try {
         const response = await fetch('/api/filter/subjects?archived=true');
-        if (!response.ok) throw new Error('Failed to fetch subjects');
+        if (!response.ok) {
+          let errorMessage = 'Failed to fetch subjects: ';
+          try {
+            const errorData = await response.json();
+            errorMessage +=
+              errorData?.error || response.statusText || 'Unknown error';
+          } catch {
+            errorMessage += response.statusText || 'Unknown error';
+          }
+          console.error(errorMessage);
+          showToastRef.current({ description: errorMessage, status: 'error' });
+          return;
+        }
         const data = await response.json();
         setSubjects(
           data.subjects.map((subject: SubjectAPI) => ({
@@ -50,10 +66,15 @@ export default function ArchivedAccordion({
             color: subject.colorGroup.colorCodes[1],
           }))
         );
-      } catch (error) {
-        console.error(error);
+      } catch (error: any) {
+        const errorMessage = error?.message
+          ? `Failed to fetch subjects: ${error.message}`
+          : 'Failed to fetch subjects.';
+        console.error(errorMessage, error);
+        showToastRef.current({ description: errorMessage, status: 'error' });
       }
     }
+
     fetchSubjects();
   }, []);
 
@@ -61,7 +82,19 @@ export default function ArchivedAccordion({
     async function fetchLocations() {
       try {
         const response = await fetch('/api/filter/locations?archived=true');
-        if (!response.ok) throw new Error('Failed to fetch locations');
+        if (!response.ok) {
+          let errorMessage = 'Failed to fetch locations: ';
+          try {
+            const errorData = await response.json();
+            errorMessage +=
+              errorData?.error || response.statusText || 'Unknown error';
+          } catch {
+            errorMessage += response.statusText || 'Unknown error';
+          }
+          console.error(errorMessage);
+          showToastRef.current({ description: errorMessage, status: 'error' });
+          return;
+        }
         const data = await response.json();
         setLocations(
           data.locations.map((location: Location) => ({
@@ -70,10 +103,15 @@ export default function ArchivedAccordion({
             color: theme.colors.primaryBlue[300],
           }))
         );
-      } catch (error) {
-        console.error(error);
+      } catch (error: any) {
+        const errorMessage = error?.message
+          ? `Failed to fetch locations: ${error.message}`
+          : 'Failed to fetch locations.';
+        console.error(errorMessage, error);
+        showToastRef.current({ description: errorMessage, status: 'error' });
       }
     }
+
     fetchLocations();
   }, [theme.colors.primaryBlue]);
 
@@ -89,6 +127,7 @@ export default function ArchivedAccordion({
     },
     [setSubjectFilter]
   );
+
   const toggleLocation = useCallback(
     (locationId: number) => {
       setSelectedLocationIds((prev) => {

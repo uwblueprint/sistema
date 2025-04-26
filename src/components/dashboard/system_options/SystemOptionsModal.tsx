@@ -73,67 +73,138 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
   const fetchSubjects = useCallback(async () => {
     try {
       const response = await fetch('/api/subjects');
-      if (!response.ok) throw new Error('Failed to fetch subjects');
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to load subjects: ';
+        try {
+          const errorData = await response.json();
+          errorMessage +=
+            errorData?.error || response.statusText || 'Unknown error';
+        } catch {
+          errorMessage += response.statusText || 'Unknown error';
+        }
+        console.error(errorMessage);
+        toastRef.current({ description: errorMessage, status: 'error' });
+        return;
+      }
+
       const data = await response.json();
       setSubjects(data);
-    } catch (error) {
-      console.error('Error fetching subjects:', error);
-      toastRef.current({
-        description: 'Failed to load subjects',
-        status: 'error',
-      });
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to load subjects: ${error.message}`
+        : 'Failed to load subjects.';
+      console.error(errorMessage, error);
+
+      toastRef.current({ description: errorMessage, status: 'error' });
     }
   }, []);
 
   const fetchLocations = useCallback(async () => {
     try {
       const response = await fetch('/api/locations');
-      if (!response.ok) throw new Error('Failed to fetch locations');
+      if (!response.ok) {
+        let errorMessage = 'Failed to load locations: ';
+        try {
+          const errorData = await response.json();
+          errorMessage +=
+            errorData?.error || response.statusText || 'Unknown error';
+        } catch {
+          errorMessage += response.statusText || 'Unknown error';
+        }
+        console.error(errorMessage);
+        toastRef.current({ description: errorMessage, status: 'error' });
+        return;
+      }
       const data = await response.json();
       setLocations(data);
-    } catch (error) {
-      console.error('Error fetching locations:', error);
-      toastRef.current({
-        description: 'Failed to load locations',
-        status: 'error',
-      });
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to load locations: ${error.message}`
+        : 'Failed to load locations.';
+      console.error(errorMessage, error);
+      toastRef.current({ description: errorMessage, status: 'error' });
     }
   }, []);
 
   const fetchColorGroups = useCallback(async () => {
     try {
       const response = await fetch('/api/colorGroups');
-      if (!response.ok) throw new Error('Failed to fetch color groups');
+      if (!response.ok) {
+        let errorMessage = 'Failed to load color groups: ';
+        try {
+          const errorData = await response.json();
+          errorMessage +=
+            errorData?.error || response.statusText || 'Unknown error';
+        } catch {
+          errorMessage += response.statusText || 'Unknown error';
+        }
+        console.error(errorMessage);
+        toastRef.current({ description: errorMessage, status: 'error' });
+        return;
+      }
       const data = await response.json();
       setColorGroups(data);
-    } catch (error) {
-      console.error('Error fetching color groups:', error);
-      toastRef.current({
-        description: 'Failed to load color groups',
-        status: 'error',
-      });
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to load color groups: ${error.message}`
+        : 'Failed to load color groups.';
+      console.error(errorMessage, error);
+      toastRef.current({ description: errorMessage, status: 'error' });
     }
   }, []);
 
   const checkSubjectsInUse = useCallback(async () => {
     try {
       const response = await fetch('/api/subjects/inUse');
-      if (!response.ok) throw new Error('Failed to check subjects in use');
+      if (!response.ok) {
+        let errorMessage = 'Failed to check subjects in use: ';
+        try {
+          const errorData = await response.json();
+          errorMessage +=
+            errorData?.error || response.statusText || 'Unknown error';
+        } catch {
+          errorMessage += response.statusText || 'Unknown error';
+        }
+        console.error(errorMessage);
+        toastRef.current({ description: errorMessage, status: 'error' });
+        return;
+      }
       const data = await response.json();
       setSubjectsInUse(data.subjectsInUse || []);
-    } catch (error) {
-      console.error('Error checking subjects in use:', error);
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to check subjects in use: ${error.message}`
+        : 'Failed to check subjects in use.';
+      console.error(errorMessage, error);
+      toastRef.current({ description: errorMessage, status: 'error' });
     }
   }, []);
 
   const checkLocationsInUse = useCallback(async () => {
     try {
       const response = await fetch('/api/locations/inUse');
-      if (!response.ok) throw new Error('Failed to check locations in use');
+      if (!response.ok) {
+        let errorMessage = 'Failed to check locations in use: ';
+        try {
+          const errorData = await response.json();
+          errorMessage +=
+            errorData?.error || response.statusText || 'Unknown error';
+        } catch {
+          errorMessage += response.statusText || 'Unknown error';
+        }
+        console.error(errorMessage);
+        toastRef.current({ description: errorMessage, status: 'error' });
+        return;
+      }
       const data = await response.json();
       setLocationsInUse(data.locationsInUse || []);
-    } catch (error) {
-      console.error('Error checking locations in use:', error);
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to check locations in use: ${error.message}`
+        : 'Failed to check locations in use.';
+      console.error(errorMessage, error);
+      toastRef.current({ description: errorMessage, status: 'error' });
     }
   }, []);
 
@@ -183,16 +254,22 @@ const SystemOptionsModal: React.FC<SystemOptionsModalProps> = ({
     try {
       const result = await applyChangesOriginal();
       if (result) {
-        // Call the callback to notify parent components that changes have been applied
         if (onUpdateComplete) {
           onUpdateComplete();
         }
-
         confirmationModal.onClose();
         onClose();
       }
-    } catch (error) {
-      console.error('Error applying changes:', error);
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to apply changes: ${error.message}`
+        : 'Failed to apply changes.';
+      console.error(errorMessage, error);
+
+      toastRef.current({
+        status: 'error',
+        description: errorMessage,
+      });
     }
   };
 

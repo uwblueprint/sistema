@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
+import { useCustomToast } from '../../CustomToast';
 
 export type Option = { name: string; id: number };
 
@@ -34,17 +35,43 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const showToast = useCustomToast();
+  const showToastRef = useRef(showToast);
+  showToastRef.current = showToast;
+
   const fetchData = useCallback(async () => {
     try {
       const res = await fetch('/api/formDropdown');
-      if (res.ok) {
-        const data = await res.json();
-        setOptions(
-          type === 'location' ? data.locationOptions : data.subjectOptions
-        );
+      if (!res.ok) {
+        let errorMessage = `Failed to fetch ${type} options: `;
+        try {
+          const errorData = await res.json();
+          errorMessage += errorData?.error || res.statusText || 'Unknown error';
+        } catch {
+          errorMessage += res.statusText || 'Unknown error';
+        }
+
+        console.error(errorMessage);
+        showToastRef.current({
+          status: 'error',
+          description: errorMessage,
+        });
+        return;
       }
-    } catch (error) {
-      console.error(`Failed to fetch ${type} options:`, error);
+
+      const data = await res.json();
+      setOptions(
+        type === 'location' ? data.locationOptions : data.subjectOptions
+      );
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to fetch ${type} options: ${error.message}`
+        : `Failed to fetch ${type} options.`;
+      console.error(errorMessage);
+      showToastRef.current({
+        status: 'error',
+        description: errorMessage,
+      });
     }
   }, [type]);
 

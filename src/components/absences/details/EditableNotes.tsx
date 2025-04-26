@@ -84,11 +84,13 @@ function EditableNotes({
         description: 'Notes saved and confirmation emails sent.',
         icon: <EditIcon bg="positiveGreen.200" />,
       });
-    } catch (err: any) {
+    } catch (error: any) {
+      const errorMessage = error.message
+        ? `Error saving notes and sending confirmation emails: ${error.message}`
+        : 'Error saving notes and sending confirmation emails.';
       showToast({
         status: 'error',
-        description:
-          err instanceof Error ? err.message : 'An unexpected error occurred',
+        description: errorMessage,
         icon: <EditIcon bg="errorRed.200" />,
       });
     } finally {

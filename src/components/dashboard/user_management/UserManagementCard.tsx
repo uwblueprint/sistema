@@ -1,6 +1,7 @@
 import { Box, useDisclosure } from '@chakra-ui/react';
 import { MailingList, Role, SubjectAPI, UserAPI } from '@utils/types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCustomToast } from '../../CustomToast';
 import ConfirmRoleChangeModal from './ConfirmRoleChangeModal';
 import { UserManagementTable } from './UserManagementTable';
 
@@ -21,22 +22,34 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [pendingUser, setPendingUser] = useState<UserAPI | null>(null);
   const [pendingRole, setPendingRole] = useState<Role | null>(null);
+  const showToast = useCustomToast();
+  const toastRef = useRef(showToast);
 
   // Define fetchData function with useCallback to allow it to be stable
   const fetchData = useCallback(async () => {
     try {
-      // Fetch all subjects first
       const subjectsResponse = await fetch('/api/subjects');
-      if (!subjectsResponse.ok) throw new Error('Failed to fetch subjects');
+      if (!subjectsResponse.ok) {
+        const errorData = await subjectsResponse.json().catch(() => null);
+        const errorMessage = errorData?.error
+          ? `Failed to fetch subjects: ${errorData.error}`
+          : `Failed to fetch subjects: ${subjectsResponse.statusText}`;
+        throw new Error(errorMessage);
+      }
       const subjectsData = await subjectsResponse.json();
       setSubjects(subjectsData);
 
       const usersResponse = await fetch(
         '/api/users?getAbsences=true&getMailingLists=true'
       );
-      if (!usersResponse.ok) throw new Error('Failed to fetch users');
+      if (!usersResponse.ok) {
+        const errorData = await usersResponse.json().catch(() => null);
+        const errorMessage = errorData?.error
+          ? `Failed to fetch users: ${errorData.error}`
+          : `Failed to fetch users: ${usersResponse.statusText}`;
+        throw new Error(errorMessage);
+      }
       const usersData: UserAPI[] = await usersResponse.json();
-
       const usersWithSortedLists = usersData.map((u) => ({
         ...u,
         mailingLists: sortMailingLists(u.mailingLists || []),
@@ -44,11 +57,25 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
       setUsers(usersWithSortedLists);
 
       const settingsResponse = await fetch('/api/settings');
-      if (!settingsResponse.ok) throw new Error('Failed to fetch settings');
+      if (!settingsResponse.ok) {
+        const errorData = await settingsResponse.json().catch(() => null);
+        const errorMessage = errorData?.error
+          ? `Failed to fetch settings: ${errorData.error}`
+          : `Failed to fetch settings: ${settingsResponse.statusText}`;
+        throw new Error(errorMessage);
+      }
       const settings = await settingsResponse.json();
       setAbsenceCap(settings.absenceCap);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Error fetching data: ${error.message}`
+        : 'Error fetching data.';
+      console.error(errorMessage, error);
+
+      toastRef.current({
+        description: errorMessage,
+        status: 'error',
+      });
     } finally {
       setLoading(false);
     }
@@ -97,13 +124,30 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
       });
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        const errorMessage = errorData?.error
+          ? `Failed to update user role: ${errorData.error}`
+          : `Failed to update user role: ${response.statusText || 'Unknown error'}`;
+
         setUsers(originalUsers);
-        throw new Error(response.statusText);
+        console.error(errorMessage);
+        toastRef.current({
+          description: errorMessage,
+          status: 'error',
+        });
+        return;
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Error updating user:', error.message);
-      }
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to update user role: ${error.message}`
+        : 'Failed to update user role.';
+      setUsers(originalUsers);
+      console.error(errorMessage, error);
+
+      toastRef.current({
+        description: errorMessage,
+        status: 'error',
+      });
     } finally {
       onClose();
       setPendingUser(null);
@@ -132,22 +176,16 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
 
     if (!user) return;
 
-    // Get the complete subject objects for all selected subject IDs
     const updatedMailingLists = subjectIds.map((subjectId) => {
-      // Find this subject in our subjects list
       const subjectData = subjects.find((s) => s.id === subjectId);
-
-      // Find existing mailing list for this subject if it exists
       const existingMailingList = user.mailingLists?.find(
         (ml) => ml.subject.id === subjectId
       );
 
-      // If it exists, keep its data
       if (existingMailingList) {
         return existingMailingList;
       }
 
-      // Otherwise create a new entry with full subject data
       return {
         userId: userId,
         subjectId: subjectId,
@@ -156,14 +194,12 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
       };
     });
 
-    // Optimistically update UI with complete data
     setUsers((prevUsers) =>
       prevUsers.map((u) =>
         u.id === userId ? { ...u, mailingLists: updatedMailingLists } : u
       )
     );
 
-    // Make the API call in the background
     try {
       const response = await fetch(`/api/users/${userId}`, {
         method: 'PATCH',
@@ -174,18 +210,30 @@ const UserManagementCard: React.FC<UserManagementCardProps> = ({
       });
 
       if (!response.ok) {
-        // Restore original state on error
-        setUsers(originalUsers);
-        throw new Error(response.statusText);
-      }
+        const errorData = await response.json().catch(() => null);
+        const errorMessage = errorData?.error
+          ? `Failed to update subscriptions: ${errorData.error}`
+          : `Failed to update subscriptions: ${response.statusText || 'Unknown error'}`;
 
-      // Skip refreshing data - our optimistic update is already using complete data
-      // The server response should match what we've already rendered
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Error updating user subscriptions:', error.message);
+        setUsers(originalUsers);
+        console.error(errorMessage);
+        toastRef.current({
+          description: errorMessage,
+          status: 'error',
+        });
+        return;
       }
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to update subscriptions: ${error.message}`
+        : 'Failed to update subscriptions.';
+
       setUsers(originalUsers);
+      console.error(errorMessage, error);
+      toastRef.current({
+        description: errorMessage,
+        status: 'error',
+      });
     }
   };
 

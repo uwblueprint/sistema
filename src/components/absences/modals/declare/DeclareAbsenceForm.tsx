@@ -127,21 +127,42 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
             </Text>
           ),
         });
+
         setLastDeclaredAbsenceId(absence.id);
+
         if (isAdminMode) {
           openNotifyModal();
         } else {
           if (isUrgent) {
-            fetch('/api/emails/declareAbsence', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                absenceId: absence.id,
-                isUrgent,
-              }),
-            }).catch((err) => {
-              console.error('Failed to send declare absence email:', err);
-            });
+            try {
+              const emailRes = await fetch('/api/emails/declareAbsence', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ absenceId: absence.id, isUrgent }),
+              });
+
+              if (!emailRes.ok) {
+                const errorData = await emailRes.json().catch(() => null);
+                const errorMessage = errorData?.error
+                  ? `Failed to send declare absence email: ${errorData.error}`
+                  : `Failed to send declare absence email: ${emailRes.statusText || 'Unknown error'}`;
+
+                console.error(errorMessage);
+                showToast({
+                  status: 'error',
+                  description: errorMessage,
+                });
+              }
+            } catch (error: any) {
+              const errorMessage = error?.message
+                ? `Failed to send declare absence email: ${error.message}`
+                : 'Failed to send declare absence email.';
+              console.error(errorMessage, error);
+              showToast({
+                status: 'error',
+                description: errorMessage,
+              });
+            }
           }
           onClose?.();
         }
@@ -154,15 +175,21 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
           onTabChange('declared');
         }
       } else {
+        const errorMessage = 'Failed to declare absence.';
+        console.error(errorMessage);
         showToast({
           status: 'error',
-          description: 'Failed to declare absence',
+          description: errorMessage,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to declare absence: ${error.message}`
+        : 'Failed to declare absence.';
+      console.error(errorMessage, error);
+
       showToast({
-        description:
-          error instanceof Error ? error.message : 'Failed to declare absence',
+        description: errorMessage,
         status: 'error',
       });
     } finally {
@@ -177,6 +204,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
 
   const handleNotifyConfirm = (isUrgent: boolean) => async () => {
     setIsNotifying(true);
+
     try {
       const res = await fetch('/api/emails/declareAbsence', {
         method: 'POST',
@@ -187,17 +215,35 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         }),
       });
 
-      if (!res.ok) throw new Error((await res.json()).error || res.statusText);
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        const errorMessage = errorData?.error
+          ? `Failed to send confirmation emails: ${errorData.error}`
+          : `Failed to send confirmation emails: ${res.statusText || 'Unknown error'}`;
+
+        console.error(errorMessage);
+        showToast({
+          status: 'error',
+          description: errorMessage,
+          icon: <MailIcon bg="errorRed.200" />,
+        });
+        return;
+      }
 
       showToast({
         status: 'success',
         description: 'Confirmation emails have been sent',
         icon: <MailIcon bg="positiveGreen.200" />,
       });
-    } catch (err: any) {
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to send confirmation emails: ${error.message}`
+        : 'Failed to send confirmation emails.';
+      console.error(errorMessage, error);
+
       showToast({
         status: 'error',
-        description: err.message || 'Failed to send confirmation emails',
+        description: errorMessage,
         icon: <MailIcon bg="errorRed.200" />,
       });
     } finally {
@@ -217,14 +263,35 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
       });
 
       if (!res.ok) {
-        throw new Error(`Failed to add absence: ${res.statusText}`);
+        let errorMessage = 'Failed to add absence: ';
+        try {
+          const errorData = await res.json();
+          errorMessage += errorData?.error || res.statusText || 'Unknown error';
+        } catch {
+          errorMessage += res.statusText || 'Unknown error';
+        }
+
+        console.error(errorMessage);
+        showToast({
+          description: errorMessage,
+          status: 'error',
+        });
+        return null;
       }
 
       const addedAbsence = await res.json();
       await fetchAbsences();
       return addedAbsence;
-    } catch (error) {
-      console.error('Error adding absence:', error);
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to add absence: ${error.message}`
+        : 'Failed to add absence.';
+
+      console.error(errorMessage, error);
+      showToast({
+        description: errorMessage,
+        status: 'error',
+      });
       return null;
     }
   };

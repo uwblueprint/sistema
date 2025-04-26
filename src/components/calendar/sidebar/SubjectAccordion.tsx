@@ -1,6 +1,7 @@
 import { useTheme } from '@chakra-ui/react';
 import type { SubjectAPI } from '@utils/types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCustomToast } from '../../CustomToast';
 import Accordion, { AccordionItem } from './Accordion';
 
 interface SubjectAccordionProps {
@@ -13,13 +14,28 @@ export default function SubjectAccordion({ setFilter }: SubjectAccordionProps) {
   const [subjects, setSubjects] = useState<AccordionItem[]>([]);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
 
+  const showToast = useCustomToast();
+  const showToastRef = useRef(showToast);
+
   useEffect(() => {
     async function fetchSubjects() {
       try {
         const response = await fetch('/api/filter/subjects?archived=false');
+
         if (!response.ok) {
-          throw new Error('Failed to fetch subjects');
+          let errorMessage = 'Failed to fetch subjects: ';
+          try {
+            const errorData = await response.json();
+            errorMessage +=
+              errorData?.error || response.statusText || 'Unknown error';
+          } catch {
+            errorMessage += response.statusText || 'Unknown error';
+          }
+          console.error(errorMessage);
+          showToastRef.current({ description: errorMessage, status: 'error' });
+          return;
         }
+
         const data = await response.json();
         if (data.subjects) {
           const fetchedSubjects = data.subjects.map((subject: SubjectAPI) => ({
@@ -33,8 +49,12 @@ export default function SubjectAccordion({ setFilter }: SubjectAccordionProps) {
           setSelectedSubjectIds(subjectIds);
           setFilter(subjectIds);
         }
-      } catch (error) {
-        console.error('Error fetching subjects:', error);
+      } catch (error: any) {
+        const errorMessage = error?.message
+          ? `Failed to fetch subjects: ${error.message}`
+          : 'Failed to fetch subjects.';
+        console.error(errorMessage, error);
+        showToastRef.current({ description: errorMessage, status: 'error' });
       }
     }
 

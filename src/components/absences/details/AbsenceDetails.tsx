@@ -2,7 +2,7 @@ import { Text, useDisclosure } from '@chakra-ui/react';
 import { useUserData } from '@hooks/useUserData';
 import { formatFullDate } from '@utils/dates';
 import { EventDetails, Role } from '@utils/types';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useCustomToast } from '../../CustomToast';
 import { MailIcon } from '../modals/edit/EditAbsenceForm';
 import EditAbsenceModal from '../modals/edit/EditAbsenceModal';
@@ -34,6 +34,8 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   hasConflictingEvent,
 }) => {
   const userData = useUserData();
+  const showToast = useCustomToast();
+  const showToastRef = useRef(showToast);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isNotifyingDelete, setIsNotifyingDelete] = useState(false);
@@ -50,13 +52,12 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       location: { name: string };
     };
   } | null>(null);
+
   const {
     isOpen: isNotifyOpen,
     onOpen: openNotify,
     onClose: closeNotify,
   } = useDisclosure();
-
-  const showToast = useCustomToast();
 
   if (!event) return null;
 
@@ -64,24 +65,10 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const isUserAbsentTeacher = userId === event.absentTeacher.id;
   const isUserSubstituteTeacher = userId === event.substituteTeacher?.id;
   const isUserAdmin = userData.role === Role.ADMIN;
-
   const absenceDate = formatFullDate(event.start!!);
-
-  const handleFillThanksDone = () => {
-    setIsFillThanksOpen(false);
-  };
-
-  const handleFillAbsenceClick = () => {
-    setIsFillModalOpen(true);
-  };
-
-  const handleFillCancel = () => {
-    setIsFillModalOpen(false);
-  };
 
   const handleFillConfirm = async () => {
     setIsFilling(true);
-
     try {
       const response = await fetch('/api/editAbsence', {
         method: 'PUT',
@@ -98,8 +85,15 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
           roomNumber: event.roomNumber,
         }),
       });
+
       if (!response.ok) {
-        throw new Error('Failed to fill absence');
+        const errorText = await response.json().catch(() => null);
+        const errorMessage =
+          errorText?.error ||
+          `Failed to fill absence: ${response.statusText || 'Unknown error'}`;
+        console.error(errorMessage);
+        showToastRef.current({ status: 'error', description: errorMessage });
+        return;
       }
 
       const emailRes = await fetch('/api/emails/fillAbsence', {
@@ -107,52 +101,43 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ absenceId: event.absenceId }),
       });
-      if (!emailRes.ok) {
-        console.error('Claim email failed:', await emailRes.text());
-      }
 
-      const formattedDate = formatFullDate(event.start);
-      showToast({
-        status: 'success',
-        description: (
+      if (!emailRes.ok) {
+        const errorText = await emailRes.json().catch(() => null);
+        const errorMessage =
+          errorText?.error ||
+          `Filled absence, but failed to send confirmation email: ${emailRes.statusText || 'Unknown error'}`;
+        console.error(errorMessage);
+        showToastRef.current({ status: 'error', description: errorMessage });
+      } else {
+        const successMessage = (
           <Text>
             You have successfully filled{' '}
             <Text as="span" fontWeight="bold">
-              {event.absentTeacher.firstName}
-              &apos;s
+              {event.absentTeacher.firstName}&apos;s
             </Text>{' '}
             absence on{' '}
             <Text as="span" fontWeight="bold">
-              {formattedDate}.
+              {absenceDate}.
             </Text>
           </Text>
-        ),
-      });
+        );
+        showToastRef.current({
+          status: 'success',
+          description: successMessage,
+        });
+      }
 
       await fetchAbsences();
       setIsFillModalOpen(false);
       setIsFillThanksOpen(true);
       onTabChange('declared');
-    } catch (err: any) {
-      const formattedDate = formatFullDate(event.start);
-      showToast({
-        status: 'error',
-        description: (
-          <Text>
-            {err.message.includes('email')
-              ? 'Failed to send confirmation email.'
-              : 'There was an error in filling '}
-            <Text as="span" fontWeight="bold">
-              {event.absentTeacher.firstName}
-              &apos;s
-            </Text>{' '}
-            absence on{' '}
-            <Text as="span" fontWeight="bold">
-              {formattedDate}.
-            </Text>
-          </Text>
-        ),
-      });
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `An error occurred while filling the absence: ${error.message}`
+        : 'An error occurred while filling the absence.';
+      console.error(errorMessage, error);
+      showToastRef.current({ status: 'error', description: errorMessage });
     } finally {
       setIsFilling(false);
       onClose();
@@ -162,25 +147,50 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
   const handleNotifyDeleteConfirm = async () => {
     setIsNotifyingDelete(true);
     try {
-      if (!pendingDeletion) throw new Error('No deletion data to email');
+      if (!pendingDeletion) {
+        const errorMessage = 'No deletion data to email.';
+        console.error(errorMessage);
+        showToastRef.current({
+          status: 'error',
+          description: errorMessage,
+          icon: <MailIcon bg="errorRed.200" />,
+        });
+        return;
+      }
+
       const emailRes = await fetch('/api/emails/deleteAbsence', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pendingDeletion),
       });
+
       if (!emailRes.ok) {
-        throw new Error((await emailRes.json()).error || emailRes.statusText);
+        const errorText = await emailRes.json().catch(() => null);
+        const errorMessage =
+          errorText?.error ||
+          `Failed to send delete absence emails: ${emailRes.statusText || 'Unknown error'}`;
+        console.error(errorMessage);
+        showToastRef.current({
+          status: 'error',
+          description: errorMessage,
+          icon: <MailIcon bg="errorRed.200" />,
+        });
+        return;
       }
 
-      showToast({
+      showToastRef.current({
         status: 'success',
         description: 'Delete absence emails have been sent',
         icon: <MailIcon bg="positiveGreen.200" />,
       });
-    } catch (err: any) {
-      showToast({
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to send delete absence emails: ${error.message}`
+        : 'Failed to send delete absence emails.';
+      console.error(errorMessage, error);
+      showToastRef.current({
         status: 'error',
-        description: err.message || 'Failed to send delete absence emails',
+        description: errorMessage,
         icon: <MailIcon bg="errorRed.200" />,
       });
     } finally {
@@ -189,26 +199,8 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
     }
   };
 
-  const handleNotifyClose = () => {
-    closeNotify();
-    onClose();
-  };
-
-  const handleEditClick = () => {
-    setIsEditModalOpen(true);
-  };
-
-  const handleDeleteClick = () => {
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleDeleteCancel = () => {
-    setIsDeleteModalOpen(false);
-  };
-
   const handleDeleteConfirm = async () => {
     setIsDeleting(true);
-
     try {
       setPendingDeletion({
         teacher: {
@@ -235,14 +227,22 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isUserAdmin, absenceId: event.absenceId }),
       });
-      if (!response.ok) throw new Error('Failed to delete absence');
+
+      if (!response.ok) {
+        const errorText = await response.json().catch(() => null);
+        const errorMessage =
+          errorText?.error ||
+          `Failed to delete absence: ${response.statusText || 'Unknown error'}`;
+        console.error(errorMessage);
+        showToastRef.current({ status: 'error', description: errorMessage });
+        return;
+      }
 
       onDelete?.(event.absenceId);
       await fetchAbsences();
       setIsDeleteModalOpen(false);
 
-      const formattedDate = formatFullDate(event.start);
-      showToast({
+      showToastRef.current({
         status: 'success',
         description: (
           <Text>
@@ -252,7 +252,7 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
             </Text>{' '}
             absence on{' '}
             <Text as="span" fontWeight="bold">
-              {formattedDate}.
+              {absenceDate}.
             </Text>
           </Text>
         ),
@@ -263,27 +263,44 @@ const AbsenceDetails: React.FC<AbsenceDetailsProps> = ({
       } else {
         onClose();
       }
-    } catch (err: any) {
-      const formattedDate = formatFullDate(event.start);
-      showToast({
-        status: 'error',
-        description: (
-          <Text>
-            There was an error deleting{' '}
-            <Text as="span" fontWeight="bold">
-              {event.absentTeacher.firstName}&apos;s
-            </Text>{' '}
-            absence on{' '}
-            <Text as="span" fontWeight="bold">
-              {formattedDate}.
-            </Text>
-            {err.message && ` (${err.message})`}
-          </Text>
-        ),
-      });
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `There was an error deleting absence: ${error.message}`
+        : 'There was an error deleting absence.';
+      console.error(errorMessage, error);
+      showToastRef.current({ status: 'error', description: errorMessage });
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  const handleFillAbsenceClick = () => {
+    setIsFillModalOpen(true);
+  };
+
+  const handleNotifyClose = () => {
+    closeNotify();
+    onClose();
+  };
+
+  const handleFillCancel = () => {
+    setIsFillModalOpen(false);
+  };
+
+  const handleFillThanksDone = () => {
+    setIsFillThanksOpen(false);
+  };
+
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
   };
 
   return (

@@ -157,17 +157,23 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         await fetchAbsences();
         openNotify();
       } else {
+        const errorMessage = 'Failed to update absence.';
+        console.error(errorMessage);
         showToast({
           status: 'error',
-          description: 'Failed to update absence',
+          description: errorMessage,
           icon: <EditIcon bg="errorRed.200" />,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to update absence: ${error.message}`
+        : 'Failed to update absence.';
+      console.error(errorMessage, error);
+
       showToast({
         status: 'error',
-        description:
-          error instanceof Error ? error.message : 'Unexpected error occurred',
+        description: errorMessage,
         icon: <EditIcon bg="errorRed.200" />,
       });
     } finally {
@@ -184,12 +190,38 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(absence),
       });
-      if (!res.ok)
-        throw new Error(`Failed to update absence: ${res.statusText}`);
+
+      if (!res.ok) {
+        let errorMessage = 'Failed to update absence: ';
+        try {
+          const errorData = await res.json();
+          errorMessage += errorData?.error || res.statusText || 'Unknown error';
+        } catch {
+          errorMessage += res.statusText || 'Unknown error';
+        }
+
+        console.error(errorMessage);
+        showToast({
+          description: errorMessage,
+          status: 'error',
+        });
+
+        return false;
+      }
+
       await fetchAbsences();
       return true;
-    } catch (error) {
-      console.error('Error editing absence:', error);
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to update absence: ${error.message}`
+        : 'Failed to update absence.';
+
+      console.error(errorMessage, error);
+      showToast({
+        description: errorMessage,
+        status: 'error',
+      });
+
       return false;
     }
   };
@@ -214,17 +246,26 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ absenceId: initialData.absenceId }),
       });
-      if (!res.ok) throw new Error((await res.json()).error || res.statusText);
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || res.statusText);
+      }
 
       showToast({
         status: 'success',
         description: 'Confirmation emails have been sent',
         icon: <MailIcon bg="positiveGreen.200" />,
       });
-    } catch (err: any) {
+    } catch (error: any) {
+      const errorMessage = error?.message
+        ? `Failed to send confirmation emails: ${error.message}`
+        : 'Failed to send confirmation emails.';
+      console.error(errorMessage, error);
+
       showToast({
         status: 'error',
-        description: err.message || 'Failed to send confirmation emails',
+        description: errorMessage,
         icon: <MailIcon bg="errorRed.200" />,
       });
     } finally {

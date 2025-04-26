@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { validateFileWithToast } from '@utils/fileValidation';
 import { formatFileSize } from '@utils/formatFileSize';
+import { useSafeFetch } from '@utils/safeFetch';
 import { LessonPlanFile } from '@utils/types';
 import { uploadFile } from '@utils/uploadFile';
 import { useEffect, useRef, useState } from 'react';
@@ -143,6 +144,7 @@ const LessonPlanView = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const showToast = useCustomToast();
+  const { safeFetch } = useSafeFetch();
   const [isUploading, setIsUploading] = useState(false);
   const [localLessonPlan, setLocalLessonPlan] = useState<LessonPlanFile | null>(
     lessonPlan
@@ -166,30 +168,44 @@ const LessonPlanView = ({
 
     const fileUrl = await uploadFile(file);
     if (!fileUrl) {
-      showToast({
-        description: 'Could not upload the lesson plan file.',
-        status: 'error',
-      });
+      const errorMessage = 'Could not upload the lesson plan file.';
+      console.error(errorMessage);
+      showToast({ description: errorMessage, status: 'error' });
       setIsUploading(false);
       return;
     }
 
     const wasSwap = localLessonPlan !== null;
 
-    const res = await fetch('/api/editAbsence', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id: absenceId,
-        lessonPlanFile: {
-          name: file.name,
-          size: file.size,
-          url: fileUrl,
+    try {
+      const { error: editError } = await safeFetch(
+        '/api/editAbsence',
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: absenceId,
+            lessonPlanFile: {
+              name: file.name,
+              size: file.size,
+              url: fileUrl,
+            },
+          }),
         },
-      }),
-    });
+        'Failed to update lesson plan'
+      );
 
-    if (res.ok) {
+      if (editError) {
+        console.error(editError);
+        showToast({
+          description: editError,
+          status: 'error',
+          icon: <MailIcon bg="errorRed.200" />,
+        });
+        setIsUploading(false);
+        return;
+      }
+
       const uploadedPlan: LessonPlanFile = {
         id: -1,
         name: file.name,
@@ -208,29 +224,39 @@ const LessonPlanView = ({
       await fetchAbsences?.();
 
       try {
-        const uploadFileEmailRes = await fetch('/api/emails/uploadFile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ absenceId, isSwap: wasSwap }),
-        });
-        if (!uploadFileEmailRes.ok) {
-          console.error(
-            'Upload file email failed',
-            await uploadFileEmailRes.text()
-          );
-        }
-      } catch (err) {
-        console.error('Error hitting upload file email endpoint', err);
-      }
-    } else {
-      showToast({
-        description: 'There was a problem updating the lesson plan.',
-        status: 'error',
-        icon: <MailIcon bg="errorRed.200" />,
-      });
-    }
+        const { error: uploadFileEmailError } = await safeFetch(
+          '/api/emails/uploadFile',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ absenceId, isSwap: wasSwap }),
+          },
+          'Failed to send upload file email'
+        );
 
-    setIsUploading(false);
+        if (uploadFileEmailError) {
+          console.error(uploadFileEmailError);
+          showToast({
+            description: uploadFileEmailError,
+            status: 'error',
+          });
+        }
+      } catch (err: any) {
+        const errorMessage = err?.message
+          ? `Error hitting upload file email endpoint: ${err.message}`
+          : 'Error hitting upload file email endpoint.';
+        console.error(errorMessage);
+        showToast({ description: errorMessage, status: 'error' });
+      }
+    } catch (err: any) {
+      const errorMessage = err?.message
+        ? `Unexpected error while updating lesson plan: ${err.message}`
+        : 'Unexpected error while updating lesson plan.';
+      console.error(errorMessage);
+      showToast({ description: errorMessage, status: 'error' });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return localLessonPlan ? (
