@@ -10,7 +10,6 @@ import {
 } from '@chakra-ui/react';
 import { validateFileWithToast } from '@utils/fileValidation';
 import { formatFileSize } from '@utils/formatFileSize';
-import { useSafeFetch } from '@utils/safeFetch';
 import { LessonPlanFile } from '@utils/types';
 import { uploadFile } from '@utils/uploadFile';
 import { useEffect, useRef, useState } from 'react';
@@ -144,7 +143,7 @@ const LessonPlanView = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const showToast = useCustomToast();
-  const { safeFetch } = useSafeFetch();
+
   const [isUploading, setIsUploading] = useState(false);
   const [localLessonPlan, setLocalLessonPlan] = useState<LessonPlanFile | null>(
     lessonPlan
