@@ -1,7 +1,7 @@
 import { formatFileSize } from './formatFileSize';
 
 export const ALLOWED_FILE_TYPES = ['application/pdf'];
-export const MAX_FILE_SIZE = 5 * 1024 * 1024;
+export const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
 function validateFile(file: File) {
   if (!ALLOWED_FILE_TYPES.includes(file.type)) {
