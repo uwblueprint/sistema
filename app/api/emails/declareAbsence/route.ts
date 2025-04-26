@@ -1,3 +1,4 @@
+import { getUTCDateWithoutTime } from '@utils/dates';
 import {
   createNonUrgentAbsenceEmailBody,
   createUrgentAbsenceEmailBody,
@@ -21,6 +22,15 @@ export async function POST(req: Request) {
 
   if (!absence) {
     return NextResponse.json({ error: 'Absence not found' }, { status: 404 });
+  }
+
+  const today = getUTCDateWithoutTime(new Date(), 0);
+  const lessonDay = getUTCDateWithoutTime(absence.lessonDate, 0);
+  if (lessonDay < today) {
+    return NextResponse.json(
+      { success: false, error: 'Absence is in the past, no email sent.' },
+      { status: 200 }
+    );
   }
 
   const html = isUrgent

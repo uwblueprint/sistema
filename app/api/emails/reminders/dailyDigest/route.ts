@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server';
 
 async function sendDailyDeclarationDigests(): Promise<number> {
   const now = new Date();
+  const today = getUTCDateWithoutTime(now, 0);
   // Add 5 minute buffer to account for unpredictable cron job times
   const windowAgo = new Date(now.getTime() - (24 * 60 + 5) * 60 * 1000);
   const urgentCutoff = getUTCDateWithoutTime(now, 7);
@@ -14,6 +15,7 @@ async function sendDailyDeclarationDigests(): Promise<number> {
     where: {
       createdAt: { gte: windowAgo },
       substituteTeacherId: null,
+      lessonDate: { gte: today },
     },
     include: {
       location: { select: { name: true } },
