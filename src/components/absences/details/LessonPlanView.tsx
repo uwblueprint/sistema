@@ -160,7 +160,10 @@ const LessonPlanView = ({
 
   const handleFileUpload = async (file: File) => {
     const { valid } = validateFileWithToast(file, showToast);
-    if (!valid) return;
+    if (!valid) {
+      setIsUploading(false);
+      return;
+    }
 
     setIsUploading(true);
 
