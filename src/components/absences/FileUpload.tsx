@@ -8,6 +8,7 @@ import {
   Text,
   useTheme,
 } from '@chakra-ui/react';
+import { validateFileWithToast } from '@utils/fileValidation';
 import { formatFileSize } from '@utils/formatFileSize';
 import { LessonPlanFile } from '@utils/types';
 import { useEffect, useRef, useState } from 'react';
@@ -43,14 +44,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   }, [lessonPlan]);
 
   const validateAndSetFile = (file: File) => {
-    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-      setLessonPlan(file);
-    } else {
-      showToast({
-        description: 'Please upload a valid PDF file.',
-        status: 'error',
-      });
-    }
+    const { valid } = validateFileWithToast(file, showToast);
+    if (!valid) return;
+
+    setLessonPlan(file);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

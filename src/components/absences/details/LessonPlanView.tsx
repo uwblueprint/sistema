@@ -8,6 +8,7 @@ import {
   Text,
   useTheme,
 } from '@chakra-ui/react';
+import { validateFileWithToast } from '@utils/fileValidation';
 import { formatFileSize } from '@utils/formatFileSize';
 import { LessonPlanFile } from '@utils/types';
 import { uploadFile } from '@utils/uploadFile';
@@ -158,7 +159,8 @@ const LessonPlanView = ({
   };
 
   const handleFileUpload = async (file: File) => {
-    if (!file || file.type !== 'application/pdf') return;
+    const { valid } = validateFileWithToast(file, showToast);
+    if (!valid) return;
 
     setIsUploading(true);
 
@@ -168,7 +170,6 @@ const LessonPlanView = ({
         description: 'Could not upload the lesson plan file.',
         status: 'error',
       });
-
       setIsUploading(false);
       return;
     }
