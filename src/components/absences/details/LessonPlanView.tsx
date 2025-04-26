@@ -161,34 +161,28 @@ const LessonPlanView = ({
   const handleFileUpload = async (file: File) => {
     const { valid } = validateFileWithToast(file, showToast);
     if (!valid) {
-      setIsUploading(false);
       return;
     }
 
     setIsUploading(true);
 
-    const fileUrl = await uploadFile(file);
-    if (!fileUrl) {
-      const errorMessage = 'Could not upload the lesson plan file.';
-      console.error(errorMessage);
-      showToast({ description: errorMessage, status: 'error' });
-      setIsUploading(false);
-      return;
-    }
-
     const wasSwap = localLessonPlan !== null;
 
     try {
+      const fileUrl = await uploadFile(file);
+      if (!fileUrl) {
+        const errorMessage = 'Could not upload the lesson plan file.';
+        console.error(errorMessage);
+        showToast({ description: errorMessage, status: 'error' });
+        return;
+      }
+
       const res = await fetch('/api/editAbsence', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: absenceId,
-          lessonPlanFile: {
-            name: file.name,
-            size: file.size,
-            url: fileUrl,
-          },
+          lessonPlanFile: { name: file.name, size: file.size, url: fileUrl },
         }),
       });
 
@@ -196,18 +190,16 @@ const LessonPlanView = ({
         let errorMessage = 'Failed to update lesson plan: ';
         try {
           const errorData = await res.json();
-          errorMessage += errorData?.error || res.statusText || 'Unknown error';
+          errorMessage += errorData.error || res.statusText || 'Unknown error';
         } catch {
           errorMessage += res.statusText || 'Unknown error';
         }
-
         console.error(errorMessage);
         showToast({
           description: errorMessage,
           status: 'error',
           icon: <MailIcon bg="errorRed.200" />,
         });
-        setIsUploading(false);
         return;
       }
 
@@ -217,7 +209,6 @@ const LessonPlanView = ({
         size: file.size,
         url: fileUrl,
       };
-
       setLocalLessonPlan(uploadedPlan);
 
       showToast({
@@ -229,36 +220,31 @@ const LessonPlanView = ({
       await fetchAbsences?.();
 
       try {
-        const uploadFileEmailRes = await fetch('/api/emails/uploadFile', {
+        const emailRes = await fetch('/api/emails/uploadFile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ absenceId, isSwap: wasSwap }),
         });
-
-        if (!uploadFileEmailRes.ok) {
+        if (!emailRes.ok) {
           let errorMessage = 'Failed to send upload file email: ';
           try {
-            const errorData = await uploadFileEmailRes.json();
-            errorMessage +=
-              errorData?.error ||
-              uploadFileEmailRes.statusText ||
-              'Unknown error';
+            const errData = await emailRes.json();
+            errorMessage += errData.error || emailRes.statusText;
           } catch {
-            errorMessage += uploadFileEmailRes.statusText || 'Unknown error';
+            errorMessage += emailRes.statusText;
           }
-
           console.error(errorMessage);
           showToast({ description: errorMessage, status: 'error' });
         }
       } catch (err: any) {
-        const errorMessage = err?.message
-          ? `Error hitting upload file email endpoint: ${err.message}`
-          : 'Error hitting upload file email endpoint.';
+        const errorMessage = err.message
+          ? `Error sending upload file email: ${err.message}`
+          : 'Error sending upload file email.';
         console.error(errorMessage);
         showToast({ description: errorMessage, status: 'error' });
       }
     } catch (err: any) {
-      const errorMessage = err?.message
+      const errorMessage = err.message
         ? `Unexpected error while updating lesson plan: ${err.message}`
         : 'Unexpected error while updating lesson plan.';
       console.error(errorMessage);
