@@ -1,4 +1,4 @@
-import { getUTCDateWithoutTime } from '@utils/dates';
+import { getUTCDateMidnight } from '@utils/dates';
 import { AbsenceAPI } from '@utils/types';
 import { EventAttributes, createEvents } from 'ics';
 
@@ -12,16 +12,20 @@ export const convertAbsenceToICSEvent = (
   const lessonString = absence.lessonPlan?.url || 'Lesson Plan Not Submitted';
   const notesLine = absence.notes ? `\nNotes: ${absence.notes}` : '';
   const roomString = absence.roomNumber ? `\nRoom: ${absence.roomNumber}` : '';
+  const startUTC = getUTCDateMidnight(new Date(absence.lessonDate), 0);
+  const endUTC = getUTCDateMidnight(new Date(absence.lessonDate), 1);
 
-  const startDate = new Date(absence.lessonDate);
-  const endDate = new Date(absence.lessonDate);
-  endDate.setDate(startDate.getDate() + 1);
-
-  const d0 = getUTCDateWithoutTime(new Date(absence.lessonDate), 0);
-  const d1 = getUTCDateWithoutTime(new Date(absence.lessonDate), 1);
   return {
-    start: [d0.getUTCFullYear(), d0.getUTCMonth() + 1, d0.getUTCDate()],
-    end: [d1.getUTCFullYear(), d1.getUTCMonth() + 1, d1.getUTCDate()],
+    start: [
+      startUTC.getUTCFullYear(),
+      startUTC.getUTCMonth() + 1,
+      startUTC.getUTCDate(),
+    ],
+    end: [
+      endUTC.getUTCFullYear(),
+      endUTC.getUTCMonth() + 1,
+      endUTC.getUTCDate(),
+    ],
     title: `${absence.location.abbreviation}: ${absence.subject.name}: ${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName[0]} ${substituteTeacherString}`,
     description: `Subject: ${absence.subject.name}\nLesson Plan: ${lessonString}${notesLine}${roomString}`,
     location: absence.location.name,

@@ -14,6 +14,15 @@ export const formatMonthYear = (date: Date): string => {
   }).format(date);
 };
 
+export function getUTCDateMidnight(base: Date, offsetDays = 0): Date {
+  const y = base.getUTCFullYear();
+  const m = base.getUTCMonth();
+  const d = base.getUTCDate();
+  const dt = new Date(Date.UTC(y, m, d));
+  dt.setUTCDate(dt.getUTCDate() + offsetDays);
+  return dt;
+}
+
 const getOrdinalNum = (number: number): string => {
   const suffixes = ['th', 'st', 'nd', 'rd'];
   const v = number % 100;
