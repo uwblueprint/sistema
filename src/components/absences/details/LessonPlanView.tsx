@@ -143,7 +143,6 @@ const LessonPlanView = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const showToast = useCustomToast();
-
   const [isUploading, setIsUploading] = useState(false);
   const [localLessonPlan, setLocalLessonPlan] = useState<LessonPlanFile | null>(
     lessonPlan
@@ -177,27 +176,31 @@ const LessonPlanView = ({
     const wasSwap = localLessonPlan !== null;
 
     try {
-      const { error: editError } = await safeFetch(
-        '/api/editAbsence',
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: absenceId,
-            lessonPlanFile: {
-              name: file.name,
-              size: file.size,
-              url: fileUrl,
-            },
-          }),
-        },
-        'Failed to update lesson plan'
-      );
+      const res = await fetch('/api/editAbsence', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: absenceId,
+          lessonPlanFile: {
+            name: file.name,
+            size: file.size,
+            url: fileUrl,
+          },
+        }),
+      });
 
-      if (editError) {
-        console.error(editError);
+      if (!res.ok) {
+        let errorMessage = 'Failed to update lesson plan: ';
+        try {
+          const errorData = await res.json();
+          errorMessage += errorData?.error || res.statusText || 'Unknown error';
+        } catch {
+          errorMessage += res.statusText || 'Unknown error';
+        }
+
+        console.error(errorMessage);
         showToast({
-          description: editError,
+          description: errorMessage,
           status: 'error',
           icon: <MailIcon bg="errorRed.200" />,
         });
@@ -223,22 +226,26 @@ const LessonPlanView = ({
       await fetchAbsences?.();
 
       try {
-        const { error: uploadFileEmailError } = await safeFetch(
-          '/api/emails/uploadFile',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ absenceId, isSwap: wasSwap }),
-          },
-          'Failed to send upload file email'
-        );
+        const uploadFileEmailRes = await fetch('/api/emails/uploadFile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ absenceId, isSwap: wasSwap }),
+        });
 
-        if (uploadFileEmailError) {
-          console.error(uploadFileEmailError);
-          showToast({
-            description: uploadFileEmailError,
-            status: 'error',
-          });
+        if (!uploadFileEmailRes.ok) {
+          let errorMessage = 'Failed to send upload file email: ';
+          try {
+            const errorData = await uploadFileEmailRes.json();
+            errorMessage +=
+              errorData?.error ||
+              uploadFileEmailRes.statusText ||
+              'Unknown error';
+          } catch {
+            errorMessage += uploadFileEmailRes.statusText || 'Unknown error';
+          }
+
+          console.error(errorMessage);
+          showToast({ description: errorMessage, status: 'error' });
         }
       } catch (err: any) {
         const errorMessage = err?.message
