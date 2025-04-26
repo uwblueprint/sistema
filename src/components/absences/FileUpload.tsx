@@ -45,8 +45,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
   const validateAndSetFile = (file: File) => {
     const { valid } = validateFileWithToast(file, showToast);
-    if (!valid) return;
-
+    if (!valid) {
+      setLessonPlan(null);
+      return;
+    }
     setLessonPlan(file);
   };
 
