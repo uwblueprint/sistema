@@ -1,6 +1,6 @@
+import { deleteDriveFile } from '@utils/googleDrive';
 import { prisma } from '@utils/prisma';
 import { NextResponse } from 'next/server';
-import { deleteDriveFile } from '@utils/googleDrive';
 
 export async function PUT(req: Request) {
   try {

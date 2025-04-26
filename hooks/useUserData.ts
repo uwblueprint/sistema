@@ -1,7 +1,7 @@
+import { getSelectedYearAbsences } from '@utils/getSelectedYearAbsences';
 import { Role, UserData } from '@utils/types';
 import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useState } from 'react';
-import { getSelectedYearAbsences } from '@utils/getSelectedYearAbsences';
 
 interface UseUserDataReturn extends UserData {
   isAuthenticated: boolean;

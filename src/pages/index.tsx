@@ -1,10 +1,10 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { useSession } from 'next-auth/react';
+import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { TacetLogo } from '../components/TacetLogo';
 import { SignInButton } from '../components/SignInButton';
-import Head from 'next/head';
+import { TacetLogo } from '../components/TacetLogo';
 
 export default function Index(): JSX.Element | null {
   const { status } = useSession();

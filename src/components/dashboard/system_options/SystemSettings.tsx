@@ -8,7 +8,7 @@ import {
   Tooltip,
   VStack,
 } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { LuInfo } from 'react-icons/lu';
 
 interface SystemSettingsProps {
