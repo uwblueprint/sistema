@@ -1,9 +1,6 @@
 import { AbsenceAPI } from '@utils/types';
 import { EventAttributes, createEvents } from 'ics';
 
-import { AbsenceAPI } from '@utils/types';
-import { EventAttributes } from 'ics';
-
 export const convertAbsenceToICSEvent = (
   absence: AbsenceAPI,
   calName: string
