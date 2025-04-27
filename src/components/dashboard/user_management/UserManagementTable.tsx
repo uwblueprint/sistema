@@ -312,8 +312,8 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         overflowY="auto"
         css={{
           '&::-webkit-scrollbar': { display: 'none' },
-          '-ms-overflow-style': 'none',
-          'scrollbar-width': 'none',
+          msOverflowStyle: 'none',
+          scrollbarWidth: 'none',
         }}
       >
         <Table variant="simple" width="100%">
