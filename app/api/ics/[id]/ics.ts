@@ -1,36 +1,52 @@
-import { getUTCDateMidnight } from '@utils/dates';
 import { AbsenceAPI } from '@utils/types';
 import { EventAttributes, createEvents } from 'ics';
+
+import { AbsenceAPI } from '@utils/types';
+import { EventAttributes } from 'ics';
 
 export const convertAbsenceToICSEvent = (
   absence: AbsenceAPI,
   calName: string
 ): EventAttributes => {
-  const substituteTeacherString = absence.substituteTeacher
-    ? `(${absence.substituteTeacher.firstName} ${absence.substituteTeacher.lastName[0]})`
+  const d = new Date(absence.lessonDate);
+
+  const start: [number, number, number] = [
+    d.getFullYear(),
+    d.getMonth() + 1,
+    d.getDate(),
+  ];
+
+  const substitutePart = absence.substituteTeacher
+    ? ` → ${absence.substituteTeacher.firstName} ${absence.substituteTeacher.lastName.charAt(0)}`
     : '';
-  const lessonString = absence.lessonPlan?.url || 'Lesson Plan Not Submitted';
-  const notesLine = absence.notes ? `\nNotes: ${absence.notes}` : '';
-  const roomString = absence.roomNumber ? `\nRoom: ${absence.roomNumber}` : '';
-  const startUTC = getUTCDateMidnight(new Date(absence.lessonDate), 0);
-  const endUTC = getUTCDateMidnight(new Date(absence.lessonDate), 1);
+  const title =
+    `(${absence.location.abbreviation}) ${absence.subject.name}: ` +
+    `${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName.charAt(0)}${substitutePart}`;
+
+  const descLines = [
+    `Subject: ${absence.subject.name}`,
+    `Lesson Plan: ${absence.lessonPlan?.url ?? 'None'}`,
+    absence.notes && `Notes: ${absence.notes}`,
+    absence.reasonOfAbsence && `Reason: ${absence.reasonOfAbsence}`,
+    absence.roomNumber && `Room: ${absence.roomNumber}`,
+  ]
+    .filter(Boolean)
+    .join('\n');
 
   return {
-    start: [
-      startUTC.getUTCFullYear(),
-      startUTC.getUTCMonth() + 1,
-      startUTC.getUTCDate(),
-    ],
-    end: [
-      endUTC.getUTCFullYear(),
-      endUTC.getUTCMonth() + 1,
-      endUTC.getUTCDate(),
-    ],
-    title: `${absence.location.abbreviation}: ${absence.subject.name}: ${absence.absentTeacher.firstName} ${absence.absentTeacher.lastName[0]} ${substituteTeacherString}`,
-    description: `Subject: ${absence.subject.name}\nLesson Plan: ${lessonString}${notesLine}${roomString}`,
+    start,
+    startInputType: 'local',
+    endInputType: 'local',
+    duration: { days: 1 },
+
+    title,
+    description: descLines,
     location: absence.location.name,
-    calName,
+    url: absence.lessonPlan?.url,
+
     uid: `${absence.id}`,
+    status: 'CONFIRMED',
+    productId: calName,
   };
 };
 
