@@ -73,6 +73,8 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ userData, absenceCap }) => {
         p={4}
         textAlign="center"
         boxShadow="lg"
+        border="1px solid"
+        borderColor="neutralGray.300"
       >
         <Avatar
           name={userData?.name ?? ''}
