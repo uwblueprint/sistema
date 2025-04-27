@@ -334,7 +334,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                 centered
               />
               <SortableHeader field="role" label="Role" icon={FiLock} />
-              <Th>
+              <Th minW="540px">
                 <HStack spacing={2}>
                   <Icon as={FiTag} boxSize={4} color="text.subtitle" />
                   <Text
@@ -400,7 +400,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       }
                     />
                   </Td>
-                  <Td py="6px">
+                  <Td py="6px" minW="540px">
                     <EditableSubscriptionsCell
                       mailingLists={user.mailingLists || []}
                       allSubjects={allSubjects}

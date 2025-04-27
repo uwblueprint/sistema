@@ -426,8 +426,8 @@ const EditableSubscriptionsCell: React.FC<EditableSubscriptionsCellProps> = ({
         <PopoverContent
           borderColor="neutralGray.300"
           ref={popoverRef}
-          width="507px"
-          maxWidth="507px"
+          width="510px"
+          maxWidth="510px"
           zIndex={0}
           mt="2px"
           overflowX="hidden"
