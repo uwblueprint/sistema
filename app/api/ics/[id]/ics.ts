@@ -42,11 +42,9 @@ export const convertAbsenceToICSEvent = (
     title,
     description: descLines,
     location: absence.location.name,
-    url: absence.lessonPlan?.url,
 
     uid: `${absence.id}`,
-    status: 'CONFIRMED',
-    productId: calName,
+    calName,
   };
 };
 
