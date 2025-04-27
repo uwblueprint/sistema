@@ -23,6 +23,7 @@ export const getCalendarStyles = (theme: CustomTheme) => css`
   .fc .fc-daygrid-day-number {
     width: 100%;
     padding: 0 !important;
+    cursor: default !important;
   }
   .fc-daygrid-day-events {
     min-height: 0 !important;
