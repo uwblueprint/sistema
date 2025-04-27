@@ -30,6 +30,7 @@ export const convertAbsenceToICSEvent = (
     description: `Subject: ${absence.subject.name}\nLesson Plan: ${lessonString}${notesLine}${roomString}`,
     location: absence.location.name,
     calName,
+    uid: `${absence.id}`,
   };
 };
 
