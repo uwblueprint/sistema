@@ -23,6 +23,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
           <meta name="application-name" content="Sistema" />
           <meta name="theme-color" content="#ffffff" />
           <meta name="msapplication-TileColor" content="#ffffff" />
+          <meta name="referrer" content="no-referrer" />
 
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </Head>
