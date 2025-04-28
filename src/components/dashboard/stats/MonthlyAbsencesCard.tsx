@@ -36,7 +36,7 @@ export default function MonthlyAbsencesCard({
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const filledColor = theme.colors.primaryBlue[300];
-  const unfilledColor = theme.colors.neutralGray[200];
+  const unfilledColor = theme.colors.neutralGray[300];
   const chartTextColor = theme.colors.text.subtitle;
 
   const yAxisBuffer = 1;
@@ -82,7 +82,7 @@ export default function MonthlyAbsencesCard({
           Monthly Absences
         </Text>
       </CardHeader>
-      <Divider />
+      <Divider borderColor="neutralGray.300" opacity={1} />
       <CardBody display="flex" flexDirection="column">
         <HStack align="flex-start" justify="space-between" gap="35px">
           <Box flex="1" height="110px">
@@ -96,7 +96,8 @@ export default function MonthlyAbsencesCard({
                 }}
               >
                 <CartesianGrid
-                  strokeDasharray="0"
+                  stroke={theme.colors.neutralGray[300]}
+                  strokeWidth={1}
                   horizontal
                   vertical={false}
                 />
@@ -129,7 +130,7 @@ export default function MonthlyAbsencesCard({
                         key={props.index}
                         {...props}
                         filledColor={filledColor}
-                        unfilledColor={unfilledColor}
+                        unfilledColor={'#D9D9D9'}
                         isActive={activeIndex === props.index}
                       />
                     );

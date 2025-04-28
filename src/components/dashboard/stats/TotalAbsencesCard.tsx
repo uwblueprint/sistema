@@ -37,7 +37,7 @@ export default function TotalAbsencesCard({
     : theme.colors.primaryBlue[300];
   const unfilledColor = noData
     ? theme.colors.primaryBlue[50]
-    : theme.colors.neutralGray[200];
+    : theme.colors.neutralGray[300];
 
   const dateColor = theme.colors.text.subtitle;
   const numColor = theme.colors.text.body;
@@ -59,7 +59,7 @@ export default function TotalAbsencesCard({
           Total Absences
         </Text>
       </CardHeader>
-      <Divider />
+      <Divider borderColor="neutralGray.300" opacity={1} />
       <CardBody
         display="flex"
         flexDirection="column"
@@ -101,7 +101,7 @@ export default function TotalAbsencesCard({
                   w="16px"
                   h="16px"
                   borderRadius="full"
-                  bg={theme.colors.neutralGray[200]}
+                  bg={theme.colors.neutralGray[300]}
                 />
                 <Text color="text.body" textStyle="subtitle">
                   Unfilled

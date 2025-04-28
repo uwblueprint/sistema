@@ -163,7 +163,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
         bg="white"
         py={4}
         borderBottom={showDivider ? '1px solid' : 'none'}
-        borderColor="neutralGray.200"
+        borderColor="neutralGray.300"
       >
         <Flex direction="column" align="center" gap={5}>
           <Box width="110px" display="flex" justifyContent="center">

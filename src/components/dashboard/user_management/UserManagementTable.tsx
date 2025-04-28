@@ -305,7 +305,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           />
         </HStack>
       </HStack>
-      <Divider borderColor="neutralGray.300" />
+      <Divider borderColor="neutralGray.300" opacity={1} />
 
       <Box
         flex="1"
