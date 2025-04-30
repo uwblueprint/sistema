@@ -41,7 +41,7 @@ export function createUrgentLessonPlanReminderEmailBody(
   return `
     <html>
       <body>
-        <p>Hello ${teacher.firstName}  ${teacher.lastName},</p>
+        <p>Hello ${teacher.firstName} ${teacher.lastName},</p>
         <p>
           Your planned absence in <strong>${absence.subject.name}</strong> at
           <strong>${absence.location.name}</strong> is in 2 business days,
@@ -160,7 +160,6 @@ export function createAbsenceDeletionEmailBody(
   return `
     <html>
       <body>
-        <p>Hello,</p>
         <p>
           An absence has been deleted for
           <strong>${teacher.firstName} ${teacher.lastName}’s</strong>
@@ -222,7 +221,6 @@ export function createLessonPlanUploadedEmailBody(
   return `
     <html>
       <body>
-        <p>Hello ${fullName},</p>
         <p>
           The lesson plan for
           <strong>${fullName}’s ${absence.subject.name}</strong>
