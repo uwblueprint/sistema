@@ -80,6 +80,10 @@ export default function SubjectAccordion({ setFilter }: SubjectAccordionProps) {
 
   const toggleOpen = () => setIsOpen((prev) => !prev);
 
+  if (subjects.length === 0) {
+    return null;
+  }
+
   const accordionItems: AccordionItem[] = subjects.map((subject) => ({
     id: subject.id,
     name: subject.name,
