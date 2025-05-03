@@ -137,11 +137,15 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     );
   }
 
+  const dashSize = 9;
+  const gapSize = 6;
+  const offset = 4;
+  const borderColor = '#C5C8D8';
+
   return (
     <>
       <Box
         onClick={handleSwap}
-        border="1px dashed"
         borderColor="outline"
         bg={disabled ? 'neutralGray.50' : 'transparent'}
         opacity={disabled ? 0.6 : 1}
@@ -154,6 +158,48 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         flexDirection="column"
         alignItems="center"
         justifyContent="center"
+        sx={{
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            background: `
+              /* top border */
+              linear-gradient(to right, 
+                transparent ${offset}px, 
+                ${borderColor} ${offset}px, 
+                ${borderColor} ${offset + dashSize}px, 
+                transparent ${offset + dashSize}px
+              ) top left / ${dashSize + gapSize}px 1px repeat-x,
+              
+              /* bottom border */
+              linear-gradient(to right, 
+                transparent ${offset}px, 
+                ${borderColor} ${offset}px, 
+                ${borderColor} ${offset + dashSize}px, 
+                transparent ${offset + dashSize}px
+              ) bottom left / ${dashSize + gapSize}px 1px repeat-x,
+              
+              /* left border */
+              linear-gradient(to bottom, 
+                transparent ${offset}px, 
+                ${borderColor} ${offset}px, 
+                ${borderColor} ${offset + dashSize}px, 
+                transparent ${offset + dashSize}px
+              ) top left / 1px ${dashSize + gapSize}px repeat-y,
+              
+              /* right border */
+              linear-gradient(to bottom, 
+                transparent ${offset}px, 
+                ${borderColor} ${offset}px, 
+                ${borderColor} ${offset + dashSize}px, 
+                transparent ${offset + dashSize}px
+              ) top right / 1px ${dashSize + gapSize}px repeat-y
+            `,
+            pointerEvents: 'none',
+          },
+        }}
       >
         <Image src="/images/upload.svg" alt="Upload" width={10} height={10} />
         <Text textStyle="subtitle">Upload PDF</Text>
