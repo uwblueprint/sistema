@@ -122,7 +122,7 @@ export function createAbsenceFillConfirmationEmailBody(
         <p>Hello ${fillingTeacher.firstName} ${fillingTeacher.lastName},</p>
         <p>
           This email confirms you have successfully filled
-          <strong>${reportingTeacher.firstName} ${reportingTeacher.lastName}’s</strong>
+          <strong>${reportingTeacher.firstName} ${reportingTeacher.lastName}</strong>’s
           <strong>${absence.subject.name}</strong> absence from
           <strong>${absence.location.name}</strong> on
           <strong>${formattedDate}</strong>.
