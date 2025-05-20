@@ -1,7 +1,6 @@
 import { AddIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, useTheme } from '@chakra-ui/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useCustomToast } from '../../CustomToast';
 import { TacetLogo } from '../../TacetLogo';
 import MiniCalendar from '../MiniCalendar';
 import AbsenceStatusAccordion from './AbsenceStatusAccordion';
@@ -28,8 +27,6 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showDivider, setShowDivider] = useState(false);
-  const [archivedSubjects, setArchivedSubjects] = useState([]);
-  const [archivedLocations, setArchivedLocations] = useState([]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -94,59 +91,6 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
     [setSearchQuery]
   );
 
-  const showToast = useCustomToast();
-  const showToastRef = useRef(showToast);
-
-  useEffect(() => {
-    async function fetchArchivedData() {
-      try {
-        const subjectRes = await fetch('/api/filter/subjects?archived=true');
-        if (!subjectRes.ok) {
-          let errorMessage = 'Failed to fetch archived subjects: ';
-          try {
-            const errorData = await subjectRes.json();
-            errorMessage +=
-              errorData?.error || subjectRes.statusText || 'Unknown error';
-          } catch {
-            errorMessage += subjectRes.statusText || 'Unknown error';
-          }
-          console.error(errorMessage);
-          showToastRef.current({ description: errorMessage, status: 'error' });
-          return;
-        }
-
-        const locationRes = await fetch('/api/filter/locations?archived=true');
-        if (!locationRes.ok) {
-          let errorMessage = 'Failed to fetch archived locations: ';
-          try {
-            const errorData = await locationRes.json();
-            errorMessage +=
-              errorData?.error || locationRes.statusText || 'Unknown error';
-          } catch {
-            errorMessage += locationRes.statusText || 'Unknown error';
-          }
-          console.error(errorMessage);
-          showToastRef.current({ description: errorMessage, status: 'error' });
-          return;
-        }
-
-        const subjectsData = await subjectRes.json();
-        const locationsData = await locationRes.json();
-
-        setArchivedSubjects(subjectsData.subjects);
-        setArchivedLocations(locationsData.locations);
-      } catch (error: any) {
-        const errorMessage = error?.message
-          ? `Failed to fetch archived data: ${error.message}`
-          : 'Failed to fetch archived data.';
-        console.error(errorMessage, error);
-        showToastRef.current({ description: errorMessage, status: 'error' });
-      }
-    }
-
-    fetchArchivedData();
-  }, []);
-
   return (
     <Flex
       minWidth="265px"
@@ -202,12 +146,10 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
           <SubjectAccordion setFilter={setActiveSubjectFilter} />
           <LocationAccordion setFilter={setActiveLocationFilter} />
 
-          {(archivedSubjects.length > 0 || archivedLocations.length > 0) && (
-            <ArchivedAccordion
-              setSubjectFilter={setArchivedSubjectFilter}
-              setLocationFilter={setArchivedLocationFilter}
-            />
-          )}
+          <ArchivedAccordion
+            setSubjectFilter={setArchivedSubjectFilter}
+            setLocationFilter={setArchivedLocationFilter}
+          />
         </Box>
       </Box>
     </Flex>
