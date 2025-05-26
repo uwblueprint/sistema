@@ -299,7 +299,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
   const handleDateSelect = (date: Date) => {
     setFormData((prev) => ({
       ...prev,
-      lessonDate: date.toISOString().split('T')[0],
+      lessonDate: date ? date.toISOString().split('T')[0] : '',
     }));
   };
 

@@ -14,7 +14,7 @@ import MiniCalendar from '../../calendar/MiniCalendar';
 
 interface DateOfAbsenceProps {
   dateValue: Date;
-  onDateSelect: (date: Date) => void;
+  onDateSelect: (date: Date | null) => void;
   error?: string;
   label?: string;
 }
@@ -42,6 +42,11 @@ export const DateOfAbsence: React.FC<DateOfAbsenceProps> = ({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const rawValue = e.target.value.trim();
       setInputValue(rawValue);
+
+      if (rawValue === '') {
+        onDateSelect(null);
+        return;
+      }
 
       if (new RegExp(DATE_PATTERN).test(rawValue)) {
         const parsedDate = new Date(rawValue);
