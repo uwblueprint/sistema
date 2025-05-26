@@ -314,6 +314,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
     <Box
       as="form"
       onSubmit={handleSubmit}
+      noValidate
       sx={{
         label: { fontSize: '14px', fontWeight: '400' },
       }}
