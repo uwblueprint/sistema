@@ -305,8 +305,8 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
 
   const selectedDate = new Date(formData.lessonDate + 'T00:00:00');
   const now = new Date();
-  const isWithin14Days =
-    (selectedDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 14;
+  const isWithin7Days =
+    (selectedDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 7;
   const isUrgent =
     (selectedDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 7;
 
@@ -444,7 +444,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         isSubmitting={isSubmitting}
         lessonDate={formData.lessonDate}
         hasLessonPlan={!!lessonPlan}
-        isWithin14Days={isWithin14Days}
+        isWithin7Days={isWithin7Days}
       />
       {isAdminMode && (
         <NotifyTeachersModal

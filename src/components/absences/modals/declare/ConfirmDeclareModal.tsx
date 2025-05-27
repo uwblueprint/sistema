@@ -22,7 +22,7 @@ interface ConfirmDeclareModalProps {
   isSubmitting: boolean;
   lessonDate: string;
   hasLessonPlan: boolean;
-  isWithin14Days: boolean;
+  isWithin7Days: boolean;
 }
 
 export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
@@ -32,7 +32,7 @@ export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
   isSubmitting,
   lessonDate,
   hasLessonPlan,
-  isWithin14Days,
+  isWithin7Days: isWithin7Days,
 }) => {
   const theme = useTheme();
 
@@ -70,7 +70,7 @@ export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
                   </>
                 )}
               </Text>
-              {isWithin14Days && (
+              {isWithin7Days && (
                 <HStack align="center" spacing={3}>
                   <Icon
                     as={WarningTwoIcon}
@@ -84,7 +84,7 @@ export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
                     You are submitting a late report. Please email the
                     Operations Manager and your Centre Director as soon as
                     possible to inform them of this last minute absence. Aim to
-                    report absences at least 14 days in advance.
+                    report absences at least 7 days in advance.
                   </Text>
                 </HStack>
               )}

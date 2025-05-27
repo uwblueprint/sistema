@@ -39,13 +39,11 @@ export async function PATCH(request: NextRequest) {
 
     let updatedSettings;
     if (existingSettings) {
-      // Update the existing record
       updatedSettings = await prisma.globalSettings.update({
         where: { id: existingSettings.id },
         data: { absenceCap: data.absenceCap },
       });
     } else {
-      // Create a new settings record if none exists
       updatedSettings = await prisma.globalSettings.create({
         data: { absenceCap: data.absenceCap },
       });
