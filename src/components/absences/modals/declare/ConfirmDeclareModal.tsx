@@ -81,8 +81,10 @@ export const ConfirmDeclareModal: React.FC<ConfirmDeclareModalProps> = ({
                     textStyle="body"
                     color={theme.colors.warningOrange[300]}
                   >
-                    You are submitting a late report. Please aim to report
-                    absences at least 14 days in advance.
+                    You are submitting a late report. Please email the
+                    Operations Manager and your Centre Director as soon as
+                    possible to inform them of this last minute absence. Aim to
+                    report absences at least 14 days in advance.
                   </Text>
                 </HStack>
               )}
