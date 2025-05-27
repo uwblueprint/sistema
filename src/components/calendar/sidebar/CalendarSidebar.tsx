@@ -153,7 +153,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       width="265px"
       flexDirection="column"
       alignItems="center"
-      height="100vh"
+      height="100%"
       overflow="hidden"
     >
       <Box

@@ -45,7 +45,7 @@ export default function TotalAbsencesCard({
   return (
     <Card
       width={width}
-      minWidth={'180px'}
+      minWidth={'120px'}
       height="100%"
       borderRadius="lg"
       shadow="sm"
@@ -54,7 +54,14 @@ export default function TotalAbsencesCard({
       border="1px solid"
       borderColor="neutralGray.300"
     >
-      <CardHeader py="14px" display="flex" alignItems="center">
+      <CardHeader
+        py="14px"
+        display="flex"
+        alignItems="center"
+        textOverflow="ellipsis"
+        whiteSpace="nowrap"
+        overflowX="auto"
+      >
         <Text textStyle="h2" fontSize="18px" fontWeight={700}>
           Total Absences
         </Text>

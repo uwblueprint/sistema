@@ -10,6 +10,7 @@ import {
 import { UserData } from '@utils/types';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { FiMenu } from 'react-icons/fi';
 import { IoChevronBack, IoChevronForward, IoStatsChart } from 'react-icons/io5';
 import { useCustomToast } from '../../CustomToast';
 import ProfileMenu from '../profile/ProfileMenu';
@@ -23,6 +24,7 @@ interface CalendarHeaderProps {
   userData?: UserData;
   isAdminMode: boolean;
   setIsAdminMode: (mode: boolean) => void;
+  onToggleSidebar: () => void;
 }
 
 const CalendarHeader: React.FC<CalendarHeaderProps> = ({
@@ -33,6 +35,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   userData,
   isAdminMode,
   setIsAdminMode,
+  onToggleSidebar,
 }) => {
   const theme = useTheme();
   const router = useRouter();
@@ -85,8 +88,19 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
       alignItems="center"
       width="100%"
       gap={theme.space[2]}
+      overflowX="auto"
     >
       <HStack spacing={theme.space[6]}>
+        <IconButton
+          icon={<FiMenu size={20} color={theme.colors.neutralGray[600]} />}
+          aria-label="Open sidebar"
+          onClick={onToggleSidebar}
+          display={{ base: 'inline-flex', md: 'none' }}
+          variant="outline"
+          h="45px"
+          px="6px"
+          borderRadius="md"
+        />
         <HStack spacing={1}>
           <IconButton
             onClick={onPrevClick}

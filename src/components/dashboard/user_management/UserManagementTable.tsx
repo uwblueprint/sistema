@@ -257,12 +257,18 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       borderRadius="lg"
       bg="white"
       w="full"
-      minWidth="402px"
+      minWidth="292px"
       border="1px solid"
       borderColor="neutralGray.300"
       height="100%"
     >
-      <HStack justify="space-between" px={5} py="10px" zIndex={1502}>
+      <HStack
+        justify="space-between"
+        px={5}
+        py="10px"
+        zIndex={1502}
+        overflowX="auto"
+      >
         <Text
           textStyle="h2"
           fontSize="18px"

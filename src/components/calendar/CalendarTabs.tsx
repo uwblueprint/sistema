@@ -21,9 +21,13 @@ export function CalendarTabs({ activeTab, onTabChange }: CalendarTabsProps) {
         color={activeTab === 'explore' ? 'primaryBlue.300' : 'text.subtitle'}
         onClick={() => onTabChange('explore')}
         pb="8px"
+        px="10px"
         _hover={{ color: 'primaryBlue.300' }}
         _active={{ bg: 'transparent' }}
         borderRadius={0}
+        overflow="hidden"
+        textOverflow="ellipsis"
+        whiteSpace="nowrap"
       >
         Explore Fillable Absences
       </Button>
@@ -36,9 +40,13 @@ export function CalendarTabs({ activeTab, onTabChange }: CalendarTabsProps) {
         color={activeTab === 'declared' ? 'primaryBlue.300' : 'text.subtitle'}
         onClick={() => onTabChange('declared')}
         pb="8px"
+        px="10px"
         _hover={{ color: 'primaryBlue.300' }}
         _active={{ bg: 'transparent' }}
         borderRadius={0}
+        overflow="hidden"
+        textOverflow="ellipsis"
+        whiteSpace="nowrap"
       >
         My Declared & Filled Absences
       </Button>

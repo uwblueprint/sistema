@@ -95,6 +95,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       px={theme.space[16]}
       py={theme.space[4]}
       gap={theme.space[2]}
+      overflowX="auto"
     >
       <HStack spacing={theme.space[8]}>
         <IconButton

@@ -68,7 +68,7 @@ export default function MonthlyAbsencesCard({
   return (
     <Card
       width={width}
-      minWidth={'210px'}
+      minWidth={'155px'}
       borderRadius="lg"
       shadow="sm"
       overflow="hidden"
@@ -77,7 +77,13 @@ export default function MonthlyAbsencesCard({
       borderColor="neutralGray.300"
       height="100%"
     >
-      <CardHeader py="14px" display="flex" alignItems="center">
+      <CardHeader
+        py="14px"
+        display="flex"
+        alignItems="center"
+        whiteSpace="nowrap"
+        overflowX="auto"
+      >
         <Text textStyle="h2" fontSize="18px" fontWeight={700} lineHeight="33px">
           Monthly Absences
         </Text>
@@ -89,7 +95,7 @@ export default function MonthlyAbsencesCard({
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={combinedMonthlyData}
-                margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
+                margin={{ top: 5, right: 0, left: -25, bottom: 0 }}
                 onMouseMove={(state) => {
                   const newIndex = Number(state?.activeTooltipIndex);
                   setActiveIndex(!isNaN(newIndex) ? newIndex : null);

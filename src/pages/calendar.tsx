@@ -1,4 +1,16 @@
-import { Badge, Box, Flex, Image, Text, useDisclosure } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerOverlay,
+  Flex,
+  Image,
+  Text,
+  useBreakpointValue,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import { EventClickArg, EventContentArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -68,6 +80,7 @@ const Calendar: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventDetails | null>(null);
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isAbsenceDetailsOpen,
     onOpen: onAbsenceDetailsOpen,
@@ -172,6 +185,15 @@ const Calendar: React.FC = () => {
   useEffect(() => {
     fetchAbsences();
   }, [fetchAbsences]);
+
+  const isMobile = useBreakpointValue({ base: true, md: false, lg: false });
+
+  useEffect(() => {
+    if (calendarRef.current) {
+      const api = calendarRef.current.getApi();
+      api.changeView(isMobile ? 'dayGridDay' : 'dayGridMonth');
+    }
+  }, [isMobile]);
 
   const updateMonthYearTitle = useCallback(() => {
     if (calendarRef.current) {
@@ -347,9 +369,6 @@ const Calendar: React.FC = () => {
 
     return (
       <>
-        <Head>
-          <title>Calendar</title>
-        </Head>
         <Box
           position="relative"
           width="100%"
@@ -417,37 +436,62 @@ const Calendar: React.FC = () => {
 
   return (
     <>
+      <Head>
+        <title>Calendar</title>
+      </Head>
       <Global styles={getCalendarStyles} />
-      <Flex height="100vh">
-        <CalendarSidebar
-          setSearchQuery={setSearchQuery}
-          onDeclareAbsenceClick={handleDeclareAbsenceClick}
-          onDateSelect={handleDateSelect}
-          selectDate={selectedDate}
-          isAdminMode={isAdminMode}
-        />
+      <Flex height="100vh" width="100vw" overflow="hidden">
         <Box
-          flex={1}
-          height="100%"
-          display="flex"
-          flexDirection="column"
-          pt={4}
-          pr={4}
-          minW="1240px"
+          display={{ base: 'none', md: 'block' }}
+          width="265px"
+          flexShrink={0}
         >
-          <CalendarHeader
-            currentMonthYear={currentMonthYear}
-            onTodayClick={handleTodayClick}
-            onPrevClick={handlePrevClick}
-            onNextClick={handleNextClick}
-            userData={userData}
+          <CalendarSidebar
+            setSearchQuery={setSearchQuery}
+            onDeclareAbsenceClick={handleDeclareAbsenceClick}
+            onDateSelect={handleDateSelect}
+            selectDate={selectedDate}
             isAdminMode={isAdminMode}
-            setIsAdminMode={setIsAdminMode}
-          />
+          />{' '}
+        </Box>
+        <Drawer placement="left" onClose={onClose} isOpen={isOpen}>
+          <DrawerOverlay />
+          <DrawerContent maxWidth="265px">
+            <DrawerBody p={0}>
+              <CalendarSidebar
+                setSearchQuery={setSearchQuery}
+                onDeclareAbsenceClick={handleDeclareAbsenceClick}
+                onDateSelect={handleDateSelect}
+                selectDate={selectedDate}
+                isAdminMode={isAdminMode}
+              />
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
+        <Flex flex={1} direction="column" minW="0" overflow="hidden" pt={4}>
+          <Box flexShrink={0}>
+            <CalendarHeader
+              currentMonthYear={currentMonthYear}
+              onTodayClick={handleTodayClick}
+              onPrevClick={handlePrevClick}
+              onNextClick={handleNextClick}
+              userData={userData}
+              isAdminMode={isAdminMode}
+              setIsAdminMode={setIsAdminMode}
+              onToggleSidebar={onOpen}
+            />
+          </Box>
           {!isAdminMode && (
             <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
           )}
-          <Box position="relative" height="100%" flex={1}>
+          <Box
+            position="relative"
+            flex={1}
+            minH={0}
+            minW={0}
+            overflow="hidden"
+            pr={4}
+          >
             <FullCalendar
               ref={calendarRef}
               headerToolbar={false}
@@ -477,7 +521,7 @@ const Calendar: React.FC = () => {
               zIndex={1}
             />
           </Box>
-        </Box>
+        </Flex>
       </Flex>
       <AbsenceDetails
         isOpen={isAbsenceDetailsOpen}

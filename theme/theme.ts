@@ -1,4 +1,3 @@
-// src/theme/theme.ts
 import { extendTheme } from '@chakra-ui/react';
 import { colors } from './colors';
 import { components } from './components';
