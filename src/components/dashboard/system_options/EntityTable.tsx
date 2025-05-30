@@ -336,6 +336,22 @@ const EntityTable: React.FC<EntityTableProps> = ({
     };
   }, [editingItem, isAddingItem, newItem, handleAddItem, handleSaveEditedItem]);
 
+  const nameRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const abbreviationRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [nameTooltipStates, setNameTooltipStates] = useState<boolean[]>([]);
+  const [abbrTooltipStates, setAbbrTooltipStates] = useState<boolean[]>([]);
+
+  useEffect(() => {
+    const nameStates = nameRefs.current.map((el) =>
+      el ? el.scrollWidth > el.clientWidth : false
+    );
+    const abbrStates = abbreviationRefs.current.map((el) =>
+      el ? el.scrollWidth > el.clientWidth : false
+    );
+    setNameTooltipStates(nameStates);
+    setAbbrTooltipStates(abbrStates);
+  }, [items]);
+
   return (
     <Box borderWidth="1px" borderRadius="md" overflow="hidden">
       {/* Table Header */}
@@ -446,7 +462,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
       </Box>
 
       {/* Table Rows */}
-      {sortedItems.map((item) => (
+      {sortedItems.map((item, index) => (
         <Box
           px={4}
           py={2}
@@ -656,7 +672,7 @@ const EntityTable: React.FC<EntityTableProps> = ({
                     label={item.name}
                     placement="top"
                     openDelay={300}
-                    isDisabled={item.name.length <= 20}
+                    isDisabled={!nameTooltipStates[index]}
                     hasArrow
                   >
                     <Box
@@ -666,6 +682,9 @@ const EntityTable: React.FC<EntityTableProps> = ({
                       flex={1}
                     >
                       <Text
+                        ref={(el) => {
+                          nameRefs.current[index] = el;
+                        }}
                         color={
                           item.archived ? 'text.inactiveButtonText' : 'inherit'
                         }
@@ -707,11 +726,14 @@ const EntityTable: React.FC<EntityTableProps> = ({
                   label={item.abbreviation}
                   placement="top"
                   openDelay={300}
-                  isDisabled={item.abbreviation.length <= 3}
+                  isDisabled={!abbrTooltipStates[index]}
                   hasArrow
                 >
                   <Box position="relative" overflow="hidden" flex={1}>
                     <Text
+                      ref={(el) => {
+                        abbreviationRefs.current[index] = el;
+                      }}
                       color={
                         item.archived ? 'text.inactiveButtonText' : 'inherit'
                       }

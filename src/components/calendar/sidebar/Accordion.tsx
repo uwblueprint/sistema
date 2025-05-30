@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
+import { useEffect, useRef, useState } from 'react';
 
 export interface AccordionItem {
   id: number;
@@ -34,6 +35,16 @@ const Accordion = ({
   toggleOpen,
   toggleItem,
 }: AccordionProps) => {
+  const textRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [tooltipStates, setTooltipStates] = useState<boolean[]>([]);
+
+  useEffect(() => {
+    const newStates = textRefs.current.map((el) =>
+      el ? el.scrollWidth > el.clientWidth : false
+    );
+    setTooltipStates(newStates);
+  }, [items]);
+
   return (
     <Box width="100%">
       <Button
@@ -58,8 +69,8 @@ const Accordion = ({
       <Box px={2} mt={2}>
         <Collapse in={isOpen} animateOpacity>
           <Stack spacing={2} mt={0}>
-            {items.map((item) => {
-              const needsTooltip = item.name.length > 20;
+            {items.map((item, index) => {
+              const needsTooltip = tooltipStates[index];
 
               return (
                 <Flex
@@ -96,6 +107,9 @@ const Accordion = ({
                   >
                     <Box flex="1" position="relative" overflow="hidden">
                       <Text
+                        ref={(el) => {
+                          textRefs.current[index] = el;
+                        }}
                         textStyle="subtitle"
                         color="text.body"
                         width="200px"
