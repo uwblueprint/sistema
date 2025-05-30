@@ -188,13 +188,6 @@ const Calendar: React.FC = () => {
 
   const isMobile = useBreakpointValue({ base: true, md: false, lg: false });
 
-  useEffect(() => {
-    if (calendarRef.current) {
-      const api = calendarRef.current.getApi();
-      api.changeView(isMobile ? 'dayGridDay' : 'dayGridMonth');
-    }
-  }, [isMobile]);
-
   const updateMonthYearTitle = useCallback(() => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
@@ -452,7 +445,7 @@ const Calendar: React.FC = () => {
             onDateSelect={handleDateSelect}
             selectDate={selectedDate}
             isAdminMode={isAdminMode}
-          />{' '}
+          />
         </Box>
         <Drawer placement="left" onClose={onClose} isOpen={isOpen}>
           <DrawerOverlay />
@@ -481,22 +474,23 @@ const Calendar: React.FC = () => {
               onToggleSidebar={onOpen}
             />
           </Box>
-          {!isAdminMode && (
-            <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
-          )}
           <Box
+            pr={isMobile ? 4 : 4}
+            pl={isMobile ? 4 : 0}
             position="relative"
             flex={1}
             minH={0}
             minW={0}
             overflow="hidden"
-            pr={4}
           >
+            {!isAdminMode && (
+              <CalendarTabs activeTab={activeTab} onTabChange={setActiveTab} />
+            )}
             <FullCalendar
               ref={calendarRef}
               headerToolbar={false}
               plugins={[dayGridPlugin, interactionPlugin]}
-              initialView="dayGridMonth"
+              initialView={isMobile ? 'dayGridDay' : 'dayGridMonth'}
               height="100%"
               events={filteredEvents}
               eventContent={renderEventContent}
@@ -509,6 +503,10 @@ const Calendar: React.FC = () => {
               dayCellContent={dayCellContent}
               eventClick={handleAbsenceClick}
               dateClick={handleDateClick}
+              windowResize={() => {
+                const newView = isMobile ? 'dayGridDay' : 'dayGridMonth';
+                calendarRef.current?.getApi().changeView(newView);
+              }}
             />
             <Box
               position="absolute"
