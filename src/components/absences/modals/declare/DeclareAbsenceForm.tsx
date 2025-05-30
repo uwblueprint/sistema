@@ -31,6 +31,17 @@ interface DeclareAbsenceFormProps {
   initialDate: Date;
   isAdminMode: boolean;
   fetchAbsences: () => Promise<void>;
+  formData: {
+    reasonOfAbsence: string;
+    absentTeacherId: string;
+    substituteTeacherId: string;
+    locationId: string;
+    subjectId: string;
+    roomNumber: string;
+    lessonDate: string;
+    notes: string;
+  };
+  setFormData: any;
 }
 
 const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
@@ -40,6 +51,8 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
   initialDate,
   isAdminMode,
   fetchAbsences,
+  formData,
+  setFormData,
 }) => {
   const showToast = useCustomToast();
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
@@ -54,16 +67,6 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
   >(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    reasonOfAbsence: '',
-    absentTeacherId: isAdminMode ? '' : String(userId),
-    substituteTeacherId: '',
-    locationId: '',
-    subjectId: '',
-    roomNumber: '',
-    lessonDate: initialDate.toLocaleDateString('en-CA'),
-    notes: '',
-  });
   const [lessonPlan, setLessonPlan] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 

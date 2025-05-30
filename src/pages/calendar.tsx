@@ -426,7 +426,10 @@ const Calendar: React.FC = () => {
       </>
     );
   };
-
+  const onInputFormCloseV2 = () => {
+    console.log('close called from Calendar');
+    onInputFormClose();
+  };
   return (
     <>
       <Head>
@@ -533,7 +536,7 @@ const Calendar: React.FC = () => {
       />
       <DeclareAbsenceModal
         isOpen={isInputFormOpen}
-        onClose={onInputFormClose}
+        onClose={onInputFormCloseV2}
         initialDate={selectedDate!!}
         userId={userData.id}
         onTabChange={setActiveTab}
