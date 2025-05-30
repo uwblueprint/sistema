@@ -88,6 +88,10 @@ export default function LocationAccordion({
 
   const toggleOpen = () => setIsOpen((prev) => !prev);
 
+  if (locations.length === 0) {
+    return null;
+  }
+
   const accordionItems: AccordionItem[] = locations.map((location) => ({
     id: location.id,
     name: location.name,
