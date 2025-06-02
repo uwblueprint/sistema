@@ -32,17 +32,19 @@ export default function ArchivedAccordion({
   setLocationFilter,
 }: ArchivedAccordionProps) {
   const theme = useTheme();
-  const showToast = useCustomToast();
-  const showToastRef = useRef(showToast);
+  const toast = useCustomToast();
+  const toastRef = useRef(toast);
 
   const [isOpen, setIsOpen] = useState(false);
   const [subjects, setSubjects] = useState<Item[]>([]);
-  const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
   const [locations, setLocations] = useState<Item[]>([]);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
   const [selectedLocationIds, setSelectedLocationIds] = useState<number[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    async function fetchSubjects() {
+    setLoaded(false);
+    async function fetchArchivedData() {
       try {
         const response = await fetch('/api/filter/subjects?archived=true');
         if (!response.ok) {
@@ -55,7 +57,7 @@ export default function ArchivedAccordion({
             errorMessage += response.statusText || 'Unknown error';
           }
           console.error(errorMessage);
-          showToastRef.current({ description: errorMessage, status: 'error' });
+          toastRef.current({ description: errorMessage, status: 'error' });
           return;
         }
         const data = await response.json();
@@ -66,20 +68,15 @@ export default function ArchivedAccordion({
             color: subject.colorGroup.colorCodes[1],
           }))
         );
-      } catch (error: any) {
-        const errorMessage = error?.message
-          ? `Failed to fetch subjects: ${error.message}`
+      } catch (err: any) {
+        const errorMessage = err?.message
+          ? `Failed to fetch subjects: ${err.message}`
           : 'Failed to fetch subjects.';
-        console.error(errorMessage, error);
-        showToastRef.current({ description: errorMessage, status: 'error' });
+        console.error(errorMessage, err);
+        toastRef.current({ description: errorMessage, status: 'error' });
+        return;
       }
-    }
 
-    fetchSubjects();
-  }, []);
-
-  useEffect(() => {
-    async function fetchLocations() {
       try {
         const response = await fetch('/api/filter/locations?archived=true');
         if (!response.ok) {
@@ -92,7 +89,7 @@ export default function ArchivedAccordion({
             errorMessage += response.statusText || 'Unknown error';
           }
           console.error(errorMessage);
-          showToastRef.current({ description: errorMessage, status: 'error' });
+          toastRef.current({ description: errorMessage, status: 'error' });
           return;
         }
         const data = await response.json();
@@ -103,16 +100,19 @@ export default function ArchivedAccordion({
             color: theme.colors.primaryBlue[300],
           }))
         );
-      } catch (error: any) {
-        const errorMessage = error?.message
-          ? `Failed to fetch locations: ${error.message}`
+      } catch (err: any) {
+        const errorMessage = err?.message
+          ? `Failed to fetch locations: ${err.message}`
           : 'Failed to fetch locations.';
-        console.error(errorMessage, error);
-        showToastRef.current({ description: errorMessage, status: 'error' });
+        console.error(errorMessage, err);
+        toastRef.current({ description: errorMessage, status: 'error' });
+        return;
       }
     }
 
-    fetchLocations();
+    fetchArchivedData().finally(() => {
+      setLoaded(true);
+    });
   }, [theme.colors.primaryBlue]);
 
   const toggleSubject = useCallback(
@@ -140,6 +140,10 @@ export default function ArchivedAccordion({
     },
     [setLocationFilter]
   );
+
+  if (loaded && subjects.length === 0 && locations.length === 0) {
+    return null;
+  }
 
   const bgColor = theme.colors.white;
 
