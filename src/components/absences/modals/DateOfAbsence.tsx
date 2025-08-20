@@ -65,7 +65,7 @@ export const DateOfAbsence: React.FC<DateOfAbsenceProps> = ({
 
   return (
     <FormControl isRequired isInvalid={!!error}>
-      <FormLabel sx={{ display: 'flex' }}>
+      <FormLabel as="p" id="dateOfAbsenceLabel" sx={{ display: 'flex' }}>
         <Text textStyle="h4">{label}</Text>
       </FormLabel>
       <Popover
@@ -77,6 +77,7 @@ export const DateOfAbsence: React.FC<DateOfAbsenceProps> = ({
         <PopoverTrigger>
           <Box>
             <Input
+              aria-labelledby="dateOfAbsenceLabel"
               value={inputValue}
               onChange={handleInputChange}
               placeholder="YYYY-MM-DD"
