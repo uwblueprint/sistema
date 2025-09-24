@@ -22,33 +22,63 @@ async function sendUnfilledAbsenceOpportunities(): Promise<number> {
     },
     include: {
       location: { select: { name: true } },
-      subject: { select: { name: true } },
+      subject: { select: { id: true, name: true } },
     },
   });
   if (absences.length === 0) return 0;
 
   const teachers = await prisma.user.findMany({
-    select: { firstName: true, lastName: true, email: true },
+    where: { role: 'TEACHER' },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      mailingLists: {
+        where: { subject: { archived: false } },
+        select: { subjectId: true },
+      },
+    },
   });
 
-  const tasks = teachers.map((teacher) => {
+  const tasks = teachers.map(async (teacher) => {
+    const subscribedSubjectIds = new Set(
+      teacher.mailingLists.map((list) => list.subjectId)
+    );
+
+    if (subscribedSubjectIds.size === 0) {
+      return false;
+    }
+
+    const relevantAbsences = absences.filter((absence) =>
+      subscribedSubjectIds.has(absence.subjectId)
+    );
+
+    if (relevantAbsences.length === 0) {
+      return false;
+    }
+
     const html = createUpcomingUnfilledAbsencesEmailBody(
       { firstName: teacher.firstName, lastName: teacher.lastName },
-      absences.map((a) => ({
-        lessonDate: a.lessonDate,
-        location: a.location,
-        subject: a.subject,
+      relevantAbsences.map((absence) => ({
+        lessonDate: absence.lessonDate,
+        location: absence.location,
+        subject: absence.subject,
       }))
     );
 
-    return sendEmail({
-      to: [teacher.email],
-      subject:
-        'Sistema Toronto Tacet - Unfilled Classes in the Next 3 Business Days',
-      html,
-    })
-      .then((r) => r.success)
-      .catch(() => false);
+    try {
+      const { success } = await sendEmail({
+        to: [teacher.email],
+        subject:
+          'Sistema Toronto Tacet - Unfilled Classes in the Next 3 Business Days',
+        html,
+      });
+
+      return success;
+    } catch {
+      return false;
+    }
   });
 
   const results = await Promise.allSettled(tasks);
