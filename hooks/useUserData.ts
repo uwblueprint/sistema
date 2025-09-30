@@ -1,6 +1,6 @@
 import { getSelectedYearAbsences } from '@utils/getSelectedYearAbsences';
 import { Role, UserData } from '@utils/types';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useCallback, useEffect, useState } from 'react';
 
 interface UseUserDataReturn extends UserData {
@@ -28,7 +28,14 @@ export const useUserData = (): UseUserDataReturn & {
         const res = await fetch(
           `/api/users/${session.user.id}?getAbsences=true`
         );
-        if (!res.ok) throw new Error('Failed to fetch user');
+        if (!res.ok) {
+          if (res.status === 404) {
+            await signOut({ callbackUrl: '/' });
+            return;
+          }
+
+          throw new Error(`Failed to fetch user: ${res.status}`);
+        }
         const user = await res.json();
 
         const today = new Date();
