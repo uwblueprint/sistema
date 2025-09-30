@@ -229,7 +229,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
   const handleDateSelect = (date: Date) => {
     setFormData((prev) => ({
       ...prev,
-      lessonDate: date.toISOString().split('T')[0],
+      lessonDate: date ? date.toISOString().split('T')[0] : '',
     }));
   };
 
@@ -278,6 +278,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     <Box
       as="form"
       onSubmit={handleSubmit}
+      noValidate
       sx={{ label: { fontSize: '14px', fontWeight: '400' } }}
     >
       <VStack sx={{ gap: '24px' }}>
