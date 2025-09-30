@@ -5,7 +5,49 @@ import { createSeedClient } from '@snaplet/seed';
 import { COLOR_GROUPS, ROOM_NUMBERS, SCHOOLS, SUBJECTS } from '@utils/consts';
 import { Role } from '@utils/types';
 
+const ensureSafeDatabase = () => {
+  const databaseUrl =
+    process.env.DATABASE_URL || process.env.DATABASE_URL_DOCKER;
+
+  if (!databaseUrl) {
+    throw new Error(
+      'Seeding aborted: DATABASE_URL (or DATABASE_URL_DOCKER) is not set, so the target database cannot be verified.'
+    );
+  }
+
+  let hostname: string | undefined;
+
+  try {
+    const parsedUrl = new URL(databaseUrl);
+
+    if (parsedUrl.protocol === 'file:') {
+      return;
+    }
+
+    hostname = parsedUrl.hostname;
+  } catch {
+    throw new Error(
+      'Seeding aborted: the provided DATABASE_URL could not be parsed, so the environment could not be verified.'
+    );
+  }
+
+  const safeHosts = new Set([
+    'localhost',
+    '127.0.0.1',
+    'db',
+    'host.docker.internal',
+  ]);
+
+  if (!hostname || !safeHosts.has(hostname)) {
+    throw new Error(
+      `Seeding aborted: refusing to reset database at host "${hostname ?? 'unknown'}".`
+    );
+  }
+};
+
 const main = async () => {
+  ensureSafeDatabase();
+
   const seed = await createSeedClient({
     connect: true,
   });

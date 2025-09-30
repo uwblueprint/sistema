@@ -201,6 +201,8 @@ npx @snaplet/seed sync
 npx prisma db seed
 ```
 
+> The seed script refuses to run when the database host is not local (e.g. `localhost`, `db`).
+
 ### Seeding the Production Database
 
 The local database seeds automatically locally when `docker compose up --build` is run. Only run the commands below to seed the production database:
