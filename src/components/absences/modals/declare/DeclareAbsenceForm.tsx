@@ -14,7 +14,7 @@ import { Absence, Prisma } from '@prisma/client';
 import { formatFullDate } from '@utils/dates';
 import { submitAbsence } from '@utils/submitAbsence';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { useCustomToast } from '../../../CustomToast';
 import { FileUpload } from '../../FileUpload';
 import { AdminTeacherFields } from '../AdminTeacherFields';
@@ -310,6 +310,8 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
   const isUrgent =
     (selectedDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 7;
 
+  const id = useId();
+
   return (
     <Box
       as="form"
@@ -329,11 +331,11 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         )}
 
         <FormControl isRequired isInvalid={!!errors.subjectId}>
-          <FormLabel id="subjectLabel" as="p" sx={{ display: 'flex' }}>
-            <Text textStyle="h4">Subject</Text>
+          <FormLabel id={'subjectLabel' + id} as="p" sx={{ display: 'flex' }}>
+            <Text textStyle="h4"> Subject</Text>
           </FormLabel>
           <InputDropdown
-            labelledBy="subjectLabel"
+            ariaLabelledBy={'subjectLabel' + id}
             label="subject"
             type="subject"
             onChange={(value) => {
@@ -353,11 +355,11 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         </FormControl>
 
         <FormControl isRequired isInvalid={!!errors.locationId}>
-          <FormLabel id="locationLabel" as="p" sx={{ display: 'flex' }}>
+          <FormLabel id={'locationLabel' + id} as="p" sx={{ display: 'flex' }}>
             <Text textStyle="h4">Location</Text>
           </FormLabel>
           <InputDropdown
-            labelledBy="locationLabel"
+            ariaLabelledBy={'locationLabel' + id}
             label="location"
             type="location"
             onChange={(value) => {
@@ -377,11 +379,11 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         </FormControl>
 
         <FormControl>
-          <FormLabel id="roomNumberLabel" sx={{ display: 'flex' }}>
+          <FormLabel id={'roomNumberLabel' + id} sx={{ display: 'flex' }}>
             <Text textStyle="h4">Room Number</Text>
           </FormLabel>
           <Input
-            aria-labelledby="roomNumberLabel"
+            aria-labelledby={'roomNumberLabel' + id}
             id="roomNumber"
             name="roomNumber"
             placeholder="e.g. 2131"
@@ -397,11 +399,11 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         />
 
         <FormControl isRequired isInvalid={!!errors.reasonOfAbsence}>
-          <FormLabel id="reasonOfAbsenceLabel" sx={{ display: 'flex' }}>
+          <FormLabel id={'reasonOfAbsenceLabel' + id} sx={{ display: 'flex' }}>
             <Text textStyle="h4">Reason of Absence</Text>
           </FormLabel>
           <Textarea
-            aria-labelledby="reasonOfAbsenceLabel"
+            aria-labelledby={'reasonOfAbsenceLabel' + id}
             id="reasonOfAbsence"
             name="reasonOfAbsence"
             placeholder="Only visible to admin"
@@ -420,11 +422,11 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
         </FormControl>
 
         <FormControl>
-          <FormLabel id="notesLabel" sx={{ display: 'flex' }}>
+          <FormLabel id={'notesLabel' + id} sx={{ display: 'flex' }}>
             <Text textStyle="h4">Notes</Text>
           </FormLabel>
           <Textarea
-            aria-labelledby="notesLabel"
+            aria-labelledby={'notesLabel' + id}
             id="notes"
             name="notes"
             placeholder="Visible to everyone"

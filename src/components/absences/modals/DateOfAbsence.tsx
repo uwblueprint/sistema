@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
   Text,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useId } from 'react';
 import MiniCalendar from '../../calendar/MiniCalendar';
 
 interface DateOfAbsenceProps {
@@ -63,9 +63,11 @@ export const DateOfAbsence: React.FC<DateOfAbsenceProps> = ({
     [onDateSelect]
   );
 
+  const id = useId();
+
   return (
     <FormControl isRequired isInvalid={!!error}>
-      <FormLabel as="p" id="dateOfAbsenceLabel" sx={{ display: 'flex' }}>
+      <FormLabel as="p" id={'dateOfAbsenceLabel' + id} sx={{ display: 'flex' }}>
         <Text textStyle="h4">{label}</Text>
       </FormLabel>
       <Popover
@@ -77,7 +79,7 @@ export const DateOfAbsence: React.FC<DateOfAbsenceProps> = ({
         <PopoverTrigger>
           <Box>
             <Input
-              aria-labelledby="dateOfAbsenceLabel"
+              aria-labelledby={'dateOfAbsenceLabel' + id}
               value={inputValue}
               onChange={handleInputChange}
               placeholder="YYYY-MM-DD"
