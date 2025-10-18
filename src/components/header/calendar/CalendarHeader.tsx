@@ -132,7 +132,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             h="45px"
           />
         </HStack>
-        <Text textStyle="h1" whiteSpace="nowrap" overflow="hidden">
+        <Text textStyle="h2" whiteSpace="nowrap" overflow="hidden">
           {currentMonthYear}
         </Text>
       </HStack>
