@@ -276,12 +276,17 @@ const Calendar: React.FC = () => {
   };
 
   const handleDeclareAbsenceClick = () => {
+    onClose();
+
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       const today = calendarApi.getDate();
       setSelectedDate(today);
-      onInputFormOpen();
+    } else if (!selectedDate) {
+      setSelectedDate(new Date());
     }
+
+    onInputFormOpen();
   };
   useEffect(() => {
     const {
