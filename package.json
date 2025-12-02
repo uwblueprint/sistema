@@ -37,7 +37,7 @@
     "ics": "^3.8.1",
     "next": "15.1.7",
     "next-auth": "^5.0.0-beta.25",
-    "nodemailer": "^6.9.14",
+    "nodemailer": "^7.0.11",
     "pnpm": "^10.0.0",
     "postgres": "^3.4.4",
     "react": "^18.2.0",
