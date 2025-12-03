@@ -35,7 +35,7 @@
     "googleapis": "^140.0.1",
     "iconsax-react": "^0.0.8",
     "ics": "^3.8.1",
-    "next": "15.1.7",
+    "next": "15.5.7",
     "next-auth": "^5.0.0-beta.25",
     "nodemailer": "^6.9.14",
     "pnpm": "^10.0.0",
