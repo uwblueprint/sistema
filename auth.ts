@@ -32,7 +32,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!existingUser) {
           const newUser = await prisma.user.create({
             data: {
-              authId: user.id,
+              authId: String(user.id),
               email: user.email,
               firstName: user.name?.split(' ')[0] || '',
               lastName: user.name?.split(' ').slice(1).join(' ') || '',
