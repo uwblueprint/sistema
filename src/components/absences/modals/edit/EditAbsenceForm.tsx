@@ -17,7 +17,7 @@ import { formatFullDate } from '@utils/dates';
 import { submitAbsence } from '@utils/submitAbsence';
 import { EventDetails } from '@utils/types';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { IoMailOutline } from 'react-icons/io5';
 import { useCustomToast } from '../../../CustomToast';
 import { FileUpload } from '../../FileUpload';
@@ -274,6 +274,8 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     }
   };
 
+  const id = useId();
+
   return (
     <Box
       as="form"
@@ -291,10 +293,11 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         )}
 
         <FormControl isRequired isInvalid={!!errors.subjectId}>
-          <FormLabel sx={{ display: 'flex' }}>
+          <FormLabel id={'subjectLabel' + id} as="p" sx={{ display: 'flex' }}>
             <Text textStyle="h4">Subject</Text>
           </FormLabel>
           <InputDropdown
+            ariaLabelledBy={'subjectLabel' + id}
             label="subject"
             type="subject"
             onChange={(value) => {
@@ -315,10 +318,11 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         </FormControl>
 
         <FormControl isRequired isInvalid={!!errors.locationId}>
-          <FormLabel sx={{ display: 'flex' }}>
+          <FormLabel id={'locationLabel' + id} as="p" sx={{ display: 'flex' }}>
             <Text textStyle="h4">Location</Text>
           </FormLabel>
           <InputDropdown
+            ariaLabelledBy={'locationLabel' + id}
             label="location"
             type="location"
             onChange={(value) => {
@@ -339,10 +343,11 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         </FormControl>
 
         <FormControl>
-          <FormLabel htmlFor="roomNumber" sx={{ display: 'flex' }}>
+          <FormLabel id={'roomNumberLabel' + id} sx={{ display: 'flex' }}>
             <Text textStyle="h4">Room Number</Text>
           </FormLabel>
           <Input
+            aria-labelledby={'roomNumberLabel' + id}
             id="roomNumber"
             name="roomNumber"
             placeholder="e.g. 2131"
@@ -358,10 +363,11 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         />
 
         <FormControl isRequired isInvalid={!!errors.reasonOfAbsence}>
-          <FormLabel htmlFor="reasonOfAbsence" sx={{ display: 'flex' }}>
+          <FormLabel id={'reasonOfAbsenceLabel' + id} sx={{ display: 'flex' }}>
             <Text textStyle="h4">Reason of Absence</Text>
           </FormLabel>
           <Textarea
+            aria-labelledby={'reasonOfAbsenceLabel' + id}
             id="reasonOfAbsence"
             name="reasonOfAbsence"
             placeholder="Only visible to admin"
@@ -384,10 +390,11 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         </FormControl>
 
         <FormControl>
-          <FormLabel htmlFor="notes" sx={{ display: 'flex' }}>
+          <FormLabel id={'notesLabel' + id} sx={{ display: 'flex' }}>
             <Text textStyle="h4">Notes</Text>
           </FormLabel>
           <Textarea
+            aria-labelledby={'notesLabel' + id}
             id="notes"
             name="notes"
             placeholder="Visible to everyone"

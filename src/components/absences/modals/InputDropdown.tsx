@@ -18,6 +18,7 @@ import { useCustomToast } from '../../CustomToast';
 export type Option = { name: string; id: number };
 
 interface InputDropdownProps {
+  ariaLabelledBy: string;
   label: string;
   type: 'location' | 'subject';
   onChange: (value: Option | null) => void;
@@ -25,6 +26,7 @@ interface InputDropdownProps {
 }
 
 export const InputDropdown: React.FC<InputDropdownProps> = ({
+  ariaLabelledBy,
   label,
   type,
   onChange,
@@ -120,6 +122,7 @@ export const InputDropdown: React.FC<InputDropdownProps> = ({
             value={selectedOption ? selectedOption.name : ''}
             readOnly
             _focusVisible={{ outline: 'none' }}
+            aria-labelledby={ariaLabelledBy}
           />
           <InputRightElement pointerEvents="none">
             {isOpen ? <IoChevronUp /> : <IoChevronDown />}
