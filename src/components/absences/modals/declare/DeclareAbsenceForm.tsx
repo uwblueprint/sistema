@@ -299,7 +299,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
   const handleDateSelect = (date: Date) => {
     setFormData((prev) => ({
       ...prev,
-      lessonDate: date.toISOString().split('T')[0],
+      lessonDate: date ? date.toISOString().split('T')[0] : '',
     }));
   };
 
@@ -314,6 +314,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
     <Box
       as="form"
       onSubmit={handleSubmit}
+      noValidate
       sx={{
         label: { fontSize: '14px', fontWeight: '400' },
       }}
