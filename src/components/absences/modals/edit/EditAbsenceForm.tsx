@@ -226,12 +226,20 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     }
   };
 
-  const handleDateSelect = (date: Date) => {
+  const handleDateSelect = (date: Date | null) => {
     setFormData((prev) => ({
       ...prev,
-      lessonDate: date.toISOString().split('T')[0],
+      lessonDate: date ? date.toISOString().split('T')[0] : '',
     }));
   };
+
+  const parsedLessonDate = formData.lessonDate
+    ? new Date(`${formData.lessonDate}T00:00:00`)
+    : null;
+  const dateValue =
+    parsedLessonDate && !isNaN(parsedLessonDate.getTime())
+      ? parsedLessonDate
+      : null;
 
   const handleCloseNotify = () => {
     closeNotify();
@@ -278,6 +286,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
     <Box
       as="form"
       onSubmit={handleSubmit}
+      noValidate
       sx={{ label: { fontSize: '14px', fontWeight: '400' } }}
     >
       <VStack sx={{ gap: '24px' }}>
@@ -352,7 +361,7 @@ const EditAbsenceForm: React.FC<EditAbsenceFormProps> = ({
         </FormControl>
 
         <DateOfAbsence
-          dateValue={initialData.start}
+          dateValue={dateValue}
           onDateSelect={handleDateSelect}
           error={errors.lessonDate}
         />
