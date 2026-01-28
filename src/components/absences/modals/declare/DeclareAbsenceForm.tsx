@@ -296,14 +296,21 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
     }
   };
 
-  const handleDateSelect = (date: Date) => {
+  const handleDateSelect = (date: Date | null) => {
     setFormData((prev) => ({
       ...prev,
       lessonDate: date ? date.toISOString().split('T')[0] : '',
     }));
   };
 
-  const selectedDate = new Date(formData.lessonDate + 'T00:00:00');
+  const parsedLessonDate = formData.lessonDate
+    ? new Date(`${formData.lessonDate}T00:00:00`)
+    : null;
+  const dateValue =
+    parsedLessonDate && !isNaN(parsedLessonDate.getTime())
+      ? parsedLessonDate
+      : null;
+  const selectedDate = dateValue ?? new Date();
   const now = new Date();
   const isWithin14Days =
     (selectedDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 14;
@@ -387,7 +394,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
           />
         </FormControl>
         <DateOfAbsence
-          dateValue={initialDate}
+          dateValue={dateValue}
           onDateSelect={handleDateSelect}
           error={errors.lessonDate}
         />

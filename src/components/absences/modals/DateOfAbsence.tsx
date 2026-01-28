@@ -13,7 +13,7 @@ import { useCallback, useEffect, useState } from 'react';
 import MiniCalendar from '../../calendar/MiniCalendar';
 
 interface DateOfAbsenceProps {
-  dateValue: Date;
+  dateValue: Date | null;
   onDateSelect: (date: Date | null) => void;
   error?: string;
   label?: string;
@@ -33,9 +33,7 @@ export const DateOfAbsence: React.FC<DateOfAbsenceProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    if (dateValue) {
-      setInputValue(dateValue.toLocaleDateString('en-CA'));
-    }
+    setInputValue(dateValue ? dateValue.toLocaleDateString('en-CA') : '');
   }, [dateValue]);
 
   const handleInputChange = useCallback(
@@ -94,7 +92,7 @@ export const DateOfAbsence: React.FC<DateOfAbsenceProps> = ({
         </PopoverTrigger>
         <PopoverContent width="300px" p={2} boxShadow="lg">
           <MiniCalendar
-            initialDate={dateValue}
+            initialDate={dateValue ?? undefined}
             onDateSelect={handleDateSelect}
             selectDate={dateValue}
           />
