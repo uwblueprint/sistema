@@ -14,7 +14,7 @@ import { Absence, Prisma } from '@prisma/client';
 import { formatFullDate } from '@utils/dates';
 import { submitAbsence } from '@utils/submitAbsence';
 import { validateAbsenceForm } from '@utils/validateAbsenceForm';
-import { useState, useId } from 'react';
+import { useId, useState } from 'react';
 import { useCustomToast } from '../../../CustomToast';
 import { FileUpload } from '../../FileUpload';
 import { AdminTeacherFields } from '../AdminTeacherFields';
@@ -340,7 +340,7 @@ const DeclareAbsenceForm: React.FC<DeclareAbsenceFormProps> = ({
 
         <FormControl isRequired isInvalid={!!errors.subjectId}>
           <FormLabel id={'subjectLabel' + id} as="p" sx={{ display: 'flex' }}>
-            <Text textStyle="h4"> Subject</Text>
+            <Text textStyle="h4">Subject</Text>
           </FormLabel>
           <InputDropdown
             ariaLabelledBy={'subjectLabel' + id}

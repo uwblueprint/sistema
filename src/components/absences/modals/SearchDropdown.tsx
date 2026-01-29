@@ -21,6 +21,7 @@ export type Option = { name: string; id: number; profilePicture: string };
 
 interface SearchDropdownProps {
   id: string;
+  ariaLabelledBy: string;
   excludedId?: string;
   defaultValueId?: number;
   onChange: (value: Option | null) => void;
@@ -28,6 +29,7 @@ interface SearchDropdownProps {
 
 export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   id,
+  ariaLabelledBy,
   excludedId,
   defaultValueId,
   onChange,
@@ -174,6 +176,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
               id={id}
               name={id}
               ref={inputRef}
+              aria-labelledby={ariaLabelledBy}
               value={searchQuery}
               onChange={isSelected ? undefined : handleSearchChange}
               onClick={() => {
